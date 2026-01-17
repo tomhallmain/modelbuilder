@@ -21,6 +21,10 @@ from mb.data.deduplicate import ImageDeduplicator
 from mb.data.upscale import ImageUpscaler
 from mb.data.dataset import DatasetCreator
 
+# Import training modules
+from mb.training.trainer import ModelTrainer
+from mb.models.types import ModelType
+
 logger = logging.getLogger(__name__)
 
 
@@ -65,17 +69,21 @@ def create_parser() -> argparse.ArgumentParser:
     # Data subcommands
     data_parser = subparsers.add_parser(
         "data",
-        help="Data processing operations"
+        help="Data processing operations",
+        description="Data processing operations for preparing image datasets"
     )
     data_subparsers = data_parser.add_subparsers(
         dest="data_command",
-        help="Data subcommands"
+        help="Data subcommands",
+        metavar="SUBCOMMAND"
     )
     
     # mb data gather
     gather_parser = data_subparsers.add_parser(
         "gather",
-        help="Gather images from source directories"
+        help="Gather images from source directories",
+        description="Gather images from source directories into a target directory, "
+                    "with deduplication and optional weighting by subdirectory."
     )
     gather_parser.add_argument(
         "--source-dir",
@@ -121,7 +129,9 @@ def create_parser() -> argparse.ArgumentParser:
     # mb data convert
     convert_parser = data_subparsers.add_parser(
         "convert",
-        help="Convert images to specified format"
+        help="Convert images to specified format",
+        description="Convert images in the raw data directory to a specified format (e.g., JPEG). "
+                    "Large images are automatically resized to prevent memory issues."
     )
     convert_parser.add_argument(
         "--raw-data-dir",
@@ -139,7 +149,9 @@ def create_parser() -> argparse.ArgumentParser:
     # mb data deduplicate
     dedup_parser = data_subparsers.add_parser(
         "deduplicate",
-        help="Remove duplicate images"
+        help="Remove duplicate images",
+        description="Remove duplicate images within and across class directories. "
+                    "Uses perceptual hashing to identify duplicates and moves them to a review directory."
     )
     dedup_parser.add_argument(
         "--raw-data-dir",
@@ -151,7 +163,9 @@ def create_parser() -> argparse.ArgumentParser:
     # mb data upscale
     upscale_parser = data_subparsers.add_parser(
         "upscale",
-        help="Upscale small images"
+        help="Upscale small images",
+        description="Upscale images that are smaller than a minimum dimension threshold. "
+                    "Small images are moved to a review directory for manual inspection before upscaling."
     )
     upscale_parser.add_argument(
         "--raw-data-dir",
@@ -168,7 +182,10 @@ def create_parser() -> argparse.ArgumentParser:
     # mb data create-dataset
     dataset_parser = data_subparsers.add_parser(
         "create-dataset",
-        help="Create train/test dataset splits"
+        help="Create train/test dataset splits",
+        description="Create training and test dataset splits from raw data. "
+                    "Validates images, removes corrupted files, filters by size, "
+                    "and creates balanced train/test splits with hash-based filenames."
     )
     dataset_parser.add_argument(
         "--raw-data-dir",
@@ -217,7 +234,9 @@ def create_parser() -> argparse.ArgumentParser:
     # Training command
     train_parser = subparsers.add_parser(
         "train",
-        help="Train a model"
+        help="Train a model",
+        description="Train a machine learning model using the specified framework and architecture. "
+                    "Supports transfer learning with frozen/unfrozen training phases."
     )
     train_parser.add_argument(
         "--model-type",
@@ -245,25 +264,56 @@ def create_parser() -> argparse.ArgumentParser:
         help="Output directory for models (default: from config)"
     )
     train_parser.add_argument(
-        "--epochs",
+        "--frozen-epochs",
         type=int,
-        help="Number of training epochs"
+        help="Number of frozen training epochs (default: from config)"
+    )
+    train_parser.add_argument(
+        "--unfrozen-epochs",
+        type=int,
+        help="Number of unfrozen training epochs (default: from config)"
+    )
+    train_parser.add_argument(
+        "--frozen-lr",
+        type=float,
+        help="Learning rate for frozen phase (default: from config)"
+    )
+    train_parser.add_argument(
+        "--unfrozen-lr-max",
+        type=float,
+        help="Maximum learning rate for unfrozen phase (default: from config)"
+    )
+    train_parser.add_argument(
+        "--unfrozen-lr-min",
+        type=float,
+        help="Minimum learning rate for unfrozen phase (default: from config)"
     )
     train_parser.add_argument(
         "--batch-size",
         type=int,
-        help="Batch size"
+        help="Batch size (default: from config or auto-detect)"
     )
     train_parser.add_argument(
-        "--learning-rate",
-        type=float,
-        help="Learning rate"
+        "--image-size",
+        type=int,
+        help="Image size (default: 224)"
+    )
+    train_parser.add_argument(
+        "--num-workers",
+        type=int,
+        help="Number of data loading workers (default: from config)"
+    )
+    train_parser.add_argument(
+        "--resume-from",
+        type=Path,
+        help="Path to checkpoint to resume training from"
     )
     
     # Convert command
     convert_model_parser = subparsers.add_parser(
         "convert",
-        help="Convert model between formats"
+        help="Convert model between formats",
+        description="Convert a trained model between different formats (e.g., PyTorch to Keras, HDF5, ONNX)."
     )
     convert_model_parser.add_argument(
         "--input",
@@ -291,17 +341,22 @@ def create_parser() -> argparse.ArgumentParser:
     # Info command
     info_parser = subparsers.add_parser(
         "info",
-        help="Show information about models or datasets"
+        help="Show information about models or datasets",
+        description="Display information about trained models or datasets, including metadata, "
+                    "architecture details, and dataset statistics."
     )
     info_subparsers = info_parser.add_subparsers(
         dest="info_command",
-        help="Info subcommands"
+        help="Info subcommands",
+        metavar="SUBCOMMAND"
     )
     
     # mb info model
     info_model_parser = info_subparsers.add_parser(
         "model",
-        help="Show model information"
+        help="Show model information",
+        description="Display detailed information about a trained model, including architecture, "
+                    "framework, number of parameters, and training metadata."
     )
     info_model_parser.add_argument(
         "--path",
@@ -313,7 +368,9 @@ def create_parser() -> argparse.ArgumentParser:
     # mb info dataset
     info_dataset_parser = info_subparsers.add_parser(
         "dataset",
-        help="Show dataset information"
+        help="Show dataset information",
+        description="Display statistics about a dataset, including class distributions, "
+                    "image counts, and data directory structure."
     )
     info_dataset_parser.add_argument(
         "--data-dir",
@@ -456,12 +513,86 @@ def handle_data_create_dataset(args):
 
 def handle_train(args):
     """Handle 'mb train' command."""
-    logger.info("Train command - not yet implemented")
-    logger.info(f"Model type: {args.model_type}")
-    logger.info(f"Framework: {args.framework}")
-    logger.info(f"Architecture: {args.architecture}")
-    # TODO: Implement in Phase 3-4
-    return 0
+    try:
+        # Get config
+        config = get_config(args.config)
+        
+        # Determine framework
+        framework = args.framework or config.get('model.default_framework', 'pytorch')
+        if framework not in ['pytorch', 'keras']:
+            logger.error(f"Unsupported framework: {framework}")
+            return 1
+        
+        # Determine model type
+        model_type_str = args.model_type or config.get('model.default_type', 'image_classification')
+        if model_type_str == 'image_classification':
+            model_type = ModelType.IMAGE_CLASSIFICATION
+        else:
+            logger.error(f"Unsupported model type: {model_type_str}")
+            return 1
+        
+        # Determine architecture
+        architecture = args.architecture or config.get('model.default_architecture', 'resnet34')
+        
+        # Determine data directory
+        data_dir = args.data_dir or Path(config.get('data.data_dir', 'data'))
+        if not data_dir.exists():
+            logger.error(f"Data directory does not exist: {data_dir}")
+            return 1
+        
+        # Determine output directory
+        output_dir = args.output_dir or Path(config.get('paths.models_dir', 'data/models'))
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Prepare CLI hyperparameters
+        cli_hyperparams = {}
+        if args.frozen_epochs is not None:
+            cli_hyperparams['frozen_epochs'] = args.frozen_epochs
+        if args.unfrozen_epochs is not None:
+            cli_hyperparams['unfrozen_epochs'] = args.unfrozen_epochs
+        if args.frozen_lr is not None:
+            cli_hyperparams['frozen_lr'] = args.frozen_lr
+        if args.unfrozen_lr_max is not None:
+            cli_hyperparams['unfrozen_lr_max'] = args.unfrozen_lr_max
+        if args.unfrozen_lr_min is not None:
+            cli_hyperparams['unfrozen_lr_min'] = args.unfrozen_lr_min
+        if args.batch_size is not None:
+            cli_hyperparams['batch_size'] = args.batch_size
+        if args.image_size is not None:
+            cli_hyperparams['image_size'] = args.image_size
+        if args.num_workers is not None:
+            cli_hyperparams['num_workers'] = args.num_workers
+        
+        # Create trainer
+        trainer = ModelTrainer(
+            framework=framework,
+            model_type=model_type,
+            config=config
+        )
+        
+        # Check if architecture is supported
+        supported_archs = trainer.get_supported_architectures()
+        if architecture not in supported_archs:
+            logger.error(f"Architecture '{architecture}' not supported for framework '{framework}'")
+            logger.info(f"Supported architectures: {supported_archs}")
+            return 1
+        
+        # Train model
+        logger.info(f"Starting training with {framework}/{architecture}")
+        model_path = trainer.train(
+            data_dir=data_dir,
+            architecture=architecture,
+            output_dir=output_dir,
+            cli_hyperparams=cli_hyperparams if cli_hyperparams else None,
+            resume_from_checkpoint=args.resume_from
+        )
+        
+        logger.info(f"Training completed successfully. Model saved to: {model_path}")
+        return 0
+        
+    except Exception as e:
+        logger.error(f"Training failed: {e}", exc_info=args.verbose)
+        return 1
 
 
 def handle_convert(args):

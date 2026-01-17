@@ -260,34 +260,33 @@ ARCHITECTURE_REGISTRY = {
 - [x] Add argument parsing for each data operation
 - [x] Test data pipeline functionality
 
-### Phase 3: Framework Implementations
+### Phase 3: Framework Implementations ✅
 
-#### 3.1 PyTorch Implementation
-- [ ] Create `mb/models/frameworks/pytorch/trainer.py`
-- [ ] Implement PyTorch data loading (`data_loader.py`)
-- [ ] Implement architecture support (`architectures.py`)
-- [ ] Create `mb/models/classification/pytorch_classifier.py`
-- [ ] Implement training loop with:
+#### 3.1 PyTorch Implementation ✅
+- [x] Create `mb/models/frameworks/pytorch/trainer.py`
+- [x] Implement PyTorch data loading (`data_loader.py`)
+- [x] Implement architecture support (`architectures.py`)
+- [x] Implement training loop with:
   - Frozen/unfrozen phases
   - Learning rate scheduling
   - Checkpointing
   - Evaluation metrics
 
-#### 3.2 Keras Implementation
-- [ ] Create `mb/models/frameworks/keras/trainer.py`
-- [ ] Implement Keras data generators (`data_loader.py`)
-- [ ] Implement architecture support (`architectures.py`)
-- [ ] Create `mb/models/classification/keras_classifier.py`
-- [ ] Implement training with:
+#### 3.2 Keras Implementation ✅
+- [x] Create `mb/models/frameworks/keras/trainer.py`
+- [x] Implement Keras data generators (`data_loader.py`)
+- [x] Implement architecture support (`architectures.py`)
+- [x] Implement training with:
   - Transfer learning support
   - Callbacks (checkpointing, early stopping)
   - Evaluation metrics
 
-#### 3.3 Training Orchestration
-- [ ] Create `mb/training/trainer.py` - Generic training interface
-- [ ] Implement framework selection logic
-- [ ] Create hyperparameter management (`hyperparams.py`)
-- [ ] Add support for training resumption
+#### 3.3 Training Orchestration ✅
+- [x] Create `mb/training/trainer.py` - Generic training interface
+- [x] Implement framework selection logic
+- [x] Create hyperparameter management (`hyperparams.py`)
+- [x] Add support for training resumption
+- [x] Integrate training command into CLI
 
 ### Phase 4: Training CLI and Integration
 
