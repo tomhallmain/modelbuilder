@@ -4,6 +4,13 @@ __pycache__/
 *.swp
 *.log
 
+# Python package build artifacts
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+
 # Timing data (optional - you may want to keep this for analysis)
 legacy/
 logs/
