@@ -288,22 +288,24 @@ ARCHITECTURE_REGISTRY = {
 - [x] Add support for training resumption
 - [x] Integrate training command into CLI
 
-### Phase 4: Training CLI and Integration
+### Phase 4: Training CLI and Integration ✅
 
-#### 4.1 Training Command
-- [ ] Implement `mb train` command
-- [ ] Add arguments for:
+#### 4.1 Training Command ✅
+- [x] Implement `mb train` command
+- [x] Add arguments for:
   - Model type (classification)
   - Framework (pytorch/keras)
   - Architecture (resnet34, etc.)
   - Hyperparameters
   - Data paths
-- [ ] Integrate with existing data pipeline
+- [x] Integrate with existing data pipeline
+- [x] Integrate unified snapshot tracking
 
-#### 4.2 Model Conversion
-- [ ] Refactor `convert_to_h5.py` → `mb/conversion/converters.py`
-- [ ] Support multiple conversion formats
-- [ ] Implement `mb convert` command
+#### 4.2 Model Conversion ✅
+- [x] Create `mb/conversion/converters.py` with conversion utilities
+- [x] Support ONNX conversion (PyTorch -> ONNX, Keras -> ONNX)
+- [x] Support SafeTensors conversion (PyTorch -> SafeTensors)
+- [x] Implement `mb convert` command
 
 ### Phase 5: Testing and Documentation
 

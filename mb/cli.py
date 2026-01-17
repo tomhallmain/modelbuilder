@@ -308,12 +308,23 @@ def create_parser() -> argparse.ArgumentParser:
         type=Path,
         help="Path to checkpoint to resume training from"
     )
+    train_parser.add_argument(
+        "--run-id",
+        type=str,
+        help="Run ID of unified snapshot to update (auto-detects latest if not provided)"
+    )
+    train_parser.add_argument(
+        "--skip-snapshot-update",
+        action="store_true",
+        help="Skip updating the unified snapshot with training data"
+    )
     
     # Convert command
     convert_model_parser = subparsers.add_parser(
         "convert",
         help="Convert model between formats",
-        description="Convert a trained model between different formats (e.g., PyTorch to Keras, HDF5, ONNX)."
+        description="Convert a trained model between different formats. "
+                    "Supports PyTorch -> ONNX, PyTorch -> SafeTensors, and Keras -> ONNX."
     )
     convert_model_parser.add_argument(
         "--input",
@@ -330,12 +341,28 @@ def create_parser() -> argparse.ArgumentParser:
     convert_model_parser.add_argument(
         "--framework",
         choices=["pytorch", "keras"],
-        help="Source framework"
+        help="Source framework (auto-detected if not specified)"
     )
     convert_model_parser.add_argument(
         "--target",
-        choices=["pytorch", "keras", "h5", "onnx"],
-        help="Target format"
+        choices=["onnx", "safetensors"],
+        required=True,
+        help="Target format (onnx or safetensors)"
+    )
+    convert_model_parser.add_argument(
+        "--architecture",
+        help="Model architecture (required for PyTorch -> ONNX conversion, e.g., 'resnet34')"
+    )
+    convert_model_parser.add_argument(
+        "--num-classes",
+        type=int,
+        help="Number of output classes (required for PyTorch -> ONNX conversion)"
+    )
+    convert_model_parser.add_argument(
+        "--image-size",
+        type=int,
+        default=224,
+        help="Input image size (default: 224, used for ONNX conversion)"
     )
     
     # Info command
@@ -584,7 +611,9 @@ def handle_train(args):
             architecture=architecture,
             output_dir=output_dir,
             cli_hyperparams=cli_hyperparams if cli_hyperparams else None,
-            resume_from_checkpoint=args.resume_from
+            resume_from_checkpoint=args.resume_from,
+            run_id=getattr(args, 'run_id', None),
+            update_snapshot=not getattr(args, 'skip_snapshot_update', False)
         )
         
         logger.info(f"Training completed successfully. Model saved to: {model_path}")
@@ -597,11 +626,53 @@ def handle_train(args):
 
 def handle_convert(args):
     """Handle 'mb convert' command."""
-    logger.info("Convert command - not yet implemented")
-    logger.info(f"Input: {args.input}")
-    logger.info(f"Output: {args.output}")
-    # TODO: Implement in Phase 4
-    return 0
+    try:
+        from mb.conversion.converters import convert_model
+        
+        # Validate arguments
+        if not args.input.exists():
+            logger.error(f"Input model file not found: {args.input}")
+            return 1
+        
+        # Check if architecture/num_classes are needed
+        source_framework = args.framework
+        if source_framework is None:
+            from mb.conversion.converters import detect_model_framework
+            source_framework = detect_model_framework(args.input)
+            if source_framework is None:
+                logger.error("Could not detect source framework. Please specify --framework")
+                return 1
+        
+        if source_framework == 'pytorch' and args.target == 'onnx':
+            if args.architecture is None or args.num_classes is None:
+                logger.error(
+                    "PyTorch -> ONNX conversion requires --architecture and --num-classes"
+                )
+                return 1
+        
+        # Perform conversion
+        logger.info(f"Converting {args.input} ({source_framework}) -> {args.output} ({args.target})")
+        
+        success = convert_model(
+            input_path=args.input,
+            output_path=args.output,
+            source_framework=source_framework,
+            target_format=args.target,
+            architecture=args.architecture,
+            num_classes=args.num_classes,
+            image_size=args.image_size
+        )
+        
+        if success:
+            logger.info(f"Conversion completed successfully: {args.output}")
+            return 0
+        else:
+            logger.error("Conversion failed")
+            return 1
+            
+    except Exception as e:
+        logger.error(f"Conversion error: {e}", exc_info=args.verbose)
+        return 1
 
 
 def handle_info_model(args):

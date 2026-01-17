@@ -13,6 +13,10 @@ from mb.models.types import ModelType, get_model_type_handler
 from mb.models.frameworks.pytorch.trainer import PyTorchTrainer
 from mb.models.frameworks.keras.trainer import KerasTrainer
 from mb.training.hyperparams import get_training_hyperparams
+from mb.training.snapshot_integration import update_training_snapshot
+from mb.utils.snapshot import (
+    find_unified_snapshot, save_unified_snapshot, preload_gather_cache
+)
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +70,9 @@ class ModelTrainer:
         architecture: str,
         output_dir: Path,
         cli_hyperparams: Optional[Dict[str, Any]] = None,
-        resume_from_checkpoint: Optional[Path] = None
+        resume_from_checkpoint: Optional[Path] = None,
+        run_id: Optional[str] = None,
+        update_snapshot: bool = True
     ) -> Path:
         """
         Train a model.
@@ -77,6 +83,8 @@ class ModelTrainer:
             output_dir: Directory to save trained model and checkpoints
             cli_hyperparams: Optional hyperparameters from CLI
             resume_from_checkpoint: Optional path to checkpoint to resume from
+            run_id: Optional run ID for unified snapshot
+            update_snapshot: Whether to update unified snapshot with training data
             
         Returns:
             Path to saved model
@@ -134,6 +142,27 @@ class ModelTrainer:
             num_workers=num_workers
         )
         
+        # Update unified snapshot if requested
+        unified_snapshot = None
+        if update_snapshot:
+            logger.info("Loading unified snapshot...")
+            search_paths = [data_dir, data_dir.parent]
+            unified_snapshot = find_unified_snapshot(search_paths, run_id=run_id, logger=logger)
+            
+            if unified_snapshot:
+                logger.info(f"Loaded unified snapshot with run_id: {unified_snapshot.run_id}")
+                
+                # Preload gather cache for faster hash lookups
+                raw_data_dir = Path(unified_snapshot.raw_data_directory)
+                cache_loaded = preload_gather_cache(raw_data_dir)
+                if cache_loaded:
+                    logger.info(
+                        "Gather cache loaded successfully - hash lookups will be faster"
+                    )
+            else:
+                logger.warning("No unified snapshot found. Training will proceed without snapshot update.")
+                logger.warning("Run data conversion and dataset creation first to create a snapshot.")
+        
         # Train model
         logger.info("Starting training...")
         trained_model = self.framework_trainer.train(
@@ -151,6 +180,21 @@ class ModelTrainer:
         logger.info("Evaluation metrics:")
         for metric_name, metric_value in metrics.items():
             logger.info(f"  {metric_name}: {metric_value:.4f}")
+        
+        # Update snapshot with training data
+        if unified_snapshot and update_snapshot:
+            logger.info("Updating unified snapshot with training data...")
+            update_training_snapshot(data_dir, unified_snapshot)
+            
+            # Save updated snapshot
+            snapshot_path = save_unified_snapshot(unified_snapshot, data_dir, logger)
+            if snapshot_path:
+                summary = unified_snapshot.to_dict().get('summary', {})
+                train_total = summary.get('training_train_count', 0)
+                test_total = summary.get('training_test_count', 0)
+                logger.info(
+                    f"Unified snapshot updated: {train_total} train, {test_total} test images"
+                )
         
         # Save final model
         output_dir.mkdir(parents=True, exist_ok=True)
