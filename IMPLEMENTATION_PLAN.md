@@ -240,25 +240,25 @@ ARCHITECTURE_REGISTRY = {
   - `mb convert` - Convert model formats
   - `mb info` - Show information about models/data
 
-### Phase 2: Data Pipeline Migration
+### Phase 2: Data Pipeline Migration ✅
 
-#### 2.1 Migrate Data Processing Scripts
-- [ ] Refactor `gather_coherent_images.py` → `mb/data/gather.py`
-- [ ] Refactor `convert_to_jpeg.py` → `mb/data/convert.py`
-- [ ] Refactor `deduplicate_images.py` → `mb/data/deduplicate.py`
-- [ ] Refactor `upscale_small_images.py` → `mb/data/upscale.py`
-- [ ] Refactor `create_datasets.py` → `mb/data/dataset.py`
+#### 2.1 Migrate Data Processing Scripts ✅
+- [x] Refactor `gather_coherent_images.py` → `mb/data/gather.py`
+- [x] Refactor `convert_to_jpeg.py` → `mb/data/convert.py`
+- [x] Refactor `deduplicate_images.py` → `mb/data/deduplicate.py`
+- [x] Refactor `upscale_small_images.py` → `mb/data/upscale.py`
+- [x] Refactor `create_datasets.py` → `mb/data/dataset.py`
 
-#### 2.2 Utility Migration
-- [ ] Migrate `logging_config.py` → `mb/utils/logging.py`
-- [ ] Migrate `snapshot_utils.py` → `mb/utils/snapshot.py`
-- [ ] Migrate `storage_utils.py` → `mb/utils/storage.py`
-- [ ] Migrate `timing_utils.py` → `mb/utils/timing.py`
+#### 2.2 Utility Migration ✅
+- [x] Migrate `logging_config.py` → `mb/utils/logging.py`
+- [x] Migrate `snapshot_utils.py` → `mb/utils/snapshot.py`
+- [x] Migrate `storage_utils.py` → `mb/utils/storage.py`
+- [x] Migrate `timing_utils.py` → `mb/utils/timing.py`
 
-#### 2.3 CLI Integration
-- [ ] Implement `mb data` subcommands
-- [ ] Add argument parsing for each data operation
-- [ ] Test data pipeline functionality
+#### 2.3 CLI Integration ✅
+- [x] Implement `mb data` subcommands
+- [x] Add argument parsing for each data operation
+- [x] Test data pipeline functionality
 
 ### Phase 3: Framework Implementations
 
@@ -557,15 +557,15 @@ class ModelTypeHandler(ABC):
 This checklist tracks features from the original FastAI-based implementation that need to be replicated in the new framework-agnostic system.
 
 ### Data Pipeline Features
-- [ ] Image gathering with deduplication
-- [ ] Image format conversion (to JPEG)
-- [ ] Image deduplication across directories
-- [ ] Image upscaling for small images
-- [ ] Dataset creation with train/test splits
-- [ ] Corrupted image detection and removal
-- [ ] Invalid-sized image filtering
-- [ ] Hash-based filename generation
-- [ ] Unified snapshot tracking
+- [x] Image gathering with deduplication
+- [x] Image format conversion (to JPEG)
+- [x] Image deduplication across directories
+- [x] Image upscaling for small images
+- [x] Dataset creation with train/test splits
+- [x] Corrupted image detection and removal
+- [x] Invalid-sized image filtering
+- [x] Hash-based filename generation
+- [x] Unified snapshot tracking
 
 ### Training Features
 - [ ] Two-phase training (frozen/unfrozen backbone)
@@ -600,10 +600,10 @@ This checklist tracks features from the original FastAI-based implementation tha
 - [ ] Model checkpointing
 
 ### Utility Features
-- [ ] Comprehensive logging
-- [ ] Timing and performance tracking
-- [ ] Storage validation
-- [ ] Snapshot management
+- [x] Comprehensive logging
+- [x] Timing and performance tracking
+- [x] Storage validation
+- [x] Snapshot management
 
 **Note:** This checklist will be updated as implementation progresses and user feedback is gathered.
 

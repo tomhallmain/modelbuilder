@@ -14,6 +14,13 @@ from mb import __version__
 from mb.config import get_config
 from mb.utils.logging import setup_logging
 
+# Import data processing modules
+from mb.data.gather import ImageGatherer
+from mb.data.convert import ImageConverter
+from mb.data.deduplicate import ImageDeduplicator
+from mb.data.upscale import ImageUpscaler
+from mb.data.dataset import DatasetCreator
+
 logger = logging.getLogger(__name__)
 
 
@@ -79,6 +86,7 @@ def create_parser() -> argparse.ArgumentParser:
     gather_parser.add_argument(
         "--subdirs",
         nargs="+",
+        required=True,
         help="Subdirectories to process"
     )
     gather_parser.add_argument(
@@ -92,6 +100,22 @@ def create_parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path("raw_data/coherent"),
         help="Target directory for gathered images (default: raw_data/coherent)"
+    )
+    gather_parser.add_argument(
+        "--rejected-dir",
+        type=Path,
+        help="Rejected directory for manually rejected images"
+    )
+    gather_parser.add_argument(
+        "--subdir-weights",
+        type=str,
+        help='Relative weights for subdirectories in format "subdir1:weight1,subdir2:weight2"'
+    )
+    gather_parser.add_argument(
+        "--raw-data-dir",
+        type=Path,
+        default=Path("raw_data"),
+        help="Root directory for raw data (default: raw_data)"
     )
     
     # mb data convert
@@ -136,9 +160,9 @@ def create_parser() -> argparse.ArgumentParser:
         help="Raw data directory (default: raw_data)"
     )
     upscale_parser.add_argument(
-        "--min-size",
-        type=int,
-        help="Minimum image size (pixels)"
+        "--review-dir",
+        type=Path,
+        help="Review directory containing small images (default: raw_data/small_images_review)"
     )
     
     # mb data create-dataset
@@ -168,6 +192,26 @@ def create_parser() -> argparse.ArgumentParser:
         "--seed",
         type=int,
         help="Random seed for reproducibility"
+    )
+    dataset_parser.add_argument(
+        "--run-id",
+        type=str,
+        help="Run ID of unified snapshot to update (auto-detects latest if not provided)"
+    )
+    dataset_parser.add_argument(
+        "--balance-train",
+        action="store_true",
+        help="Balance training set to smallest class size"
+    )
+    dataset_parser.add_argument(
+        "--max-train-per-class",
+        type=int,
+        help="Maximum number of training images per class"
+    )
+    dataset_parser.add_argument(
+        "--allow-external-storage",
+        action="store_true",
+        help="Allow running on external/removable storage (not recommended)"
     )
     
     # Training command
@@ -283,47 +327,131 @@ def create_parser() -> argparse.ArgumentParser:
 
 def handle_data_gather(args):
     """Handle 'mb data gather' command."""
-    logger.info("Data gather command - not yet implemented")
-    logger.info(f"Source dir: {args.source_dir}")
-    logger.info(f"Subdirs: {args.subdirs}")
-    logger.info(f"Target count: {args.target_count}")
-    # TODO: Implement in Phase 2
-    return 0
+    try:
+        # Validate subdirectories
+        if not args.subdirs:
+            logger.error("Please specify valid subdirectories using --subdirs argument")
+            return 1
+        
+        # Parse subdirectory weights if provided
+        subdir_weights = {}
+        if hasattr(args, 'subdir_weights') and args.subdir_weights:
+            for pair in args.subdir_weights.split(','):
+                if ':' not in pair:
+                    logger.error(f"Invalid weight format: {pair}. Expected format: subdir:weight")
+                    return 1
+                subdir, weight_str = pair.split(':', 1)
+                subdir = subdir.strip()
+                weight = float(weight_str.strip())
+                if weight < 0:
+                    logger.error(f"Weight must be non-negative: {subdir}={weight}")
+                    return 1
+                subdir_weights[subdir] = weight
+            
+            # Validate that weighted subdirectories exist in subdirs
+            invalid_weights = set(subdir_weights.keys()) - set(args.subdirs)
+            if invalid_weights:
+                logger.error(f"Subdirectories in weights not found in --subdirs: {invalid_weights}")
+                return 1
+        
+        # Create and run gatherer
+        gatherer = ImageGatherer(
+            source_dir=str(args.source_dir),
+            valid_subdirs=args.subdirs,
+            target_dir=args.target_dir,
+            target_count=args.target_count,
+            rejected_dir=args.rejected_dir if hasattr(args, 'rejected_dir') and args.rejected_dir else None,
+            subdir_weights=subdir_weights if subdir_weights else None
+        )
+        
+        # Store raw data directory
+        gatherer.raw_data_dir = args.raw_data_dir
+        
+        success = gatherer.run()
+        return 0 if success else 1
+    except ValueError as e:
+        logger.error(f"Configuration error: {e}")
+        return 1
+    except Exception as e:
+        logger.error(f"Error in data gather: {e}", exc_info=True)
+        return 1
 
 
 def handle_data_convert(args):
     """Handle 'mb data convert' command."""
-    logger.info("Data convert command - not yet implemented")
-    logger.info(f"Raw data dir: {args.raw_data_dir}")
-    logger.info(f"Format: {args.format}")
-    # TODO: Implement in Phase 2
-    return 0
+    try:
+        converter = ImageConverter(raw_data_dir=args.raw_data_dir)
+        success = converter.run()
+        return 0 if success else 1
+    except Exception as e:
+        logger.error(f"Error in data convert: {e}", exc_info=True)
+        return 1
 
 
 def handle_data_deduplicate(args):
     """Handle 'mb data deduplicate' command."""
-    logger.info("Data deduplicate command - not yet implemented")
-    logger.info(f"Raw data dir: {args.raw_data_dir}")
-    # TODO: Implement in Phase 2
-    return 0
+    try:
+        deduplicator = ImageDeduplicator(raw_data_dir=args.raw_data_dir)
+        success = deduplicator.run()
+        return 0 if success else 1
+    except Exception as e:
+        logger.error(f"Error in data deduplicate: {e}", exc_info=True)
+        return 1
 
 
 def handle_data_upscale(args):
     """Handle 'mb data upscale' command."""
-    logger.info("Data upscale command - not yet implemented")
-    logger.info(f"Raw data dir: {args.raw_data_dir}")
-    # TODO: Implement in Phase 2
-    return 0
+    try:
+        # Determine review directory
+        if hasattr(args, 'review_dir') and args.review_dir:
+            review_dir = args.review_dir
+        else:
+            review_dir = args.raw_data_dir / "small_images_review"
+        
+        upscaler = ImageUpscaler(review_dir=review_dir)
+        success = upscaler.run()
+        return 0 if success else 1
+    except Exception as e:
+        logger.error(f"Error in data upscale: {e}", exc_info=True)
+        return 1
 
 
 def handle_data_create_dataset(args):
     """Handle 'mb data create-dataset' command."""
-    logger.info("Data create-dataset command - not yet implemented")
-    logger.info(f"Raw data dir: {args.raw_data_dir}")
-    logger.info(f"Data dir: {args.data_dir}")
-    logger.info(f"Test per class: {args.test_per_class}")
-    # TODO: Implement in Phase 2
-    return 0
+    try:
+        from mb.utils.storage import check_target_external_storage, check_same_drive
+        from mb.data.dataset import confirm_user_action
+        
+        # Storage checks
+        if check_target_external_storage(logger, args.data_dir, override=getattr(args, 'allow_external_storage', False)):
+            logger.error("Process terminated due to external storage detection.")
+            return 1
+        
+        # User confirmation for same drive case
+        if check_same_drive(args.raw_data_dir, args.data_dir):
+            if not confirm_user_action(logger, args):
+                return 1
+        
+        # Set random seed if provided
+        if hasattr(args, 'seed') and args.seed is not None:
+            import random
+            random.seed(args.seed)
+            logger.info(f"Using random seed: {args.seed}")
+        
+        creator = DatasetCreator(
+            raw_data_dir=args.raw_data_dir,
+            data_dir=args.data_dir,
+            test_images_per_class=args.test_per_class,
+            balance_train=getattr(args, 'balance_train', False),
+            max_train_per_class=getattr(args, 'max_train_per_class', None),
+            run_id=getattr(args, 'run_id', None)
+        )
+        
+        success = creator.run()
+        return 0 if success else 1
+    except Exception as e:
+        logger.error(f"Error in data create-dataset: {e}", exc_info=True)
+        return 1
 
 
 def handle_train(args):
