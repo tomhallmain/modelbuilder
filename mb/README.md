@@ -5,8 +5,9 @@ This package provides a unified CLI application for building machine learning mo
 ## Documentation
 
 - **README.md**: Main documentation with usage examples
-- **ARCHITECTURE.md**: Detailed architecture and design decisions
-- **IMPLEMENTATION_PLAN.md**: Implementation plan and progress
+- **docs/ARCHITECTURE.md**: Detailed architecture and design decisions
+- **docs/IMPLEMENTATION_PLAN.md**: Implementation plan and progress
+- **docs/GUI_PLAN.md**: Planned PySide6 GUI
 
 ## Package Structure
 
@@ -30,4 +31,4 @@ mb/
     └── logging.py       # Logging configuration
 ```
 
-See ARCHITECTURE.md for detailed architecture documentation.
+See docs/ARCHITECTURE.md for detailed architecture documentation.

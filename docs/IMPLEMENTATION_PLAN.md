@@ -333,6 +333,34 @@ ARCHITECTURE_REGISTRY = {
 - [ ] Archive or remove obsolete code
 - [ ] Final testing
 
+### Phase 7: Graphical User Interface (planned)
+
+Detailed architecture (PySide6 desktop UI) and acceptance notes: **[GUI_PLAN.md](GUI_PLAN.md)**.
+
+#### 7.1 GUI shell and workspace
+- [ ] PySide6 application shell (main window, navigation placeholders)
+- [ ] Workspace / project concept: root directory, optional config path, persisted UI preferences (local only)
+- [ ] Display application version (from `mb.__version__` or equivalent)
+
+#### 7.2 Data operations UI
+- [ ] UI flows aligned with `mb data` subcommands (gather, convert, deduplicate, upscale, create-dataset)
+- [ ] Path validation and clear error surfacing from underlying `mb` modules
+- [ ] Optional: read-only snapshot / provenance summary where applicable
+
+#### 7.3 Training UI
+- [ ] Framework, architecture, and hyperparameter controls consistent with CLI defaults and config
+- [ ] Output directory and run options; validation before starting long-running jobs
+- [ ] Log streaming (or tail) for training output; documented stop/cancel behavior
+
+#### 7.4 Conversion and info UI
+- [ ] Conversion UI aligned with `mb convert` (targets supported by core: ONNX, SafeTensors, etc.)
+- [ ] Dataset / model info views consistent with `mb info` capabilities
+
+#### 7.5 Packaging and documentation
+- [ ] Optional install: `pip install modelbuilder[gui]` and/or `requirements-gui.txt` (PySide6)
+- [ ] README pointer to GUI install and **docs/GUI_PLAN.md**
+- [ ] Primary platform smoke test (Windows)
+
 ## Detailed Component Specifications
 
 ### CLI Command Structure
@@ -640,10 +668,8 @@ This checklist tracks features from the original FastAI-based implementation tha
    - Model serving
    - Experiment tracking (MLflow, Weights & Biases)
 
-4. **UI/Web Interface** (not in MVP)
-   - Web-based dashboard
-   - Visual model comparison
-   - Interactive training monitoring
+4. **Graphical / web UI** (post-MVP; not part of original CLI scope)
+   - Superseded by **Phase 7** and **[GUI_PLAN.md](GUI_PLAN.md)** (PySide6 shell, data/train/convert flows, packaging). Broader ideas (visual model comparison, hosted monitoring) remain future increments documented there.
 
 ## Next Steps
 
@@ -656,6 +682,8 @@ This checklist tracks features from the original FastAI-based implementation tha
 
 ---
 
-**Document Version:** 1.1  
-**Last Updated:** 2026-01-16  
-**Status:** Approved - Ready for Implementation
+**Document Version:** 1.2  
+**Last Updated:** 2026-03-27  
+**Status:** Approved - Ready for Implementation  
+
+**Related:** [GUI_PLAN.md](GUI_PLAN.md) — planned PySide6 GUI on top of this framework (does not alter CLI-first design).

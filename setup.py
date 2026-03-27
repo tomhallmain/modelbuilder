@@ -45,6 +45,9 @@ setup(
         "keras": [
             "tensorflow>=2.10.0",
         ],
+        "gui": [
+            "PySide6>=6.5.0",
+        ],
         "all": [
             "torch>=2.0.0",
             "torchvision>=0.15.0",

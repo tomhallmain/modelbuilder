@@ -22,6 +22,7 @@ pip install -e .
 # Install with specific framework support
 pip install -e .[pytorch]    # PyTorch only
 pip install -e .[keras]       # Keras/TensorFlow only
+pip install -e .[gui]         # PySide6 desktop GUI (when implemented)
 pip install -e .[all]         # All frameworks
 ```
 
@@ -141,8 +142,9 @@ mb/
 
 ## Documentation
 
-- **ARCHITECTURE.md**: Detailed architecture and design decisions
-- **IMPLEMENTATION_PLAN.md**: Implementation plan and progress
+- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — Architecture and design decisions  
+- **[docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md)** — Implementation plan and progress  
+- **[docs/GUI_PLAN.md](docs/GUI_PLAN.md)** — Planned PySide6 GUI (Phase 7)
 
 ## License
 
