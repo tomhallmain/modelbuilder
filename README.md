@@ -22,9 +22,21 @@ pip install -e .
 # Install with specific framework support
 pip install -e .[pytorch]    # PyTorch only
 pip install -e .[keras]       # Keras/TensorFlow only
-pip install -e .[gui]         # PySide6 desktop GUI (when implemented)
+pip install -e .[gui]         # PySide6 desktop GUI (optional)
 pip install -e .[all]         # All frameworks
 ```
+
+### Desktop GUI (PySide6)
+
+Optional **Phase 7.1** shell: sidebar navigation, workspace folder + optional YAML config (persisted), About dialog with `mb` version.
+
+```bash
+pip install -e .[gui]
+mb-gui
+# or: python -m modelbuilder_gui
+```
+
+See [docs/GUI_PLAN.md](docs/GUI_PLAN.md) for the full UI roadmap. Data/training/convert screens are placeholders until later Phase 7 tasks.
 
 ## Quick Start
 

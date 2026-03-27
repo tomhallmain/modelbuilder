@@ -337,10 +337,10 @@ ARCHITECTURE_REGISTRY = {
 
 Detailed architecture (PySide6 desktop UI) and acceptance notes: **[GUI_PLAN.md](GUI_PLAN.md)**.
 
-#### 7.1 GUI shell and workspace
-- [ ] PySide6 application shell (main window, navigation placeholders)
-- [ ] Workspace / project concept: root directory, optional config path, persisted UI preferences (local only)
-- [ ] Display application version (from `mb.__version__` or equivalent)
+#### 7.1 GUI shell and workspace ✅
+- [x] PySide6 application shell (main window, navigation placeholders)
+- [x] Workspace / project concept: root directory, optional config path, persisted UI preferences (local only)
+- [x] Display application version (from `mb.__version__` or equivalent)
 
 #### 7.2 Data operations UI
 - [ ] UI flows aligned with `mb data` subcommands (gather, convert, deduplicate, upscale, create-dataset)
@@ -357,8 +357,8 @@ Detailed architecture (PySide6 desktop UI) and acceptance notes: **[GUI_PLAN.md]
 - [ ] Dataset / model info views consistent with `mb info` capabilities
 
 #### 7.5 Packaging and documentation
-- [ ] Optional install: `pip install modelbuilder[gui]` and/or `requirements-gui.txt` (PySide6)
-- [ ] README pointer to GUI install and **docs/GUI_PLAN.md**
+- [x] Optional install: `pip install modelbuilder[gui]` and/or `requirements-gui.txt` (PySide6)
+- [x] README pointer to GUI install and **docs/GUI_PLAN.md**
 - [ ] Primary platform smoke test (Windows)
 
 ## Detailed Component Specifications

@@ -58,6 +58,9 @@ setup(
         "console_scripts": [
             "mb=mb.cli:main",
         ],
+        "gui_scripts": [
+            "mb-gui=modelbuilder_gui.app:main",
+        ],
     },
     classifiers=[
         "Development Status :: 3 - Alpha",

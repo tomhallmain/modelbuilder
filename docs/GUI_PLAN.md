@@ -14,6 +14,13 @@ This document describes how to add a graphical interface on top of the existing 
 - Replacing the CLI or duplicating configuration formats with a second source of truth.
 - Embedding a web engine or shipping a browser-based UI — the desktop shell is **PySide6** only.
 
+## Source layout
+
+The GUI lives in a **separate top-level package** next to `mb/` (not inside `mb/`):
+
+- **`modelbuilder_gui/`** — PySide6 app (`app.py`, `main_window.py`, `workspace.py`)
+- Entry points: `mb-gui` (see `setup.py` `gui_scripts`) and `python -m modelbuilder_gui`
+
 ## Architecture
 
 ### Layering
