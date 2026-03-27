@@ -4,6 +4,8 @@ Keras/TensorFlow data loading utilities for image classification.
 This module provides data generators for Keras training.
 """
 
+from __future__ import annotations
+
 from pathlib import Path
 from typing import Tuple, Optional
 import logging

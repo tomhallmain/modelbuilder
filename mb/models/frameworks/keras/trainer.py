@@ -4,6 +4,8 @@ Keras/TensorFlow trainer implementation.
 This module implements the FrameworkTrainer interface for Keras/TensorFlow.
 """
 
+from __future__ import annotations
+
 from pathlib import Path
 from typing import Any, Dict, Tuple, Optional
 import json
