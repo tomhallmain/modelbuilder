@@ -6,34 +6,33 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtCore import QSize, Qt
+from PySide6.QtCore import QSize
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import (
     QFileDialog,
-    QFrame,
     QHBoxLayout,
-    QLabel,
     QListWidget,
     QListWidgetItem,
     QMainWindow,
     QMessageBox,
+    QScrollArea,
     QStackedWidget,
-    QVBoxLayout,
     QWidget,
 )
 
 from mb import __version__ as MB_VERSION
 
+from ui.pages import ConvertPage, DataPage, HomePage, InfoPage, TrainPage
 from ui.workspace import Workspace, default_settings
 
 
 class MainWindow(QMainWindow):
     NAV_ITEMS = [
-        ("Home", "overview"),
-        ("Data", "data"),
-        ("Train", "train"),
-        ("Convert", "convert"),
-        ("Info", "info"),
+        ("Home", HomePage),
+        ("Data", DataPage),
+        ("Train", TrainPage),
+        ("Convert", ConvertPage),
+        ("Info", InfoPage),
     ]
 
     def __init__(self) -> None:
@@ -57,7 +56,7 @@ class MainWindow(QMainWindow):
         self._nav = QListWidget()
         self._nav.setFixedWidth(180)
         self._nav.setSpacing(6)
-        for label, _ in self.NAV_ITEMS:
+        for label, _page_cls in self.NAV_ITEMS:
             item = QListWidgetItem(label)
             item.setSizeHint(QSize(0, 32))
             self._nav.addItem(item)
@@ -66,32 +65,21 @@ class MainWindow(QMainWindow):
         layout.addWidget(self._nav, 0)
 
         self._stack = QStackedWidget()
-        for label, key in self.NAV_ITEMS:
-            self._stack.addWidget(self._placeholder_page(label, key))
+        for _label, page_cls in self.NAV_ITEMS:
+            self._stack.addWidget(self._wrap_scroll(page_cls()))
         layout.addWidget(self._stack, 1)
 
         self._build_menu()
 
         self.statusBar().showMessage(self._status_text())
 
-    def _placeholder_page(self, title: str, key: str) -> QWidget:
-        page = QWidget()
-        v = QVBoxLayout(page)
-        title_lbl = QLabel(f"<h2>{title}</h2>")
-        title_lbl.setTextFormat(Qt.RichText)
-        v.addWidget(title_lbl)
-        hint = QLabel(
-            f"This section will mirror <code>mb</code> CLI flows ({key}). "
-            "Implementation follows in later Phase 7 tasks."
-        )
-        hint.setWordWrap(True)
-        v.addWidget(hint)
-        line = QFrame()
-        line.setFrameShape(QFrame.HLine)
-        line.setFrameShadow(QFrame.Sunken)
-        v.addWidget(line)
-        v.addStretch(1)
-        return page
+    def _wrap_scroll(self, page: QWidget) -> QScrollArea:
+        """Wrap pages in a scroll area for smaller screens and dense forms."""
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QScrollArea.NoFrame)
+        scroll.setWidget(page)
+        return scroll
 
     def _build_menu(self) -> None:
         file_menu = self.menuBar().addMenu("&File")
