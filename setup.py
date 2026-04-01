@@ -59,7 +59,7 @@ setup(
             "mb=mb.cli:main",
         ],
         "gui_scripts": [
-            "mb-gui=modelbuilder_gui.app:main",
+            "mb-gui=ui.app:main",
         ],
     },
     classifiers=[

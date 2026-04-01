@@ -24,7 +24,7 @@ from PySide6.QtWidgets import (
 
 from mb import __version__ as MB_VERSION
 
-from modelbuilder_gui.workspace import Workspace, default_settings
+from ui.workspace import Workspace, default_settings
 
 
 class MainWindow(QMainWindow):
@@ -128,7 +128,12 @@ class MainWindow(QMainWindow):
 
     def _choose_workspace(self) -> None:
         start = str(self._workspace.root) if self._workspace.root else ""
-        path = QFileDialog.getExistingDirectory(self, "Workspace root folder", start)
+        path = QFileDialog.getExistingDirectory(
+            self,
+            "Workspace root folder",
+            start,
+            QFileDialog.Option.ShowDirsOnly | QFileDialog.Option.DontUseNativeDialog,
+        )
         if not path:
             return
         self._workspace.root = Path(path)
@@ -144,6 +149,7 @@ class MainWindow(QMainWindow):
             "Optional YAML config",
             start,
             "YAML (*.yaml *.yml);;All files (*.*)",
+            options=QFileDialog.Option.DontUseNativeDialog,
         )
         if not path:
             return

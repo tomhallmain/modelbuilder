@@ -18,8 +18,8 @@ This document describes how to add a graphical interface on top of the existing 
 
 The GUI lives in a **separate top-level package** next to `mb/` (not inside `mb/`):
 
-- **`modelbuilder_gui/`** — PySide6 app (`app.py`, `main_window.py`, `workspace.py`)
-- Entry points: `mb-gui` (see `setup.py` `gui_scripts`) and `python -m modelbuilder_gui`
+- **`ui/`** — PySide6 app (`app.py`, `main_window.py`, `workspace.py`, `app_theme.py` for global dark styling)
+- Entry points: `mb-gui` (see `setup.py` `gui_scripts`) and `python -m ui`
 
 ## Architecture
 

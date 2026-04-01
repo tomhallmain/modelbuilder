@@ -33,7 +33,7 @@ Optional **Phase 7.1** shell: sidebar navigation, workspace folder + optional YA
 ```bash
 pip install -e .[gui]
 mb-gui
-# or: python -m modelbuilder_gui
+# or: python -m ui
 ```
 
 See [docs/GUI_PLAN.md](docs/GUI_PLAN.md) for the full UI roadmap. Data/training/convert screens are placeholders until later Phase 7 tasks.

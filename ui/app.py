@@ -18,11 +18,13 @@ def main() -> int:
         )
         return 1
 
-    from modelbuilder_gui.main_window import MainWindow
+    from ui.app_theme import apply_theme
+    from ui.main_window import MainWindow
 
     app = QApplication(sys.argv)
     app.setApplicationName("Model Builder")
     app.setOrganizationName("ModelBuilder")
+    apply_theme(app)
 
     win = MainWindow()
     win.show()

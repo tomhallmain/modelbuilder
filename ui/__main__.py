@@ -1,6 +1,6 @@
-"""Allow: python -m modelbuilder_gui"""
+"""Allow: python -m ui"""
 
-from modelbuilder_gui.app import main
+from ui.app import main
 
 if __name__ == "__main__":
     raise SystemExit(main())
