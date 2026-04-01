@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import (
     QFileDialog,
@@ -56,8 +56,11 @@ class MainWindow(QMainWindow):
 
         self._nav = QListWidget()
         self._nav.setFixedWidth(180)
+        self._nav.setSpacing(6)
         for label, _ in self.NAV_ITEMS:
-            self._nav.addItem(QListWidgetItem(label))
+            item = QListWidgetItem(label)
+            item.setSizeHint(QSize(0, 32))
+            self._nav.addItem(item)
         self._nav.setCurrentRow(0)
         self._nav.currentRowChanged.connect(self._on_nav_changed)
         layout.addWidget(self._nav, 0)
