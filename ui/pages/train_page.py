@@ -2,20 +2,30 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
+    QFileDialog,
     QFormLayout,
     QGroupBox,
     QHBoxLayout,
     QLabel,
     QLineEdit,
+    QMessageBox,
     QPushButton,
-    QSpinBox,
     QDoubleSpinBox,
+    QSpinBox,
+    QTextEdit,
     QVBoxLayout,
     QWidget,
 )
+
+from mb.config import get_config
+from mb.models.types import ModelType
+from mb.training.trainer import ModelTrainer
+from ui.task_runner import start_task
 
 
 class TrainPage(QWidget):
@@ -45,9 +55,9 @@ class TrainPage(QWidget):
         core_form.addRow("Model type", self.model_type)
         core_form.addRow("Framework", self.framework)
         core_form.addRow("Architecture", self.architecture)
-        core_form.addRow("Data dir", self._path_row(self.data_dir))
-        core_form.addRow("Output dir", self._path_row(self.output_dir))
-        core_form.addRow("Resume checkpoint", self._path_row(self.resume_from))
+        core_form.addRow("Data dir", self._path_row(self.data_dir, select_file=False))
+        core_form.addRow("Output dir", self._path_row(self.output_dir, select_file=False))
+        core_form.addRow("Resume checkpoint", self._path_row(self.resume_from, select_file=True))
         core_form.addRow("Run ID (optional)", self.run_id)
         core_form.addRow("", self.skip_snapshot)
         root.addWidget(core_group)
@@ -86,22 +96,29 @@ class TrainPage(QWidget):
         actions = QHBoxLayout()
         self.btn_validate = QPushButton("Validate Training Config")
         self.btn_start = QPushButton("Start Training")
-        self.btn_start.setEnabled(False)
-        self.btn_start.setToolTip("Training callback not wired yet.")
         actions.addWidget(self.btn_validate)
         actions.addWidget(self.btn_start)
         actions.addStretch(1)
         root.addLayout(actions)
-        root.addStretch(1)
 
-    def _path_row(self, edit: QLineEdit) -> QWidget:
+        self.output = QTextEdit()
+        self.output.setReadOnly(True)
+        self.output.setPlaceholderText("Training validation and execution messages will appear here.")
+        root.addWidget(self.output, 1)
+
+        self.framework.currentTextChanged.connect(self._refresh_architecture_hint)
+        self.btn_validate.clicked.connect(self._validate_inputs)
+        self.btn_start.clicked.connect(self._start_training)
+        self._refresh_architecture_hint()
+        self._validate_inputs()
+
+    def _path_row(self, edit: QLineEdit, select_file: bool = False) -> QWidget:
         row = QWidget()
         h = QHBoxLayout(row)
         h.setContentsMargins(0, 0, 0, 0)
         h.setSpacing(6)
         browse = QPushButton("Browse...")
-        browse.setEnabled(False)
-        browse.setToolTip("File dialog callback not wired yet.")
+        browse.clicked.connect(lambda: self._browse(edit, select_file=select_file))
         h.addWidget(edit, 1)
         h.addWidget(browse, 0)
         return row
@@ -113,3 +130,139 @@ class TrainPage(QWidget):
         spin.setSingleStep(0.0001)
         spin.setValue(value)
         return spin
+
+    def _browse(self, edit: QLineEdit, select_file: bool = False) -> None:
+        start = edit.text().strip() or str(Path.cwd())
+        if select_file:
+            value, _ = QFileDialog.getOpenFileName(
+                self,
+                "Select checkpoint file",
+                start,
+                "Model/checkpoint files (*.pth *.pt *.h5 *.keras *.ckpt);;All files (*.*)",
+                options=QFileDialog.Option.DontUseNativeDialog,
+            )
+            if value:
+                edit.setText(value)
+        else:
+            value = QFileDialog.getExistingDirectory(
+                self,
+                "Select directory",
+                start,
+                QFileDialog.Option.ShowDirsOnly | QFileDialog.Option.DontUseNativeDialog,
+            )
+            if value:
+                edit.setText(value)
+        self._validate_inputs()
+
+    def _append(self, msg: str) -> None:
+        self.output.append(msg)
+
+    def _set_busy(self, busy: bool) -> None:
+        self.btn_validate.setEnabled(not busy)
+        self.btn_start.setEnabled(not busy and self._can_run())
+
+    def _refresh_architecture_hint(self) -> None:
+        framework = self.framework.currentText()
+        try:
+            trainer = ModelTrainer(framework=framework, model_type=ModelType.IMAGE_CLASSIFICATION, config=get_config(None))
+            architectures = trainer.get_supported_architectures()
+            if architectures:
+                self.architecture.setPlaceholderText(", ".join(architectures[:8]))
+                self._append(f"[info] {framework} architectures: {', '.join(architectures)}")
+        except Exception as exc:
+            self.architecture.setPlaceholderText("Enter architecture manually")
+            self._append(f"[warn] Could not load architecture list for {framework}: {exc}")
+
+    def _can_run(self) -> bool:
+        try:
+            self._collect_inputs()
+            return True
+        except ValueError:
+            return False
+
+    def _collect_inputs(self) -> dict:
+        data_dir = Path(self.data_dir.text().strip() or "data")
+        output_dir = Path(self.output_dir.text().strip() or "data/models")
+        architecture = self.architecture.text().strip()
+        if not architecture:
+            raise ValueError("Architecture is required.")
+        if not data_dir.exists():
+            raise ValueError("Data directory does not exist.")
+        resume_raw = self.resume_from.text().strip()
+        resume_path = Path(resume_raw) if resume_raw else None
+        if resume_path and not resume_path.exists():
+            raise ValueError("Resume checkpoint path does not exist.")
+
+        cli_hyperparams = {
+            "frozen_epochs": int(self.frozen_epochs.value()),
+            "unfrozen_epochs": int(self.unfrozen_epochs.value()),
+            "frozen_lr": float(self.frozen_lr.value()),
+            "unfrozen_lr_max": float(self.unfrozen_lr_max.value()),
+            "unfrozen_lr_min": float(self.unfrozen_lr_min.value()),
+            "image_size": int(self.image_size.value()),
+        }
+        if self.batch_size.value() > 0:
+            cli_hyperparams["batch_size"] = int(self.batch_size.value())
+        if self.num_workers.value() > 0:
+            cli_hyperparams["num_workers"] = int(self.num_workers.value())
+
+        return {
+            "framework": self.framework.currentText(),
+            "architecture": architecture,
+            "data_dir": data_dir,
+            "output_dir": output_dir,
+            "resume_from": resume_path,
+            "run_id": self.run_id.text().strip() or None,
+            "update_snapshot": not self.skip_snapshot.isChecked(),
+            "cli_hyperparams": cli_hyperparams,
+        }
+
+    def _validate_inputs(self) -> None:
+        try:
+            self._collect_inputs()
+            self.btn_start.setEnabled(True)
+            self.btn_start.setToolTip("")
+            self._append("[ok] training inputs look valid")
+        except ValueError as exc:
+            self.btn_start.setEnabled(False)
+            self.btn_start.setToolTip(str(exc))
+            self._append(f"[invalid] {exc}")
+
+    def _start_training(self) -> None:
+        payload = self._collect_inputs()
+        self._append(f"[run] mb train ({payload['framework']}/{payload['architecture']})")
+        self._set_busy(True)
+        start_task(
+            self._execute_training,
+            self._on_training_success,
+            self._on_training_error,
+            lambda: self._set_busy(False),
+            payload,
+        )
+
+    def _execute_training(self, payload: dict) -> str:
+        trainer = ModelTrainer(
+            framework=payload["framework"],
+            model_type=ModelType.IMAGE_CLASSIFICATION,
+            config=get_config(None),
+        )
+        supported = trainer.get_supported_architectures()
+        if payload["architecture"] not in supported:
+            raise ValueError(f"Architecture '{payload['architecture']}' not supported for {payload['framework']}. Supported: {supported}")
+        model_path = trainer.train(
+            data_dir=payload["data_dir"],
+            architecture=payload["architecture"],
+            output_dir=payload["output_dir"],
+            cli_hyperparams=payload["cli_hyperparams"],
+            resume_from_checkpoint=payload["resume_from"],
+            run_id=payload["run_id"],
+            update_snapshot=payload["update_snapshot"],
+        )
+        return str(model_path)
+
+    def _on_training_success(self, model_path: str) -> None:
+        self._append(f"[done] Training complete. Model saved: {model_path}")
+
+    def _on_training_error(self, message: str) -> None:
+        self._append(f"[error] {message}")
+        QMessageBox.critical(self, "Training failed", message)
