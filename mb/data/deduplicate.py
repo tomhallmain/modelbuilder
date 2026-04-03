@@ -28,6 +28,7 @@ except ImportError:
 # Import centralized logging configuration
 from mb.utils.logging_setup import log_completion_info, log_startup_info, setup_logging
 from mb.cancellation import check_cancel_event
+from mb.data.class_layout import discover_raw_data_bucket_names, layout_dict_for_discovery
 
 # Configure logging
 logger = setup_logging(script_name="deduplicate_images")
@@ -49,7 +50,6 @@ class ImageDeduplicator:
         self.stats = {
             'duplicates_removed': 0,
             'duplicates_found': 0,
-            'coherent_duplicates_found': 0,
             'small_images_removed': 0,
             'small_images_moved': 0,
         }
@@ -58,7 +58,7 @@ class ImageDeduplicator:
         self.review_dir = self.raw_data_dir / "small_images_review"
         self.review_dir.mkdir(parents=True, exist_ok=True)
         
-        # Cache file for storing file hashes (shared with gather_coherent_images.py)
+        # Cache file for storing file hashes (shared with :mod:`mb.data.gather`)
         self.cache_file = self.raw_data_dir / ".gather_cache.pkl"
         self.file_cache: Dict[str, str] = {}  # {file_path: hash_string} - optimized direct storage
         self.cache_modified = False
@@ -316,54 +316,6 @@ class ImageDeduplicator:
         
         return removed_count
     
-    def check_coherent_against_other_directories(self, coherent_dir: Path, other_dirs: List[Path]) -> List[Path]:
-        """
-        Check if any images in the coherent directory are duplicates of images in other directories.
-        
-        Args:
-            coherent_dir: Directory containing coherent images
-            other_dirs: List of directories to check against (incoherent, semi-incoherent)
-            
-        Returns:
-            List of coherent image paths that are duplicates of images in other directories
-        """
-        logger.info("Checking coherent images against other directories for duplicates...")
-        
-        # Get hashes of all images in other directories
-        other_hashes = set()
-        for directory in other_dirs:
-            if not directory.exists():
-                continue
-                
-            # Use extension-specific globs to avoid expensive .is_file() checks
-            for ext in IMAGE_EXTENSIONS:
-                for file_path in directory.rglob(f'*{ext}'):
-                    # No .is_file() check needed - rglob with pattern only returns files
-                    image_hash = self.calculate_file_hash(file_path)
-                    if image_hash:
-                        other_hashes.add(image_hash)
-        
-        logger.info(f"Found {len(other_hashes)} unique images in other directories")
-        
-        # Check coherent images against other hashes
-        duplicate_coherent_files = []
-        coherent_files_checked = 0
-        
-        # Use extension-specific globs to avoid expensive .is_file() checks
-        for ext in IMAGE_EXTENSIONS:
-            for file_path in coherent_dir.rglob(f'*{ext}'):
-                # No .is_file() check needed - rglob with pattern only returns files
-                coherent_files_checked += 1
-                image_hash = self.calculate_file_hash(file_path)
-                if image_hash and image_hash in other_hashes:
-                    duplicate_coherent_files.append(file_path)
-                    logger.warning(f"Coherent image {file_path.name} is duplicate of image in other directories")
-        
-        logger.info(f"Checked {coherent_files_checked} coherent images")
-        logger.info(f"Found {len(duplicate_coherent_files)} coherent images that are duplicates of images in other directories")
-        
-        return duplicate_coherent_files
-    
     def process_small_images_from_directory(self, directory: Path) -> Tuple[int, int]:
         """
         Process images from a directory:
@@ -446,23 +398,23 @@ class ImageDeduplicator:
         return removed_count, moved_count
     
     def perform_deduplication(self) -> None:
-        """Perform comprehensive deduplication across all directories."""
+        """Perform comprehensive deduplication across class/staging directories under raw data."""
         check_cancel_event(getattr(self, "_cancel_event", None))
         logger.info("=" * 60)
         logger.info("STARTING DEDUPLICATION PROCESS")
         logger.info("=" * 60)
-        
-        # Define directory paths
-        coherent_dir = self.raw_data_dir / "coherent"
-        incoherent_dir = self.raw_data_dir / "incoherent"
-        semi_incoherent_dir = self.raw_data_dir / "semi-incoherent"
-        
-        # Explicitly exclude rejected directory and review directories
+
+        layout = layout_dict_for_discovery()
+        bucket_names = discover_raw_data_bucket_names(
+            self.raw_data_dir,
+            explicit=layout["explicit"],
+            class_qualifying_subdir=layout["class_qualifying_subdir"],
+        )
+        directories_to_check = [self.raw_data_dir / n for n in bucket_names]
+
+        # Explicitly exclude rejected and review paths if present (defense in depth)
         rejected_dir = self.raw_data_dir / "rejected"
         review_dir = self.raw_data_dir / "small_images_review"
-        
-        directories_to_check = [coherent_dir, incoherent_dir, semi_incoherent_dir]
-        # Filter out any directories that shouldn't be processed
         excluded_dirs = {rejected_dir, review_dir}
         existing_directories = [d for d in directories_to_check if d.exists() and d not in excluded_dirs]
         
@@ -509,23 +461,7 @@ class ImageDeduplicator:
                 logger.info(f"Duplicate group ({len(files)} files):")
                 for file_path in files:
                     logger.info(f"  - {file_path}")
-        
-        # Step 3: Check coherent images against other directories
-        logger.info("\nStep 3: Checking coherent images against other directories...")
-        check_cancel_event(getattr(self, "_cancel_event", None))
-        if coherent_dir.exists() and (incoherent_dir.exists() or semi_incoherent_dir.exists()):
-            other_dirs = [d for d in [incoherent_dir, semi_incoherent_dir] if d.exists()]
-            duplicate_coherent_files = self.check_coherent_against_other_directories(coherent_dir, other_dirs)
-            
-            if duplicate_coherent_files:
-                logger.warning(f"Found {len(duplicate_coherent_files)} coherent images that are duplicates of images in other directories")
-                logger.warning("These should be reviewed and potentially removed from the coherent dataset")
-                for file_path in duplicate_coherent_files:
-                    logger.warning(f"  - {file_path}")
-                self.stats['coherent_duplicates_found'] = len(duplicate_coherent_files)
-            else:
-                logger.info("No coherent images found that are duplicates of images in other directories")
-        
+
         logger.info("=" * 60)
         logger.info("DEDUPLICATION PROCESS COMPLETED")
         logger.info("=" * 60)
@@ -542,7 +478,6 @@ class ImageDeduplicator:
             logger.info(f"Review directory: {self.review_dir}")
         logger.info(f"Duplicates removed: {self.stats['duplicates_removed']}")
         logger.info(f"Duplicate groups found across directories: {self.stats['duplicates_found']}")
-        logger.info(f"Coherent images that are duplicates of other directories: {self.stats['coherent_duplicates_found']}")
         logger.info("=" * 60)
     
     def run(self, cancel_event: Optional[threading.Event] = None) -> bool:

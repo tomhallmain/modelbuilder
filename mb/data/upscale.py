@@ -25,6 +25,7 @@ except ImportError:
 # Import centralized logging configuration
 from mb.utils.logging_setup import log_completion_info, log_startup_info, setup_logging
 from mb.cancellation import check_cancel_event
+from mb.data.class_layout import discover_review_bucket_names, layout_dict_for_discovery
 
 # Configure logging
 logger = setup_logging(script_name="upscale_small_images")
@@ -38,9 +39,6 @@ MIN_DIMENSION_TARGET = 300
 # Default review directory
 DEFAULT_REVIEW_DIR = Path("raw_data/small_images_review")
 
-# Category directories to process
-CATEGORIES = ['coherent', 'incoherent', 'semi-incoherent']
-
 
 class ImageUpscaler:
     """Handles upscaling of small images from the review directory."""
@@ -48,7 +46,8 @@ class ImageUpscaler:
     def __init__(self, review_dir: Path):
         self.review_dir = Path(review_dir)
         self.upscaled_dir = self.review_dir / "upscaled_small_images"
-        
+        self._bucket_names: List[str] = []
+
         # Statistics tracking
         self.stats = {
             'total_found': defaultdict(int),
@@ -272,7 +271,7 @@ class ImageUpscaler:
         logger.info(f"Total images skipped: {total_skipped}")
         
         logger.info("\nPer-category breakdown:")
-        for category in CATEGORIES:
+        for category in self._bucket_names:
             found = self.stats['total_found'][category]
             upscaled = self.stats['upscaled'][category]
             skipped = self.stats['skipped'][category]
@@ -317,9 +316,22 @@ class ImageUpscaler:
         # Validate configuration
         if not self.validate_configuration():
             return False
-        
-        # Process each category
-        for category in CATEGORIES:
+
+        layout = layout_dict_for_discovery()
+        self._bucket_names = discover_review_bucket_names(
+            self.review_dir,
+            explicit=layout["explicit"],
+            class_qualifying_subdir=layout["class_qualifying_subdir"],
+        )
+
+        if not self._bucket_names:
+            logger.warning(
+                "No class subdirectories found under review dir (check data.class_names or layout under %s)",
+                self.review_dir,
+            )
+
+        # Process each discovered bucket (same naming rules as raw_data class folders)
+        for category in self._bucket_names:
             check_cancel_event(self._cancel_event)
             self.process_category(category)
         

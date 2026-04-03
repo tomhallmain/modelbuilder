@@ -93,7 +93,7 @@ class ImageConverter:
         Find all image files in a class directory, excluding JPEG_IMAGES subdirectory.
         
         Args:
-            class_dir: Class directory to scan (e.g., raw_data/coherent)
+            class_dir: Class directory to scan (e.g. ``raw_data/<class_name>``)
             
         Returns:
             List of image file paths found

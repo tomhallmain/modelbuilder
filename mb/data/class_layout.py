@@ -9,10 +9,16 @@ directories containing that immediate child folder count as class (or gather) ro
 from __future__ import annotations
 
 from pathlib import Path
-from typing import List, Optional, Sequence
+from typing import Any, Dict, List, Optional, Sequence
 
 # Default class directory names used by :mod:`tests.fixtures.synthetic_dataset` (legacy three-way split).
 SYNTHETIC_DEFAULT_CLASS_NAMES: tuple[str, ...] = ("coherent", "semi-incoherent", "incoherent")
+
+# Immediate children of ``raw_data`` that are pipeline plumbing, not label/staging buckets.
+_RAW_DATA_NON_CLASS_SUBDIRS: frozenset[str] = frozenset({"rejected", "small_images_review"})
+
+# Under ``small_images_review``, skip the upscaler output tree when mirroring class folders.
+_REVIEW_NON_CATEGORY_SUBDIRS: frozenset[str] = frozenset({"upscaled_small_images"})
 
 
 def normalize_qualifying_subdir(name: Optional[str]) -> Optional[str]:
@@ -72,6 +78,56 @@ def discover_class_names(
         if dir_qualifies_as_class(p, q):
             names.append(p.name)
     return names
+
+
+def discover_raw_data_bucket_names(
+    raw_data_root: Path,
+    *,
+    explicit: Optional[Sequence[str]] = None,
+    class_qualifying_subdir: Optional[str] = None,
+) -> List[str]:
+    """
+    Staging / class folder names under *raw_data_root* for deduplication and related steps.
+
+    Uses the same rules as :func:`discover_class_names`, then drops known non-class
+    directories (``rejected``, ``small_images_review``).
+    """
+    names = discover_class_names(
+        raw_data_root,
+        explicit=explicit,
+        class_qualifying_subdir=class_qualifying_subdir,
+    )
+    return [n for n in names if n not in _RAW_DATA_NON_CLASS_SUBDIRS]
+
+
+def discover_review_bucket_names(
+    review_root: Path,
+    *,
+    explicit: Optional[Sequence[str]] = None,
+    class_qualifying_subdir: Optional[str] = None,
+) -> List[str]:
+    """
+    Per-class subfolders under the small-image *review_root* (for upscaling).
+
+    Same discovery as raw buckets, excluding ``upscaled_small_images``.
+    """
+    names = discover_class_names(
+        review_root,
+        explicit=explicit,
+        class_qualifying_subdir=class_qualifying_subdir,
+    )
+    return [n for n in names if n not in _REVIEW_NON_CATEGORY_SUBDIRS]
+
+
+def layout_dict_for_discovery() -> Dict[str, Any]:
+    """``class_names`` + ``class_qualifying_subdir`` from the active pipeline config."""
+    from mb.pipeline_config import data_class_layout_defaults
+
+    d = data_class_layout_defaults()
+    return {
+        "explicit": d.get("class_names"),
+        "class_qualifying_subdir": d.get("class_qualifying_subdir"),
+    }
 
 
 def resolve_class_media_dir(

@@ -55,24 +55,16 @@ Pipeline config already has `data.image_types` (and `video_types`), but gather/c
 
 ## 5. Hardcoded three-way “coherent / incoherent / semi-incoherent” taxonomy
 
-Parts of the code still assume **fixed directory names** under `raw_data`, independent of `data.class_names` / `class_layout`:
+**Status:** Raw staging buckets for dedup / gather’s optional dedup pass / small-image review upscaling use **`data.class_names` or `discover_class_names`** via :func:`mb.data.class_layout.discover_raw_data_bucket_names` and :func:`~mb.data.class_layout.discover_review_bucket_names` (excluding ``rejected``, ``small_images_review``, ``upscaled_small_images``). Cross-directory duplicate reporting is a single pass across **all** discovered buckets (no special “primary vs others” step).
 
-| Location | What’s hardcoded |
-|----------|------------------|
-| `mb/data/gather.py` | `check_coherent_against_other_directories` and related `run()` steps use paths `raw_data/coherent`, `incoherent`, `semi-incoherent`. Docstrings say “coherent images”. |
-| `mb/data/deduplicate.py` | Same pattern: stats key `coherent_duplicates_found`, duplicate-check flow tied to those three folders. |
-| `mb/data/upscale.py` | `CATEGORIES = ['coherent', 'incoherent', 'semi-incoherent']` for review-dir processing. |
-
-**Follow-up:** Drive these from **pipeline + `discover_class_names`** (or a dedicated “review / duplicate policy” config), or document that this block is **legacy taxonomy only** and skip when layout doesn’t match.
+**Tests / fixtures** may still use example folder names (e.g. three-way split); that is intentional.
 
 ---
 
 ## 6. Gather naming and defaults
 
-- Logger / comments still use names like **`gather_coherent_images`** (`setup_logging(script_name=…)`).
-- Default gather target remains **`raw_data/coherent`** in pipeline defaults (`data.gather.default_target_dir`), which encodes the old “coherent” bucket name.
-
-**Follow-up:** Rename log labels to neutral names (`mb_data_gather`); consider whether default target dir should be generic (`raw_data/gathered` or project-specific) with docs.
+- Gather logging uses script name **`gather_images`**.
+- Example default gather target in YAML may still show a concrete path (e.g. under ``raw_data/``); override per project in ``data.gather``.
 
 ---
 

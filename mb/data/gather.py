@@ -7,7 +7,7 @@ This is the **first** step in the usual image pipeline: **gather** → **convert
 ``data.gather`` in pipeline YAML).
 
 Randomly selects images from specified subdirectories up to a target limit,
-and copies them into the configured target directory (default ``raw_data/coherent``)
+and copies them into the configured target directory (see ``data.gather.default_target_dir``)
 preserving original format.
 
 **CLI:** ``mb data gather``; ``python -m mb.data.gather`` delegates to the same parser
@@ -43,17 +43,21 @@ except ImportError:
 # Import centralized logging configuration
 from mb.utils.logging_setup import log_completion_info, log_startup_info, setup_logging
 from mb.cancellation import check_cancel_event
-from mb.data.class_layout import normalize_qualifying_subdir
+from mb.data.class_layout import (
+    discover_raw_data_bucket_names,
+    layout_dict_for_discovery,
+    normalize_qualifying_subdir,
+)
 
 # Configure logging
-logger = setup_logging(script_name="gather_coherent_images")
+logger = setup_logging(script_name="gather_images")
 
 # Image file extensions for source scans (pre-convert; not identical to pipeline data.image_types).
 IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif', '.gif', '.webp'}
 TARGET_EXTENSIONS = {'.jpg', '.jpeg'}
 
 class ImageGatherer:
-    """Handles the gathering and processing of coherent images."""
+    """Gathers images into a run-scoped target tree under the configured staging directory."""
     
     def __init__(
         self,
@@ -879,114 +883,53 @@ class ImageGatherer:
         
         return removed_count
     
-    def check_coherent_against_other_directories(self, coherent_dir: Path, other_dirs: List[Path]) -> List[Path]:
-        """
-        Check if any images in the coherent directory are duplicates of images in other directories.
-        
-        Args:
-            coherent_dir: Directory containing coherent images
-            other_dirs: List of directories to check against (incoherent, semi-incoherent)
-            
-        Returns:
-            List of coherent image paths that are duplicates of images in other directories
-        """
-        logger.info("Checking coherent images against other directories for duplicates...")
-        
-        # Get hashes of all images in other directories
-        other_hashes = set()
-        for directory in other_dirs:
-            if not directory.exists():
-                continue
-                
-            # Use extension-specific globs to avoid expensive .is_file() checks
-            for ext in IMAGE_EXTENSIONS:
-                for file_path in directory.rglob(f'*{ext}'):
-                    # No .is_file() check needed - rglob with pattern only returns files
-                    image_hash = self.calculate_image_hash_pil(file_path)
-                    if image_hash:
-                        other_hashes.add(image_hash)
-        
-        logger.info(f"Found {len(other_hashes)} unique images in other directories")
-        
-        # Check coherent images against other hashes
-        duplicate_coherent_files = []
-        coherent_files_checked = 0
-        
-        # Use extension-specific globs to avoid expensive .is_file() checks
-        for ext in IMAGE_EXTENSIONS:
-            for file_path in coherent_dir.rglob(f'*{ext}'):
-                # No .is_file() check needed - rglob with pattern only returns files
-                coherent_files_checked += 1
-                image_hash = self.calculate_image_hash_pil(file_path)
-                if image_hash and image_hash in other_hashes:
-                    duplicate_coherent_files.append(file_path)
-                    logger.warning(f"Coherent image {file_path.name} is duplicate of image in other directories")
-        
-        logger.info(f"Checked {coherent_files_checked} coherent images")
-        logger.info(f"Found {len(duplicate_coherent_files)} coherent images that are duplicates of images in other directories")
-        
-        return duplicate_coherent_files
-    
     def perform_deduplication(self, raw_data_dir: Path = None) -> None:
         """
-        Perform comprehensive deduplication across all directories.
-        
-        Args:
-            raw_data_dir: Root directory containing coherent, incoherent, and semi-incoherent subdirectories
+        Perform deduplication across class/staging directories under *raw_data_dir*.
+
+        Bucket names come from ``data.class_names`` or :func:`~mb.data.class_layout.discover_class_names`
+        (same rules as the rest of the pipeline), excluding ``rejected`` and ``small_images_review``.
         """
         if raw_data_dir is None:
             raw_data_dir = Path("raw_data")
-        
+
+        layout = layout_dict_for_discovery()
+        bucket_names = discover_raw_data_bucket_names(
+            raw_data_dir,
+            explicit=layout["explicit"],
+            class_qualifying_subdir=layout["class_qualifying_subdir"],
+        )
+        directories_to_check = [raw_data_dir / n for n in bucket_names]
+        existing_directories = [d for d in directories_to_check if d.exists()]
+
         logger.info("=" * 60)
         logger.info("STARTING DEDUPLICATION PROCESS")
         logger.info("=" * 60)
-        
-        # Define directory paths
-        coherent_dir = raw_data_dir / "coherent"
-        incoherent_dir = raw_data_dir / "incoherent"
-        semi_incoherent_dir = raw_data_dir / "semi-incoherent"
-        
-        directories_to_check = [coherent_dir, incoherent_dir, semi_incoherent_dir]
-        existing_directories = [d for d in directories_to_check if d.exists()]
-        
+
         if not existing_directories:
-            logger.warning("No directories found for deduplication")
+            logger.warning("No class/staging directories found for deduplication")
             return
-        
+
         logger.info(f"Found directories: {[d.name for d in existing_directories]}")
-        
+
         # Step 1: Remove duplicates within each directory
         logger.info("\nStep 1: Removing duplicates within each directory...")
         for directory in existing_directories:
             removed_count = self.remove_duplicates_from_directory(directory)
             self.stats['duplicates_removed'] += removed_count
-        
-        # Step 2: Find duplicates across all directories
+
+        # Step 2: Find duplicates across all directories (any bucket vs any bucket)
         logger.info("\nStep 2: Finding duplicates across all directories...")
         all_duplicates = self.find_duplicates_across_directories(existing_directories)
         self.stats['duplicates_found'] = len(all_duplicates)
-        
+
         if all_duplicates:
             logger.info(f"Found {len(all_duplicates)} duplicate groups across all directories")
             for hash_val, files in all_duplicates.items():
                 logger.info(f"Duplicate group ({len(files)} files):")
                 for file_path in files:
                     logger.info(f"  - {file_path}")
-        
-        # Step 3: Check coherent images against other directories
-        logger.info("\nStep 3: Checking coherent images against other directories...")
-        if coherent_dir.exists() and (incoherent_dir.exists() or semi_incoherent_dir.exists()):
-            other_dirs = [d for d in [incoherent_dir, semi_incoherent_dir] if d.exists()]
-            duplicate_coherent_files = self.check_coherent_against_other_directories(coherent_dir, other_dirs)
-            
-            if duplicate_coherent_files:
-                logger.warning(f"Found {len(duplicate_coherent_files)} coherent images that are duplicates of images in other directories")
-                logger.warning("These should be reviewed and potentially removed from the coherent dataset")
-                for file_path in duplicate_coherent_files:
-                    logger.warning(f"  - {file_path}")
-            else:
-                logger.info("No coherent images found that are duplicates of images in other directories")
-        
+
         logger.info("=" * 60)
         logger.info("DEDUPLICATION PROCESS COMPLETED")
         logger.info("=" * 60)
