@@ -32,7 +32,9 @@ from mb.pipeline_config import (
     data_class_layout_defaults,
     gather_pipeline_defaults,
     get_pipeline_config,
+    reload_pipeline_config,
 )
+from mb.space_estimate import run_convert_estimate, run_create_dataset_estimate
 from mb.utils.storage import check_same_drive, check_target_external_storage
 from ui.lib.qt_alert import qt_alert, qt_operation_error
 from mb.utils.constants import DataPipelineSubcommand, ModelBuilderTaskType
@@ -61,6 +63,12 @@ class DataPage(QWidget):
         self._intro = QLabel()
         self._intro.setWordWrap(True)
         root.addWidget(self._intro)
+
+        self._last_space_estimate_msg: str | None = None
+        self._space_estimate_status = QLabel()
+        self._space_estimate_status.setObjectName("space_estimate_status")
+        self._space_estimate_status.setWordWrap(True)
+        root.addWidget(self._space_estimate_status)
 
         self._pipeline_group_tooltips: list[ToolTip] | None = None
         self._intro_tooltip: ToolTip | None = None
@@ -108,6 +116,17 @@ class DataPage(QWidget):
         self.btn_validate.setText(_("Validate Inputs"))
         self.btn_run.setText(_("Run Data Command"))
         self.output.setPlaceholderText(_("Validation and run results will appear here."))
+        if self._last_space_estimate_msg:
+            self._space_estimate_status.setText(
+                _("Latest space check") + ": " + self._last_space_estimate_msg
+            )
+        else:
+            self._space_estimate_status.setText(
+                _(
+                    "No space estimate yet. It appears here when you run Convert or Create Dataset "
+                    "(before the command starts)."
+                )
+            )
         apply_qform_label_column(
             self._gather_form,
             [
@@ -122,7 +141,7 @@ class DataPage(QWidget):
         )
         apply_qform_label_column(
             self._convert_form,
-            [_("Raw data dir"), _("Format (jpeg/jpg)")],
+            [_("Raw data dir"), _("Format (jpeg/jpg)"), ""],
         )
         apply_qform_label_column(self._dedup_form, [_("Raw data dir")])
         apply_qform_label_column(
@@ -189,6 +208,7 @@ class DataPage(QWidget):
             "convert": {
                 "raw_data_dir": self.convert_raw_data_dir.text(),
                 "format": self.convert_format.text(),
+                "skip_space": bool(self.convert_skip_space.isChecked()),
             },
             "dedup": {"raw_data_dir": self.dedup_raw_data_dir.text()},
             "upscale": {
@@ -204,6 +224,7 @@ class DataPage(QWidget):
                 "max_train": int(self.dataset_max_train.value()),
                 "balance_train": bool(self.dataset_balance_train.isChecked()),
                 "allow_external": bool(self.dataset_allow_external.isChecked()),
+                "skip_space": bool(self.dataset_skip_space.isChecked()),
             },
         }
 
@@ -232,6 +253,7 @@ class DataPage(QWidget):
             if isinstance(c, dict):
                 self.convert_raw_data_dir.setText(str(c.get("raw_data_dir", "")))
                 self.convert_format.setText(str(c.get("format", "jpeg")))
+                self.convert_skip_space.setChecked(bool(c.get("skip_space", False)))
 
             d = state.get("dedup") or {}
             if isinstance(d, dict):
@@ -258,6 +280,7 @@ class DataPage(QWidget):
                     self.dataset_max_train.setValue(mt)
                 self.dataset_balance_train.setChecked(bool(ds.get("balance_train", False)))
                 self.dataset_allow_external.setChecked(bool(ds.get("allow_external", False)))
+                self.dataset_skip_space.setChecked(bool(ds.get("skip_space", False)))
         except Exception:
             pass
         finally:
@@ -303,6 +326,10 @@ class DataPage(QWidget):
         self.convert_format = QLineEdit("jpeg")
         form.addRow(_("Raw data dir"), self._path_row(self.convert_raw_data_dir, select_dir=True))
         form.addRow(_("Format (jpeg/jpg)"), self.convert_format)
+        self.convert_skip_space = QCheckBox(
+            _("Skip free-space check (not recommended; use if you accept the risk)")
+        )
+        form.addRow("", self.convert_skip_space)
         v.addWidget(self._convert_group)
         v.addStretch(1)
         return tab
@@ -367,6 +394,10 @@ class DataPage(QWidget):
         form.addRow(_("Max train per class"), self.dataset_max_train)
         form.addRow("", self.dataset_balance_train)
         form.addRow("", self.dataset_allow_external)
+        self.dataset_skip_space = QCheckBox(
+            _("Skip free-space check on output drive (not recommended)")
+        )
+        form.addRow("", self.dataset_skip_space)
         v.addWidget(self._dataset_group)
         v.addStretch(1)
         return tab
@@ -554,6 +585,7 @@ class DataPage(QWidget):
             return {
                 "raw_data_dir": Path(self.convert_raw_data_dir.text().strip() or "raw_data"),
                 "format": fmt,
+                "skip_space_check": bool(self.convert_skip_space.isChecked()),
             }
         if command == "deduplicate":
             return {"raw_data_dir": Path(self.dedup_raw_data_dir.text().strip() or "raw_data")}
@@ -577,6 +609,7 @@ class DataPage(QWidget):
                 "balance_train": bool(self.dataset_balance_train.isChecked()),
                 "max_train_per_class": int(self.dataset_max_train.value()) if self.dataset_max_train.value() > 0 else None,
                 "allow_external_storage": bool(self.dataset_allow_external.isChecked()),
+                "skip_space_check": bool(self.dataset_skip_space.isChecked()),
             }
         raise ValueError(_("Unknown command: {cmd}").format(cmd=command))
 
@@ -596,9 +629,56 @@ class DataPage(QWidget):
             return str(p.resolve()) if p else None
         return None
 
+    def _space_precheck_ui(self, command: str, payload: dict) -> bool:
+        """
+        Run heuristic disk estimate before convert / create-dataset; append to log.
+        Returns False if the user cancels a low-space warning.
+        """
+        w = self.window()
+        pipe = w._effective_pipeline_config_path() if hasattr(w, "_effective_pipeline_config_path") else None
+        reload_pipeline_config(pipe, force=True)
+        mt = ModelType.from_pipeline_value(get_pipeline_config().get("model.default_type"))
+        if command == "convert":
+            r = run_convert_estimate(payload["raw_data_dir"], mt)
+            self._last_space_estimate_msg = r.message
+            self._space_estimate_status.setText(_("Latest space check") + ": " + r.message)
+            self._append(f"[space] {r.message}")
+            if r.ok or payload.get("skip_space_check"):
+                return True
+            if qt_alert(
+                self,
+                _("Insufficient disk space (estimate)"),
+                _("{msg}\n\nContinue anyway?").format(msg=r.message),
+                kind="askyesno",
+            ):
+                payload["skip_space_check"] = True
+                return True
+            return False
+        if command == "create-dataset":
+            r = run_create_dataset_estimate(payload["raw_data_dir"], payload["data_dir"])
+            self._last_space_estimate_msg = r.message
+            self._space_estimate_status.setText(_("Latest space check") + ": " + r.message)
+            self._append(f"[space] {r.message}")
+            if r.ok or payload.get("skip_space_check"):
+                return True
+            if qt_alert(
+                self,
+                _("Insufficient disk space (estimate)"),
+                _("{msg}\n\nContinue anyway?").format(msg=r.message),
+                kind="askyesno",
+            ):
+                payload["skip_space_check"] = True
+                return True
+            return False
+        return True
+
     def _run_current_command(self) -> None:
         command = self._current_command()
         payload = self._collect_inputs(command)
+
+        if command in ("convert", "create-dataset"):
+            if not self._space_precheck_ui(command, payload):
+                return
 
         if command == "create-dataset":
             if check_target_external_storage(
@@ -662,7 +742,12 @@ class DataPage(QWidget):
         if command == "convert":
             mt = ModelType.from_pipeline_value(get_pipeline_config().get("model.default_type"))
             converter = ImageConverter(raw_data_dir=payload["raw_data_dir"], model_type=mt)
-            return bool(converter.run(cancel_event=ce))
+            return bool(
+                converter.run(
+                    cancel_event=ce,
+                    skip_space_check=payload.get("skip_space_check", False),
+                )
+            )
         if command == "deduplicate":
             deduplicator = ImageDeduplicator(raw_data_dir=payload["raw_data_dir"])
             return bool(deduplicator.run(cancel_event=ce))
@@ -680,6 +765,7 @@ class DataPage(QWidget):
                 balance_train=payload["balance_train"],
                 max_train_per_class=payload["max_train_per_class"],
                 run_id=payload["run_id"],
+                skip_space_check=payload.get("skip_space_check", False),
             )
             return bool(creator.run(cancel_event=ce))
         raise ValueError(_("Unknown command: {cmd}").format(cmd=command))

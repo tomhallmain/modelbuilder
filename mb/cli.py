@@ -190,7 +190,15 @@ def create_parser() -> argparse.ArgumentParser:
             "When image_classification, videos and multi-frame GIFs get a random frame as JPEG."
         ),
     )
-    
+    convert_parser.add_argument(
+        "--skip-space-check",
+        action="store_true",
+        help=_(
+            "Allow convert to run even if the raw-data drive appears to have insufficient free space "
+            "(heuristic estimate; not recommended)."
+        ),
+    )
+
     # mb data deduplicate
     dedup_parser = data_subparsers.add_parser(
         "deduplicate",
@@ -295,7 +303,42 @@ def create_parser() -> argparse.ArgumentParser:
         action="store_true",
         help=_("Allow running on external/removable storage (not recommended)"),
     )
-    
+    dataset_parser.add_argument(
+        "--skip-space-check",
+        action="store_true",
+        help=_(
+            "Allow create-dataset even if the output data drive appears to have insufficient free space "
+            "(heuristic estimate; not recommended)."
+        ),
+    )
+
+    # mb data estimate-space
+    estimate_space_parser = data_subparsers.add_parser(
+        "estimate-space",
+        help=_("Estimate disk space needed for convert or create-dataset"),
+        description=_(
+            "Walks source files (same rules as convert/dataset) and compares a rough byte estimate "
+            "to free space on the target volume. Exits non-zero if the estimate exceeds free space."
+        ),
+    )
+    estimate_space_parser.add_argument(
+        "--operation",
+        choices=["convert", "create-dataset"],
+        required=True,
+        help=_("Which step to estimate for"),
+    )
+    estimate_space_parser.add_argument(
+        "--raw-data-dir",
+        type=Path,
+        default=Path("raw_data"),
+        help=_("Raw data directory (default: raw_data)"),
+    )
+    estimate_space_parser.add_argument(
+        "--data-dir",
+        type=Path,
+        help=_("Output data directory (required when operation is create-dataset)"),
+    )
+
     # Training command
     train_parser = subparsers.add_parser(
         "train",
@@ -573,7 +616,7 @@ def handle_data_convert(args):
             getattr(args, "model_type", None) or get_pipeline_config().get("model.default_type")
         )
         converter = ImageConverter(raw_data_dir=args.raw_data_dir, model_type=mt)
-        success = converter.run()
+        success = converter.run(skip_space_check=getattr(args, "skip_space_check", False))
         return 0 if success else 1
     except Exception as e:
         logger.error(f"Error in data convert: {e}", exc_info=True)
@@ -636,13 +679,40 @@ def handle_data_create_dataset(args):
             test_per_class=args.test_per_class,
             balance_train=getattr(args, 'balance_train', False),
             max_train_per_class=getattr(args, 'max_train_per_class', None),
-            run_id=getattr(args, 'run_id', None)
+            run_id=getattr(args, 'run_id', None),
+            skip_space_check=getattr(args, "skip_space_check", False),
         )
         
         success = creator.run()
         return 0 if success else 1
     except Exception as e:
         logger.error(f"Error in data create-dataset: {e}", exc_info=True)
+        return 1
+
+
+def handle_data_estimate_space(args):
+    """Handle ``mb data estimate-space``."""
+    try:
+        reload_pipeline_config(getattr(args, "config", None), force=True)
+        mt = ModelType.from_pipeline_value(get_pipeline_config().get("model.default_type"))
+        if args.operation == "convert":
+            from mb.space_estimate import run_convert_estimate
+
+            report = run_convert_estimate(args.raw_data_dir, mt)
+            print(report.message)
+            logger.info(report.message)
+            return 0 if report.ok else 2
+        if args.data_dir is None:
+            logger.error(_("--data-dir is required when operation is create-dataset"))
+            return 1
+        from mb.space_estimate import run_create_dataset_estimate
+
+        report = run_create_dataset_estimate(args.raw_data_dir, args.data_dir)
+        print(report.message)
+        logger.info(report.message)
+        return 0 if report.ok else 2
+    except Exception as e:
+        logger.error(f"Error in data estimate-space: {e}", exc_info=True)
         return 1
 
 
@@ -895,6 +965,8 @@ def main(args: Optional[list] = None) -> int:
                 return handle_data_upscale(parsed_args)
             elif parsed_args.data_command == "create-dataset":
                 return handle_data_create_dataset(parsed_args)
+            elif parsed_args.data_command == "estimate-space":
+                return handle_data_estimate_space(parsed_args)
             else:
                 logger.error(_("No data subcommand specified"))
                 return 1
@@ -931,7 +1003,7 @@ def run_data_subcommand_cli(subcommand: str, argv: Optional[List[str]] = None) -
     Run ``mb data <subcommand>`` for ``python -m mb.data.<module>`` entry points.
 
     *subcommand* is one of: ``gather``, ``convert``, ``deduplicate``, ``upscale``,
-    ``create-dataset``. *argv* defaults to ``sys.argv[1:]``.
+    ``create-dataset``, ``estimate-space``. *argv* defaults to ``sys.argv[1:]``.
     """
     if argv is None:
         argv = sys.argv[1:]

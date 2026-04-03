@@ -50,6 +50,7 @@ from mb.data.media_utils import (
 )
 from mb.pipeline_config import get_pipeline_config
 from mb.models.types import ModelType, VisualMediaSourceType
+from mb.space_estimate import check_convert_allowed, merge_convert_estimate_into_snapshot
 
 # Configure logging
 logger = setup_logging(script_name="convert")
@@ -450,9 +451,15 @@ class ImageConverter:
         )
         logger.info(f"\nTotal files processed: {total_processed}")
     
-    def run(self, cancel_event: Optional[threading.Event] = None) -> bool:
+    def run(
+        self,
+        cancel_event: Optional[threading.Event] = None,
+        *,
+        skip_space_check: bool = False,
+    ) -> bool:
         """Main execution method. *cancel_event* is checked between classes and during file loops."""
         self._cancel_event = cancel_event
+        self._skip_space_check = skip_space_check
         try:
             return self._run_impl()
         finally:
@@ -467,6 +474,20 @@ class ImageConverter:
         # Validate configuration
         if not self.validate_configuration():
             return False
+
+        allowed, space_report = check_convert_allowed(
+            self.raw_data_dir,
+            self.model_type,
+            snapshot=None,
+            skip_space_check=getattr(self, "_skip_space_check", False),
+        )
+        if not allowed:
+            logger.error(
+                "Insufficient disk space for convert (heuristic). "
+                "Free space or use skip_space_check / --skip-space-check if you accept the risk."
+            )
+            return False
+        self._last_space_report = space_report
         
         # Create new unified snapshot with new run ID
         # This is the first script in the pipeline, so always create a new snapshot
@@ -477,7 +498,8 @@ class ImageConverter:
             run_id=self.run_id,
             raw_data_dir=str(self.raw_data_dir)
         )
-        
+        merge_convert_estimate_into_snapshot(self.unified_snapshot, self._last_space_report)
+
         # Preload gather cache for faster hash lookups
         cache_loaded = preload_gather_cache(self.raw_data_dir)
         if cache_loaded:

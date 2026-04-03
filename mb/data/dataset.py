@@ -48,6 +48,7 @@ from mb.data.class_layout import (
     resolve_class_media_dir,
 )
 from mb.pipeline_config import get_pipeline_config
+from mb.space_estimate import check_create_dataset_allowed
 
 # Configure logging
 logger = setup_logging(script_name="create_datasets")
@@ -69,6 +70,7 @@ class DatasetCreator:
         run_id: Optional[str] = None,
         class_names: Optional[List[str]] = None,
         class_qualifying_subdir: Optional[str] = None,
+        skip_space_check: bool = False,
     ):
         self.raw_data_dir = Path(raw_data_dir)
         self.data_dir = Path(data_dir)
@@ -78,6 +80,7 @@ class DatasetCreator:
         self.run_id = run_id  # Optional run ID for unified snapshot
         self._class_names_override = class_names
         self._class_qualifying_subdir_override = class_qualifying_subdir
+        self._skip_space_check = skip_space_check
         self._class_names: List[str] = []
         self._class_qualifying_subdir: Optional[str] = None
 
@@ -508,9 +511,16 @@ class DatasetCreator:
         logger.info(f"  Training: {self.train_dir}")
         logger.info(f"  Test: {self.test_dir}")
     
-    def run(self, cancel_event: Optional[threading.Event] = None) -> bool:
+    def run(
+        self,
+        cancel_event: Optional[threading.Event] = None,
+        *,
+        skip_space_check: Optional[bool] = None,
+    ) -> bool:
         """Main execution method. *cancel_event* is checked between steps and during long file loops."""
         self._cancel_event = cancel_event
+        if skip_space_check is not None:
+            self._skip_space_check = skip_space_check
         try:
             return self._run_impl()
         finally:
@@ -547,6 +557,19 @@ class DatasetCreator:
         else:
             logger.error("No unified snapshot found! Run ``mb data convert`` (or equivalent) first to create a snapshot.")
             logger.error("Or provide a valid --run-id if the snapshot exists elsewhere.")
+            return False
+
+        allowed, _ = check_create_dataset_allowed(
+            self.raw_data_dir,
+            self.data_dir,
+            snapshot=self.unified_snapshot,
+            skip_space_check=self._skip_space_check,
+        )
+        if not allowed:
+            logger.error(
+                "Insufficient disk space on the output data directory (heuristic). "
+                "Free space or pass skip_space_check / --skip-space-check if you accept the risk."
+            )
             return False
         
         check_cancel_event(self._cancel_event)

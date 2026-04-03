@@ -18,8 +18,11 @@ def test_model_info_text_missing_file(tmp_path: Path) -> None:
 def test_model_info_text_rejects_directory(tmp_path: Path) -> None:
     d = tmp_path / "dir"
     d.mkdir()
-    with pytest.raises(ValueError, match="not a file"):
+    with pytest.raises(ValueError) as ei:
         model_info_text(d)
+    # Message is translated; assert path and non-file semantics without English-only regex.
+    msg = str(ei.value)
+    assert str(d.resolve()) in msg or d.name in msg
 
 
 def test_model_info_text_onnx_minimal(tmp_path: Path) -> None:

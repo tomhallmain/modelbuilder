@@ -10,7 +10,7 @@ import pickle
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional, Set
 
 
 def _posix_rel(p: Optional[str]) -> Optional[str]:
@@ -207,6 +207,8 @@ class UnifiedSnapshot:
         # Single list: one record per original image with all stages nested
         # Keyed by original_hash for fast lookup
         self.images: Dict[str, Dict] = {}  # {original_hash: image_record}
+        # Optional: disk space estimates (fingerprints + bytes) from :mod:`mb.space_estimate`
+        self.space_estimates: Optional[Dict[str, Any]] = None
     
     def add_pre_conversion_image(self, image_path: Path, base_dir: Path) -> bool:
         """Add an image to pre-conversion stage (creates new record)."""
@@ -445,7 +447,7 @@ class UnifiedSnapshot:
         dataset_test_count = sum(1 for img in images_list 
                                 if img.get('dataset') and img['dataset'].get('split') == 'test')
         
-        return {
+        out: Dict[str, Any] = {
             'run_id': self.run_id,
             'created_timestamp': self.created_timestamp,
             'last_updated': self.last_updated,
@@ -463,6 +465,9 @@ class UnifiedSnapshot:
                 'training_test_count': test_count
             }
         }
+        if self.space_estimates is not None:
+            out['space_estimates'] = self.space_estimates
+        return out
     
     def save(self, output_path: Path) -> bool:
         """Save unified snapshot to JSON file."""
@@ -498,7 +503,10 @@ class UnifiedSnapshot:
                 original_hash = img_record.get('original', {}).get('hash')
                 if original_hash:
                     snapshot.images[original_hash] = img_record
-            
+
+            se = data.get('space_estimates')
+            snapshot.space_estimates = se if isinstance(se, dict) else None
+
             return snapshot
         except Exception:
             return None

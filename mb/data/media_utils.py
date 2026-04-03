@@ -48,7 +48,7 @@ def classify_convert_source(
     Decide whether *path* is converted as a normal still image or needs a random frame.
 
     Unless *model_type* is :attr:`~mb.models.types.ModelType.IMAGE_CLASSIFICATION`,
-    every file is treated as :attr:`~mb.models.types.SourceType.STATIC` (videos are not
+    every file is treated as :attr:`~mb.models.types.VisualMediaSourceType.STATIC` (videos are not
     scanned as extract sources).
     """
     if model_type != ModelType.IMAGE_CLASSIFICATION:
