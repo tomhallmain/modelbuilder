@@ -1,5 +1,9 @@
 """
-E2E: synthetic raw → dataset → PyTorch train → ONNX convert.
+CLI / library E2E: synthetic raw → dataset → ``mb.cli.main`` train → ``convert``.
+
+See also ``tests/ui/test_ui_e2e_headless.py``: a **fast** shell smoke test plus
+``test_headless_ui_train_pytorch_and_convert_onnx`` (same data hyperparameters,
+train/convert driven from **Train** / **Convert** pages, not ``mb.cli.main``).
 
 **Why a test might be skipped:** the body starts with ``pytest.importorskip`` for
 ``torch``, ``torchvision``, and ``onnx``. If any import fails, the whole test is

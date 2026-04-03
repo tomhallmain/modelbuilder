@@ -6,9 +6,12 @@ CLI-first toolkit for training image-classification models with **PyTorch** or *
 
 ## Features
 
-- Data pipeline: gather, convert, deduplicate, upscale, train/test splits  
-- Two-phase transfer learning and conversion (ONNX, SafeTensors)  
-- Snapshot-style provenance across pipeline steps  
+- **Framework Agnostic**: Train models with PyTorch or Keras
+- **Multiple Architectures**: ResNet, EfficientNet, and more
+- **Data Pipeline**: Modular data processing pipeline (gather, convert, deduplicate, dataset creation)
+- **Transfer Learning**: Two-phase training (frozen/unfrozen) with learning rate scheduling
+- **Model Conversion**: Convert models to ONNX or SafeTensors format
+- **Snapshot Tracking**: Track data samples through the entire pipeline
 
 ## Install
 
@@ -23,7 +26,7 @@ Launch GUI after install: `mb-gui` or `python -m ui`. Rationale and Phase 7 deta
 
 From repo root with `requirements.txt` installed: `python -m pytest tests/`
 
-Order and layout are controlled in `tests/conftest.py` (`integration/` → `framework/` → `unit/` & co. → `ui/` → `e2e/`). More context: [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) (Phase 5). E2E may need PyTorch + **onnx** (`pip install -e ".[onnx]"` or `.[all]`); missing deps **skip** tests. Quick run: `pytest tests/ -m "not slow"`. Skip reasons: `pytest tests/ -rs`.
+Order and layout are controlled in `tests/conftest.py` (`integration/` → `framework/` → `unit/` & co. → `ui/` → `e2e/`). More context: [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) (Phase 5). **`tests/e2e/`** runs train + ONNX via `mb.cli.main`. **`ui_e2e`** includes the same-sized PyTorch+ONNX path **through the Train and Convert pages** (`test_ui_e2e_headless.py`) plus a fast shell-only test (nav + About). E2E may need PyTorch + **onnx** (`pip install -e ".[onnx]"` or `.[all]`); missing deps **skip** tests. Quick run: `pytest tests/ -m "not slow"`. Skip reasons: `pytest tests/ -rs`.
 
 ## Quick start (image classification)
 
@@ -44,7 +47,53 @@ Use `mb --help` and `mb <subcommand> --help` for full flags. Config precedence: 
 
 ## Architectures (examples)
 
-**PyTorch:** resnet18–152, efficientnet_b0/b1 · **Keras:** resnet50–152, efficientnet_b0/b1  
+```bash
+mb data gather --source-dir PATH --subdirs DIR1 DIR2 [--target-count N]
+mb data convert --raw-data-dir PATH [--format jpeg]
+mb data deduplicate --raw-data-dir PATH
+mb data upscale --raw-data-dir PATH [--review-dir PATH]
+mb data create-dataset --raw-data-dir PATH --data-dir PATH [--test-per-class N]
+```
+
+### Training
+
+```bash
+mb train [--framework pytorch|keras] [--architecture NAME] \
+    [--data-dir PATH] [--output-dir PATH] \
+    [--frozen-epochs N] [--unfrozen-epochs N] \
+    [--batch-size N] [--image-size N] \
+    [--resume-from PATH] [--run-id ID]
+```
+
+### Conversion
+
+```bash
+mb convert --input PATH --output PATH --target onnx|safetensors \
+    [--framework pytorch|keras] \
+    [--architecture NAME] [--num-classes N] [--image-size N]
+```
+
+### Information
+
+```bash
+mb info model --path PATH
+mb info dataset --data-dir PATH
+```
+
+## Configuration
+
+Configuration can be provided via:
+1. Default values (built-in)
+2. YAML config file (`configs/default.yaml`)
+3. Command-line arguments (highest priority)
+
+See `ARCHITECTURE.md` for detailed architecture documentation.
+
+## Supported Architectures
+
+**PyTorch**: resnet18, resnet34, resnet50, resnet101, resnet152, efficientnet_b0, efficientnet_b1
+
+**Keras**: resnet50, resnet101, resnet152, efficientnet_b0, efficientnet_b1
 
 ## Layout
 

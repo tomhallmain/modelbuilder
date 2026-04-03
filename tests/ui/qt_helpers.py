@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from PySide6.QtWidgets import QHBoxLayout, QStackedWidget
+from PySide6.QtWidgets import QHBoxLayout, QScrollArea, QStackedWidget, QWidget
 
 if TYPE_CHECKING:
     from ui.main_window import MainWindow
@@ -24,3 +24,14 @@ def main_nav_stacked_widget(main_window: MainWindow) -> QStackedWidget:
     w = item.widget()
     assert isinstance(w, QStackedWidget), (w, type(w))
     return w
+
+
+def stacked_inner_page(main_window: MainWindow, nav_index: int) -> QWidget:
+    """Return the inner page widget at *nav_index* (not the wrapping :class:`QScrollArea`)."""
+    stack = main_nav_stacked_widget(main_window)
+    scroll = stack.widget(nav_index)
+    assert scroll is not None
+    assert isinstance(scroll, QScrollArea), type(scroll)
+    inner = scroll.widget()
+    assert inner is not None
+    return inner
