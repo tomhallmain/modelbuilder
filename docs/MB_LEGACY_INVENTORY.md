@@ -8,7 +8,7 @@ This document lists **leftover patterns** from the script-era pipeline (standalo
 
 | Location | Notes |
 |----------|--------|
-| `mb/cli.py` — `handle_info_model`, `handle_info_dataset` | Log “not yet implemented”, `# TODO: Implement`. The **desktop Info page** already inspects models/datasets; aligning CLI behavior would mean reusing or factoring shared logic. |
+| *(resolved)* | Model/dataset inspection is implemented in `mb/info_inspect.py` (`model_info_text`, `dataset_info_text`). `mb info model|dataset` and `ui/pages/info_page.py` call the same helpers. |
 
 ---
 

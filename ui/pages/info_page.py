@@ -18,9 +18,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from mb.conversion.converters import detect_model_framework
+from mb.info_inspect import dataset_info_text, model_info_text
 from ui.lib.qt_alert import qt_alert
-from mb.models.frameworks.registry import list_architectures
 from mb.utils.translations import _
 from ui.lib.form_layout_i18n import apply_qform_label_column
 
@@ -178,67 +177,28 @@ class InfoPage(QWidget):
             )
             return
         model_path = Path(path_text)
-        if not model_path.exists():
+        try:
+            self.model_output.setPlainText(model_info_text(model_path))
+        except FileNotFoundError:
             qt_alert(
                 self,
                 _("Missing file"),
                 _("Model path not found: {path}").format(path=model_path),
                 kind="warning",
             )
-            return
-
-        framework = detect_model_framework(model_path)
-        lines = [
-            _("Path: {path}").format(path=model_path),
-            _("Size: {n:,} bytes").format(n=model_path.stat().st_size),
-            _("Detected framework/type: {fw}").format(fw=framework or _("unknown")),
-            "",
-        ]
-        try:
-            from mb.models.frameworks import pytorch  # noqa: F401
-        except Exception:
-            pass
-        try:
-            from mb.models.frameworks import keras  # noqa: F401
-        except Exception:
-            pass
-        archs = list_architectures()
-        lines.append(_("Registered architectures:"))
-        for fw, items in archs.items():
-            lines.append(
-                "- {fw}: {names}".format(
-                    fw=fw,
-                    names=", ".join(items) if items else _("(none)"),
-                )
-            )
-
-        self.model_output.setPlainText("\n".join(lines))
+        except ValueError as e:
+            qt_alert(self, _("Invalid path"), str(e), kind="warning")
 
     def _inspect_dataset(self) -> None:
         data_dir = Path(self.dataset_dir.text().strip() or "data")
-        if not data_dir.exists():
+        try:
+            self.dataset_output.setPlainText(dataset_info_text(data_dir))
+        except FileNotFoundError:
             qt_alert(
                 self,
                 _("Missing directory"),
                 _("Data directory not found: {path}").format(path=data_dir),
                 kind="warning",
             )
-            return
-
-        lines = [_("Data dir: {path}").format(path=data_dir), ""]
-        for split in ["train", "test"]:
-            split_dir = data_dir / split
-            lines.append(f"[{split}]")
-            if not split_dir.exists():
-                lines.append(_("  missing"))
-                lines.append("")
-                continue
-            class_dirs = sorted([p for p in split_dir.iterdir() if p.is_dir()])
-            total = 0
-            for cls in class_dirs:
-                count = len([x for x in cls.glob("*.jpg")]) + len([x for x in cls.glob("*.jpeg")]) + len([x for x in cls.glob("*.png")])
-                total += count
-                lines.append(f"  {cls.name}: {count}")
-            lines.append(_("  total: {n}").format(n=total))
-            lines.append("")
-        self.dataset_output.setPlainText("\n".join(lines))
+        except ValueError as e:
+            qt_alert(self, _("Invalid path"), str(e), kind="warning")

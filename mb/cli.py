@@ -26,6 +26,7 @@ from mb.data.convert import ImageConverter
 from mb.data.deduplicate import ImageDeduplicator
 from mb.data.upscale import ImageUpscaler
 from mb.data.dataset import DatasetCreator
+from mb.info_inspect import dataset_info_text, model_info_text
 
 # Import training modules
 from mb.training.run_args import TrainingRunArgs, load_training_run_args_json
@@ -805,17 +806,29 @@ def handle_convert(args):
 
 def handle_info_model(args):
     """Handle 'mb info model' command."""
-    logger.info(_("Info model command - not yet implemented"))
-    logger.info(f"Model path: {args.path}")
-    # TODO: Implement
+    try:
+        text = model_info_text(args.path)
+    except FileNotFoundError:
+        logger.error(_("Model path not found: {path}").format(path=args.path))
+        return 1
+    except ValueError as e:
+        logger.error(str(e))
+        return 1
+    print(text)
     return 0
 
 
 def handle_info_dataset(args):
     """Handle 'mb info dataset' command."""
-    logger.info(_("Info dataset command - not yet implemented"))
-    logger.info(f"Data dir: {args.data_dir}")
-    # TODO: Implement
+    try:
+        text = dataset_info_text(args.data_dir)
+    except FileNotFoundError:
+        logger.error(_("Data directory not found: {path}").format(path=args.data_dir))
+        return 1
+    except ValueError as e:
+        logger.error(str(e))
+        return 1
+    print(text)
     return 0
 
 
