@@ -226,23 +226,13 @@ Settings are split intentionally:
 
 
 
-### Gaps the review still calls out (intentional / future)
-These are **not** bugs in the checklist—they’re called out as differences or follow-ups:
+### Follow-up items (tracked in the implementation plan)
 
-| Item | Where | Status |
-|------|--------|--------|
-| **CLI vs GUI parity** (e.g. same-drive / `confirm_user_action` vs `QMessageBox`) | §4 | Documented gap; only matters if you want identical UX. |
-| ~~**Subprocess isolation** for long jobs~~ | §7.1 | Train page: detached `mb train --train-args-json`. |
-| ~~**Cooperative cancel** on Data / Convert / gather / dataset~~ | §1, §7.3 | Complete |
-| ~~**Mid-epoch** cancel (train batches / val batches)~~ | §7.3 | PyTorch + Keras batch checks; data still phase/N-file boundaries. |
-| **Non-modal progress** or **main-window strip** | §7.2 | Optional product choice. |
-| **Non-blocking error banners** | §7.6 | Explicitly “future”. |
-| **Optional `MainWindow` error signal** | §7.6 | Future, if you need pub/sub without a dialog. |
-| **Integration tests** | Not in doc | Mentioned in chat; still a separate follow-up. |
+Optional **product / parity** work called out above (§4, §7.2, §7.6) is **not** a bug list. Roadmap rows and status live in **[IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)** — section **“GUI / CLI parity and UX follow-ups”** (together with Phase 5 testing notes).
 
-
+**Implemented from earlier review notes:** detached `mb train --train-args-json`, cooperative cancel on Data / Convert / gather / dataset / train (batch-level checks where applicable), integration and UI tests under `tests/` (see **[ARCHITECTURE.md](ARCHITECTURE.md)** §9).
 
 ---
 
-**Document version:** 1.10  
+**Document version:** 1.11  
 **Last updated:** 2026-04-02

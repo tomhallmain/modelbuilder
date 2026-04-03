@@ -1,176 +1,63 @@
 # Model Builder
 
-A unified CLI application for building machine learning models. Supports PyTorch and Keras/TensorFlow frameworks. Currently implements image classification, with an extensible architecture for additional model types.
+CLI-first toolkit for training image-classification models with **PyTorch** or **Keras/TensorFlow**. Optional **PySide6** desktop UI (`mb-gui`) calls the same `mb` APIs as the command line.
 
-> **⚠️ Disclaimer**: This project is currently in active development and has not been thoroughly tested.
+> **Disclaimer:** Active development; not fully battle-tested.
 
 ## Features
 
-- **Framework Agnostic**: Train models with PyTorch or Keras
-- **Multiple Architectures**: ResNet, EfficientNet, and more
-- **Data Pipeline**: Modular data processing pipeline (gather, convert, deduplicate, dataset creation)
-- **Transfer Learning**: Two-phase training (frozen/unfrozen) with learning rate scheduling
-- **Model Conversion**: Convert models to ONNX or SafeTensors format
-- **Snapshot Tracking**: Track data samples through the entire pipeline
+- Data pipeline: gather, convert, deduplicate, upscale, train/test splits  
+- Two-phase transfer learning and conversion (ONNX, SafeTensors)  
+- Snapshot-style provenance across pipeline steps  
 
-## Installation
-
-```bash
-# Install package
-pip install -e .
-
-# Install with specific framework support
-pip install -e .[pytorch]    # PyTorch only
-pip install -e .[keras]       # Keras/TensorFlow only
-pip install -e .[all]         # All frameworks
-```
-
-### Desktop GUI (PySide6)
-
-**Phase 7.1** shell: sidebar navigation, workspace folder + optional YAML config (persisted), About dialog with `mb` version. PySide6 is part of the default dependency set (`requirements.txt` / `pip install -e .`).
+## Install
 
 ```bash
 pip install -e .
-mb-gui
-# or: python -m ui
+# Optional extras: .[pytorch]  .[keras]  .[all]
 ```
 
-See [docs/GUI_PLAN.md](docs/GUI_PLAN.md) for the full UI roadmap. Data/training/convert screens are placeholders until later Phase 7 tasks.
+Launch GUI after install: `mb-gui` or `python -m ui`. Rationale and Phase 7 detail: [docs/GUI_PLAN.md](docs/GUI_PLAN.md), [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md).
 
 ## Tests
 
-Install dev dependencies (includes `pytest` via `requirements.txt`), then from the repository root:
+From repo root with `requirements.txt` installed: `python -m pytest tests/`
+
+Order and layout are controlled in `tests/conftest.py` (`integration/` → `framework/` → `unit/` & co. → `ui/` → `e2e/`). More context: [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) (Phase 5). E2E may need PyTorch + **onnx** (`pip install -e ".[onnx]"` or `.[all]`); missing deps **skip** tests. Quick run: `pytest tests/ -m "not slow"`. Skip reasons: `pytest tests/ -rs`.
+
+## Quick start (image classification)
 
 ```bash
-pip install -r requirements.txt
-pip install -e .
-python -m pytest tests/
-```
-
-`tests/conftest.py` reorders collection (synthetic factory → integration → other unit tests → `tests/e2e/` last). See [docs/TESTING_PLAN.md](docs/TESTING_PLAN.md).
-
-**E2E** (`tests/e2e/`) needs PyTorch plus **`onnx`** for the export step. Install with `pip install -e ".[onnx]"`, `pip install -r requirements-ml.txt`, or use **`pip install -e ".[all]"`** (now includes `onnx` alongside torch/TensorFlow). If an import is missing, E2E tests are **skipped** (not failed). Use `python -m pytest tests/ -rs` for skip reasons. Quick run without slow E2E: `python -m pytest tests/ -m "not slow"`.
-
-## Quick Start
-
-### 1. Prepare Data
-
-The following example shows data preparation for image classification:
-
-```bash
-# Gather data files
 mb data gather --source-dir /path/to/source --subdirs dir1 dir2 --target-count 16000
-
-# Convert to target format
 mb data convert --raw-data-dir raw_data
-
-# Remove duplicates
 mb data deduplicate --raw-data-dir raw_data
-
-# Create train/test splits
 mb data create-dataset --raw-data-dir raw_data --data-dir data --test-per-class 1000
-```
 
-### 2. Train Model
-
-```bash
-# Train with PyTorch
 mb train --framework pytorch --architecture resnet34 --data-dir data
+# mb train --framework keras --architecture resnet50 --data-dir data
 
-# Train with Keras
-mb train --framework keras --architecture resnet50 --data-dir data
-
-# With custom hyperparameters
-mb train --framework pytorch --architecture resnet34 \
-    --frozen-epochs 5 --unfrozen-epochs 20 \
-    --batch-size 32 --image-size 224
-```
-
-### 3. Convert Model
-
-```bash
-# Convert PyTorch to ONNX
 mb convert --input model.pth --output model.onnx --target onnx \
-    --architecture resnet34 --num-classes 3
-
-# Convert PyTorch to SafeTensors
-mb convert --input model.pth --output model.safetensors --target safetensors
+  --architecture resnet34 --num-classes 3
 ```
 
-## CLI Commands
+Use `mb --help` and `mb <subcommand> --help` for full flags. Config precedence: defaults → YAML (e.g. `configs/default.yaml`) → CLI.
 
-### Data Operations
+## Architectures (examples)
 
-```bash
-mb data gather --source-dir PATH --subdirs DIR1 DIR2 [--target-count N]
-mb data convert --raw-data-dir PATH [--format jpeg]
-mb data deduplicate --raw-data-dir PATH
-mb data upscale --raw-data-dir PATH [--review-dir PATH]
-mb data create-dataset --raw-data-dir PATH --data-dir PATH [--test-per-class N]
-```
+**PyTorch:** resnet18–152, efficientnet_b0/b1 · **Keras:** resnet50–152, efficientnet_b0/b1  
 
-### Training
+## Layout
 
-```bash
-mb train [--framework pytorch|keras] [--architecture NAME] \
-    [--data-dir PATH] [--output-dir PATH] \
-    [--frozen-epochs N] [--unfrozen-epochs N] \
-    [--batch-size N] [--image-size N] \
-    [--resume-from PATH] [--run-id ID]
-```
-
-### Conversion
-
-```bash
-mb convert --input PATH --output PATH --target onnx|safetensors \
-    [--framework pytorch|keras] \
-    [--architecture NAME] [--num-classes N] [--image-size N]
-```
-
-### Information
-
-```bash
-mb info model --path PATH
-mb info dataset --data-dir PATH
-```
-
-## Configuration
-
-Configuration can be provided via:
-1. Default values (built-in)
-2. YAML config file (`configs/default.yaml`)
-3. Command-line arguments (highest priority)
-
-See `ARCHITECTURE.md` for detailed architecture documentation.
-
-## Supported Architectures
-
-**PyTorch**: resnet18, resnet34, resnet50, resnet101, resnet152, efficientnet_b0, efficientnet_b1
-
-**Keras**: resnet50, resnet101, resnet152, efficientnet_b0, efficientnet_b1
-
-## Project Structure
-
-```
-mb/
-├── cli.py              # CLI entry point
-├── config.py           # Configuration management
-├── data/               # Data processing modules
-├── models/             # Model abstractions and implementations
-│   ├── base.py         # Framework trainer interface
-│   ├── types.py        # Model type handlers
-│   └── frameworks/     # PyTorch and Keras implementations
-├── training/           # Training orchestration
-├── conversion/         # Model conversion utilities
-└── utils/              # Shared utilities
-```
+Python package **`mb/`** holds CLI, data modules, trainers, conversion. **`ui/`** is the desktop shell. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Documentation
 
-- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — Architecture and design decisions  
-- **[docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md)** — Implementation plan and progress  
-- **[docs/GUI_PLAN.md](docs/GUI_PLAN.md)** — Planned PySide6 GUI (Phase 7)  
-- **[docs/TESTING_PLAN.md](docs/TESTING_PLAN.md)** — Automated testing roadmap and conventions
+| Doc | Purpose |
+|-----|---------|
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Layers, GUI, tests, design |
+| [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) | Phases, GUI/testing follow-ups |
+| [docs/GUI_PLAN.md](docs/GUI_PLAN.md) | GUI goals |
+| [docs/GUI_BACKEND_PIPELINE_REVIEW.md](docs/GUI_BACKEND_PIPELINE_REVIEW.md) | Safety, threading, CLI vs GUI notes |
 
 ## License
 

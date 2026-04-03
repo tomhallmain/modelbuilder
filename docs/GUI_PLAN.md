@@ -1,6 +1,6 @@
 # Model Builder — GUI Plan
 
-This document describes how to add a graphical interface on top of the existing **Model Builder** framework (`mb/` package and CLI). It is a companion to [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md); it does not replace CLI-first workflows.
+This document describes how the **PySide6** GUI sits on top of the **Model Builder** framework (`mb/` package and CLI). It is a companion to [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) (Phase 7 status) and [ARCHITECTURE.md](ARCHITECTURE.md) (GUI layer and tests). It does not replace CLI-first workflows.
 
 ## Goals
 

@@ -4,7 +4,9 @@ This document describes the architecture and design decisions for the Model Buil
 
 ## Overview
 
-Model Builder is a unified CLI application for building machine learning models. It provides a framework-agnostic interface for training models using PyTorch or Keras/TensorFlow. Currently supports image classification, with an extensible architecture for additional model types.
+Model Builder is a unified **CLI-first** application (`mb`) for building machine learning models, with an optional **desktop GUI** (`ui/`, PySide6) that calls the same `mb` modules as the command line. It provides a framework-agnostic interface for training using PyTorch or Keras/TensorFlow. Image classification is implemented today; model types and frameworks are extensible via registries and handlers.
+
+**Companion docs:** phased delivery and checklists — [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md); GUI goals — [GUI_PLAN.md](GUI_PLAN.md); safety and CLI-vs-GUI behavior — [GUI_BACKEND_PIPELINE_REVIEW.md](GUI_BACKEND_PIPELINE_REVIEW.md).
 
 ## Core Design Principles
 
@@ -131,6 +133,40 @@ Shared utilities:
 - **storage.py**: Storage validation (internal vs external drives)
 - **timing.py**: Performance tracking utilities
 
+### 8. Desktop GUI (`ui/`)
+
+The GUI is a **separate top-level package** (not inside `mb/`) so the CLI stays import-clean and packageable on headless systems if ever needed.
+
+| Area | Role |
+|------|------|
+| **`ui/app.py`** | `QApplication` bootstrap (`mb-gui` / `python -m ui`) |
+| **`ui/main_window.py`** | Main shell: sidebar nav, central **`QStackedWidget`** with object name `main_nav_stack`, workspace + optional YAML paths, About |
+| **`ui/workspace.py`** | Workspace model (root dir, config path) persisted via `QSettings` |
+| **`ui/pages/`** | **Data** (gather, convert, dedupe, upscale, create-dataset), **Train**, **Convert**, **Info**, **Home** — forms map to the same classes/functions `mb/cli.py` uses |
+| **Long work** | **`ui/task_runner.py`** runs callables on `QThreadPool`; **`TaskSignals`** + `Qt.QueuedConnection` keep widget updates on the GUI thread |
+| **`ui/task_context.py`** | **`LongTaskContext`**: cooperative **`cancel_event`**, **`progress`** callbacks |
+| **`ui/lib/task_progress.py`** | Attaches a modal **`QProgressDialog`** to long tasks when the backend reports progress |
+| **`ui/lib/qt_alert.py`** | **`qt_alert`**, **`qt_operation_error`** (modal failures, copy details, open log folder) |
+| **`ui/main_thread_bridge.py`** | **`MainThreadBridge`**: `notification_manager` / **`AppActions`** paths that originate off the GUI thread must not touch widgets directly — bridge uses `QMetaObject.invokeMethod` |
+| **`ui/spawn_mb_train.py`** | Optional **detached** `mb train --train-args-json …` subprocess so training survives closing the app |
+
+**Configuration (two layers):** application shell settings (`utils.config` / `configs/application.yaml` or legacy keys in `default.yaml`) vs pipeline/ML config (`mb.pipeline_config` / workspace `configs/pipeline.yaml`). The main window reloads both when the workspace or config file changes.
+
+**Stable widget object names** (for headless UI tests): e.g. `main_nav_stack`, `train_page`, `train_architecture_edit`, `train_data_dir_edit`, `train_validate_btn`, `train_start_btn`, `train_output_log` (see `ui/pages/train_page.py`).
+
+### 9. Automated tests (`tests/`)
+
+| Directory | Purpose |
+|-----------|---------|
+| **`tests/fixtures/`** | Shared synthetic dataset builders |
+| **`tests/integration/`** | Temp filesystem: data pipeline modules, no full train unless noted |
+| **`tests/framework/`** | Optional short training smoke (torch / TF markers) |
+| **`tests/unit/`** | Fast tests: CLI, cancellation, config, cache isolation, … |
+| **`tests/ui/`** | Headless PySide6 (`pytest-qt`, `QT_QPA_PLATFORM=offscreen` in `tests/ui/conftest.py`) |
+| **`tests/e2e/`** | Full pipeline (slow; may require `onnx` for export) |
+
+Root **`tests/conftest.py`** sets **`MODELBUILDER_TEST_CACHE=1`** so tests do not touch the real encrypted app-info cache, and sorts collection order (synthetic fixture smoke → integration → framework → other → UI → E2E). Details and open follow-ups: **Phase 5** in [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md).
+
 ## Design Patterns
 
 ### Strategy Pattern
@@ -224,5 +260,6 @@ The architecture supports future additions:
 - Additional frameworks (FastAI, JAX)
 - Additional architectures (via registry)
 - Additional conversion formats
+- Optional GUI UX changes (non-modal progress, error banners, stricter CLI–GUI parity) — tracked in [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)
 
 All without breaking existing functionality.

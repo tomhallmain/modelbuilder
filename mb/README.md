@@ -1,34 +1,15 @@
-# Model Builder (mb) Package
+# `mb` package
 
-This package provides a unified CLI application for building machine learning models.
+Core **Model Builder** library: CLI entry (`mb.cli`), data pipeline, training orchestration, model conversion, and shared utilities.
 
-## Documentation
+**Usage and install:** repository [README.md](../README.md). **Design:** [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md) (this tree is summarized there).
 
-- **README.md**: Main documentation with usage examples
-- **docs/ARCHITECTURE.md**: Detailed architecture and design decisions
-- **docs/IMPLEMENTATION_PLAN.md**: Implementation plan and progress
-- **docs/GUI_PLAN.md**: Planned PySide6 GUI
-
-## Package Structure
-
-```
+```text
 mb/
-├── __init__.py          # Package initialization
-├── cli.py              # CLI entry point
-├── config.py           # Configuration management
-├── data/               # Data processing modules
-├── models/             # Model-related modules
-│   ├── base.py         # Framework trainer base class
-│   ├── types.py        # Model type definitions
-│   ├── frameworks/     # Framework implementations
-│   │   ├── registry.py # Architecture registry
-│   │   ├── pytorch/    # PyTorch implementation
-│   │   └── keras/      # Keras implementation
-│   └── classification/ # Model type implementations
-├── training/           # Training orchestration
-├── conversion/         # Model conversion
-└── utils/              # Shared utilities
-    └── logging.py       # Logging configuration
+  cli.py, config.py
+  data/          # gather, convert, dedupe, upscale, dataset
+  models/        # types, frameworks (pytorch, keras), registry
+  training/      # ModelTrainer, hyperparams
+  conversion/    # ONNX, SafeTensors, …
+  utils/
 ```
-
-See docs/ARCHITECTURE.md for detailed architecture documentation.

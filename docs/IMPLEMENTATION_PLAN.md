@@ -310,10 +310,13 @@ ARCHITECTURE_REGISTRY = {
 ### Phase 5: Testing and Documentation
 
 #### 5.1 Testing
-- [ ] Unit tests for core abstractions
-- [ ] Integration tests for data pipeline
-- [ ] Framework-specific training tests
-- [ ] CLI command tests
+- [x] Unit tests for core abstractions (`tests/unit/`: CLI, cancellation, run args, pipeline config, app-info cache test mode, …)
+- [x] Integration tests for data pipeline (`tests/integration/`: dataset, convert, gather, deduplicate, upscale, …)
+- [x] Framework-specific training smoke (`tests/framework/`, optional torch/TF markers)
+- [x] CLI command tests (`tests/unit/test_mb_cli.py` and related)
+- [x] Headless GUI checks (`tests/ui/`, pytest-qt, offscreen Qt)
+- [x] E2E image-classification pipeline (`tests/e2e/`, slow; optional `onnx`)
+- [ ] Ongoing: extend coverage when adding features or refactoring (no separate testing-only roadmap doc)
 
 #### 5.2 Documentation ✅
 - [x] Create ARCHITECTURE.md documenting design decisions
@@ -323,9 +326,9 @@ ARCHITECTURE_REGISTRY = {
 ### Phase 6: Migration and Cleanup
 
 #### 6.1 Final Integration
-- [ ] Test full pipeline end-to-end
-- [ ] Verify all CLI commands work correctly
-- [ ] Ensure data formats are compatible
+- [x] Test full pipeline end-to-end (pytest E2E + integration suite; run locally/CI as appropriate)
+- [ ] Periodic verification of full CLI matrix (optional hardening / nightly)
+- [ ] Ensure data formats stay compatible as layouts evolve
 
 #### 6.2 Cleanup
 - [ ] Remove FastAI dependencies
@@ -343,23 +346,24 @@ Detailed architecture (PySide6 desktop UI) and acceptance notes: **[GUI_PLAN.md]
 - [x] Display application version (from `mb.__version__` or equivalent)
 
 #### 7.2 Data operations UI
-- [ ] UI flows aligned with `mb data` subcommands (gather, convert, deduplicate, upscale, create-dataset)
-- [ ] Path validation and clear error surfacing from underlying `mb` modules
+- [x] UI flows aligned with `mb data` subcommands (gather, convert, deduplicate, upscale, create-dataset) — tabbed **Data** page
+- [x] Path validation and error surfacing (`qt_alert` / `qt_operation_error`, task runner)
 - [ ] Optional: read-only snapshot / provenance summary where applicable
 
 #### 7.3 Training UI
-- [ ] Framework, architecture, and hyperparameter controls consistent with CLI defaults and config
-- [ ] Output directory and run options; validation before starting long-running jobs
-- [ ] Log streaming (or tail) for training output; documented stop/cancel behavior
+- [x] Framework, architecture, and hyperparameter controls (Train page; maps to `TrainingRunArgs` / `mb train`)
+- [x] Output directory and run options; validate-before-run; optional **detached** `mb train --train-args-json` subprocess
+- [x] In-process training uses modal progress + cancel; log lines in page `QTextEdit`; subprocess path writes `mb_train_subprocess.log` under output dir
 
 #### 7.4 Conversion and info UI
-- [ ] Conversion UI aligned with `mb convert` (targets supported by core: ONNX, SafeTensors, etc.)
-- [ ] Dataset / model info views consistent with `mb info` capabilities
+- [x] Conversion UI aligned with `mb convert` (core targets supported by **Convert** page)
+- [x] Info page surfaces dataset/model-oriented checks consistent with `mb info` usage patterns
+- [ ] Deeper parity with every `mb info` flag (if CLI grows)
 
 #### 7.5 Packaging and documentation
 - [x] Unified install: `pip install -r requirements.txt` / `pip install -e .` (includes PySide6)
 - [x] README pointer to GUI install and **docs/GUI_PLAN.md**
-- [ ] Primary platform smoke test (Windows)
+- [ ] Primary platform smoke test (Windows) — manual or automated installer smoke
 
 ## Detailed Component Specifications
 
@@ -551,6 +555,22 @@ class ModelTypeHandler(ABC):
 - `numpy>=1.25.2,<2.0` (numerical operations)
 - All utility dependencies
 
+## GUI / CLI parity and UX follow-ups
+
+These are **optional** product choices or hardening items (see **[GUI_BACKEND_PIPELINE_REVIEW.md](GUI_BACKEND_PIPELINE_REVIEW.md)** for rationale and destructive-step safety). They are not required for correctness of the current GUI-on-`mb` design.
+
+| Topic | Status |
+|--------|--------|
+| **CLI vs GUI parity** (e.g. same-drive / `confirm_user_action` vs `QMessageBox`) | Documented gap; address only if every CLI branch must have an identical GUI twin |
+| **Non-modal progress** or main-window status strip | Today: modal `QProgressDialog` + `TaskSignals.progress`; optional redesign |
+| **Non-blocking error banners** | Today: modal `qt_operation_error` for task failures; optional banners for non-blocking errors |
+| **Optional `MainWindow` error signal** | Future pub/sub if multiple subsystems must react without opening a dialog |
+| **Integration / E2E / UI coverage** | Suite exists; extend as features change (Phase 5.1) |
+
+Completed in that review (not tracked here as tasks): subprocess-isolated training option, cooperative cancel on data/train paths, mid-batch training cancel hooks (export still single-shot).
+
+---
+
 ## Testing Strategy
 
 ### Unit Tests
@@ -682,8 +702,8 @@ This checklist tracks features from the original FastAI-based implementation tha
 
 ---
 
-**Document Version:** 1.2  
-**Last Updated:** 2026-03-27  
-**Status:** Approved - Ready for Implementation  
+**Document Version:** 1.3  
+**Last Updated:** 2026-04-02  
+**Status:** Approved — implementation in progress; checkboxes above reflect current trajectory  
 
-**Related:** [GUI_PLAN.md](GUI_PLAN.md) — planned PySide6 GUI on top of this framework (does not alter CLI-first design).
+**Related:** [GUI_PLAN.md](GUI_PLAN.md) — PySide6 GUI goals and phased deliverables; [GUI_BACKEND_PIPELINE_REVIEW.md](GUI_BACKEND_PIPELINE_REVIEW.md) — operational notes (threading, destructive ops, parity gaps). **Single doc set:** this file + `ARCHITECTURE.md` + `GUI_PLAN.md` + the review doc; avoid duplicating testing roadmaps (removed standalone testing plan).
