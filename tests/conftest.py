@@ -20,7 +20,8 @@ def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item
     2. ``tests/integration/`` — data pipeline steps
     3. ``tests/framework/`` — optional framework smoke (torch/tf)
     4. Other unit tests (e.g. CLI, cancellation, run args)
-    5. ``tests/e2e/`` — full pipeline last
+    5. ``tests/ui/`` — headless PySide6 (pytest-qt)
+    6. ``tests/e2e/`` — full CLI pipeline last
     """
 
     def _phase(nodeid: str) -> int:
@@ -31,8 +32,10 @@ def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item
             return 1
         if "/framework/" in n:
             return 2
+        if "/ui/" in n:
+            return 5
         if "/e2e/" in n:
-            return 4
+            return 6
         return 3
 
     items[:] = sorted(items, key=lambda it: (_phase(it.nodeid), it.nodeid))

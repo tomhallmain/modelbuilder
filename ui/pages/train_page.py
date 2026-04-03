@@ -25,7 +25,7 @@ from PySide6.QtWidgets import (
 
 from mb.models.types import ModelType
 from mb.pipeline_config import get_pipeline_config
-from mb.training import ModelTrainer, TrainingRunArgs
+from mb.training.run_args import TrainingRunArgs
 from ui.lib.qt_alert import qt_operation_error
 from ui.lib.task_progress import attach_progress_dialog
 from ui.spawn_mb_train import spawn_mb_train_subprocess
@@ -241,6 +241,8 @@ class TrainPage(QWidget):
     def _refresh_architecture_hint(self) -> None:
         framework = self.framework.currentText()
         try:
+            from mb.training.trainer import ModelTrainer
+
             trainer = ModelTrainer(
                 framework=framework,
                 model_type=ModelType.IMAGE_CLASSIFICATION,
@@ -361,6 +363,8 @@ class TrainPage(QWidget):
         attach_progress_dialog(self, "Training", handle, cancellable=True)
 
     def _execute_training(self, ctx: LongTaskContext, args: TrainingRunArgs) -> str:
+        from mb.training.trainer import ModelTrainer
+
         trainer = ModelTrainer(
             framework=args.framework,
             model_type=ModelType.IMAGE_CLASSIFICATION,

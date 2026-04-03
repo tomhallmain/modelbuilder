@@ -152,14 +152,19 @@ Document in `README` or `requirements-dev.txt` (when added):
 3. **E2E image classification** (PyTorch train + ONNX convert).
 4. **CLI argparse / main** smoke tests.
 5. **Expand unit/integration** coverage for regressions.
+6. **Headless GUI** tests under ``tests/ui/`` (pytest-qt).
 
 ---
 
-## Relation to the GUI
+## GUI tests (headless PySide6)
 
-Automated E2E here targets **`mb` CLI and Python APIs**. GUI tests (PySide6) are out of scope for this document; if added later, prefer **a few smoke tests** (import `MainWindow`, no crash) or dedicated tools (e.g. `pytest-qt`) in a separate plan.
+- **Location:** ``tests/ui/`` — uses **pytest-qt** and ``QT_QPA_PLATFORM=offscreen`` (set in ``tests/ui/conftest.py`` before Qt imports) so runs do not require a display.
+- **Markers:** ``ui`` (short tests), ``ui_e2e`` + ``slow`` (one full navigation + About flow).
+- **Isolation:** ``isolated_qsettings`` patches ``ui.workspace.default_settings`` to an INI file under ``tmp_path`` so tests do not read/write the normal app registry.
+- **Run:** ``pip install -r requirements.txt`` (includes ``pytest-qt``), then e.g. ``python -m pytest tests/ui/ -m ui``. Deselect slow UI E2E: ``-m "ui and not ui_e2e"`` or ``-m "not slow"``.
+- If ``offscreen`` is unavailable on a platform, set ``QT_QPA_PLATFORM`` to another backend (e.g. ``minimal``) before pytest.
 
 ---
 
-**Document version:** 1.0  
+**Document version:** 1.1  
 **Last updated:** 2026-04-02
