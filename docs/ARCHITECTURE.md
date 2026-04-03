@@ -150,7 +150,7 @@ The GUI is a **separate top-level package** (not inside `mb/`) so the CLI stays 
 | **`ui/main_thread_bridge.py`** | **`MainThreadBridge`**: `notification_manager` / **`AppActions`** paths that originate off the GUI thread must not touch widgets directly — bridge uses `QMetaObject.invokeMethod` |
 | **`ui/spawn_mb_train.py`** | Optional **detached** `mb train --train-args-json …` subprocess so training survives closing the app |
 
-**Configuration (two layers):** application shell settings (`utils.config` / `configs/application.yaml` or legacy keys in `default.yaml`) vs pipeline/ML config (`mb.pipeline_config` / workspace `configs/pipeline.yaml`). The main window reloads both when the workspace or config file changes.
+**Configuration (two layers):** application shell settings (`utils.config` / packaged `mb/config/application.example.yaml`, or workspace `configs/application.yaml`, or legacy keys in `default.yaml`) vs pipeline/ML config (`mb.pipeline_config` / workspace `configs/pipeline.yaml`). The main window reloads both when the workspace or config file changes.
 
 **Stable widget object names** (for headless UI tests): e.g. `main_nav_stack`, `train_page`, `train_architecture_edit`, `train_data_dir_edit`, `train_validate_btn`, `train_start_btn`, `train_output_log` (see `ui/pages/train_page.py`).
 

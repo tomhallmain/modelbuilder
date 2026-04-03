@@ -24,7 +24,7 @@ logger = get_logger("cache_controller")
 GUI_FORM_STATE_META_KEY = "gui_form_state"
 
 # Order matches :attr:`MainWindow.NAV_ITEMS` (page widget list).
-_PAGE_KEYS = ("home", "data", "train", "convert", "info")
+_PAGE_KEYS = ("home", "data", "train", "convert", "config", "info")
 
 
 class CacheController:

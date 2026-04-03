@@ -27,7 +27,7 @@ from ui.controllers.cache_controller import CacheController
 from ui.main_thread_bridge import MainThreadBridge
 from ui.controllers.notification_controller import NotificationController
 from ui.lib.qt_alert import qt_alert
-from ui.pages import ConvertPage, DataPage, HomePage, InfoPage, TrainPage
+from ui.pages import ConfigPage, ConvertPage, DataPage, HomePage, InfoPage, TrainPage
 from ui.workspace import Workspace, default_settings, effective_pipeline_config_path
 from mb.pipeline_config import reload_pipeline_config
 
@@ -45,6 +45,7 @@ class MainWindow(QMainWindow):
         ("Data", DataPage),
         ("Train", TrainPage),
         ("Convert", ConvertPage),
+        ("Config", ConfigPage),
         ("Info", InfoPage),
     ]
 
@@ -91,7 +92,8 @@ class MainWindow(QMainWindow):
     def _effective_application_config_path(self) -> Path | None:
         """
         ``gui`` / ``app`` YAML: explicit file from **File → Set config file…**, else
-        ``configs/application.yaml`` or legacy ``configs/default.yaml`` under workspace.
+        ``configs/application.yaml`` or legacy ``configs/default.yaml`` under workspace
+        (packaged defaults come from ``mb/config/application.example.yaml`` when no file is set).
         """
         ws = self._workspace
         if ws.config_path is not None:
@@ -210,7 +212,7 @@ class MainWindow(QMainWindow):
         act_app_yaml = QAction("Open &application settings (YAML)…", self)
         act_app_yaml.triggered.connect(self._open_application_settings_yaml)
         act_app_yaml.setToolTip(
-            "Desktop shell options (toasts, cache interval, …) in configs/application.yaml. "
+            "Desktop shell options (toasts, cache interval, …); see mb/config/application.example.yaml. "
             "Reload the app or use Set config file for pipeline YAML."
         )
         file_menu.addAction(act_app_yaml)
@@ -243,7 +245,7 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage(self._status_text())
 
     def _open_application_settings_yaml(self) -> None:
-        """Open repo ``configs/application.yaml`` in the OS default editor / viewer."""
+        """Open packaged ``mb/config/application.example.yaml`` in the OS default editor / viewer."""
         path = DEFAULT_APPLICATION_YAML
         if not path.is_file():
             qt_alert(

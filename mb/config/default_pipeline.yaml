@@ -1,5 +1,5 @@
 # Default pipeline / ML job configuration (model, data, training, paths).
-# Loaded by mb.pipeline_config — not the desktop shell (see configs/application.yaml).
+# Loaded by mb.pipeline_config — not the desktop shell (see mb/config/application.example.yaml).
 
 model:
   default_type: image_classification

@@ -200,7 +200,7 @@ Settings are split intentionally:
 
 | Layer | Python API | Typical YAML |
 |--------|------------|----------------|
-| **Application shell** (gui, app — toasts, window size, debug) | `utils.config.get_application_config` / `reload_application_config` | Repo `configs/application.yaml`, or legacy `configs/default.yaml` (only `gui` / `app` keys are read) |
+| **Application shell** (gui, app — toasts, window size, debug) | `utils.config.get_application_config` / `reload_application_config` | Packaged `mb/config/application.example.yaml`, or workspace `configs/application.yaml`, or legacy `configs/default.yaml` (only `gui` / `app` keys are read) |
 | **Pipeline / ML jobs** (model, data, training, paths) | `mb.pipeline_config.get_pipeline_config` / `reload_pipeline_config` | `mb/config/default_pipeline.yaml` (package), or workspace `configs/pipeline.yaml`, or the same file as app if it is a legacy combined `default.yaml` |
 
 **GUI (`MainWindow`):** calls **`reload_application_config(_effective_application_config_path())`** and **`reload_pipeline_config(_effective_pipeline_config_path())`** on startup, after **Set workspace folder**, and after **Set config file**. Application path: explicit file from the menu, else `workspace/configs/application.yaml`, else `workspace/configs/default.yaml`. Pipeline path: `workspace/configs/pipeline.yaml` if present, else the menu path (filters pipeline keys), else `workspace/configs/default.yaml`, else packaged defaults.

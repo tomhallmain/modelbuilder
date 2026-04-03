@@ -1,4 +1,6 @@
-﻿# Model Builder default configuration (YAML).
+# Application shell (desktop GUI) settings — merged over built-in defaults in
+# utils.config.ApplicationConfig. Copy to workspace configs/application.yaml or
+# your user application.yaml as needed.
 
 gui:
   locale: null

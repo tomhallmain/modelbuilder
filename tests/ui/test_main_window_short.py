@@ -12,7 +12,7 @@ from PySide6.QtWidgets import QApplication, QMessageBox, QStackedWidget
 
 from mb import __version__ as MB_VERSION
 from ui.main_window import MainWindow
-from ui.pages import ConvertPage, DataPage, HomePage, InfoPage, TrainPage
+from ui.pages import ConfigPage, ConvertPage, DataPage, HomePage, InfoPage, TrainPage
 
 from tests.ui.qt_helpers import main_nav_stacked_widget
 
@@ -36,7 +36,7 @@ def test_nav_lists_same_sections_as_cli_data_train_convert_flow(
     """Sidebar order aligns with typical ``mb`` flow: shell areas for data → train → convert."""
     nav = main_window.nav_widget
     labels = [nav.item(i).text() for i in range(nav.count())]
-    assert labels == ["Home", "Data", "Train", "Convert", "Info"]
+    assert labels == ["Home", "Data", "Train", "Convert", "Config", "Info"]
 
 
 @pytest.mark.ui
@@ -51,7 +51,7 @@ def test_navigation_switches_stacked_pages(qtbot, main_window: MainWindow) -> No
 @pytest.mark.ui
 def test_page_widget_types_match_nav(qtbot, main_window: MainWindow) -> None:
     stack = main_nav_stacked_widget(main_window)
-    expected = (HomePage, DataPage, TrainPage, ConvertPage, InfoPage)
+    expected = (HomePage, DataPage, TrainPage, ConvertPage, ConfigPage, InfoPage)
     for i, cls in enumerate(expected):
         scroll = stack.widget(i)
         inner = scroll.widget()

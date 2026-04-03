@@ -1,5 +1,6 @@
 """Page modules for the Model Builder desktop UI."""
 
+from ui.pages.config_page import ConfigPage
 from ui.pages.convert_page import ConvertPage
 from ui.pages.data_page import DataPage
 from ui.pages.home_page import HomePage
@@ -11,5 +12,6 @@ __all__ = [
     "DataPage",
     "TrainPage",
     "ConvertPage",
+    "ConfigPage",
     "InfoPage",
 ]

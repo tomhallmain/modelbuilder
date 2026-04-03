@@ -1,7 +1,6 @@
 .cursorignore
 raw_data/*
 configs/*
-!configs/application.yaml
 __pycache__/
 *.swp
 *.log

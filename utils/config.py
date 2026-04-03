@@ -21,8 +21,9 @@ from utils.utils import Utils
 logger = get_logger("config")
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
-# Prefer configs/application.yaml; configs/default.yaml may still exist as a legacy combined file.
-DEFAULT_APPLICATION_YAML = _REPO_ROOT / "configs" / "application.yaml"
+# Packaged example (tracked under mb/config/). Workspace may use configs/application.yaml;
+# configs/default.yaml may still exist as a legacy combined file.
+DEFAULT_APPLICATION_YAML = _REPO_ROOT / "mb" / "config" / "application.example.yaml"
 LEGACY_DEFAULT_YAML = _REPO_ROOT / "configs" / "default.yaml"
 
 _APPLICATION_KEYS = frozenset({"gui", "app"})
@@ -275,9 +276,37 @@ class ApplicationConfig:
             logger.info(" - Debug logging enabled")
 
 
+def get_user_application_config_path() -> Path:
+    """Writable ``application.yaml`` beside the log directory (e.g. ``…/ModelBuilder/application.yaml``)."""
+    from utils.logging_setup import get_log_directory
+
+    return get_log_directory().parent / "application.yaml"
+
+
+def resolve_application_save_path() -> Path:
+    """
+    Target file for persisting edited ``gui`` / ``app`` YAML.
+
+    Uses the active config file when it is not the packaged example; otherwise the user
+    data path from :func:`get_user_application_config_path`.
+    """
+    ap = get_application_config().active_path
+    if ap is None:
+        return get_user_application_config_path()
+    try:
+        if ap.resolve() == DEFAULT_APPLICATION_YAML.resolve():
+            return get_user_application_config_path()
+    except OSError:
+        pass
+    return ap
+
+
 def _resolve_application_yaml_path(config_path: Optional[Path]) -> Optional[Path]:
     if config_path is not None:
         return config_path
+    user = get_user_application_config_path()
+    if user.is_file():
+        return user
     if DEFAULT_APPLICATION_YAML.is_file():
         return DEFAULT_APPLICATION_YAML
     if LEGACY_DEFAULT_YAML.is_file():
@@ -305,8 +334,9 @@ def reload_application_config(
     """
     Replace the global application config singleton.
 
-    ``config_path`` ``None`` loads ``configs/application.yaml`` when present, else
-    ``configs/default.yaml`` (legacy), else in-memory defaults only.
+    ``config_path`` ``None`` loads user ``application.yaml`` next to the log directory when
+    present, else packaged ``mb/config/application.example.yaml``, else ``configs/default.yaml``
+    (legacy), else in-memory defaults only.
 
     If the resolved path is already loaded, this is a no-op unless ``force`` is
     true (avoids duplicate loads when :func:`get_application_config` ran first).
