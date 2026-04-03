@@ -1,4 +1,0 @@
-# PySide6 GUI (optional). Install after core deps: pip install -r requirements.txt && pip install -r requirements-gui.txt
-# Or: pip install -e .[gui]
--r requirements.txt
-PySide6>=6.5.0

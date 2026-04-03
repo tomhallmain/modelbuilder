@@ -31,6 +31,25 @@ class Workspace:
         settings.setValue("workspace/config", str(self.config_path) if self.config_path else "")
 
 
+def effective_pipeline_config_path(ws: Workspace) -> Optional[Path]:
+    """
+    Pipeline YAML for ``reload_pipeline_config``: ``configs/pipeline.yaml`` under the
+    workspace root, else the explicit menu config file, else legacy ``default.yaml``.
+    Matches :meth:`MainWindow._effective_pipeline_config_path`.
+    """
+    if ws.root:
+        pipe = ws.root / "configs" / "pipeline.yaml"
+        if pipe.is_file():
+            return pipe
+    if ws.config_path is not None and ws.config_path.is_file():
+        return ws.config_path
+    if ws.root:
+        legacy = ws.root / "configs" / "default.yaml"
+        if legacy.is_file():
+            return legacy
+    return None
+
+
 def default_settings() -> QSettings:
     """Application-scoped settings (user registry on Windows, plist on macOS, etc.)."""
     return QSettings("ModelBuilder", "ModelBuilderGUI")

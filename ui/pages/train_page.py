@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 from PySide6.QtWidgets import (
     QCheckBox,
@@ -22,10 +23,15 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from mb.config import get_config
 from mb.models.types import ModelType
-from mb.training.trainer import ModelTrainer
+from mb.pipeline_config import get_pipeline_config
+from mb.training import ModelTrainer, TrainingRunArgs
+from ui.lib.qt_alert import qt_operation_error
+from ui.lib.task_progress import attach_progress_dialog
+from ui.spawn_mb_train import spawn_mb_train_subprocess
+from ui.task_context import LongTaskContext
 from ui.task_runner import start_task
+from ui.workspace import Workspace, default_settings, effective_pipeline_config_path
 
 
 class TrainPage(QWidget):
@@ -60,6 +66,10 @@ class TrainPage(QWidget):
         core_form.addRow("Resume checkpoint", self._path_row(self.resume_from, select_file=True))
         core_form.addRow("Run ID (optional)", self.run_id)
         core_form.addRow("", self.skip_snapshot)
+        self.train_subprocess = QCheckBox(
+            "Run training in a separate process (survives closing this app; see log file)"
+        )
+        core_form.addRow("", self.train_subprocess)
         root.addWidget(core_group)
 
         hp_group = QGroupBox("Hyperparameters")
@@ -109,6 +119,73 @@ class TrainPage(QWidget):
         self.framework.currentTextChanged.connect(self._refresh_architecture_hint)
         self.btn_validate.clicked.connect(self._validate_inputs)
         self.btn_start.clicked.connect(self._start_training)
+        self._refresh_architecture_hint()
+        self._validate_inputs()
+
+    def collect_gui_state(self) -> dict:
+        """Serializable form state; restored by :class:`ui.controllers.cache_controller.CacheController`."""
+        return {
+            "model_type_idx": int(self.model_type.currentIndex()),
+            "framework_idx": int(self.framework.currentIndex()),
+            "architecture": self.architecture.text(),
+            "data_dir": self.data_dir.text(),
+            "output_dir": self.output_dir.text(),
+            "resume_from": self.resume_from.text(),
+            "run_id": self.run_id.text(),
+            "skip_snapshot": bool(self.skip_snapshot.isChecked()),
+            "train_subprocess": bool(self.train_subprocess.isChecked()),
+            "frozen_epochs": int(self.frozen_epochs.value()),
+            "unfrozen_epochs": int(self.unfrozen_epochs.value()),
+            "frozen_lr": float(self.frozen_lr.value()),
+            "unfrozen_lr_max": float(self.unfrozen_lr_max.value()),
+            "unfrozen_lr_min": float(self.unfrozen_lr_min.value()),
+            "batch_size": int(self.batch_size.value()),
+            "image_size": int(self.image_size.value()),
+            "num_workers": int(self.num_workers.value()),
+        }
+
+    def restore_gui_state(self, state: dict) -> None:
+        if not state:
+            return
+        try:
+            mti = state.get("model_type_idx")
+            if isinstance(mti, int) and 0 <= mti < self.model_type.count():
+                self.model_type.setCurrentIndex(mti)
+            fi = state.get("framework_idx")
+            if isinstance(fi, int) and 0 <= fi < self.framework.count():
+                self.framework.setCurrentIndex(fi)
+            self.architecture.setText(str(state.get("architecture", "")))
+            self.data_dir.setText(str(state.get("data_dir", "")))
+            self.output_dir.setText(str(state.get("output_dir", "")))
+            self.resume_from.setText(str(state.get("resume_from", "")))
+            self.run_id.setText(str(state.get("run_id", "")))
+            self.skip_snapshot.setChecked(bool(state.get("skip_snapshot", False)))
+            self.train_subprocess.setChecked(bool(state.get("train_subprocess", False)))
+            for key, spin in (
+                ("frozen_epochs", self.frozen_epochs),
+                ("unfrozen_epochs", self.unfrozen_epochs),
+            ):
+                v = state.get(key)
+                if isinstance(v, int):
+                    spin.setValue(v)
+            for key, spin in (
+                ("frozen_lr", self.frozen_lr),
+                ("unfrozen_lr_max", self.unfrozen_lr_max),
+                ("unfrozen_lr_min", self.unfrozen_lr_min),
+            ):
+                v = state.get(key)
+                if isinstance(v, (int, float)):
+                    spin.setValue(float(v))
+            for key, spin in (
+                ("batch_size", self.batch_size),
+                ("image_size", self.image_size),
+                ("num_workers", self.num_workers),
+            ):
+                v = state.get(key)
+                if isinstance(v, int):
+                    spin.setValue(v)
+        except Exception:
+            pass
         self._refresh_architecture_hint()
         self._validate_inputs()
 
@@ -164,7 +241,11 @@ class TrainPage(QWidget):
     def _refresh_architecture_hint(self) -> None:
         framework = self.framework.currentText()
         try:
-            trainer = ModelTrainer(framework=framework, model_type=ModelType.IMAGE_CLASSIFICATION, config=get_config(None))
+            trainer = ModelTrainer(
+                framework=framework,
+                model_type=ModelType.IMAGE_CLASSIFICATION,
+                pipeline_config=get_pipeline_config(),
+            )
             architectures = trainer.get_supported_architectures()
             if architectures:
                 self.architecture.setPlaceholderText(", ".join(architectures[:8]))
@@ -180,7 +261,7 @@ class TrainPage(QWidget):
         except ValueError:
             return False
 
-    def _collect_inputs(self) -> dict:
+    def _collect_inputs(self) -> TrainingRunArgs:
         data_dir = Path(self.data_dir.text().strip() or "data")
         output_dir = Path(self.output_dir.text().strip() or "data/models")
         architecture = self.architecture.text().strip()
@@ -193,7 +274,7 @@ class TrainPage(QWidget):
         if resume_path and not resume_path.exists():
             raise ValueError("Resume checkpoint path does not exist.")
 
-        cli_hyperparams = {
+        cli_hyperparams: dict[str, Any] = {
             "frozen_epochs": int(self.frozen_epochs.value()),
             "unfrozen_epochs": int(self.unfrozen_epochs.value()),
             "frozen_lr": float(self.frozen_lr.value()),
@@ -206,16 +287,16 @@ class TrainPage(QWidget):
         if self.num_workers.value() > 0:
             cli_hyperparams["num_workers"] = int(self.num_workers.value())
 
-        return {
-            "framework": self.framework.currentText(),
-            "architecture": architecture,
-            "data_dir": data_dir,
-            "output_dir": output_dir,
-            "resume_from": resume_path,
-            "run_id": self.run_id.text().strip() or None,
-            "update_snapshot": not self.skip_snapshot.isChecked(),
-            "cli_hyperparams": cli_hyperparams,
-        }
+        return TrainingRunArgs(
+            framework=self.framework.currentText(),
+            architecture=architecture,
+            data_dir=data_dir,
+            output_dir=output_dir,
+            resume_from=resume_path,
+            run_id=self.run_id.text().strip() or None,
+            update_snapshot=not self.skip_snapshot.isChecked(),
+            cli_hyperparams=cli_hyperparams,
+        )
 
     def _validate_inputs(self) -> None:
         try:
@@ -229,40 +310,85 @@ class TrainPage(QWidget):
             self._append(f"[invalid] {exc}")
 
     def _start_training(self) -> None:
-        payload = self._collect_inputs()
-        self._append(f"[run] mb train ({payload['framework']}/{payload['architecture']})")
+        args = self._collect_inputs()
+        if self.train_subprocess.isChecked():
+            self._append(f"[run] mb train — detached subprocess ({args.framework}/{args.architecture})")
+            self._set_busy(True)
+            try:
+                ws = Workspace.load(default_settings())
+                pipe = effective_pipeline_config_path(ws)
+                log_path = Path(args.output_dir) / "mb_train_subprocess.log"
+                proc, json_path = spawn_mb_train_subprocess(
+                    args,
+                    pipeline_config=pipe,
+                    log_file=log_path,
+                )
+                self._append(
+                    f"[detached] PID {proc.pid} — log: {log_path} — args JSON: {json_path}"
+                )
+                QMessageBox.information(
+                    self,
+                    "Training started (separate process)",
+                    "Training is running outside this window. Closing the app does not stop it.\n\n"
+                    f"Process ID: {proc.pid}\n"
+                    f"Log file:\n{log_path}\n\n"
+                    f"Training arguments were written to:\n{json_path}\n\n"
+                    "Stop the process from Task Manager or your OS if you need to abort.",
+                )
+            except Exception as exc:
+                self._append(f"[error] {exc}")
+                qt_operation_error(
+                    self,
+                    "Could not start detached training",
+                    "Failed to launch the training subprocess. See Details for the error.",
+                    detail=str(exc),
+                )
+            finally:
+                self._set_busy(False)
+            return
+
+        self._append(f"[run] mb train ({args.framework}/{args.architecture})")
         self._set_busy(True)
-        start_task(
+        handle = start_task(
             self._execute_training,
             self._on_training_success,
             self._on_training_error,
             lambda: self._set_busy(False),
-            payload,
+            args,
+            pass_context=True,
+            on_cancelled=self._on_training_cancelled,
         )
+        attach_progress_dialog(self, "Training", handle, cancellable=True)
 
-    def _execute_training(self, payload: dict) -> str:
+    def _execute_training(self, ctx: LongTaskContext, args: TrainingRunArgs) -> str:
         trainer = ModelTrainer(
-            framework=payload["framework"],
+            framework=args.framework,
             model_type=ModelType.IMAGE_CLASSIFICATION,
-            config=get_config(None),
+            pipeline_config=get_pipeline_config(),
         )
         supported = trainer.get_supported_architectures()
-        if payload["architecture"] not in supported:
-            raise ValueError(f"Architecture '{payload['architecture']}' not supported for {payload['framework']}. Supported: {supported}")
+        if args.architecture not in supported:
+            raise ValueError(
+                f"Architecture '{args.architecture}' not supported for {args.framework}. Supported: {supported}"
+            )
         model_path = trainer.train(
-            data_dir=payload["data_dir"],
-            architecture=payload["architecture"],
-            output_dir=payload["output_dir"],
-            cli_hyperparams=payload["cli_hyperparams"],
-            resume_from_checkpoint=payload["resume_from"],
-            run_id=payload["run_id"],
-            update_snapshot=payload["update_snapshot"],
+            args,
+            cancel_event=ctx.cancel_event,
+            progress_cb=lambda m, p: ctx.progress(m, p),
         )
         return str(model_path)
 
     def _on_training_success(self, model_path: str) -> None:
         self._append(f"[done] Training complete. Model saved: {model_path}")
 
+    def _on_training_cancelled(self) -> None:
+        self._append("[stopped] Training cancelled — partial checkpoints may exist; check the output folder before re-running.")
+
     def _on_training_error(self, message: str) -> None:
         self._append(f"[error] {message}")
-        QMessageBox.critical(self, "Training failed", message)
+        qt_operation_error(
+            self,
+            "Training failed",
+            "Training stopped with an error. See Details for the message from the trainer.",
+            detail=message,
+        )

@@ -12,19 +12,29 @@ def main() -> int:
         from PySide6.QtWidgets import QApplication
     except ImportError:
         sys.stderr.write(
-            "PySide6 is required for the GUI. Install with:\n"
-            "  pip install modelbuilder[gui]\n"
-            "or: pip install -r requirements-gui.txt\n"
+            "PySide6 is required for the GUI. Install dependencies with:\n"
+            "  pip install -r requirements.txt\n"
+            "or: pip install -e .\n"
         )
         return 1
 
+    from PySide6.QtCore import QThreadPool
+
     from ui.app_theme import apply_theme
     from ui.main_window import MainWindow
+    from utils.notification_manager import notification_manager
 
     app = QApplication(sys.argv)
     app.setApplicationName("Model Builder")
     app.setOrganizationName("ModelBuilder")
     apply_theme(app)
+
+    def _on_about_to_quit() -> None:
+        """Cancel stray timers; best-effort wait for pool workers before process teardown."""
+        notification_manager.cleanup_threads()
+        QThreadPool.globalInstance().waitForDone(2_000)
+
+    app.aboutToQuit.connect(_on_about_to_quit)
 
     win = MainWindow()
     win.show()

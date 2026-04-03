@@ -5,14 +5,16 @@ This module provides a framework-agnostic interface for training models.
 """
 
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any, Callable, Optional
 import logging
+import threading
 
 from mb.models.base import FrameworkTrainer
 from mb.models.types import ModelType, get_model_type_handler
 from mb.models.frameworks.pytorch.trainer import PyTorchTrainer
 from mb.models.frameworks.keras.trainer import KerasTrainer
 from mb.training.hyperparams import get_training_hyperparams
+from mb.training.run_args import TrainingRunArgs
 from mb.training.snapshot_integration import update_training_snapshot
 from mb.utils.snapshot import (
     find_unified_snapshot, save_unified_snapshot, preload_gather_cache
@@ -37,7 +39,7 @@ class ModelTrainer:
         self,
         framework: str,
         model_type: ModelType = ModelType.IMAGE_CLASSIFICATION,
-        config: Optional[Any] = None
+        pipeline_config: Optional[Any] = None,
     ):
         """
         Initialize the model trainer.
@@ -45,11 +47,11 @@ class ModelTrainer:
         Args:
             framework: Framework name ('pytorch' or 'keras')
             model_type: Model type enum
-            config: Optional config instance
+            pipeline_config: Optional :class:`~mb.pipeline_config.PipelineConfig`
         """
         self.framework_name = framework.lower()
         self.model_type = model_type
-        self.config = config
+        self.pipeline_config = pipeline_config
         
         # Get framework trainer
         if self.framework_name == 'pytorch':
@@ -66,30 +68,44 @@ class ModelTrainer:
     
     def train(
         self,
-        data_dir: Path,
-        architecture: str,
-        output_dir: Path,
-        cli_hyperparams: Optional[Dict[str, Any]] = None,
-        resume_from_checkpoint: Optional[Path] = None,
-        run_id: Optional[str] = None,
-        update_snapshot: bool = True
+        args: TrainingRunArgs,
+        *,
+        cancel_event: Optional[threading.Event] = None,
+        progress_cb: Optional[Callable[[str, Optional[float]], None]] = None,
     ) -> Path:
         """
-        Train a model.
-        
+        Train a model from structured :class:`~mb.training.run_args.TrainingRunArgs`.
+
         Args:
-            data_dir: Path to data directory (containing train/ and test/ subdirectories)
-            architecture: Model architecture name (e.g., 'resnet34')
-            output_dir: Directory to save trained model and checkpoints
-            cli_hyperparams: Optional hyperparameters from CLI
-            resume_from_checkpoint: Optional path to checkpoint to resume from
-            run_id: Optional run ID for unified snapshot
-            update_snapshot: Whether to update unified snapshot with training data
-            
+            args: Paths, architecture, hyperparams, and snapshot options (``framework`` must
+                match the framework this :class:`ModelTrainer` was constructed with).
+            cancel_event: When set, framework training loops stop cooperatively between
+                training/validation batches (and at epoch starts in Keras)
+            progress_cb: Optional callback ``(message, percent_or_none)`` for GUI progress
+
         Returns:
             Path to saved model
         """
+        if args.framework.lower() != self.framework_name:
+            raise ValueError(
+                f"TrainingRunArgs.framework ({args.framework!r}) does not match "
+                f"this trainer ({self.framework_name!r})"
+            )
+
+        data_dir = args.data_dir
+        architecture = args.architecture
+        output_dir = args.output_dir
+        resume_from_checkpoint = args.resume_from
+        run_id = args.run_id
+        update_snapshot = args.update_snapshot
+        cli_hyperparams = args.cli_hyperparams
+
+        def _progress(msg: str, pct: Optional[float] = None) -> None:
+            if progress_cb is not None:
+                progress_cb(msg, pct)
+
         # Validate data structure
+        _progress("Validating data…", None)
         if not self.model_type_handler.validate_data(data_dir):
             raise ValueError(f"Invalid data structure for {self.model_type.value}")
         
@@ -99,10 +115,11 @@ class ModelTrainer:
         
         # Get hyperparameters
         model_type_defaults = self.model_type_handler.get_default_hyperparams()
+        cli_for_hp = cli_hyperparams if cli_hyperparams else None
         hyperparams = get_training_hyperparams(
             model_type_defaults=model_type_defaults,
-            config=self.config,
-            cli_args=cli_hyperparams
+            pipeline_config=self.pipeline_config,
+            cli_args=cli_for_hp,
         )
         
         # Override with CLI args if provided
@@ -122,6 +139,7 @@ class ModelTrainer:
             logger.info(f"  {key}: {value}")
         
         # Create model
+        _progress("Creating model…", None)
         logger.info(f"Creating {architecture} model...")
         model = self.framework_trainer.create_model(
             architecture=architecture,
@@ -133,6 +151,7 @@ class ModelTrainer:
         train_dir = data_dir / "train"
         val_dir = data_dir / "test"
         
+        _progress("Loading data…", None)
         logger.info("Creating data loaders...")
         train_loader, val_loader = self.framework_trainer.create_data_loaders(
             train_dir=train_dir,
@@ -145,6 +164,7 @@ class ModelTrainer:
         # Update unified snapshot if requested
         unified_snapshot = None
         if update_snapshot:
+            _progress("Loading snapshot…", None)
             logger.info("Loading unified snapshot...")
             search_paths = [data_dir, data_dir.parent]
             unified_snapshot = find_unified_snapshot(search_paths, run_id=run_id, logger=logger)
@@ -164,6 +184,7 @@ class ModelTrainer:
                 logger.warning("Run data conversion and dataset creation first to create a snapshot.")
         
         # Train model
+        _progress("Training…", None)
         logger.info("Starting training...")
         trained_model = self.framework_trainer.train(
             model=model,
@@ -171,10 +192,13 @@ class ModelTrainer:
             val_loader=val_loader,
             hyperparams=hyperparams,
             output_dir=output_dir,
-            resume_from_checkpoint=resume_from_checkpoint
+            resume_from_checkpoint=resume_from_checkpoint,
+            cancel_event=cancel_event,
+            progress_cb=_progress,
         )
         
         # Evaluate model
+        _progress("Evaluating…", None)
         logger.info("Evaluating model...")
         metrics = self.framework_trainer.evaluate(trained_model, val_loader)
         logger.info("Evaluation metrics:")

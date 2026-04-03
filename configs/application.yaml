@@ -1,0 +1,22 @@
+﻿# Model Builder default configuration (YAML).
+
+gui:
+  locale: null
+  foreground_color: null
+  background_color: null
+  toast_color_warning: null
+  toast_color_success: null
+  show_toasts: true
+  default_main_window_size: "1400x950"
+  toasts_persist_seconds: 2
+  title_notify_persist_seconds: 5
+  font_size: 8
+  always_open_new_windows: false
+  enable_videos: false
+  cache_store_interval_seconds: 120.0
+
+app:
+  debug: false
+  debug2: false
+  log_level: info
+  print_settings: true

@@ -1,0 +1,45 @@
+# Default pipeline / ML job configuration (model, data, training, paths).
+# Loaded by mb.pipeline_config — not the desktop shell (see configs/application.yaml).
+
+model:
+  default_type: image_classification
+  default_framework: pytorch
+  default_architecture: resnet34
+
+data:
+  raw_data_dir: raw_data
+  data_dir: data
+  test_images_per_class: 1000
+  image_size: 224
+  batch_size: null
+  image_types:
+    - .jpg
+    - .jpeg
+    - .png
+    - .tif
+    - .tiff
+    - .webp
+    - .bmp
+    - .heic
+    - .avif
+  video_types:
+    - .mp4
+    - .mkv
+    - .avi
+    - .wmv
+    - .mov
+    - .flv
+
+training:
+  frozen_epochs: 5
+  unfrozen_epochs: 20
+  frozen_lr: 0.001
+  unfrozen_lr_max: 0.0003
+  unfrozen_lr_min: 0.00001
+  num_workers: 12
+  store_checkpoints: false
+
+paths:
+  models_dir: data/models
+  logs_dir: logs
+  timing_dir: timing_data

@@ -22,12 +22,12 @@
 
 | Topic | Risk | Notes |
 |--------|------|--------|
-| **Process coupling** | Closing the app or a crash can stop a long job mid-run | Same practical outcome as terminating a CLI process: the worker does not complete; partial outputs may exist on disk. **Cancellation** (below) should follow the same lifecycle model—cooperative stop on the worker, not a second OS process—so “user cancelled” and “app exited” behave similarly from the job’s perspective. |
-| **Progress in the UI (not log dumps)** | — | ~~Expecting the main window to mirror full `logging` output would overwhelm users.~~ The product direction is **not** to stream raw backend logs into the primary UI. **`mb` modules keep using `logging`** (e.g. file handlers in `mb.utils.logging`) for detailed traces. In the GUI, **progress** should be handled deliberately: e.g. a **unified progress callback** (phase, percent, or indeterminate state) feeding a **single progress widget or dialog** for long operations. Optional “View log file…” can link to disk logs for power users. |
-| **Cancellation** | Long jobs cannot be stopped cleanly today | **Required:** a first-class **Cancel** that signals the running work to stop cooperatively (shared flag, `QThread.requestInterruption()`, or equivalent). Semantics align with **process coupling** above: cancelled jobs should leave the same class of partial state as an abrupt exit, but under user control. |
-| **Threading + Qt (main-thread bridge)** | Workers must not touch QWidget APIs directly | **Required:** any callback from a worker that updates UI (progress, errors, done) should go through a **main-thread bridge**—the same pattern as `_MainThreadBridge` in other PySide6 codebases: wrap GUI-facing callables so they always execute on the GUI thread via Qt signals/slots (or `QMetaObject.invokeMethod` with `Qt.QueuedConnection`). Raw `QThreadPool` + fire-and-forget handlers are insufficient once progress and cancel are wired everywhere. |
-| **Config** | Training/conversion do not yet use the workspace YAML path | Today the GUI may call `get_config(None)` while the File menu stores a path separately. **Fix is small:** thread the workspace/config path from `ui/workspace` (or the menu) into `get_config(path)` for train/convert and any other command that respects CLI `--config`. Same defaults as CLI once that path is passed. |
-| **Error handling in the UI** | Failures must be visible without relying on log files alone | **Beyond** ad-hoc `QMessageBox` on exceptions: structured **error presentation** in the UI—e.g. non-blocking banner or dialog with a short user-facing message, optional “Details” (traceback / logger last line), and a consistent path for “copy error” or “open log folder”. Backend exceptions stay the source of truth; the UI layer maps them to recoverable, testable surfaces (signals to a small error controller, not scattered `print`/`messageBox` in each page). |
+| **Process coupling** | Closing the app or a crash can stop a long job mid-run | Same as killing a CLI process: partial outputs may exist. **Normal File → Exit:** `MainWindow.closeEvent` warns if **`QThreadPool.globalInstance().activeThreadCount() > 0`**, then stops the cache timer, stores app info cache, saves workspace—still **does not wait** for pool work to finish if the user confirms exit. **Force quit** skips even that flush. |
+| **Progress in the UI (not log dumps)** | — | **`mb` uses `logging`** for full traces. Long GUI operations use **`TaskSignals.progress`** + **`ui/lib/task_progress.attach_progress_dialog`** (modal progress; phase text + bar when the backend reports a 0–1 fraction). Per-page **`QTextEdit`** still logs high-level lines. **Errors:** **`qt_operation_error`** can open the log folder (§7.6). |
+| **Cancellation** | Long jobs need cooperative stop | **`LongTaskContext.cancel_event`** + **`attach_progress_dialog(..., cancellable=True)`**. **`mb.cancellation.check_cancel_event`** in training (epoch boundaries) and in **data** **`run()`** methods (gather/convert/dedupe/upscale/dataset) plus **`convert_model`** (before work starts). Cancel → **`OperationCancelled`** → **`TaskSignals.cancelled`**. |
+| **Threading + Qt (main-thread bridge)** | Workers must not touch QWidget APIs directly | **`ui/task_runner.py`** uses **`TaskSignals`** + **`Qt.QueuedConnection`**. **`NotificationController`** uses signals for toasts / `title_notify`. **`ui/main_thread_bridge.py`** (`MainThreadBridge`) marshals **`AppActions.title`** and **`AppActions._alert`** onto the GUI thread so **`notification_manager`** timers and other non-GUI callers stay safe. |
+| **Config** | ~~Single merged YAML for everything~~ | **Two layers:** application (`gui`/`app`) vs pipeline (`model`/`data`/`training`/`paths`). See §7.5. Train uses **`get_pipeline_config()`**; shell uses **`get_application_config()`**. |
+| **Error handling in the UI** | Failures must be visible without relying on log files alone | **Addressed in §7.6:** **`qt_operation_error`** (with copy + open log folder), **`qt_alert`**, **`task_runner`** logging; modal task failures vs toasts for supplementary feedback. |
 
 *Expanded discussion for each row:* **§7**.
 
@@ -105,7 +105,7 @@ This section answers: *“Could I lose my dataset?”*
 |------|------------|------------------|
 | **Same-drive confirmation (create-dataset)** | May call `confirm_user_action()` with **`input()`** for edge cases (non–system drive) | Uses **`QMessageBox.question`** only when `check_same_drive` is true—**not** identical to every CLI branch of `confirm_user_action` |
 | **External storage** | `--allow-external-storage` | Checkbox on Create Dataset tab; same `check_target_external_storage` |
-| **Training config file** | `--config PATH` | Workspace / File → config **not** automatically applied to `ModelTrainer` unless you add wiring |
+| **Training / pipeline defaults** | `--config PATH` (pipeline only) | **`mb.pipeline_config`**: CLI train uses **`--config`** for pipeline YAML; GUI loads **`configs/pipeline.yaml`** or legacy combined **`configs/default.yaml`** under the workspace when present |
 | **Logging** | Console + log files | QTextEdit snippets + **same** underlying loggers (check project log directory for full traces) |
 
 These gaps are **operational**, not “wrong backend”—but for parity testing, prefer **`mb …` from the command line** with the same paths once, then mirror in the GUI.
@@ -134,159 +134,115 @@ These gaps are **operational**, not “wrong backend”—but for parity testing
 
 ## 7. Pitfall details (expanded)
 
-The following subsections mirror the **Pitfalls (general)** table in §1 and spell out intent, constraints, and implementation direction. They are **design notes** for the `ui/` package, not a commitment that every item is already implemented.
+The following subsections mirror the **Pitfalls (general)** table in §1 and spell out intent, constraints, and how the current `ui/` code addresses them where applicable.
 
 ### 7.1 Process coupling and job lifecycle
 
-The GUI and the `mb` work run in the **same OS process**. If the user closes the window, the OS kills the process, or an unhandled fault occurs, any in-flight operation (gather, dataset creation, training, conversion) stops **without a graceful backend “shutdown” hook** unless one is added explicitly.
+The GUI and the `mb` work run in the **same OS process**. **`MainWindow.closeEvent`** asks for confirmation when **`QThreadPool.globalInstance().activeThreadCount() > 0`**, then stops the periodic cache timer, **stores app info cache**, and saves workspace settings. It does **not** block until pool tasks finish—if the user confirms exit, the process can still shut down while work is running. **Force quit** skips even the confirmation and cache flush.
 
-**Implications:** Partial writes are possible (e.g. half-copied dataset, incomplete checkpoint). That is the same class of risk as stopping `mb` in a terminal with Ctrl+C or killing the shell. Documentation and UX should set expectations: **long jobs are not isolated processes** unless you later introduce a separate worker executable or subprocess.
+**Implications:** Partial writes remain possible (e.g. half-copied dataset, incomplete checkpoint).
 
-**Relation to cancellation:** Cooperative cancellation (§7.3) should use the **same mental model**—the job ends early and may leave partial artifacts—so users understand “Cancel” vs “crash” vs “success” similarly at the filesystem level.
+**Subprocess training (implemented):** The Train page can start **`mb train --train-args-json …`** in a **detached OS process** (checkbox: run in a separate process). Logs go to **`<output_dir>/mb_train_subprocess.log`**. The GUI still shares the process for the default in-thread path; only the detached option isolates training from the app process.
+
+**Relation to cancellation:** Cooperative cancellation (§7.3) uses the **same mental model**—early stop may leave partial artifacts.
 
 ### 7.2 Progress in the UI (not log dumps)
 
-The backend will continue to emit rich diagnostics through Python **`logging`** (including file handlers configured in `mb.utils.logging`). That stream is appropriate for **debugging and support**, not for pasting line-by-line into the main window.
+The backend will continue to emit rich diagnostics through Python **`logging`** (including file handlers configured in `utils.logging_setup`). That stream is appropriate for **debugging and support**, not for mirroring every log line in the main window.
 
-**Intended GUI behavior:** Surface **progress**, not a verbatim log tail:
+**Implemented:** **`LongTaskContext.progress`** / **`TaskSignals.progress`**; **`attach_progress_dialog`** (`ui/lib/task_progress.py`) shows a modal **`QProgressDialog`**. **`ModelTrainer.train`** uses **`progress_cb`**; PyTorch/Keras report epoch fractions. Per-page **`QTextEdit`** for a short run log. **Reveal log folder** on failures: **`qt_operation_error`** (§7.6).
 
-- A **unified progress contract** (e.g. callback or signal emitting phase name, optional numeric percent, and indeterminate vs determinate mode) invoked from the worker side at safe points.
-- A **single** primary surface for long operations: e.g. a **modal or modeless progress dialog**, or a dedicated strip in the main window, so the user always knows *something is running* and *how far along* it is in product terms (“Gathering…”, “Epoch 3/10”), not raw logger lines.
-- Optional **“Open log file…”** or **“Reveal log folder”** for users who need the full trace—keeping the default experience calm.
-
-This avoids overwhelming non-expert users while preserving observability on disk.
+**Optional later:** A main-window status strip or non-modal progress; an explicit **Open log file** control alongside **Reveal log folder**.
 
 ### 7.3 Cancellation
 
-Long-running work must be **stoppable without killing the whole application** (when safe). Today, background tasks may run until completion; **cancellation** is a required enhancement.
+**Training:** Cooperative cancel at **batch** boundaries during PyTorch train/validation loops, and via **Keras** `LambdaCallback` **`on_batch_begin`** during `fit` (training batches). Epoch-start checks remain where applicable. **Data pipeline** (`ImageGatherer`, `ImageConverter`, `ImageDeduplicator`, `ImageUpscaler`, `DatasetCreator`): **`run(cancel_event=…)`** checks between phases and every N files in long loops. **Model convert** (`convert_model`): check **before** export (single-shot; cannot interrupt mid-export cleanly without deeper hooks).
 
-**Design goals:**
+**Not done / future:** Interrupting a single **ONNX/export** call mid-flight; optional dedicated **`QThread` per job**. Prefer polite stop over force-killing threads.
 
-- **Cooperative cancellation:** The worker checks a shared **cancel flag** or `QThread.isInterruptionRequested()` (if the work runs on a `QThread`) at loop boundaries—between files, between epochs, between pipeline stages—not mid-syscall where unsafe.
-- **Same partial-state story as §7.1:** After cancel, the user may see incomplete outputs; the UI should say so (“Stopped by user—check output folder before re-running”).
-- **Implementation options:** A dedicated `QThread` per job (easier interruption) vs `QThreadPool` + periodic flag checks—either is acceptable if cancellation is tested on real workloads.
-
-Force-killing threads from outside is discouraged; prefer **polite** stop requests.
+**Partial-state:** Same as §7.1—cancel may leave partial artifacts; Train / Data / Convert pages append a short “stopped” line.
 
 ### 7.4 Threading and Qt (main-thread bridge)
 
 Qt **GUI objects must be used only on the thread that created them** (typically the main / GUI thread). Worker threads must **not** call `QLabel.setText`, append to `QTextEdit`, open dialogs, etc. directly.
 
-**Required pattern:** A **main-thread bridge**—a small helper that forwards calls to the GUI thread via Qt’s event loop, e.g.:
+**In this repo:** `ui/task_runner.py` constructs **`TaskSignals` on the main thread** (when `start_task` runs) and connects **`success` / `error` / `done` with `Qt.QueuedConnection`**, so handlers that touch widgets run on the GUI thread. **`NotificationController.toast`** and **`title_notify`** emit Qt signals so slots run on the GUI thread.
 
-- **Signals** emitted from the worker and **connected** to slots on a QObject living in the main thread (Qt will use **queued** delivery across threads when the connection type allows), or
-- **`QMetaObject.invokeMethod(..., Qt.QueuedConnection)`** on a GUI-side QObject.
+**Ad-hoc / non-pool callers:** **`utils.notification_manager`** drives **`AppActions.title`** (and sometimes **`toast`**) from **`threading.Timer`** callbacks—not the Qt main thread. **`MainWindow`** therefore creates **`MainThreadBridge`** (`ui/main_thread_bridge.py`), wraps **`setWindowTitle`** and **`NotificationController.alert`** for **`AppActions`**, and registers **`notification_manager.set_app_actions(self.app_actions, …)`** so those paths always execute Qt work on the GUI thread. **`invoke` / `wrap`** use **`QMetaObject.invokeMethod`** with **`BlockingQueuedConnection`** (direct call when already on the GUI thread to avoid deadlock).
 
-This matches the idea of classes like `_MainThreadBridge` in other PySide6 projects: wrap any “touch the UI” callable so workers only invoke **thread-safe** entry points. Progress updates, error toasts, and “job finished” should all go through this layer.
+**Why it matters once progress and cancel exist:** Queued signal delivery keeps pool task UI updates deterministic; timers and any future worker code that bypasses `TaskSignals` still need **`MainThreadBridge`** or an equivalent.
 
-**Why it matters once progress and cancel exist:** Without a bridge, cross-thread UI bugs are intermittent and hard to reproduce; with one, behavior stays deterministic.
-
-#### `_MainThreadBridge` class:
+#### `MainWindow._build_app_actions` (Model Builder)
 
 ```python
-class _MainThreadBridge(QWidget):
-    """Marshals arbitrary callables from worker threads to the main/GUI thread.
+def _build_app_actions(self) -> AppActions:
+    nc = self._notifications
+    ts = self._thread_bridge.wrap
 
-    Uses ``QMetaObject.invokeMethod`` with ``BlockingQueuedConnection`` so that
-    the calling (worker) thread blocks until the callable finishes on the main
-    thread.  When already on the main thread the callable runs directly.
-    """
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.hide()  # invisible helper widget
-        self._lock = threading.Lock()
-        self._func = None
-        self._args = ()
-        self._kwargs = {}
-        self._result = None
-        self._error = None
-
-    @Slot()
-    def _execute(self):
-        try:
-            self._result = self._func(*self._args, **self._kwargs)
-        except Exception as e:
-            self._error = e
-
-    def invoke(self, func, *args, **kwargs):
-        """Call *func* on the main thread, blocking until it returns."""
-        app = QApplication.instance()
-        if app is None or QThread.currentThread() == app.thread():
-            return func(*args, **kwargs)
-        with self._lock:
-            self._func = func
-            self._args = args
-            self._kwargs = kwargs
-            self._result = None
-            self._error = None
-            QMetaObject.invokeMethod(
-                self, "_execute", Qt.ConnectionType.BlockingQueuedConnection,
-            )
-            if self._error:
-                raise self._error
-            return self._result
-
-    def wrap(self, func):
-        """Return a wrapper that always invokes *func* on the main thread."""
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            return self.invoke(func, *args, **kwargs)
-        return wrapper
+    return AppActions(
+        {
+            "get_window": lambda: self,
+            "toast": nc.toast,
+            "_alert": ts(nc.alert),
+            "title_notify": nc.title_notify,
+            "refresh": lambda: None,
+            "title": ts(self.setWindowTitle),
+        },
+        master=self,
+    )
 ```
 
-#### Example Usage
+The full **`MainThreadBridge`** implementation (including **`invoke`**, **`wrap`**, and the **`@Slot`** **`_execute`** slot) lives in **`ui/main_thread_bridge.py`**.
 
-```python
-    def _build_app_actions(self) -> AppActions:
-        """Wire the AppActions dict, mapping action names to controller methods.
+### 7.5 Config: application vs pipeline (two YAML concerns)
 
-        Actions that touch the Qt GUI are wrapped via :class:`_MainThreadBridge`
-        so that the compare engine (which runs on a worker thread) can call them
-        safely.  Pure-data / thread-safe getters are left unwrapped.
-        """
-        ts = self._thread_bridge.wrap  # shorthand
+Settings are split intentionally:
 
-        actions = {
-            # Window title -- thread-safe via Signal so that
-            # notification_manager's Timer thread never touches Qt directly
-            "title": self._sig_set_title.emit,
-            # Window management (static)
-            "new_window": ts(WindowManager.add_secondary_window),
-            "get_window": WindowManager.get_window,
-            "get_open_windows": WindowManager.get_open_windows,
-            "refresh_all_compares": ts(WindowManager.refresh_all_compares),
-            # etc.
-        }
-        self.app_actions = actions
-```
+| Layer | Python API | Typical YAML |
+|--------|------------|----------------|
+| **Application shell** (gui, app — toasts, window size, debug) | `utils.config.get_application_config` / `reload_application_config` | Repo `configs/application.yaml`, or legacy `configs/default.yaml` (only `gui` / `app` keys are read) |
+| **Pipeline / ML jobs** (model, data, training, paths) | `mb.pipeline_config.get_pipeline_config` / `reload_pipeline_config` | `mb/config/default_pipeline.yaml` (package), or workspace `configs/pipeline.yaml`, or the same file as app if it is a legacy combined `default.yaml` |
 
-### 7.5 Config path wiring (workspace YAML)
+**GUI (`MainWindow`):** calls **`reload_application_config(_effective_application_config_path())`** and **`reload_pipeline_config(_effective_pipeline_config_path())`** on startup, after **Set workspace folder**, and after **Set config file**. Application path: explicit file from the menu, else `workspace/configs/application.yaml`, else `workspace/configs/default.yaml`. Pipeline path: `workspace/configs/pipeline.yaml` if present, else the menu path (filters pipeline keys), else `workspace/configs/default.yaml`, else packaged defaults.
 
-The File / workspace flow can persist a **YAML config path** (`ui/workspace`, `QSettings`). The **CLI** uses `get_config(args.config)` so `--config` applies globally to training and other steps.
+**CLI (`mb train`):** uses **`reload_pipeline_config(args.config)`** and **`get_pipeline_config()`** only — no application shell YAML unless you load it elsewhere. **`mb train --train-args-json PATH`** loads **`TrainingRunArgs`** from JSON (see **`mb.training.run_args`**) and ignores other train flags; use **`mb --config … train --train-args-json …`** for pipeline YAML.
 
-**Gap:** Pages that call `get_config(None)` ignore that stored path unless it is passed through.
+**Aliases:** `get_config` / `reload_config` in `utils.config` still map to the **application** singleton for backward compatibility.
 
-**Intended fix (small):**
-
-- When launching train, convert, or any action that respects `mb`’s config merge, pass **`Path`** from the current workspace into **`get_config(config_path)`** (or equivalent), falling back to `None` when unset.
-- Keep a single source of truth: either the workspace owns the path, or the main window injects it into page controllers once per session.
-
-After wiring, GUI behavior should match **`mb --config …`** for the same file.
+**Caveat:** Import-time `get_application_config()` before `MainWindow` can pin early defaults; the GUI loads both layers before pages are built.
 
 ### 7.6 Error handling in the UI
 
-Relying only on **ad-hoc `QMessageBox` in each page** makes errors inconsistent and hard to test; relying only on **log files** fails users who never open them.
+**Implemented:** **`qt_operation_error`** and **`qt_alert`** in `ui/lib/qt_alert.py`—critical / warning / info / yes-no flows with translated buttons where applicable. Train, Convert, and Data task failures use **`qt_operation_error`**; Info, Data (pre-flight checks), and MainWindow use **`qt_alert`**. **`ui/task_runner.py`** logs the **full traceback** with `logger.exception` on worker failure (the dialog still shows `str(exc)` to avoid dumping stacks in the UI).
 
-**Intended direction:**
+**Operation errors (modal):** **`qt_operation_error`** is the single place for “backend task failed” UX: critical icon, short summary, optional **Show Details** (`setDetailedText`), plus **Copy details** (summary + detail to the clipboard) and **Open log folder** (opens the same directory **`get_log_directory()`** in `utils/logging_setup.py` uses for `modelbuilder_*.log`). Pass **`with_log_actions=False`** if a caller must show a minimal dialog without those actions.
 
-- A small **error surface** (object or module) that pages and workers call with: short **user message**, optional **detail** (exception string, last log line), and **severity** (info / warning / error).
-- **Presentation:** Non-blocking **banner** or **dialog** with optional **“Details”** expander, plus actions like **Copy error** and **Open log folder** where applicable.
-- **Implementation:** Prefer **signals** from workers → main-thread slots that call this surface, not `QMessageBox` from inside `run()` on a pool thread.
+**“Central error controller”:** There is no separate controller class by design—**`qt_operation_error`** plus **`task_runner`** logging are the coordinated surface. A future **`MainWindow`** error signal would only be needed if multiple subsystems must subscribe to the same failure event without a dialog.
 
-Backend exceptions remain authoritative; the UI layer **maps** them to consistent, accessible feedback.
+**Non-blocking feedback:** Use **`NotificationController`** / **`notification_manager`** toasts for supplementary status (cache, workspace, etc.). Full task failures stay **modal** so they are not missed; optional non-blocking **error** banners remain a future enhancement if product wants failures visible without blocking focus.
+
+(Config path wiring for the GUI is covered in §7.5.)
+
+
+
+
+### Gaps the review still calls out (intentional / future)
+These are **not** bugs in the checklist—they’re called out as differences or follow-ups:
+
+| Item | Where | Status |
+|------|--------|--------|
+| **CLI vs GUI parity** (e.g. same-drive / `confirm_user_action` vs `QMessageBox`) | §4 | Documented gap; only matters if you want identical UX. |
+| ~~**Subprocess isolation** for long jobs~~ | §7.1 | Train page: detached `mb train --train-args-json`. |
+| ~~**Cooperative cancel** on Data / Convert / gather / dataset~~ | §1, §7.3 | Complete |
+| ~~**Mid-epoch** cancel (train batches / val batches)~~ | §7.3 | PyTorch + Keras batch checks; data still phase/N-file boundaries. |
+| **Non-modal progress** or **main-window strip** | §7.2 | Optional product choice. |
+| **Non-blocking error banners** | §7.6 | Explicitly “future”. |
+| **Optional `MainWindow` error signal** | §7.6 | Future, if you need pub/sub without a dialog. |
+| **Integration tests** | Not in doc | Mentioned in chat; still a separate follow-up. |
+
+
 
 ---
 
-**Document version:** 1.2  
+**Document version:** 1.10  
 **Last updated:** 2026-04-02

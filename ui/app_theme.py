@@ -37,6 +37,19 @@ class ThemeColors:
 COLORS = ThemeColors()
 
 
+class AppStyle:
+    """
+    Stable color tokens for widgets that need explicit hex (toasts, overlays).
+
+    Aligns with :data:`COLORS` / :func:`apply_theme` so notification UI matches the app theme.
+    """
+
+    BG_COLOR = COLORS.bg_elevated
+    FG_COLOR = COLORS.text
+    TOAST_COLOR_WARNING = "#5D4037"
+    TOAST_COLOR_SUCCESS = "#33691E"
+
+
 def _qcolor(hex_rgb: str) -> QColor:
     return QColor(hex_rgb)
 

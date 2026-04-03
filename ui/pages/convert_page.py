@@ -12,7 +12,6 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
-    QMessageBox,
     QPushButton,
     QSpinBox,
     QTextEdit,
@@ -21,6 +20,9 @@ from PySide6.QtWidgets import (
 )
 
 from mb.conversion.converters import convert_model, detect_model_framework
+from ui.lib.qt_alert import qt_operation_error
+from ui.lib.task_progress import attach_progress_dialog
+from ui.task_context import LongTaskContext
 from ui.task_runner import start_task
 
 
@@ -79,6 +81,41 @@ class ConvertPage(QWidget):
 
         self.btn_validate.clicked.connect(self._validate_inputs)
         self.btn_convert.clicked.connect(self._run_conversion)
+        self._validate_inputs()
+
+    def collect_gui_state(self) -> dict:
+        """Serializable form state; restored by :class:`ui.controllers.cache_controller.CacheController`."""
+        return {
+            "input_model": self.input_model.text(),
+            "output_model": self.output_model.text(),
+            "framework_idx": int(self.framework.currentIndex()),
+            "target_idx": int(self.target.currentIndex()),
+            "architecture": self.architecture.text(),
+            "num_classes": int(self.num_classes.value()),
+            "image_size": int(self.image_size.value()),
+        }
+
+    def restore_gui_state(self, state: dict) -> None:
+        if not state:
+            return
+        try:
+            self.input_model.setText(str(state.get("input_model", "")))
+            self.output_model.setText(str(state.get("output_model", "")))
+            fi = state.get("framework_idx")
+            if isinstance(fi, int) and 0 <= fi < self.framework.count():
+                self.framework.setCurrentIndex(fi)
+            ti = state.get("target_idx")
+            if isinstance(ti, int) and 0 <= ti < self.target.count():
+                self.target.setCurrentIndex(ti)
+            self.architecture.setText(str(state.get("architecture", "")))
+            nc = state.get("num_classes")
+            if isinstance(nc, int):
+                self.num_classes.setValue(nc)
+            iz = state.get("image_size")
+            if isinstance(iz, int):
+                self.image_size.setValue(iz)
+        except Exception:
+            pass
         self._validate_inputs()
 
     def _path_row(self, edit: QLineEdit, select_dir: bool = True, save: bool = False) -> QWidget:
@@ -183,15 +220,18 @@ class ConvertPage(QWidget):
         payload = self._collect_inputs()
         self._append(f"[run] mb convert {payload['input_path'].name} -> {payload['target_format']}")
         self._set_busy(True)
-        start_task(
+        handle = start_task(
             self._execute_conversion,
             self._on_success,
             self._on_error,
             lambda: self._set_busy(False),
             payload,
+            pass_context=True,
+            on_cancelled=self._on_convert_cancelled,
         )
+        attach_progress_dialog(self, "Convert model", handle, cancellable=True)
 
-    def _execute_conversion(self, payload: dict) -> bool:
+    def _execute_conversion(self, ctx: LongTaskContext, payload: dict) -> bool:
         return bool(
             convert_model(
                 input_path=payload["input_path"],
@@ -201,8 +241,12 @@ class ConvertPage(QWidget):
                 architecture=payload["architecture"],
                 num_classes=payload["num_classes"],
                 image_size=payload["image_size"],
+                cancel_event=ctx.cancel_event,
             )
         )
+
+    def _on_convert_cancelled(self) -> None:
+        self._append("[stopped] Conversion cancelled before completion.")
 
     def _on_success(self, success: bool) -> None:
         if success:
@@ -212,4 +256,9 @@ class ConvertPage(QWidget):
 
     def _on_error(self, message: str) -> None:
         self._append(f"[error] {message}")
-        QMessageBox.critical(self, "Conversion failed", message)
+        qt_operation_error(
+            self,
+            "Conversion failed",
+            "Model conversion reported an error. See Details for the underlying message.",
+            detail=message,
+        )

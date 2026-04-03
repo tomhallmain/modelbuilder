@@ -250,7 +250,7 @@ ARCHITECTURE_REGISTRY = {
 - [x] Refactor `create_datasets.py` → `mb/data/dataset.py`
 
 #### 2.2 Utility Migration ✅
-- [x] Migrate `logging_config.py` → `mb/utils/logging.py`
+- [x] Migrate `logging_config.py` → `utils/logging_setup.py` (CLI helpers: `setup_logging`, `log_startup_info`, `log_completion_info`)
 - [x] Migrate `snapshot_utils.py` → `mb/utils/snapshot.py`
 - [x] Migrate `storage_utils.py` → `mb/utils/storage.py`
 - [x] Migrate `timing_utils.py` → `mb/utils/timing.py`
@@ -357,7 +357,7 @@ Detailed architecture (PySide6 desktop UI) and acceptance notes: **[GUI_PLAN.md]
 - [ ] Dataset / model info views consistent with `mb info` capabilities
 
 #### 7.5 Packaging and documentation
-- [x] Optional install: `pip install modelbuilder[gui]` and/or `requirements-gui.txt` (PySide6)
+- [x] Unified install: `pip install -r requirements.txt` / `pip install -e .` (includes PySide6)
 - [x] README pointer to GUI install and **docs/GUI_PLAN.md**
 - [ ] Primary platform smoke test (Windows)
 

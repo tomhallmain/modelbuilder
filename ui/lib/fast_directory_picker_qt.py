@@ -18,7 +18,9 @@ import time
 from threading import RLock
 
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QGuiApplication
 from PySide6.QtWidgets import (
+    QDialog,
     QHBoxLayout,
     QInputDialog,
     QLabel,
@@ -30,12 +32,31 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from lib.multi_display_qt import SmartDialog
-from utils.logging_setup import get_logger
+import logging
+
 from utils.translations import I18N
 
 _ = I18N._
-logger = get_logger("fast_directory_picker_qt")
+
+logger = logging.getLogger(__name__)
+
+
+def _center_dialog_on_parent_or_screen(dialog: QDialog, parent: QWidget | None) -> None:
+    dialog.adjustSize()
+    if parent is not None:
+        pw = parent.window()
+        if pw is not None:
+            geo = dialog.frameGeometry()
+            geo.moveCenter(pw.frameGeometry().center())
+            dialog.move(geo.topLeft())
+            return
+    screen = QGuiApplication.primaryScreen()
+    if screen is None:
+        return
+    avail = screen.availableGeometry()
+    geo = dialog.frameGeometry()
+    geo.moveCenter(avail.center())
+    dialog.move(geo.topLeft())
 
 # Session-only context memory for better default starting location.
 _session_last_directory_hint: str = ""
@@ -235,7 +256,7 @@ class _DirectoryPickerCache:
         return roots if roots else [("/", "/")]
 
 
-class FastDirectoryPickerDialog(SmartDialog):
+class FastDirectoryPickerDialog(QDialog):
     """Custom, efficient directory picker that avoids native file dialog IO."""
 
     def __init__(
@@ -246,13 +267,9 @@ class FastDirectoryPickerDialog(SmartDialog):
         initial_dir: str = "",
         quick_access_locations: list[tuple[str, str]] | None = None,
     ) -> None:
-        super().__init__(
-            parent=parent,
-            position_parent=parent,
-            title=title or _("Select Directory"),
-            geometry="860x560",
-            center=True,
-        )
+        super().__init__(parent)
+        self.setWindowTitle(title or _("Select Directory"))
+        self.resize(860, 560)
         self.setModal(True)
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
 
@@ -338,6 +355,7 @@ class FastDirectoryPickerDialog(SmartDialog):
 
         self._load_roots()
         self._set_initial_directory(initial_dir)
+        _center_dialog_on_parent_or_screen(self, parent)
 
     def keyPressEvent(self, event) -> None:  # noqa: N802
         # Consume Escape in this dialog so parent Escape shortcuts do not fire.
@@ -540,7 +558,7 @@ def get_existing_directory(
         quick_access_locations=resolved_quick_access,
     )
     _session_has_opened_picker = True
-    if dialog.exec() == SmartDialog.DialogCode.Accepted:
+    if dialog.exec() == QDialog.DialogCode.Accepted:
         selected = dialog.selected_directory or ""
         if selected:
             _session_last_directory_hint = selected

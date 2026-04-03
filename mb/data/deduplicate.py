@@ -9,6 +9,7 @@ import hashlib
 import shutil
 import io
 import pickle
+import threading
 import time
 from pathlib import Path
 from typing import List, Dict, Tuple, Optional
@@ -22,7 +23,8 @@ except ImportError:
     raise ImportError("Error: PIL/Pillow not available. Image deduplication is required.")
 
 # Import centralized logging configuration
-from mb.utils.logging import setup_logging, log_startup_info, log_completion_info
+from utils.logging_setup import setup_logging, log_startup_info, log_completion_info
+from mb.cancellation import check_cancel_event
 
 # Configure logging
 logger = setup_logging(script_name="deduplicate_images")
@@ -442,6 +444,7 @@ class ImageDeduplicator:
     
     def perform_deduplication(self) -> None:
         """Perform comprehensive deduplication across all directories."""
+        check_cancel_event(getattr(self, "_cancel_event", None))
         logger.info("=" * 60)
         logger.info("STARTING DEDUPLICATION PROCESS")
         logger.info("=" * 60)
@@ -479,6 +482,7 @@ class ImageDeduplicator:
         logger.info("  - Removing images with any dimension < 80px")
         logger.info("  - Moving images with dimensions between 80px and 250px to review directory")
         for directory in existing_directories:
+            check_cancel_event(getattr(self, "_cancel_event", None))
             removed_count, moved_count = self.process_small_images_from_directory(directory)
             self.stats['small_images_removed'] += removed_count
             self.stats['small_images_moved'] += moved_count
@@ -486,11 +490,13 @@ class ImageDeduplicator:
         # Step 1: Remove duplicates within each directory
         logger.info("\nStep 1: Removing duplicates within each directory...")
         for directory in existing_directories:
+            check_cancel_event(getattr(self, "_cancel_event", None))
             removed_count = self.remove_duplicates_from_directory(directory)
             self.stats['duplicates_removed'] += removed_count
         
         # Step 2: Find duplicates across all directories
         logger.info("\nStep 2: Finding duplicates across all directories...")
+        check_cancel_event(getattr(self, "_cancel_event", None))
         all_duplicates = self.find_duplicates_across_directories(existing_directories)
         self.stats['duplicates_found'] = len(all_duplicates)
         
@@ -503,6 +509,7 @@ class ImageDeduplicator:
         
         # Step 3: Check coherent images against other directories
         logger.info("\nStep 3: Checking coherent images against other directories...")
+        check_cancel_event(getattr(self, "_cancel_event", None))
         if coherent_dir.exists() and (incoherent_dir.exists() or semi_incoherent_dir.exists()):
             other_dirs = [d for d in [incoherent_dir, semi_incoherent_dir] if d.exists()]
             duplicate_coherent_files = self.check_coherent_against_other_directories(coherent_dir, other_dirs)
@@ -535,10 +542,19 @@ class ImageDeduplicator:
         logger.info(f"Coherent images that are duplicates of other directories: {self.stats['coherent_duplicates_found']}")
         logger.info("=" * 60)
     
-    def run(self) -> bool:
-        """Main execution method."""
+    def run(self, cancel_event: Optional[threading.Event] = None) -> bool:
+        """Main execution method. *cancel_event* is checked between major steps."""
+        self._cancel_event = cancel_event
+        try:
+            return self._run_impl()
+        finally:
+            self._cancel_event = None
+
+    def _run_impl(self) -> bool:
         log_startup_info(logger, "Image deduplication process")
         logger.info(f"Raw data directory: {self.raw_data_dir}")
+        
+        check_cancel_event(self._cancel_event)
         
         # Validate raw data directory
         if not self.raw_data_dir.exists():

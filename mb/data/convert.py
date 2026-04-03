@@ -8,6 +8,7 @@ are simply copied.
 
 import sys
 import shutil
+import threading
 from pathlib import Path
 from typing import List, Set, Optional
 from collections import defaultdict
@@ -23,7 +24,8 @@ except ImportError:
     raise ImportError("Error: PIL/Pillow not available. Image conversion is required.")
 
 # Import centralized logging configuration
-from mb.utils.logging import setup_logging, log_startup_info, log_completion_info
+from utils.logging_setup import setup_logging, log_startup_info, log_completion_info
+from mb.cancellation import check_cancel_event
 from mb.utils.snapshot import (
     UnifiedSnapshot, generate_run_id, save_unified_snapshot, preload_gather_cache
 )
@@ -258,6 +260,7 @@ class ImageConverter:
         
         for i, source_path in enumerate(image_files, 1):
             if i % 100 == 0:
+                check_cancel_event(getattr(self, "_cancel_event", None))
                 logger.info(f"Progress: {i}/{len(image_files)} files processed for {class_dir.name}")
             
             # Determine if file is already JPEG
@@ -325,10 +328,19 @@ class ImageConverter:
         total_processed = self.stats['files_converted'] + self.stats['files_copied']
         logger.info(f"\nTotal files processed: {total_processed}")
     
-    def run(self) -> bool:
-        """Main execution method."""
+    def run(self, cancel_event: Optional[threading.Event] = None) -> bool:
+        """Main execution method. *cancel_event* is checked between classes and during file loops."""
+        self._cancel_event = cancel_event
+        try:
+            return self._run_impl()
+        finally:
+            self._cancel_event = None
+
+    def _run_impl(self) -> bool:
         log_startup_info(logger, "Image to JPEG conversion process")
         logger.info(f"Raw data directory: {self.raw_data_dir}")
+        
+        check_cancel_event(self._cancel_event)
         
         # Validate configuration
         if not self.validate_configuration():
@@ -352,6 +364,7 @@ class ImageConverter:
         # Process each class directory
         all_image_files = []
         for class_name in CLASS_NAMES:
+            check_cancel_event(self._cancel_event)
             class_dir = self.raw_data_dir / class_name
             
             if not class_dir.exists():

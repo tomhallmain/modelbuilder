@@ -1,5 +1,7 @@
 .cursorignore
 raw_data/*
+configs/*
+!configs/application.yaml
 __pycache__/
 *.swp
 *.log
@@ -14,3 +16,7 @@ build/
 # Timing data (optional - you may want to keep this for analysis)
 legacy/
 logs/
+
+app_info_cache.*
+utils/app_info_cache.py
+

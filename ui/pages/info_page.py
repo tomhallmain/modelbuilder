@@ -11,7 +11,6 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
-    QMessageBox,
     QPushButton,
     QTabWidget,
     QTextEdit,
@@ -20,6 +19,7 @@ from PySide6.QtWidgets import (
 )
 
 from mb.conversion.converters import detect_model_framework
+from ui.lib.qt_alert import qt_alert
 from mb.models.frameworks.registry import list_architectures
 
 
@@ -34,10 +34,33 @@ class InfoPage(QWidget):
         root.addWidget(QLabel("<h2>Info</h2>"))
         root.addWidget(QLabel("Inspect model metadata and dataset structure/statistics."))
 
-        tabs = QTabWidget()
-        tabs.addTab(self._build_model_tab(), "Model")
-        tabs.addTab(self._build_dataset_tab(), "Dataset")
-        root.addWidget(tabs, 1)
+        self._tabs = QTabWidget()
+        self._tabs.addTab(self._build_model_tab(), "Model")
+        self._tabs.addTab(self._build_dataset_tab(), "Dataset")
+        root.addWidget(self._tabs, 1)
+
+        self.btn_model_info.clicked.connect(self._inspect_model)
+        self.btn_dataset_info.clicked.connect(self._inspect_dataset)
+
+    def collect_gui_state(self) -> dict:
+        """Serializable form state; restored by :class:`ui.controllers.cache_controller.CacheController`."""
+        return {
+            "tab": int(self._tabs.currentIndex()),
+            "model_path": self.model_path.text(),
+            "dataset_dir": self.dataset_dir.text(),
+        }
+
+    def restore_gui_state(self, state: dict) -> None:
+        if not state:
+            return
+        try:
+            t = state.get("tab")
+            if isinstance(t, int) and 0 <= t < self._tabs.count():
+                self._tabs.setCurrentIndex(t)
+            self.model_path.setText(str(state.get("model_path", "")))
+            self.dataset_dir.setText(str(state.get("dataset_dir", "")))
+        except Exception:
+            pass
 
     def _build_model_tab(self) -> QWidget:
         tab = QWidget()
@@ -82,8 +105,6 @@ class InfoPage(QWidget):
         self.dataset_output.setPlaceholderText("Dataset info output will appear here.")
         v.addWidget(self.dataset_output, 1)
 
-        self.btn_model_info.clicked.connect(self._inspect_model)
-        self.btn_dataset_info.clicked.connect(self._inspect_dataset)
         return tab
 
     def _path_row(self, edit: QLineEdit, select_dir: bool = True) -> QWidget:
@@ -122,11 +143,11 @@ class InfoPage(QWidget):
     def _inspect_model(self) -> None:
         path_text = self.model_path.text().strip()
         if not path_text:
-            QMessageBox.warning(self, "Model path required", "Please provide a model path.")
+            qt_alert(self, "Model path required", "Please provide a model path.", kind="warning")
             return
         model_path = Path(path_text)
         if not model_path.exists():
-            QMessageBox.warning(self, "Missing file", f"Model path not found: {model_path}")
+            qt_alert(self, "Missing file", f"Model path not found: {model_path}", kind="warning")
             return
 
         framework = detect_model_framework(model_path)
@@ -154,7 +175,7 @@ class InfoPage(QWidget):
     def _inspect_dataset(self) -> None:
         data_dir = Path(self.dataset_dir.text().strip() or "data")
         if not data_dir.exists():
-            QMessageBox.warning(self, "Missing directory", f"Data directory not found: {data_dir}")
+            qt_alert(self, "Missing directory", f"Data directory not found: {data_dir}", kind="warning")
             return
 
         lines = [f"Data dir: {data_dir}", ""]

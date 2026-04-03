@@ -7,9 +7,10 @@ Places upscaled images in raw_data/small_images_review/upscaled_small_images.
 
 import sys
 import shutil
+import threading
 import time
 from pathlib import Path
-from typing import List, Dict, Tuple
+from typing import Dict, List, Optional, Tuple
 from collections import defaultdict
 import argparse
 
@@ -20,7 +21,8 @@ except ImportError:
     raise ImportError("Error: PIL/Pillow not available. Image upscaling is required.")
 
 # Import centralized logging configuration
-from mb.utils.logging import setup_logging, log_startup_info, log_completion_info
+from utils.logging_setup import setup_logging, log_startup_info, log_completion_info
+from mb.cancellation import check_cancel_event
 
 # Configure logging
 logger = setup_logging(script_name="upscale_small_images")
@@ -218,6 +220,7 @@ class ImageUpscaler:
         
         for i, source_path in enumerate(image_files, 1):
             if i % 100 == 0:
+                check_cancel_event(getattr(self, "_cancel_event", None))
                 logger.info(f"Progress: {i}/{len(image_files)} images processed for {category}")
             
             # Create target filename (preserve original name)
@@ -293,12 +296,21 @@ class ImageUpscaler:
         
         logger.info("=" * 60)
     
-    def run(self) -> bool:
-        """Main execution method."""
+    def run(self, cancel_event: Optional[threading.Event] = None) -> bool:
+        """Main execution method. *cancel_event* is checked between categories and during file loops."""
+        self._cancel_event = cancel_event
+        try:
+            return self._run_impl()
+        finally:
+            self._cancel_event = None
+
+    def _run_impl(self) -> bool:
         log_startup_info(logger, "Small image upscaling process")
         logger.info(f"Review directory: {self.review_dir}")
         logger.info(f"Upscaled directory: {self.upscaled_dir}")
         logger.info(f"Target minimum dimension: {MIN_DIMENSION_TARGET}px")
+        
+        check_cancel_event(self._cancel_event)
         
         # Validate configuration
         if not self.validate_configuration():
@@ -306,6 +318,7 @@ class ImageUpscaler:
         
         # Process each category
         for category in CATEGORIES:
+            check_cancel_event(self._cancel_event)
             self.process_category(category)
         
         # Print summary

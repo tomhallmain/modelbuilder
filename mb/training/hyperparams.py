@@ -5,9 +5,12 @@ This module provides utilities for managing and merging hyperparameters
 from various sources (config, CLI, defaults).
 """
 
-from typing import Dict, Any, Optional
-from pathlib import Path
+from typing import Any, Dict, Optional, TYPE_CHECKING
+
 import logging
+
+if TYPE_CHECKING:
+    from mb.pipeline_config import PipelineConfig
 
 logger = logging.getLogger(__name__)
 
@@ -31,15 +34,19 @@ class HyperparameterManager:
         self,
         model_type_defaults: Dict[str, Any],
         config_hyperparams: Optional[Dict[str, Any]] = None,
-        cli_hyperparams: Optional[Dict[str, Any]] = None
+        cli_hyperparams: Optional[Dict[str, Any]] = None,
+        *,
+        pipeline_config: Optional["PipelineConfig"] = None,
     ) -> Dict[str, Any]:
         """
         Merge hyperparameters from multiple sources.
         
         Args:
             model_type_defaults: Default hyperparameters from model type handler
-            config_hyperparams: Hyperparameters from config file
+            config_hyperparams: Explicit dict (used when ``pipeline_config`` is omitted)
             cli_hyperparams: Hyperparameters from CLI arguments
+            pipeline_config: If set, overrides *config_hyperparams* with
+                :meth:`~mb.pipeline_config.PipelineConfig.training_hyperparams`
             
         Returns:
             Merged hyperparameters dictionary
@@ -47,8 +54,9 @@ class HyperparameterManager:
         # Start with model type defaults
         merged = model_type_defaults.copy()
         
-        # Override with config values
-        if config_hyperparams:
+        if pipeline_config is not None:
+            merged.update(pipeline_config.training_hyperparams())
+        elif config_hyperparams:
             merged.update(config_hyperparams)
         
         # Override with CLI values (highest priority)
@@ -125,7 +133,7 @@ class HyperparameterManager:
 
 def get_training_hyperparams(
     model_type_defaults: Dict[str, Any],
-    config: Optional[Any] = None,
+    pipeline_config: Optional[Any] = None,
     cli_args: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
@@ -133,35 +141,18 @@ def get_training_hyperparams(
     
     Args:
         model_type_defaults: Default hyperparameters from model type handler
-        config: Config instance (optional)
+        pipeline_config: :class:`~mb.pipeline_config.PipelineConfig` (optional)
         cli_args: CLI arguments dictionary (optional)
         
     Returns:
         Merged hyperparameters dictionary
     """
     manager = HyperparameterManager()
-    
-    # Get config hyperparameters if config provided
-    config_hyperparams = None
-    if config:
-        config_hyperparams = {
-            'frozen_epochs': config.get('training.frozen_epochs'),
-            'unfrozen_epochs': config.get('training.unfrozen_epochs'),
-            'frozen_lr': config.get('training.frozen_lr'),
-            'unfrozen_lr_max': config.get('training.unfrozen_lr_max'),
-            'unfrozen_lr_min': config.get('training.unfrozen_lr_min'),
-            'num_workers': config.get('training.num_workers'),
-            'image_size': config.get('data.image_size'),
-            'batch_size': config.get('data.batch_size'),
-        }
-        # Remove None values
-        config_hyperparams = {k: v for k, v in config_hyperparams.items() if v is not None}
-    
-    # Merge hyperparameters
+
     hyperparams = manager.merge_hyperparams(
         model_type_defaults=model_type_defaults,
-        config_hyperparams=config_hyperparams,
-        cli_hyperparams=cli_args
+        cli_hyperparams=cli_args,
+        pipeline_config=pipeline_config,
     )
     
     # Validate

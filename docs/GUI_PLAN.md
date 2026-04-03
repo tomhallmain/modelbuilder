@@ -7,7 +7,7 @@ This document describes how to add a graphical interface on top of the existing 
 1. **Reuse, don’t fork** — Business logic stays in `mb` (training, data pipeline, conversion, snapshots). The GUI is a thin layer that invokes stable Python APIs or the same code paths the CLI uses.
 2. **Parity with CLI** — Every GUI action should map to an existing or planned `mb` operation so behavior and docs stay aligned.
 3. **Local-first** — Default assumption: single-user, local machine, paths chosen by the user; no mandatory cloud account.
-4. **Optional dependency** — The GUI uses **PySide6** (Qt for Python). Install via `pip install modelbuilder[gui]` or `requirements-gui.txt`; the core package stays usable without Qt.
+4. **Unified dependencies** — **PySide6** (Qt for Python) is listed in the root `requirements.txt` and `install_requires` in `setup.py` with the rest of the app.
 
 ## Non-goals (initial phases)
 
@@ -83,7 +83,7 @@ Aligned with **Phase 7** in [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md). Ch
 
 ### Phase 7.5 — Packaging and docs
 
-- Document install: `pip install modelbuilder[gui]` and/or `pip install -r requirements-gui.txt`.
+- Document install: `pip install -r requirements.txt` and/or `pip install -e .`.
 - Update root `README.md` with a short “GUI (PySide6)” subsection pointing here.
 - Smoke test on Windows (primary user environment).
 

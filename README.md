@@ -22,16 +22,15 @@ pip install -e .
 # Install with specific framework support
 pip install -e .[pytorch]    # PyTorch only
 pip install -e .[keras]       # Keras/TensorFlow only
-pip install -e .[gui]         # PySide6 desktop GUI (optional)
 pip install -e .[all]         # All frameworks
 ```
 
 ### Desktop GUI (PySide6)
 
-Optional **Phase 7.1** shell: sidebar navigation, workspace folder + optional YAML config (persisted), About dialog with `mb` version.
+**Phase 7.1** shell: sidebar navigation, workspace folder + optional YAML config (persisted), About dialog with `mb` version. PySide6 is part of the default dependency set (`requirements.txt` / `pip install -e .`).
 
 ```bash
-pip install -e .[gui]
+pip install -e .
 mb-gui
 # or: python -m ui
 ```

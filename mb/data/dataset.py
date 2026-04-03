@@ -10,6 +10,7 @@ Combines the functionality of the original shell scripts with improvements:
 import sys
 import shutil
 import random
+import threading
 from pathlib import Path
 from typing import Optional
 from collections import defaultdict
@@ -22,7 +23,8 @@ except ImportError:
     raise ImportError("Error: PIL/Pillow not available. Image validation is required.")
 
 # Import centralized logging configuration
-from mb.utils.logging import setup_logging, log_startup_info, log_completion_info
+from utils.logging_setup import setup_logging, log_startup_info, log_completion_info
+from mb.cancellation import check_cancel_event
 from mb.utils.storage import check_target_external_storage, check_same_drive
 from mb.utils.snapshot import (
     UnifiedSnapshot, find_unified_snapshot, save_unified_snapshot,
@@ -98,6 +100,7 @@ class DatasetCreator:
             logger.info("Gather cache loaded successfully - hash lookups will be faster")
         
         for class_name in CLASS_NAMES:
+            check_cancel_event(getattr(self, "_cancel_event", None))
             raw_class_dir = self.raw_data_dir / class_name
             train_class_dir = self.train_dir / class_name
             
@@ -123,6 +126,7 @@ class DatasetCreator:
             for idx, image_file in enumerate(image_files, 1):
                 # Log progress every 1000 files
                 if idx % 1000 == 0:
+                    check_cancel_event(getattr(self, "_cancel_event", None))
                     logger.info(f"Processing {class_name}: {idx}/{len(image_files)} images ({idx*100//len(image_files)}%)")
                 
                 # No .is_file() check needed - glob() only returns files
@@ -163,6 +167,7 @@ class DatasetCreator:
         logger.info("Removing corrupted images...")
         
         for class_name in CLASS_NAMES:
+            check_cancel_event(getattr(self, "_cancel_event", None))
             train_class_dir = self.train_dir / class_name
             if not train_class_dir.exists():
                 continue
@@ -174,6 +179,7 @@ class DatasetCreator:
             for idx, image_file in enumerate(image_files, 1):
                 # Log progress every 1000 files
                 if idx % 1000 == 0:
+                    check_cancel_event(getattr(self, "_cancel_event", None))
                     logger.info(f"Validating {class_name}: {idx}/{len(image_files)} images ({idx*100//len(image_files)}%)")
                 
                 if not self.validate_image(image_file):
@@ -445,12 +451,21 @@ class DatasetCreator:
         logger.info(f"  Training: {self.train_dir}")
         logger.info(f"  Test: {self.test_dir}")
     
-    def run(self) -> bool:
-        """Main execution method."""
+    def run(self, cancel_event: Optional[threading.Event] = None) -> bool:
+        """Main execution method. *cancel_event* is checked between steps and during long file loops."""
+        self._cancel_event = cancel_event
+        try:
+            return self._run_impl()
+        finally:
+            self._cancel_event = None
+
+    def _run_impl(self) -> bool:
         log_startup_info(logger, "Dataset creation process")
         logger.info(f"Raw data directory: {self.raw_data_dir}")
         logger.info(f"Output data directory: {self.data_dir}")
         logger.info(f"Test images per class: {self.test_images_per_class}")
+        
+        check_cancel_event(self._cancel_event)
         
         # Validate raw data directory
         if not self.raw_data_dir.exists():
@@ -474,21 +489,33 @@ class DatasetCreator:
             logger.error("Or provide a valid --run-id if the snapshot exists elsewhere.")
             return False
         
+        check_cancel_event(self._cancel_event)
+        
         # Step 1: Copy files to train directory with hash-based filenames
         self.copy_files_to_train()
+        
+        check_cancel_event(self._cancel_event)
         
         # Step 2: Remove corrupted images
         self.remove_corrupted_images()
         
+        check_cancel_event(self._cancel_event)
+        
         # Step 3: Remove invalid-sized images
         self.remove_invalid_sized_images()
+        
+        check_cancel_event(self._cancel_event)
         
         # Step 3.5: Balance training set if requested (before test set creation)
         if self.balance_train or self.max_train_per_class:
             self.balance_training_set()
         
+        check_cancel_event(self._cancel_event)
+        
         # Step 4: Create test dataset by moving files
         self.create_test_dataset()
+        
+        check_cancel_event(self._cancel_event)
         
         # Step 5: Count final files
         self.count_final_files()

@@ -1,0 +1,15 @@
+# Post-quantum key encapsulation for utils/encryptor.py (PersonalQuantumEncryptor).
+# Requires Python >= 3.9 (liboqs-python). Install liboqs C library first, or follow upstream
+# auto-build notes. Full instructions:
+# https://github.com/open-quantum-safe/liboqs-python/blob/main/README.md
+#
+# Install after core deps, e.g.:
+#   pip install -r requirements.txt
+#   pip install -r requirements-optional.txt
+#
+# Or: pip install -e ".[post-quantum]"
+git+https://github.com/open-quantum-safe/liboqs-python.git
+
+# Platform keyring extras (macOS Cocoa / Linux D-Bus) are declared in setup.py as extra
+# ``keyring-extras`` — not listed here so pip resolves markers correctly:
+#   pip install -e ".[keyring-extras]"

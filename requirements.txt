@@ -1,7 +1,14 @@
-# Core dependencies
+# Core + unified GUI (PySide6 / Qt for Python). Single install: pip install -r requirements.txt
 Pillow>=9.0.0
-numpy>=1.25.2,<2.0  # Required for SciPy compatibility (SciPy 1.11+ requires NumPy >= 1.25.2), but TensorFlow requires NumPy < 2.0
+numpy>=1.25.2,<2.0  # SciPy/TensorFlow stack; TensorFlow expects NumPy < 2.0
 pyyaml>=6.0
+
+# Encryption (utils/encryptor.py, app_info_cache encrypted store)
+cryptography>=41.0.0
+keyring>=24.0.0
+
+# GUI (unified with CLI)
+PySide6>=6.5.0
 
 # Framework dependencies (install as needed)
 # PyTorch:
@@ -15,11 +22,7 @@ pyyaml>=6.0
 # onnx>=1.12.0
 # onnx-tf>=1.10.0
 
-# Optional: GUI (PySide6 / Qt for Python). See docs/GUI_PLAN.md
-# PySide6>=6.5.0
-# Or: pip install -r requirements-gui.txt
-
 # Legacy dependencies (kept for existing scripts, not required for new mb CLI)
-# fastai>=2.0.0  # Removed from new implementation
-# ipython>=7.0.0  # Only needed if using FastAI
-# pathlib2>=2.3.0; python_version < "3.4"  # Not needed for Python 3.8+ 
+# fastai>=2.0.0
+# ipython>=7.0.0
+# pathlib2>=2.3.0; python_version < "3.4"

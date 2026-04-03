@@ -11,8 +11,8 @@ from typing import Optional
 import logging
 
 from mb import __version__
-from mb.config import get_config
-from mb.utils.logging import setup_logging
+from mb.pipeline_config import get_pipeline_config, reload_pipeline_config
+from utils.logging_setup import setup_logging
 
 # Import data processing modules
 from mb.data.gather import ImageGatherer
@@ -22,6 +22,7 @@ from mb.data.upscale import ImageUpscaler
 from mb.data.dataset import DatasetCreator
 
 # Import training modules
+from mb.training.run_args import TrainingRunArgs, load_training_run_args_json
 from mb.training.trainer import ModelTrainer
 from mb.models.types import ModelType
 
@@ -318,6 +319,12 @@ def create_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Skip updating the unified snapshot with training data"
     )
+    train_parser.add_argument(
+        "--train-args-json",
+        type=Path,
+        metavar="PATH",
+        help="Load TrainingRunArgs from JSON (see mb.training.run_args); other train flags are ignored",
+    )
     
     # Convert command
     convert_model_parser = subparsers.add_parser(
@@ -541,17 +548,52 @@ def handle_data_create_dataset(args):
 def handle_train(args):
     """Handle 'mb train' command."""
     try:
-        # Get config
-        config = get_config(args.config)
+        # Pipeline YAML (--config) for model/data/training/paths defaults
+        reload_pipeline_config(getattr(args, "config", None))
+        pipeline = get_pipeline_config()
+
+        if getattr(args, "train_args_json", None):
+            run_args = load_training_run_args_json(args.train_args_json)
+            framework = run_args.framework.lower()
+            if framework not in ("pytorch", "keras"):
+                logger.error(f"Unsupported framework in JSON: {framework}")
+                return 1
+            model_type_str = pipeline.get("model.default_type", "image_classification")
+            if model_type_str != "image_classification":
+                logger.error(f"Unsupported model type from config: {model_type_str}")
+                return 1
+            model_type = ModelType.IMAGE_CLASSIFICATION
+            data_dir = run_args.data_dir
+            if not data_dir.exists():
+                logger.error(f"Data directory does not exist: {data_dir}")
+                return 1
+            output_dir = run_args.output_dir
+            output_dir.mkdir(parents=True, exist_ok=True)
+            trainer = ModelTrainer(
+                framework=framework,
+                model_type=model_type,
+                pipeline_config=pipeline,
+            )
+            supported_archs = trainer.get_supported_architectures()
+            if run_args.architecture not in supported_archs:
+                logger.error(
+                    f"Architecture '{run_args.architecture}' not supported for framework '{framework}'"
+                )
+                logger.info(f"Supported architectures: {supported_archs}")
+                return 1
+            logger.info(f"Starting training from JSON ({framework}/{run_args.architecture})")
+            model_path = trainer.train(run_args)
+            logger.info(f"Training completed successfully. Model saved to: {model_path}")
+            return 0
         
         # Determine framework
-        framework = args.framework or config.get('model.default_framework', 'pytorch')
+        framework = args.framework or pipeline.get('model.default_framework', 'pytorch')
         if framework not in ['pytorch', 'keras']:
             logger.error(f"Unsupported framework: {framework}")
             return 1
         
         # Determine model type
-        model_type_str = args.model_type or config.get('model.default_type', 'image_classification')
+        model_type_str = args.model_type or pipeline.get('model.default_type', 'image_classification')
         if model_type_str == 'image_classification':
             model_type = ModelType.IMAGE_CLASSIFICATION
         else:
@@ -559,16 +601,16 @@ def handle_train(args):
             return 1
         
         # Determine architecture
-        architecture = args.architecture or config.get('model.default_architecture', 'resnet34')
+        architecture = args.architecture or pipeline.get('model.default_architecture', 'resnet34')
         
         # Determine data directory
-        data_dir = args.data_dir or Path(config.get('data.data_dir', 'data'))
+        data_dir = args.data_dir or Path(pipeline.get('data.data_dir', 'data'))
         if not data_dir.exists():
             logger.error(f"Data directory does not exist: {data_dir}")
             return 1
         
         # Determine output directory
-        output_dir = args.output_dir or Path(config.get('paths.models_dir', 'data/models'))
+        output_dir = args.output_dir or Path(pipeline.get('paths.models_dir', 'data/models'))
         output_dir.mkdir(parents=True, exist_ok=True)
         
         # Prepare CLI hyperparameters
@@ -594,7 +636,7 @@ def handle_train(args):
         trainer = ModelTrainer(
             framework=framework,
             model_type=model_type,
-            config=config
+            pipeline_config=pipeline,
         )
         
         # Check if architecture is supported
@@ -606,15 +648,17 @@ def handle_train(args):
         
         # Train model
         logger.info(f"Starting training with {framework}/{architecture}")
-        model_path = trainer.train(
-            data_dir=data_dir,
+        run_args = TrainingRunArgs(
+            framework=framework,
             architecture=architecture,
+            data_dir=data_dir,
             output_dir=output_dir,
-            cli_hyperparams=cli_hyperparams if cli_hyperparams else None,
-            resume_from_checkpoint=args.resume_from,
-            run_id=getattr(args, 'run_id', None),
-            update_snapshot=not getattr(args, 'skip_snapshot_update', False)
+            resume_from=args.resume_from,
+            run_id=getattr(args, "run_id", None),
+            update_snapshot=not getattr(args, "skip_snapshot_update", False),
+            cli_hyperparams=dict(cli_hyperparams),
         )
+        model_path = trainer.train(run_args)
         
         logger.info(f"Training completed successfully. Model saved to: {model_path}")
         return 0
@@ -707,10 +751,7 @@ def main(args: Optional[list] = None) -> int:
     # Set up logging
     log_level = logging.DEBUG if parsed_args.verbose else logging.INFO
     setup_logging(script_name="mb", log_level=log_level)
-    
-    # Load configuration if provided
-    config = get_config(parsed_args.config)
-    
+
     # Handle commands
     if not parsed_args.command:
         parser.print_help()

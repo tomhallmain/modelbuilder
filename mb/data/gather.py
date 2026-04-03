@@ -19,6 +19,7 @@ import hashlib
 import shutil
 import pickle
 import os
+import threading
 from pathlib import Path
 from typing import List, Dict, Set, Tuple, Optional
 from collections import defaultdict
@@ -32,7 +33,8 @@ except ImportError:
     raise ImportError("Error: PIL/Pillow not available. Image conversion is required, but currently not available.")
 
 # Import centralized logging configuration
-from mb.utils.logging import setup_logging, log_startup_info, log_completion_info
+from utils.logging_setup import setup_logging, log_startup_info, log_completion_info
+from mb.cancellation import check_cancel_event
 
 # Configure logging
 logger = setup_logging(script_name="gather_coherent_images")
@@ -350,6 +352,7 @@ class ImageGatherer:
                         
                         # Log progress every 1000 images
                         if files_checked % 1000 == 0:
+                            check_cancel_event(getattr(self, "_cancel_event", None))
                             logger.info(f"Progress: Checked {files_checked} images, found {unprocessed_found} unprocessed... (cache: {cache_hits} hits, {cache_misses} misses)")
                             # Save cache every 1000 files
                             if self.cache_modified:
@@ -675,6 +678,7 @@ class ImageGatherer:
                 
                 files_processed_count += 1
                 if files_processed_count % 100 == 0:
+                    check_cancel_event(getattr(self, "_cancel_event", None))
                     logger.info(f"Progress: {files_processed_count}/{total_files} files processed")
                 
                 # Create target filename - preserve original extension
@@ -1016,8 +1020,15 @@ class ImageGatherer:
             if self.stats['files_copied'] > 0:
                 logger.info(f"Added {self.stats['files_copied']} files this run.")
     
-    def run(self) -> bool:
-        """Main execution method."""
+    def run(self, cancel_event: Optional[threading.Event] = None) -> bool:
+        """Main execution method. *cancel_event* is checked periodically when set (e.g. GUI Cancel)."""
+        self._cancel_event = cancel_event
+        try:
+            return self._run_impl()
+        finally:
+            self._cancel_event = None
+
+    def _run_impl(self) -> bool:
         log_startup_info(logger, "Coherent image gathering process")
         logger.info(f"Source directory: {self.source_dir}")
         logger.info(f"Valid subdirectories: {self.valid_subdirs}")
@@ -1030,6 +1041,8 @@ class ImageGatherer:
         logger.info(f"Target limit: {self.target_count}")
         logger.info(f"Run ID: {self.run_id}")
         
+        check_cancel_event(self._cancel_event)
+        
         # Load cache at startup
         self.load_cache()
         
@@ -1039,6 +1052,7 @@ class ImageGatherer:
         
         # Find all image files (grouped by subdirectory, excluding already-processed ones)
         files_by_subdir = self.find_image_files()
+        check_cancel_event(self._cancel_event)
         if not files_by_subdir:
             logger.warning("No unprocessed image files found in the specified subdirectories")
             # This is not necessarily a failure - target limit might already be reached
@@ -1059,6 +1073,7 @@ class ImageGatherer:
         
         # Select random files (up to target limit, with optional weighting)
         selected_files_by_subdir = self.select_random_files(files_by_subdir)
+        check_cancel_event(self._cancel_event)
         if not selected_files_by_subdir:
             logger.info("No files were selected for processing (target limit may already be reached)")
             # Save cache before early return

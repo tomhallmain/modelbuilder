@@ -7,9 +7,10 @@ This module implements the FrameworkTrainer interface for Keras/TensorFlow.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, Tuple, Optional
+from typing import Any, Callable, Dict, Tuple, Optional
 import json
 import logging
+import threading
 from datetime import datetime
 
 try:
@@ -21,6 +22,7 @@ except ImportError:
     TF_AVAILABLE = False
     logging.getLogger(__name__).warning("TensorFlow not available. Keras trainer will not work.")
 
+from mb.cancellation import check_cancel_event
 from mb.models.base import FrameworkTrainer
 from mb.models.frameworks.keras.data_loader import create_data_generators
 from mb.models.frameworks.keras.architectures import create_resnet, create_efficientnet
@@ -132,6 +134,8 @@ class KerasTrainer(FrameworkTrainer):
         hyperparams: Dict[str, Any],
         output_dir: Path,
         resume_from_checkpoint: Optional[Path] = None,
+        cancel_event: Optional[threading.Event] = None,
+        progress_cb: Optional[Callable[[str, Optional[float]], None]] = None,
         **kwargs
     ) -> keras.Model:
         """
@@ -158,6 +162,7 @@ class KerasTrainer(FrameworkTrainer):
         # Extract hyperparameters
         frozen_epochs = hyperparams.get('frozen_epochs', 5)
         unfrozen_epochs = hyperparams.get('unfrozen_epochs', 20)
+        total_plan_epochs = frozen_epochs + unfrozen_epochs
         frozen_lr = hyperparams.get('frozen_lr', 0.001)
         unfrozen_lr_max = hyperparams.get('unfrozen_lr_max', 0.0003)
         unfrozen_lr_min = hyperparams.get('unfrozen_lr_min', 0.00001)
@@ -210,9 +215,28 @@ class KerasTrainer(FrameworkTrainer):
             )
             
             callbacks = [checkpoint_cb]
-            
-            # Train
             remaining_frozen = frozen_epochs - frozen_epochs_completed
+
+            def _on_frozen_epoch_begin(epoch: int, logs: Any) -> None:
+                check_cancel_event(cancel_event)
+                if progress_cb is not None:
+                    done = frozen_epochs_completed + unfrozen_epochs_completed + epoch
+                    pct = done / max(total_plan_epochs, 1)
+                    progress_cb(
+                        f"Frozen phase: epoch {epoch + 1}/{frozen_epochs}",
+                        min(pct, 1.0),
+                    )
+
+            callbacks.append(
+                keras.callbacks.LambdaCallback(on_epoch_begin=_on_frozen_epoch_begin)
+            )
+            callbacks.append(
+                keras.callbacks.LambdaCallback(
+                    on_batch_begin=lambda _batch, _logs: check_cancel_event(cancel_event)
+                )
+            )
+
+            # Train
             history = model.fit(
                 train_loader,
                 epochs=remaining_frozen,
@@ -264,9 +288,28 @@ class KerasTrainer(FrameworkTrainer):
             )
             
             callbacks = [checkpoint_cb, reduce_lr_cb, early_stop_cb]
-            
-            # Train
             remaining_unfrozen = unfrozen_epochs - unfrozen_epochs_completed
+
+            def _on_unfrozen_epoch_begin(epoch: int, logs: Any) -> None:
+                check_cancel_event(cancel_event)
+                if progress_cb is not None:
+                    done = frozen_epochs_completed + unfrozen_epochs_completed + epoch
+                    pct = done / max(total_plan_epochs, 1)
+                    progress_cb(
+                        f"Fine-tune: epoch {epoch + 1}/{unfrozen_epochs}",
+                        min(pct, 1.0),
+                    )
+
+            callbacks.append(
+                keras.callbacks.LambdaCallback(on_epoch_begin=_on_unfrozen_epoch_begin)
+            )
+            callbacks.append(
+                keras.callbacks.LambdaCallback(
+                    on_batch_begin=lambda _batch, _logs: check_cancel_event(cancel_event)
+                )
+            )
+
+            # Train
             history = model.fit(
                 train_loader,
                 epochs=remaining_unfrozen,

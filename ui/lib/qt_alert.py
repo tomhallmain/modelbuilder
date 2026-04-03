@@ -3,6 +3,8 @@ Qt message box helpers for Qt applications.
 """
 from typing import Optional
 
+from PySide6.QtCore import QUrl
+from PySide6.QtGui import QDesktopServices, QGuiApplication
 from PySide6.QtWidgets import QWidget, QMessageBox
 
 from utils.translations import I18N
@@ -89,3 +91,59 @@ def qt_alert(
     )
     box.exec()
     return None
+
+
+def qt_operation_error(
+    parent: Optional[QWidget],
+    title: str,
+    summary: str,
+    detail: Optional[str] = None,
+    *,
+    with_log_actions: bool = True,
+) -> None:
+    """
+    Show a critical error with optional expandable details (e.g. full exception text).
+
+    Prefer this over raw ``QMessageBox.critical`` for backend failures so users
+    get a short summary plus technical detail when needed.
+
+    When ``with_log_actions`` is True (default), adds **Copy details** (clipboard)
+    and **Open log folder** (Model Builder log directory from
+    :func:`utils.logging_setup.get_log_directory`) in addition to **OK**.
+    """
+    box = QMessageBox(parent)
+    box.setIcon(QMessageBox.Icon.Critical)
+    box.setWindowTitle(title)
+    box.setText(summary)
+    if detail:
+        box.setDetailedText(detail)
+
+    copy_btn = None
+    log_btn = None
+    if with_log_actions:
+        copy_btn = box.addButton(_("Copy details"), QMessageBox.ButtonRole.ActionRole)
+        log_btn = box.addButton(_("Open log folder"), QMessageBox.ButtonRole.ActionRole)
+
+    ok_btn = box.addButton(QMessageBox.StandardButton.Ok)
+    box.setDefaultButton(ok_btn)
+    ok_widget = box.button(QMessageBox.StandardButton.Ok)
+    if ok_widget is not None:
+        ok_widget.setText(_("OK"))
+
+    box.exec()
+
+    clicked = box.clickedButton()
+    if copy_btn is not None and clicked == copy_btn:
+        if detail:
+            text = f"{summary}\n\n{detail}".strip()
+        else:
+            text = (summary or "").strip()
+        if text:
+            QGuiApplication.clipboard().setText(text)
+    elif log_btn is not None and clicked == log_btn:
+        try:
+            from utils.logging_setup import get_log_directory
+
+            QDesktopServices.openUrl(QUrl.fromLocalFile(str(get_log_directory())))
+        except Exception:
+            pass

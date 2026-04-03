@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtCore import QSize
+from PySide6.QtCore import QSize, QThreadPool
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import (
     QFileDialog,
@@ -22,8 +22,16 @@ from PySide6.QtWidgets import (
 
 from mb import __version__ as MB_VERSION
 
+from ui.app_actions import AppActions
+from ui.controllers.cache_controller import CacheController
+from ui.main_thread_bridge import MainThreadBridge
+from ui.controllers.notification_controller import NotificationController
 from ui.pages import ConvertPage, DataPage, HomePage, InfoPage, TrainPage
-from ui.workspace import Workspace, default_settings
+from ui.workspace import Workspace, default_settings, effective_pipeline_config_path
+from mb.pipeline_config import reload_pipeline_config
+
+from utils.config import get_application_config, reload_application_config
+from utils.notification_manager import notification_manager
 
 
 class MainWindow(QMainWindow):
@@ -35,16 +43,104 @@ class MainWindow(QMainWindow):
         ("Info", InfoPage),
     ]
 
+    #: Used by :class:`NotificationController` for title restore (stable caption).
+    window_id: int = 0
+
     def __init__(self) -> None:
         super().__init__()
-        self.setWindowTitle("Model Builder")
-        self.resize(960, 640)
+        self._base_window_title = "Model Builder"
+        self.setWindowTitle(self._base_window_title)
 
         self._settings = default_settings()
         self._workspace = Workspace.load(self._settings)
+        reload_application_config(self._effective_application_config_path())
+        reload_pipeline_config(self._effective_pipeline_config_path())
+        self._apply_main_window_geometry_from_config()
 
+        self._thread_bridge = MainThreadBridge(self)
+        self._notifications = NotificationController(self)
+        self.app_actions = self._build_app_actions()
+        notification_manager.set_app_actions(self.app_actions, window_id=self.window_id)
+
+        self._page_widgets: list[QWidget] = []
         self._build_ui()
+        self._cache = CacheController(self)
+        self._cache.load_info_cache()
+        self._cache.start_periodic_store()
         self._apply_workspace_to_ui()
+
+    @property
+    def nav_widget(self) -> QListWidget:
+        return self._nav
+
+    @property
+    def page_widgets(self) -> list[QWidget]:
+        return self._page_widgets
+
+    def reload_mb_yaml_config(self) -> None:
+        """Reload application + pipeline YAML (e.g. after user picks a config file)."""
+        reload_application_config(self._effective_application_config_path())
+        reload_pipeline_config(self._effective_pipeline_config_path())
+
+    def _effective_application_config_path(self) -> Path | None:
+        """
+        ``gui`` / ``app`` YAML: explicit file from **File → Set config file…**, else
+        ``configs/application.yaml`` or legacy ``configs/default.yaml`` under workspace.
+        """
+        ws = self._workspace
+        if ws.config_path is not None:
+            return ws.config_path
+        if ws.root:
+            for name in ("application.yaml", "default.yaml"):
+                candidate = ws.root / "configs" / name
+                if candidate.is_file():
+                    return candidate
+        return None
+
+    def _effective_pipeline_config_path(self) -> Path | None:
+        """
+        Pipeline YAML: ``configs/pipeline.yaml`` under workspace, else the same file
+        as the application path when it is a legacy combined ``default.yaml``, else
+        packaged defaults.
+        """
+        return effective_pipeline_config_path(self._workspace)
+
+    def _apply_main_window_geometry_from_config(self) -> None:
+        size = get_application_config().gui.default_main_window_size
+        w, h = 960, 640
+        if isinstance(size, str) and "x" in size.lower():
+            try:
+                parts = size.lower().split("x", 1)
+                w, h = int(parts[0].strip()), int(parts[1].strip())
+            except ValueError:
+                pass
+        self.resize(max(400, w), max(300, h))
+
+    def get_title_from_base_dir(self) -> str:
+        """Stable window title for toast/title_notify restore (not workspace path)."""
+        return self._base_window_title
+
+    def _build_app_actions(self) -> AppActions:
+        """Wire actions; GUI-touching callables use :class:`MainThreadBridge` where needed.
+
+        ``NotificationController.toast`` / ``title_notify`` already marshal via Qt
+        signals. ``title`` and ``alert`` are wrapped so ``notification_manager``
+        timers and any worker-thread callers are safe.
+        """
+        nc = self._notifications
+        ts = self._thread_bridge.wrap
+
+        return AppActions(
+            {
+                "get_window": lambda: self,
+                "toast": nc.toast,
+                "_alert": ts(nc.alert),
+                "title_notify": nc.title_notify,
+                "refresh": lambda: None,
+                "title": ts(self.setWindowTitle),
+            },
+            master=self,
+        )
 
     def _build_ui(self) -> None:
         central = QWidget()
@@ -66,7 +162,9 @@ class MainWindow(QMainWindow):
 
         self._stack = QStackedWidget()
         for _label, page_cls in self.NAV_ITEMS:
-            self._stack.addWidget(self._wrap_scroll(page_cls()))
+            page = page_cls()
+            self._page_widgets.append(page)
+            self._stack.addWidget(self._wrap_scroll(page))
         layout.addWidget(self._stack, 1)
 
         self._build_menu()
@@ -129,6 +227,9 @@ class MainWindow(QMainWindow):
             return
         self._workspace.root = Path(path)
         self._workspace.save(self._settings)
+        reload_application_config(self._effective_application_config_path())
+        reload_pipeline_config(self._effective_pipeline_config_path())
+        self._cache.restart_periodic_store()
         self._apply_workspace_to_ui()
 
     def _choose_config(self) -> None:
@@ -146,6 +247,8 @@ class MainWindow(QMainWindow):
             return
         self._workspace.config_path = Path(path)
         self._workspace.save(self._settings)
+        self.reload_mb_yaml_config()
+        self._cache.restart_periodic_store()
         self._apply_workspace_to_ui()
 
     def _show_about(self) -> None:
@@ -159,5 +262,20 @@ class MainWindow(QMainWindow):
         )
 
     def closeEvent(self, event) -> None:
+        pool = QThreadPool.globalInstance()
+        if pool.activeThreadCount() > 0:
+            answer = QMessageBox.warning(
+                self,
+                "Background task",
+                "A background task is still running. Closing now may leave partial outputs "
+                "(checkpoints, datasets, copies). Exit anyway?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer == QMessageBox.StandardButton.No:
+                event.ignore()
+                return
+        self._cache.stop_periodic_store()
+        self._cache.store_info_cache(sync=True)
         self._workspace.save(self._settings)
         super().closeEvent(event)

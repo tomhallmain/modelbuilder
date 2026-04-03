@@ -7,9 +7,12 @@ This module provides functionality to convert models between different formats:
 - Keras (.h5) to ONNX
 """
 
-from pathlib import Path
-from typing import Optional, Dict, Any
 import logging
+import threading
+from pathlib import Path
+from typing import Any, Dict, Optional
+
+from mb.cancellation import check_cancel_event
 
 logger = logging.getLogger(__name__)
 
@@ -252,6 +255,7 @@ def convert_model(
     architecture: Optional[str] = None,
     num_classes: Optional[int] = None,
     image_size: int = 224,
+    cancel_event: Optional[threading.Event] = None,
     **kwargs
 ) -> bool:
     """
@@ -273,6 +277,8 @@ def convert_model(
     if not input_path.exists():
         logger.error(f"Input model file not found: {input_path}")
         return False
+    
+    check_cancel_event(cancel_event)
     
     # Detect source framework if not provided
     if source_framework is None:

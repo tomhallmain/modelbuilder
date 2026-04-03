@@ -31,11 +31,15 @@ setup(
     long_description_content_type="text/markdown",
     author="Model Builder Team",
     packages=find_packages(exclude=["tests", "tests.*"]),
+    package_data={"mb": ["config/*.yaml"]},
     python_requires=">=3.8",
     install_requires=[
         "Pillow>=9.0.0",
         "numpy>=1.25.2,<2.0",
         "pyyaml>=6.0",
+        "cryptography>=41.0.0",
+        "keyring>=24.0.0",
+        "PySide6>=6.5.0",
     ],
     extras_require={
         "pytorch": [
@@ -45,8 +49,13 @@ setup(
         "keras": [
             "tensorflow>=2.10.0",
         ],
-        "gui": [
-            "PySide6>=6.5.0",
+        "post-quantum": [
+            "liboqs-python @ git+https://github.com/open-quantum-safe/liboqs-python.git",
+        ],
+        # Optional platform integrations for keyring / encryptor (not required for basic keyring).
+        "keyring-extras": [
+            "pyobjc-framework-Cocoa; sys_platform == 'darwin'",
+            "dbus-python; sys_platform == 'linux'",
         ],
         "all": [
             "torch>=2.0.0",

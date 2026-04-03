@@ -14,7 +14,6 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
-    QMessageBox,
     QPushButton,
     QSpinBox,
     QTabWidget,
@@ -29,6 +28,9 @@ from mb.data.deduplicate import ImageDeduplicator
 from mb.data.gather import ImageGatherer
 from mb.data.upscale import ImageUpscaler
 from mb.utils.storage import check_same_drive, check_target_external_storage
+from ui.lib.qt_alert import qt_alert, qt_operation_error
+from ui.lib.task_progress import attach_progress_dialog
+from ui.task_context import LongTaskContext
 from ui.task_runner import start_task
 
 logger = logging.getLogger(__name__)
@@ -70,6 +72,94 @@ class DataPage(QWidget):
         self.btn_validate.clicked.connect(self._validate_inputs)
         self.btn_run.clicked.connect(self._run_current_command)
         self.tabs.currentChanged.connect(self._validate_inputs)
+        self._validate_inputs()
+
+    def collect_gui_state(self) -> dict:
+        """Serializable form state; restored by :class:`ui.controllers.cache_controller.CacheController`."""
+        return {
+            "tab": int(self.tabs.currentIndex()),
+            "gather": {
+                "source": self.gather_source.text(),
+                "subdirs": self.gather_subdirs.text(),
+                "target_count": int(self.gather_target_count.value()),
+                "target_dir": self.gather_target_dir.text(),
+                "rejected_dir": self.gather_rejected_dir.text(),
+                "subdir_weights": self.gather_subdir_weights.text(),
+                "raw_data_dir": self.gather_raw_data_dir.text(),
+            },
+            "convert": {
+                "raw_data_dir": self.convert_raw_data_dir.text(),
+                "format": self.convert_format.text(),
+            },
+            "dedup": {"raw_data_dir": self.dedup_raw_data_dir.text()},
+            "upscale": {
+                "raw_data_dir": self.upscale_raw_data_dir.text(),
+                "review_dir": self.upscale_review_dir.text(),
+            },
+            "dataset": {
+                "raw_data_dir": self.dataset_raw_data_dir.text(),
+                "data_dir": self.dataset_data_dir.text(),
+                "test_per_class": int(self.dataset_test_per_class.value()),
+                "seed": int(self.dataset_seed.value()),
+                "run_id": self.dataset_run_id.text(),
+                "max_train": int(self.dataset_max_train.value()),
+                "balance_train": bool(self.dataset_balance_train.isChecked()),
+                "allow_external": bool(self.dataset_allow_external.isChecked()),
+            },
+        }
+
+    def restore_gui_state(self, state: dict) -> None:
+        if not state:
+            return
+        try:
+            tab = state.get("tab")
+            if isinstance(tab, int) and 0 <= tab < self.tabs.count():
+                self.tabs.setCurrentIndex(tab)
+
+            g = state.get("gather") or {}
+            if isinstance(g, dict):
+                self.gather_source.setText(str(g.get("source", "")))
+                self.gather_subdirs.setText(str(g.get("subdirs", "")))
+                tc = g.get("target_count")
+                if isinstance(tc, int):
+                    self.gather_target_count.setValue(tc)
+                self.gather_target_dir.setText(str(g.get("target_dir", "")))
+                self.gather_rejected_dir.setText(str(g.get("rejected_dir", "")))
+                self.gather_subdir_weights.setText(str(g.get("subdir_weights", "")))
+                self.gather_raw_data_dir.setText(str(g.get("raw_data_dir", "")))
+
+            c = state.get("convert") or {}
+            if isinstance(c, dict):
+                self.convert_raw_data_dir.setText(str(c.get("raw_data_dir", "")))
+                self.convert_format.setText(str(c.get("format", "jpeg")))
+
+            d = state.get("dedup") or {}
+            if isinstance(d, dict):
+                self.dedup_raw_data_dir.setText(str(d.get("raw_data_dir", "")))
+
+            u = state.get("upscale") or {}
+            if isinstance(u, dict):
+                self.upscale_raw_data_dir.setText(str(u.get("raw_data_dir", "")))
+                self.upscale_review_dir.setText(str(u.get("review_dir", "")))
+
+            ds = state.get("dataset") or {}
+            if isinstance(ds, dict):
+                self.dataset_raw_data_dir.setText(str(ds.get("raw_data_dir", "")))
+                self.dataset_data_dir.setText(str(ds.get("data_dir", "")))
+                tpc = ds.get("test_per_class")
+                if isinstance(tpc, int):
+                    self.dataset_test_per_class.setValue(tpc)
+                sd = ds.get("seed")
+                if isinstance(sd, int):
+                    self.dataset_seed.setValue(sd)
+                self.dataset_run_id.setText(str(ds.get("run_id", "")))
+                mt = ds.get("max_train")
+                if isinstance(mt, int):
+                    self.dataset_max_train.setValue(mt)
+                self.dataset_balance_train.setChecked(bool(ds.get("balance_train", False)))
+                self.dataset_allow_external.setChecked(bool(ds.get("allow_external", False)))
+        except Exception:
+            pass
         self._validate_inputs()
 
     def _build_gather_tab(self) -> QWidget:
@@ -302,30 +392,40 @@ class DataPage(QWidget):
             if check_target_external_storage(
                 logger, payload["data_dir"], override=payload["allow_external_storage"]
             ):
-                QMessageBox.critical(self, "External Storage", "Target data directory is on external storage and override is disabled.")
+                qt_alert(
+                    self,
+                    "External storage",
+                    "The target data directory is on external or removable storage, and "
+                    '"Allow external storage" is not checked. Enable it on the Create Dataset tab '
+                    "or choose a different data directory.",
+                    kind="warning",
+                )
                 return
             if check_same_drive(payload["raw_data_dir"], payload["data_dir"]):
-                answer = QMessageBox.question(
+                if not qt_alert(
                     self,
                     "Confirm",
                     "Source and target are on the same drive. Continue dataset creation?",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                )
-                if answer != QMessageBox.StandardButton.Yes:
+                    kind="askyesno",
+                ):
                     return
 
         self._append(f"[run] mb data {command}")
         self._set_busy(True)
-        start_task(
+        handle = start_task(
             self._execute_data_command,
             self._on_run_success,
             self._on_run_error,
             lambda: self._set_busy(False),
             command,
             payload,
+            pass_context=True,
+            on_cancelled=self._on_run_cancelled,
         )
+        attach_progress_dialog(self, f"Data: {command}", handle, cancellable=True)
 
-    def _execute_data_command(self, command: str, payload: dict) -> bool:
+    def _execute_data_command(self, ctx: LongTaskContext, command: str, payload: dict) -> bool:
+        ce = ctx.cancel_event
         if command == "gather":
             gatherer = ImageGatherer(
                 source_dir=str(payload["source_dir"]),
@@ -336,17 +436,17 @@ class DataPage(QWidget):
                 subdir_weights=payload["subdir_weights"],
             )
             gatherer.raw_data_dir = payload["raw_data_dir"]
-            return bool(gatherer.run())
+            return bool(gatherer.run(cancel_event=ce))
         if command == "convert":
             converter = ImageConverter(raw_data_dir=payload["raw_data_dir"])
-            return bool(converter.run())
+            return bool(converter.run(cancel_event=ce))
         if command == "deduplicate":
             deduplicator = ImageDeduplicator(raw_data_dir=payload["raw_data_dir"])
-            return bool(deduplicator.run())
+            return bool(deduplicator.run(cancel_event=ce))
         if command == "upscale":
             review_dir = payload["review_dir"] or (payload["raw_data_dir"] / "small_images_review")
             upscaler = ImageUpscaler(review_dir=review_dir)
-            return bool(upscaler.run())
+            return bool(upscaler.run(cancel_event=ce))
         if command == "create-dataset":
             if payload["seed"] is not None:
                 random.seed(payload["seed"])
@@ -358,7 +458,7 @@ class DataPage(QWidget):
                 max_train_per_class=payload["max_train_per_class"],
                 run_id=payload["run_id"],
             )
-            return bool(creator.run())
+            return bool(creator.run(cancel_event=ce))
         raise ValueError(f"Unknown command: {command}")
 
     def _on_run_success(self, success: bool) -> None:
@@ -367,6 +467,14 @@ class DataPage(QWidget):
         else:
             self._append("[failed] Data command reported failure.")
 
+    def _on_run_cancelled(self) -> None:
+        self._append("[stopped] Data command cancelled — partial copies or snapshot updates may exist; check folders before re-running.")
+
     def _on_run_error(self, message: str) -> None:
         self._append(f"[error] {message}")
-        QMessageBox.critical(self, "Data command failed", message)
+        qt_operation_error(
+            self,
+            "Data command failed",
+            "A data pipeline step reported an error. See Details for the full message.",
+            detail=message,
+        )

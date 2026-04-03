@@ -1,4 +1,4 @@
-"""PySide6 desktop UI for Model Builder (optional; requires modelbuilder[gui])."""
+"""PySide6 desktop UI for Model Builder (included in default install_requires)."""
 
 from mb import __version__
 
