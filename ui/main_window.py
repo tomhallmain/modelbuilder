@@ -9,6 +9,7 @@ from pathlib import Path
 from PySide6.QtCore import QSize, QThreadPool, QUrl
 from PySide6.QtGui import QAction, QDesktopServices
 from PySide6.QtWidgets import (
+    QApplication,
     QFileDialog,
     QHBoxLayout,
     QListWidget,
@@ -23,6 +24,7 @@ from PySide6.QtWidgets import (
 from mb import __version__ as MB_VERSION
 
 from ui.app_actions import AppActions
+from ui.app_theme import apply_theme
 from ui.controllers.cache_controller import CacheController
 from ui.main_thread_bridge import MainThreadBridge
 from ui.controllers.notification_controller import NotificationController
@@ -36,6 +38,8 @@ from utils.config import (
     get_application_config,
     reload_application_config,
 )
+from utils.logging_setup import apply_application_log_settings
+from utils.translations import apply_application_locale
 from utils.notification_manager import notification_manager
 
 
@@ -61,6 +65,9 @@ class MainWindow(QMainWindow):
         self._workspace = Workspace.load(self._settings)
         reload_application_config(self._effective_application_config_path())
         reload_pipeline_config(self._effective_pipeline_config_path())
+        apply_theme(QApplication.instance())
+        apply_application_log_settings()
+        apply_application_locale(verbose=False)
         self._apply_main_window_geometry_from_config()
 
         self._thread_bridge = MainThreadBridge(self)
@@ -88,6 +95,17 @@ class MainWindow(QMainWindow):
         """Reload application + pipeline YAML (e.g. after user picks a config file)."""
         reload_application_config(self._effective_application_config_path(), force=True)
         reload_pipeline_config(self._effective_pipeline_config_path(), force=True)
+        self.refresh_application_shell_settings()
+
+    def refresh_application_shell_settings(self) -> None:
+        """Re-apply theme, logging, locale, window geometry, and cache interval from config."""
+        apply_theme(QApplication.instance())
+        apply_application_log_settings()
+        apply_application_locale(verbose=False)
+        self._apply_main_window_geometry_from_config()
+        cache = getattr(self, "_cache", None)
+        if cache is not None:
+            cache.restart_periodic_store()
 
     def _effective_application_config_path(self) -> Path | None:
         """
@@ -268,9 +286,7 @@ class MainWindow(QMainWindow):
             return
         self._workspace.root = Path(path)
         self._workspace.save(self._settings)
-        reload_application_config(self._effective_application_config_path(), force=True)
-        reload_pipeline_config(self._effective_pipeline_config_path(), force=True)
-        self._cache.restart_periodic_store()
+        self.reload_mb_yaml_config()
         self._apply_workspace_to_ui()
 
     def _choose_config(self) -> None:
@@ -289,7 +305,6 @@ class MainWindow(QMainWindow):
         self._workspace.config_path = Path(path)
         self._workspace.save(self._settings)
         self.reload_mb_yaml_config()
-        self._cache.restart_periodic_store()
         self._apply_workspace_to_ui()
 
     def _show_about(self) -> None:

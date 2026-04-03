@@ -13,7 +13,7 @@ from typing import Optional
 from PySide6.QtCore import QObject, QTimer, Qt, Signal
 from PySide6.QtWidgets import QApplication, QLabel, QVBoxLayout, QWidget
 
-from ui.app_theme import AppStyle
+from ui.app_theme import style_elevated_bg_hex, style_foreground_hex, theme_font_point_size
 from ui.lib.qt_alert import qt_alert
 from utils.config import get_application_config
 from utils.logging_setup import get_logger
@@ -53,7 +53,7 @@ class NotificationController:
         logger.info("Toast: %s", message.replace("\n", " "))
         if not get_application_config().gui.show_toasts:
             return
-        color = bg_color or AppStyle.BG_COLOR
+        color = bg_color or style_elevated_bg_hex()
         self._signals.toast_requested.emit(message, time_in_seconds, color)
 
     def _do_toast(self, message: str, time_in_seconds: int, bg_color: str) -> None:
@@ -76,14 +76,16 @@ class NotificationController:
         toast_widget.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating, True)
         toast_widget.setFixedSize(width, height)
         toast_widget.move(x, y)
+        fg = style_foreground_hex()
         toast_widget.setStyleSheet(
-            f"background-color: {bg_color}; border: 1px solid {AppStyle.FG_COLOR};"
+            f"background-color: {bg_color}; border: 1px solid {fg};"
         )
 
         layout = QVBoxLayout(toast_widget)
         layout.setContentsMargins(10, 5, 10, 5)
         label = QLabel(message.strip())
-        label.setStyleSheet(f"color: {AppStyle.FG_COLOR}; font-size: 10pt; border: none;")
+        fs = max(6, theme_font_point_size())
+        label.setStyleSheet(f"color: {fg}; font-size: {fs}pt; border: none;")
         label.setWordWrap(True)
         layout.addWidget(label)
 

@@ -7,6 +7,30 @@ from utils.utils import Utils
 logger = get_logger("translations")
 
 
+def _short_locale(locale: str) -> str:
+    loc = locale.replace("-", "_").strip()
+    if "_" in loc:
+        return loc.split("_", 1)[0].lower()
+    return loc.lower() if loc else "en"
+
+
+def apply_application_locale(*, verbose: bool = False) -> None:
+    """
+    Install gettext locale from application config (``gui.locale``).
+
+    Updates ``LANG`` so subprocesses and code using the environment see the same value.
+    """
+    from utils.config import get_application_config
+
+    loc = get_application_config().gui.locale
+    if loc is None or str(loc).strip() == "":
+        loc = Utils.get_default_user_language()
+    loc_full = str(loc).strip()
+    os.environ["LANG"] = loc_full
+    short = _short_locale(loc_full)
+    I18N.install_locale(short, verbose=verbose)
+
+
 _locale = os.environ.get("LANG") or os.environ.get("LANGUAGE")
 if not _locale or _locale == "":
     _locale = Utils.get_default_user_language()

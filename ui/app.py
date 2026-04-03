@@ -20,14 +20,12 @@ def main() -> int:
 
     from PySide6.QtCore import QThreadPool
 
-    from ui.app_theme import apply_theme
     from ui.main_window import MainWindow
     from utils.notification_manager import notification_manager
 
     app = QApplication(sys.argv)
     app.setApplicationName("Model Builder")
     app.setOrganizationName("ModelBuilder")
-    apply_theme(app)
 
     def _on_about_to_quit() -> None:
         """Cancel stray timers; best-effort wait for pool workers before process teardown."""

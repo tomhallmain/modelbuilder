@@ -4,17 +4,17 @@
 
 gui:
   locale: null
-  foreground_color: null
-  background_color: null
-  toast_color_warning: null
-  toast_color_success: null
+  foreground_color: "#ececec"
+  background_color: "#1a1a1a"
+  toast_color_warning: "#5D4037"
+  toast_color_success: "#33691E"
+  accent_color: "#F57C00"
+  accent_secondary_color: "#FFC107"
   show_toasts: true
-  default_main_window_size: "1400x950"
+  default_main_window_size: "1200x960"
   toasts_persist_seconds: 2
   title_notify_persist_seconds: 5
   font_size: 8
-  always_open_new_windows: false
-  enable_videos: false
   cache_store_interval_seconds: 120.0
 
 app:

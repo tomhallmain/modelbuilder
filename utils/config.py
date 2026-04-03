@@ -9,6 +9,7 @@ Prefer typed accessors, e.g. ``get_application_config().gui.toasts_persist_secon
 
 from __future__ import annotations
 
+import copy
 import os
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -68,13 +69,25 @@ class GuiConfig:
         return str(v) if v is not None else None
 
     @property
+    def accent_color(self) -> Optional[str]:
+        """Primary construction / focus orange (buttons, nav selection border)."""
+        v = self._get("accent_color", None)
+        return str(v) if v is not None else None
+
+    @property
+    def accent_secondary_color(self) -> Optional[str]:
+        """Secondary accent (links, hover text, menu marker)."""
+        v = self._get("accent_secondary_color", None)
+        return str(v) if v is not None else None
+
+    @property
     def show_toasts(self) -> bool:
         return bool(self._get("show_toasts", True))
 
     @property
     def default_main_window_size(self) -> str:
-        v = self._get("default_main_window_size", "960x640")
-        return str(v) if v is not None else "960x640"
+        v = self._get("default_main_window_size", "1200x960")
+        return str(v) if v is not None else "1200x960"
 
     @property
     def toasts_persist_seconds(self) -> int:
@@ -99,14 +112,6 @@ class GuiConfig:
             return int(v)
         except (TypeError, ValueError):
             return 8
-
-    @property
-    def always_open_new_windows(self) -> bool:
-        return bool(self._get("always_open_new_windows", False))
-
-    @property
-    def enable_videos(self) -> bool:
-        return bool(self._get("enable_videos", False))
 
     @property
     def cache_store_interval_seconds(self) -> float:
@@ -167,17 +172,18 @@ class ApplicationConfig:
         return {
             "gui": {
                 "locale": None,
-                "foreground_color": None,
-                "background_color": None,
-                "toast_color_warning": None,
-                "toast_color_success": None,
+                # Match :data:`ui.app_theme.COLORS` so Set Default / packaged defaults are explicit.
+                "foreground_color": "#ececec",
+                "background_color": "#1a1a1a",
+                "toast_color_warning": "#5D4037",
+                "toast_color_success": "#33691E",
+                "accent_color": "#F57C00",
+                "accent_secondary_color": "#FFC107",
                 "show_toasts": True,
-                "default_main_window_size": "1400x950",
+                "default_main_window_size": "1200x960",
                 "toasts_persist_seconds": 2,
                 "title_notify_persist_seconds": 5,
                 "font_size": 8,
-                "always_open_new_windows": False,
-                "enable_videos": False,
                 "cache_store_interval_seconds": 120.0,
             },
             "app": {
@@ -194,6 +200,10 @@ class ApplicationConfig:
                 raw = yaml.safe_load(f) or {}
             filtered = {k: v for k, v in raw.items() if k in _APPLICATION_KEYS}
             self._config = self._deep_merge(self._deep_merge({}, self._defaults), filtered)
+            gui = self._config.get("gui")
+            if isinstance(gui, dict):
+                for deprecated in ("always_open_new_windows", "enable_videos"):
+                    gui.pop(deprecated, None)
             self._active_path = config_path
             logger.info("Loaded application configuration from %s", config_path)
         except Exception:
@@ -272,7 +282,7 @@ class ApplicationConfig:
         logger.info("Application settings active:")
         extra = "" if self.gui.show_toasts else ": False — NO toasts will be shown!"
         logger.info(" - Show toasts%s", extra)
-        if self.app.debug:
+        if self.app.debug or self.app.debug2:
             logger.info(" - Debug logging enabled")
 
 
@@ -281,6 +291,16 @@ def get_user_application_config_path() -> Path:
     from utils.logging_setup import get_log_directory
 
     return get_log_directory().parent / "application.yaml"
+
+
+def default_application_config_dict() -> Dict[str, Any]:
+    """
+    Built-in ``gui`` / ``app`` defaults for YAML export (no file load, no :meth:`ApplicationConfig._post_load`).
+
+    Matches :meth:`ApplicationConfig._get_defaults`.
+    """
+    proto: ApplicationConfig = ApplicationConfig.__new__(ApplicationConfig)
+    return copy.deepcopy(proto._get_defaults())
 
 
 def resolve_application_save_path() -> Path:

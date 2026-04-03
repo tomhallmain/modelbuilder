@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Any, Callable, Dict, Optional
 
-from ui.app_theme import AppStyle
+from ui.app_theme import toast_success_background, toast_warning_background
 from utils.config import get_application_config
 
 
@@ -57,12 +57,16 @@ class AppActions:
     def warn(self, message: str, time_in_seconds: Optional[int] = None) -> None:
         if time_in_seconds is None:
             time_in_seconds = get_application_config().gui.toasts_persist_seconds
-        return self.toast(message, time_in_seconds=time_in_seconds, bg_color=AppStyle.TOAST_COLOR_WARNING)
+        return self.toast(
+            message, time_in_seconds=time_in_seconds, bg_color=toast_warning_background()
+        )
 
     def success(self, message: str, time_in_seconds: Optional[int] = None) -> None:
         if time_in_seconds is None:
             time_in_seconds = get_application_config().gui.toasts_persist_seconds
-        return self.toast(message, time_in_seconds=time_in_seconds, bg_color=AppStyle.TOAST_COLOR_SUCCESS)
+        return self.toast(
+            message, time_in_seconds=time_in_seconds, bg_color=toast_success_background()
+        )
 
     def get_master(self) -> Optional[object]:
         return self._master

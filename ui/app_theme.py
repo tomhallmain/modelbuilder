@@ -1,8 +1,9 @@
 """
 Global application styling: dark base with orange/amber accents (construction-style).
 
-Apply once on QApplication so all windows, dialogs, menus, and native-style
-widgets (QMessageBox, QFileDialog, etc.) inherit the same look.
+Apply on QApplication so windows inherit the look. Palette and stylesheet are built
+from :data:`COLORS` and optional overrides in application config (see
+:func:`resolve_theme_colors`).
 """
 
 from __future__ import annotations
@@ -12,10 +13,13 @@ from dataclasses import dataclass
 from PySide6.QtGui import QColor, QPalette
 from PySide6.QtWidgets import QApplication
 
+_DEFAULT_TOAST_WARNING = "#5D4037"
+_DEFAULT_TOAST_SUCCESS = "#33691E"
+
 
 @dataclass(frozen=True)
 class ThemeColors:
-    """Palette for documentation and optional use in custom widgets."""
+    """Palette for documentation and :func:`apply_theme`."""
 
     bg_deep: str = "#121212"
     bg_window: str = "#1a1a1a"
@@ -25,7 +29,6 @@ class ThemeColors:
     border_focus: str = "#E65100"
     text: str = "#ececec"
     text_muted: str = "#9e9e9e"
-    # Home-depot-ish orange + construction amber
     accent_orange: str = "#F57C00"
     accent_deep: str = "#E65100"
     accent_amber: str = "#FFC107"
@@ -37,21 +40,128 @@ class ThemeColors:
 COLORS = ThemeColors()
 
 
-class AppStyle:
-    """
-    Stable color tokens for widgets that need explicit hex (toasts, overlays).
-
-    Aligns with :data:`COLORS` / :func:`apply_theme` so notification UI matches the app theme.
-    """
-
-    BG_COLOR = COLORS.bg_elevated
-    FG_COLOR = COLORS.text
-    TOAST_COLOR_WARNING = "#5D4037"
-    TOAST_COLOR_SUCCESS = "#33691E"
-
-
 def _qcolor(hex_rgb: str) -> QColor:
     return QColor(hex_rgb)
+
+
+def _hex(c: QColor) -> str:
+    return c.name(QColor.NameFormat.HexRgb)
+
+
+def _blend(a: QColor, b: QColor, t: float) -> QColor:
+    t = max(0.0, min(1.0, t))
+    return QColor(
+        int(a.red() * (1 - t) + b.red() * t),
+        int(a.green() * (1 - t) + b.green() * t),
+        int(a.blue() * (1 - t) + b.blue() * t),
+    )
+
+
+def resolve_theme_colors() -> ThemeColors:
+    """
+    Effective theme: :data:`COLORS` merged with ``gui`` color keys from application config.
+
+    Null / missing keys fall back to :data:`COLORS`. Accents drive focus rings, highlights,
+    and link/hover tones via ``accent_color`` / ``accent_secondary_color``.
+    """
+    try:
+        from utils.config import get_application_config
+
+        gui = get_application_config().gui
+    except Exception:
+        return COLORS
+
+    base = COLORS
+    bg_s = gui.background_color
+    fg_s = gui.foreground_color
+
+    qc_bg = _qcolor(str(bg_s)) if bg_s else _qcolor(base.bg_window)
+    qc_fg = _qcolor(str(fg_s)) if fg_s else _qcolor(base.text)
+    qc_muted = _blend(qc_fg, qc_bg, 0.52)
+
+    ap = gui.accent_color
+    asec = gui.accent_secondary_color
+    accent_orange_hex = str(ap) if ap else base.accent_orange
+    accent_amber_hex = str(asec) if asec else base.accent_amber
+    qc_accent_o = _qcolor(accent_orange_hex)
+    qc_accent_a = _qcolor(accent_amber_hex)
+    accent_deep_hex = _hex(qc_accent_o.darker(112))
+    highlight_hex = _hex(_blend(qc_accent_o, qc_accent_a, 0.35))
+
+    return ThemeColors(
+        bg_window=_hex(qc_bg),
+        bg_deep=_hex(qc_bg.darker(118)),
+        bg_elevated=_hex(qc_bg.lighter(108)),
+        bg_input=_hex(qc_bg.lighter(112)),
+        border=_hex(_blend(qc_bg, qc_fg, 0.22)),
+        border_focus=accent_deep_hex,
+        text=_hex(qc_fg),
+        text_muted=_hex(qc_muted),
+        accent_orange=accent_orange_hex,
+        accent_deep=accent_deep_hex,
+        accent_amber=accent_amber_hex,
+        highlight=highlight_hex,
+        highlight_text=base.highlight_text,
+        selection_alt=base.selection_alt,
+    )
+
+
+def theme_font_point_size() -> int:
+    try:
+        from utils.config import get_application_config
+
+        n = int(get_application_config().gui.font_size)
+        return max(6, min(24, n))
+    except Exception:
+        return 8
+
+
+def style_foreground_hex() -> str:
+    return resolve_theme_colors().text
+
+
+def style_elevated_bg_hex() -> str:
+    return resolve_theme_colors().bg_elevated
+
+
+def toast_warning_background() -> str:
+    try:
+        from utils.config import get_application_config
+
+        v = get_application_config().gui.toast_color_warning
+        if v:
+            return str(v)
+    except Exception:
+        pass
+    return _DEFAULT_TOAST_WARNING
+
+
+def toast_success_background() -> str:
+    try:
+        from utils.config import get_application_config
+
+        v = get_application_config().gui.toast_color_success
+        if v:
+            return str(v)
+    except Exception:
+        pass
+    return _DEFAULT_TOAST_SUCCESS
+
+
+class AppStyle:
+    """
+    Live tokens from application config + theme resolution.
+
+    Prefer these helpers over hard-coded hex so toasts and custom widgets stay in sync.
+    """
+
+    @staticmethod
+    def toast_warning_bg() -> str:
+        return toast_warning_background()
+
+    @staticmethod
+    def toast_success_bg() -> str:
+        return toast_success_background()
 
 
 def _apply_fusion_palette(app: QApplication, c: ThemeColors) -> None:
@@ -73,8 +183,7 @@ def _apply_fusion_palette(app: QApplication, c: ThemeColors) -> None:
     app.setPalette(pal)
 
 
-def _stylesheet(c: ThemeColors) -> str:
-    # Global QWidget color helps dialogs and message boxes inherit text/background.
+def _stylesheet(c: ThemeColors, font_pt: int) -> str:
     return f"""
     * {{
         outline: none;
@@ -84,6 +193,7 @@ def _stylesheet(c: ThemeColors) -> str:
         color: {c.text};
         selection-background-color: {c.highlight};
         selection-color: {c.highlight_text};
+        font-size: {font_pt}pt;
     }}
     QMainWindow, QDialog, QMessageBox {{
         background-color: {c.bg_window};
@@ -251,11 +361,13 @@ def _stylesheet(c: ThemeColors) -> str:
 
 def apply_theme(app: QApplication, colors: ThemeColors | None = None) -> None:
     """
-    Apply Fusion style, dark palette, and global stylesheet to the application.
+    Apply Fusion style, palette, and global stylesheet.
 
-    Call once after creating QApplication and before showing any window.
+    When ``colors`` is omitted, uses :func:`resolve_theme_colors` and
+    :func:`theme_font_point_size` from application config.
     """
-    c = colors or COLORS
+    c = colors or resolve_theme_colors()
+    font_pt = theme_font_point_size()
     app.setStyle("Fusion")
     _apply_fusion_palette(app, c)
-    app.setStyleSheet(_stylesheet(c))
+    app.setStyleSheet(_stylesheet(c, font_pt))

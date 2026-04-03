@@ -158,6 +158,46 @@ def quick_setup(script_name: Optional[str] = None) -> logging.Logger:
     return setup_logging(script_name=script_name)
 
 
+def apply_application_log_settings() -> None:
+    """
+    Align root and ``modelbuilder.*`` / ``mb.*`` loggers with
+    :class:`utils.config.ApplicationConfig` (``debug``, ``debug2``, ``log_level``).
+
+    When ``debug`` or ``debug2`` is true, the effective level is DEBUG; otherwise
+    ``log_level`` names a :mod:`logging` level (e.g. ``info``, ``warning``).
+    """
+    level = logging.INFO
+    try:
+        from utils.config import get_application_config
+
+        app = get_application_config().app
+        if app.debug or app.debug2:
+            level = logging.DEBUG
+        else:
+            name = (app.log_level or "info").upper()
+            cand = getattr(logging, name, None)
+            level = cand if isinstance(cand, int) else logging.INFO
+    except Exception:
+        level = logging.INFO
+
+    def _apply_to_logger(log: logging.Logger) -> None:
+        log.setLevel(level)
+        for handler in log.handlers:
+            handler.setLevel(level)
+
+    for name in list(logging.Logger.manager.loggerDict.keys()):
+        if not isinstance(name, str):
+            continue
+        if not (name.startswith("modelbuilder") or name.startswith("mb")):
+            continue
+        candidate = logging.Logger.manager.loggerDict[name]
+        if not isinstance(candidate, logging.Logger):
+            continue
+        _apply_to_logger(candidate)
+
+    _apply_to_logger(logging.getLogger("root"))
+
+
 def set_logger_level(debug: bool) -> None:
     """
     Set the logger level to DEBUG if debug is True, otherwise set it to INFO.
