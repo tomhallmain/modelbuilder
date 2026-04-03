@@ -26,6 +26,7 @@ from PySide6.QtWidgets import (
 from mb.pipeline_config import reload_pipeline_config
 
 from ui.lib.qt_alert import qt_alert
+from ui.lib.form_layout_i18n import apply_qform_label_column
 from mb.utils.translations import _
 from utils.config import (
     default_application_config_dict,
@@ -52,24 +53,18 @@ class ConfigPage(QWidget):
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(4)
 
-        title = QLabel(_("Config"))
-        tf = QFont(title.font())
+        self._page_title = QLabel()
+        tf = QFont(self._page_title.font())
         tf.setPointSizeF(tf.pointSizeF() + 3)
         tf.setBold(True)
-        title.setFont(tf)
-        title.setContentsMargins(0, 0, 0, 0)
-        root.addWidget(title)
+        self._page_title.setFont(tf)
+        self._page_title.setContentsMargins(0, 0, 0, 0)
+        root.addWidget(self._page_title)
 
-        desc = QLabel(
-            _(
-                "Application shell settings (<code>gui</code>, <code>app</code>). "
-                "Save writes to your active config file, or to the user data folder when "
-                "the packaged example is the only source."
-            )
-        )
-        desc.setWordWrap(True)
-        desc.setContentsMargins(0, 0, 0, 0)
-        root.addWidget(desc)
+        self._page_desc = QLabel()
+        self._page_desc.setWordWrap(True)
+        self._page_desc.setContentsMargins(0, 0, 0, 0)
+        root.addWidget(self._page_desc)
 
         self._path_label = QLabel()
         self._path_label.setWordWrap(True)
@@ -89,12 +84,6 @@ class ConfigPage(QWidget):
         self._btn_save.clicked.connect(self._on_save)
         self._btn_default = QPushButton(_("Set Default…"))
         self._btn_default.setObjectName("config_set_default_btn")
-        self._btn_default.setToolTip(
-            _(
-                "Replace your user application.yaml (next to the log folder) with built-in defaults. "
-                "Does not change workspace-specific YAML."
-            )
-        )
         self._btn_default.clicked.connect(self._on_set_default)
         row.addWidget(self._btn_reload)
         row.addWidget(self._btn_save)
@@ -102,6 +91,7 @@ class ConfigPage(QWidget):
         row.addStretch(1)
         root.addLayout(row)
 
+        self.retranslate_ui()
         self._refresh_from_disk()
 
     @staticmethod
@@ -121,9 +111,66 @@ class ConfigPage(QWidget):
         super().showEvent(event)
         self._apply_line_edit_text_contrast()
 
+    def retranslate_ui(self) -> None:
+        self._page_title.setText(_("Config"))
+        self._page_desc.setText(
+            _(
+                "Application shell settings (<code>gui</code>, <code>app</code>). "
+                "Save writes to your active config file, or to the user data folder when "
+                "the packaged example is the only source."
+            )
+        )
+        self._gui_group.setTitle(_("gui"))
+        self._app_group.setTitle(_("app"))
+        apply_qform_label_column(
+            self._gui_form,
+            [
+                _("Locale"),
+                _("Foreground color"),
+                _("Background color"),
+                _("Toast color (warning)"),
+                _("Toast color (success)"),
+                _("Accent (primary)"),
+                _("Accent (secondary)"),
+                "",
+                _("Default main window size"),
+                _("Toast duration (seconds)"),
+                _("Title notify duration (seconds)"),
+                _("Font size"),
+                _("GUI cache store interval"),
+            ],
+        )
+        apply_qform_label_column(
+            self._app_form,
+            [
+                "",
+                "",
+                _("Log level"),
+                "",
+            ],
+        )
+        self._locale.setPlaceholderText(_("empty — use OS locale"))
+        self._main_size.setPlaceholderText(_("e.g. 1200x960"))
+        self._cache_interval.setSuffix(_(" s"))
+        self._show_toasts.setText(_("Show toasts"))
+        self._debug.setText(_("Debug logging"))
+        self._debug2.setText(_("Debug logging (verbose)"))
+        self._print_settings.setText(_("Print settings to log on load"))
+        self._btn_reload.setText(_("Reload from disk"))
+        self._btn_save.setText(_("Save"))
+        self._btn_default.setText(_("Set Default…"))
+        self._btn_default.setToolTip(
+            _(
+                "Replace your user application.yaml (next to the log folder) with built-in defaults. "
+                "Does not change workspace-specific YAML."
+            )
+        )
+
     def _build_gui_group(self) -> QGroupBox:
-        box = QGroupBox(_("gui"))
+        box = QGroupBox()
+        self._gui_group = box
         form = QFormLayout(box)
+        self._gui_form = form
         form.setVerticalSpacing(10)
         form.setHorizontalSpacing(14)
         form.setContentsMargins(12, 14, 12, 12)
@@ -187,8 +234,10 @@ class ConfigPage(QWidget):
         return box
 
     def _build_app_group(self) -> QGroupBox:
-        box = QGroupBox(_("app"))
+        box = QGroupBox()
+        self._app_group = box
         form = QFormLayout(box)
+        self._app_form = form
         form.setVerticalSpacing(10)
         form.setHorizontalSpacing(14)
         form.setContentsMargins(12, 14, 12, 12)

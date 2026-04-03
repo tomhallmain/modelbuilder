@@ -32,6 +32,7 @@ from ui.lib.qt_alert import qt_alert, qt_operation_error
 from mb.utils.constants import DataPipelineSubcommand, ModelBuilderTaskType
 from mb.utils.recent_run_history import append_recent_run
 from mb.utils.translations import _
+from ui.lib.form_layout_i18n import apply_qform_label_column
 from ui.lib.task_progress import attach_progress_dialog
 from ui.task_context import LongTaskContext
 from ui.task_runner import start_task
@@ -47,25 +48,23 @@ class DataPage(QWidget):
         root = QVBoxLayout(self)
         root.setSpacing(10)
 
-        title = QLabel(f"<h2>{_('Data')}</h2>")
-        root.addWidget(title)
-        root.addWidget(
-            QLabel(
-                _("Prepare datasets using gather, convert, deduplicate, upscale, and split flows.")
-            )
-        )
+        self._title = QLabel()
+        root.addWidget(self._title)
+        self._intro = QLabel()
+        self._intro.setWordWrap(True)
+        root.addWidget(self._intro)
 
         self.tabs = QTabWidget()
-        self.tabs.addTab(self._build_gather_tab(), _("Gather"))
-        self.tabs.addTab(self._build_convert_tab(), _("Convert"))
-        self.tabs.addTab(self._build_dedup_tab(), _("Deduplicate"))
-        self.tabs.addTab(self._build_upscale_tab(), _("Upscale"))
-        self.tabs.addTab(self._build_dataset_tab(), _("Create Dataset"))
+        self.tabs.addTab(self._build_gather_tab(), "")
+        self.tabs.addTab(self._build_convert_tab(), "")
+        self.tabs.addTab(self._build_dedup_tab(), "")
+        self.tabs.addTab(self._build_upscale_tab(), "")
+        self.tabs.addTab(self._build_dataset_tab(), "")
         root.addWidget(self.tabs, 1)
 
         actions = QHBoxLayout()
-        self.btn_validate = QPushButton(_("Validate Inputs"))
-        self.btn_run = QPushButton(_("Run Data Command"))
+        self.btn_validate = QPushButton()
+        self.btn_run = QPushButton()
         actions.addWidget(self.btn_validate)
         actions.addWidget(self.btn_run)
         actions.addStretch(1)
@@ -73,12 +72,81 @@ class DataPage(QWidget):
 
         self.output = QTextEdit()
         self.output.setReadOnly(True)
-        self.output.setPlaceholderText(_("Validation and run results will appear here."))
         root.addWidget(self.output, 1)
 
         self.btn_validate.clicked.connect(self._validate_inputs)
         self.btn_run.clicked.connect(self._run_current_command)
         self.tabs.currentChanged.connect(self._validate_inputs)
+
+        self.retranslate_ui()
+
+    def retranslate_ui(self) -> None:
+        self._title.setText(f"<h2>{_('Data')}</h2>")
+        self._intro.setText(
+            _("Prepare datasets using gather, convert, deduplicate, upscale, and split flows.")
+        )
+        self.tabs.setTabText(0, _("Gather"))
+        self.tabs.setTabText(1, _("Convert"))
+        self.tabs.setTabText(2, _("Deduplicate"))
+        self.tabs.setTabText(3, _("Upscale"))
+        self.tabs.setTabText(4, _("Create Dataset"))
+        self.btn_validate.setText(_("Validate Inputs"))
+        self.btn_run.setText(_("Run Data Command"))
+        self.output.setPlaceholderText(_("Validation and run results will appear here."))
+        apply_qform_label_column(
+            self._gather_form,
+            [
+                _("Source dir"),
+                _("Subdirs (space-separated)"),
+                _("Target count"),
+                _("Target dir"),
+                _("Rejected dir"),
+                _("Subdir weights"),
+                _("Raw data dir"),
+            ],
+        )
+        apply_qform_label_column(
+            self._convert_form,
+            [_("Raw data dir"), _("Format (jpeg/jpg)")],
+        )
+        apply_qform_label_column(self._dedup_form, [_("Raw data dir")])
+        apply_qform_label_column(
+            self._upscale_form,
+            [_("Raw data dir"), _("Review dir (optional)")],
+        )
+        apply_qform_label_column(
+            self._dataset_form,
+            [
+                _("Raw data dir"),
+                _("Output data dir"),
+                _("Test images per class"),
+                _("Seed (optional)"),
+                _("Run ID (optional)"),
+                _("Max train per class"),
+                "",
+                "",
+            ],
+        )
+        self.dataset_max_train.setSpecialValueText(_("None"))
+        self.dataset_balance_train.setText(_("Balance train set to smallest class"))
+        self.dataset_allow_external.setText(_("Allow external/removable storage"))
+        for edit in (
+            self.gather_source,
+            self.gather_target_dir,
+            self.gather_rejected_dir,
+            self.gather_raw_data_dir,
+            self.convert_raw_data_dir,
+            self.dedup_raw_data_dir,
+            self.upscale_raw_data_dir,
+            self.upscale_review_dir,
+            self.dataset_raw_data_dir,
+            self.dataset_data_dir,
+        ):
+            row = edit.parentWidget()
+            if row is not None:
+                btn = row.findChild(QPushButton)
+                if btn is not None:
+                    btn.setText(_("Browse..."))
 
     def _run_startup_validation(self) -> None:
         """Called from :meth:`MainWindow._run_page_startup_validation` after cache restore."""
@@ -181,6 +249,7 @@ class DataPage(QWidget):
 
         group = QGroupBox("mb data gather")
         form = QFormLayout(group)
+        self._gather_form = form
         self.gather_source = QLineEdit()
         self.gather_subdirs = QLineEdit()
         self.gather_target_count = QSpinBox()
@@ -208,6 +277,7 @@ class DataPage(QWidget):
 
         group = QGroupBox("mb data convert")
         form = QFormLayout(group)
+        self._convert_form = form
         self.convert_raw_data_dir = QLineEdit("raw_data")
         self.convert_format = QLineEdit("jpeg")
         form.addRow(_("Raw data dir"), self._path_row(self.convert_raw_data_dir, select_dir=True))
@@ -222,6 +292,7 @@ class DataPage(QWidget):
 
         group = QGroupBox("mb data deduplicate")
         form = QFormLayout(group)
+        self._dedup_form = form
         self.dedup_raw_data_dir = QLineEdit("raw_data")
         form.addRow(_("Raw data dir"), self._path_row(self.dedup_raw_data_dir, select_dir=True))
         v.addWidget(group)
@@ -234,6 +305,7 @@ class DataPage(QWidget):
 
         group = QGroupBox("mb data upscale")
         form = QFormLayout(group)
+        self._upscale_form = form
         self.upscale_raw_data_dir = QLineEdit("raw_data")
         self.upscale_review_dir = QLineEdit()
         form.addRow(_("Raw data dir"), self._path_row(self.upscale_raw_data_dir, select_dir=True))
@@ -251,6 +323,7 @@ class DataPage(QWidget):
 
         group = QGroupBox("mb data create-dataset")
         form = QFormLayout(group)
+        self._dataset_form = form
         self.dataset_raw_data_dir = QLineEdit("raw_data")
         self.dataset_data_dir = QLineEdit("data")
         self.dataset_test_per_class = QSpinBox()

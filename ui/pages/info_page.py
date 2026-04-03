@@ -22,6 +22,7 @@ from mb.conversion.converters import detect_model_framework
 from ui.lib.qt_alert import qt_alert
 from mb.models.frameworks.registry import list_architectures
 from mb.utils.translations import _
+from ui.lib.form_layout_i18n import apply_qform_label_column
 
 
 class InfoPage(QWidget):
@@ -32,16 +33,39 @@ class InfoPage(QWidget):
         root = QVBoxLayout(self)
         root.setSpacing(10)
 
-        root.addWidget(QLabel(f"<h2>{_('Info')}</h2>"))
-        root.addWidget(QLabel(_("Inspect model metadata and dataset structure/statistics.")))
+        self._head = QLabel()
+        root.addWidget(self._head)
+        self._intro = QLabel()
+        self._intro.setWordWrap(True)
+        root.addWidget(self._intro)
 
         self._tabs = QTabWidget()
-        self._tabs.addTab(self._build_model_tab(), _("Model"))
-        self._tabs.addTab(self._build_dataset_tab(), _("Dataset"))
+        self._tabs.addTab(self._build_model_tab(), "")
+        self._tabs.addTab(self._build_dataset_tab(), "")
         root.addWidget(self._tabs, 1)
 
         self.btn_model_info.clicked.connect(self._inspect_model)
         self.btn_dataset_info.clicked.connect(self._inspect_dataset)
+
+        self.retranslate_ui()
+
+    def retranslate_ui(self) -> None:
+        self._head.setText(f"<h2>{_('Info')}</h2>")
+        self._intro.setText(_("Inspect model metadata and dataset structure/statistics."))
+        self._tabs.setTabText(0, _("Model"))
+        self._tabs.setTabText(1, _("Dataset"))
+        apply_qform_label_column(self._model_form, [_("Model path")])
+        apply_qform_label_column(self._dataset_form, [_("Data dir")])
+        self.btn_model_info.setText(_("Inspect Model"))
+        self.btn_dataset_info.setText(_("Inspect Dataset"))
+        self.model_output.setPlaceholderText(_("Model info output will appear here."))
+        self.dataset_output.setPlaceholderText(_("Dataset info output will appear here."))
+        for edit in (self.model_path, self.dataset_dir):
+            row = edit.parentWidget()
+            if row is not None:
+                btn = row.findChild(QPushButton)
+                if btn is not None:
+                    btn.setText(_("Browse..."))
 
     def collect_gui_state(self) -> dict:
         """Serializable form state; restored by :class:`ui.controllers.cache_controller.CacheController`."""
@@ -69,6 +93,7 @@ class InfoPage(QWidget):
 
         group = QGroupBox("mb info model")
         form = QFormLayout(group)
+        self._model_form = form
         self.model_path = QLineEdit()
         form.addRow(_("Model path"), self._path_row(self.model_path, select_dir=False))
         v.addWidget(group)
@@ -91,6 +116,7 @@ class InfoPage(QWidget):
 
         group = QGroupBox("mb info dataset")
         form = QFormLayout(group)
+        self._dataset_form = form
         self.dataset_dir = QLineEdit("data")
         form.addRow(_("Data dir"), self._path_row(self.dataset_dir, select_dir=True))
         v.addWidget(group)

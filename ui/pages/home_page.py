@@ -27,59 +27,79 @@ class HomePage(QWidget):
         layout = QVBoxLayout(self)
         layout.setSpacing(12)
 
-        title = QLabel(f"<h2>{_('Home')}</h2>")
-        title.setTextFormat(Qt.RichText)
-        layout.addWidget(title)
+        self._title = QLabel()
+        self._title.setTextFormat(Qt.RichText)
+        layout.addWidget(self._title)
 
-        subtitle = QLabel(
+        self._subtitle = QLabel()
+        self._subtitle.setWordWrap(True)
+        layout.addWidget(self._subtitle)
+
+        self._summary = QGroupBox()
+        summary_layout = QVBoxLayout(self._summary)
+        self._bullet_data = QLabel()
+        summary_layout.addWidget(self._bullet_data)
+        self._bullet_train = QLabel()
+        summary_layout.addWidget(self._bullet_train)
+        self._bullet_convert = QLabel()
+        summary_layout.addWidget(self._bullet_convert)
+        self._bullet_config = QLabel()
+        summary_layout.addWidget(self._bullet_config)
+        layout.addWidget(self._summary)
+
+        self._quick = QGroupBox()
+        quick_layout = QHBoxLayout(self._quick)
+        self._btn_data = QPushButton()
+        self._btn_data.clicked.connect(
+            lambda checked=False, r=ModelBuilderTaskType.DATA.nav_row_index: self._open_nav_row(r)
+        )
+        quick_layout.addWidget(self._btn_data)
+        self._btn_train = QPushButton()
+        self._btn_train.clicked.connect(
+            lambda checked=False, r=ModelBuilderTaskType.TRAIN.nav_row_index: self._open_nav_row(r)
+        )
+        quick_layout.addWidget(self._btn_train)
+        self._btn_convert = QPushButton()
+        self._btn_convert.clicked.connect(
+            lambda checked=False, r=ModelBuilderTaskType.CONVERT.nav_row_index: self._open_nav_row(r)
+        )
+        quick_layout.addWidget(self._btn_convert)
+        layout.addWidget(self._quick)
+
+        self._history = QGroupBox()
+        history_layout = QVBoxLayout(self._history)
+        self._recent_runs = QPlainTextEdit()
+        self._recent_runs.setObjectName("home_recent_runs")
+        self._recent_runs.setReadOnly(True)
+        self._recent_runs.setMinimumHeight(180)
+        history_layout.addWidget(self._recent_runs)
+        layout.addWidget(self._history, 1)
+
+        layout.addStretch(0)
+
+        self.retranslate_ui()
+        self.refresh_recent_runs()
+
+    def retranslate_ui(self) -> None:
+        self._title.setText(f"<h2>{_('Home')}</h2>")
+        self._subtitle.setText(
             _(
                 "Model Builder desktop shell for data prep, training, conversion, and info tools."
             )
         )
-        subtitle.setWordWrap(True)
-        layout.addWidget(subtitle)
-
-        summary = QGroupBox(_("Current scope"))
-        summary_layout = QVBoxLayout(summary)
-        summary_layout.addWidget(
-            QLabel(_("- Data pipeline: gather, convert, dedupe, upscale, create dataset"))
+        self._summary.setTitle(_("Current scope"))
+        self._bullet_data.setText(_("- Data pipeline: gather, convert, dedupe, upscale, create dataset"))
+        self._bullet_train.setText(
+            _("- Training: in-process or detached (CLI: {cmd})").format(cmd="mb train")
         )
-        summary_layout.addWidget(
-            QLabel(_("- Training: in-process or detached (CLI: {cmd})").format(cmd="mb train"))
-        )
-        summary_layout.addWidget(
-            QLabel(_("- Model conversion and dataset / model inspection (Info)"))
-        )
-        summary_layout.addWidget(
-            QLabel(_("- Application shell settings (Config)"))
-        )
-        layout.addWidget(summary)
-
-        quick = QGroupBox(_("Quick actions"))
-        quick_layout = QHBoxLayout(quick)
-        for label, task in (
-            (_("Open Data Page"), ModelBuilderTaskType.DATA),
-            (_("Open Train Page"), ModelBuilderTaskType.TRAIN),
-            (_("Open Convert Page"), ModelBuilderTaskType.CONVERT),
-        ):
-            btn = QPushButton(label)
-            row = task.nav_row_index
-            btn.clicked.connect(lambda checked=False, r=row: self._open_nav_row(r))
-            quick_layout.addWidget(btn)
-        layout.addWidget(quick)
-
-        history = QGroupBox(_("Recent run history"))
-        history_layout = QVBoxLayout(history)
-        self._recent_runs = QPlainTextEdit()
-        self._recent_runs.setObjectName("home_recent_runs")
-        self._recent_runs.setReadOnly(True)
+        self._bullet_convert.setText(_("- Model conversion and dataset / model inspection (Info)"))
+        self._bullet_config.setText(_("- Application shell settings (Config)"))
+        self._quick.setTitle(_("Quick actions"))
+        self._btn_data.setText(_("Open Data Page"))
+        self._btn_train.setText(_("Open Train Page"))
+        self._btn_convert.setText(_("Open Convert Page"))
+        self._history.setTitle(_("Recent run history"))
         self._recent_runs.setPlaceholderText(_("Loading…"))
-        self._recent_runs.setMinimumHeight(180)
-        history_layout.addWidget(self._recent_runs)
-        layout.addWidget(history, 1)
-
-        layout.addStretch(0)
-
         self.refresh_recent_runs()
 
     def _open_nav_row(self, row: int) -> None:

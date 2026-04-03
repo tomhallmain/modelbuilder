@@ -27,6 +27,7 @@ from mb.utils.translations import _
 from ui.lib.task_progress import attach_progress_dialog
 from ui.task_context import LongTaskContext
 from ui.task_runner import start_task
+from ui.lib.form_layout_i18n import apply_qform_label_column
 
 
 class ConvertPage(QWidget):
@@ -37,11 +38,15 @@ class ConvertPage(QWidget):
         root = QVBoxLayout(self)
         root.setSpacing(10)
 
-        root.addWidget(QLabel(f"<h2>{_('Convert')}</h2>"))
-        root.addWidget(QLabel(_("Prepare conversion jobs for ONNX and SafeTensors targets.")))
+        self._head = QLabel()
+        root.addWidget(self._head)
+        self._intro = QLabel()
+        self._intro.setWordWrap(True)
+        root.addWidget(self._intro)
 
         group = QGroupBox("mb convert")
         form = QFormLayout(group)
+        self._main_form = form
         self.input_model = QLineEdit()
         self.output_model = QLineEdit()
         self.framework = QComboBox()
@@ -65,9 +70,9 @@ class ConvertPage(QWidget):
         form.addRow(_("Image size"), self.image_size)
         root.addWidget(group)
 
-        hint = QLabel(_("Note: architecture/num_classes are needed for PyTorch -> ONNX."))
-        hint.setWordWrap(True)
-        root.addWidget(hint)
+        self._hint = QLabel()
+        self._hint.setWordWrap(True)
+        root.addWidget(self._hint)
 
         actions = QHBoxLayout()
         self.btn_validate = QPushButton(_("Validate Conversion"))
@@ -86,6 +91,37 @@ class ConvertPage(QWidget):
 
         self.btn_validate.clicked.connect(self._validate_inputs)
         self.btn_convert.clicked.connect(self._run_conversion)
+
+        self.retranslate_ui()
+
+    def retranslate_ui(self) -> None:
+        self._head.setText(f"<h2>{_('Convert')}</h2>")
+        self._intro.setText(_("Prepare conversion jobs for ONNX and SafeTensors targets."))
+        apply_qform_label_column(
+            self._main_form,
+            [
+                _("Input model"),
+                _("Output model"),
+                _("Source framework"),
+                _("Target format"),
+                _("Architecture"),
+                _("Num classes"),
+                _("Image size"),
+            ],
+        )
+        self.num_classes.setSpecialValueText(_("Required only for PyTorch -> ONNX"))
+        self._hint.setText(_("Note: architecture/num_classes are needed for PyTorch -> ONNX."))
+        self.btn_validate.setText(_("Validate Conversion"))
+        self.btn_convert.setText(_("Run Conversion"))
+        self.output.setPlaceholderText(
+            _("Conversion validation and execution messages will appear here.")
+        )
+        for edit in (self.input_model, self.output_model):
+            row = edit.parentWidget()
+            if row is not None:
+                btn = row.findChild(QPushButton)
+                if btn is not None:
+                    btn.setText(_("Browse..."))
 
     def _run_startup_validation(self) -> None:
         """Called from :meth:`MainWindow._run_page_startup_validation` after cache restore."""

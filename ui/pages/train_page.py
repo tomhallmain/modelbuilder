@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -35,6 +36,7 @@ from ui.spawn_mb_train import spawn_mb_train_subprocess
 from ui.task_context import LongTaskContext
 from ui.task_runner import start_task
 from ui.workspace import Workspace, default_settings, effective_pipeline_config_path
+from ui.lib.form_layout_i18n import apply_qform_label_column
 
 
 class TrainPage(QWidget):
@@ -46,17 +48,17 @@ class TrainPage(QWidget):
         root = QVBoxLayout(self)
         root.setSpacing(10)
 
-        root.addWidget(QLabel(f"<h2>{_('Train')}</h2>"))
-        root.addWidget(
-            QLabel(
-                _("Configure framework, architecture, paths, and hyperparameters (training CLI: {cmd}).").format(
-                    cmd="mb train"
-                )
-            )
-        )
+        self._head = QLabel()
+        self._head.setTextFormat(Qt.TextFormat.RichText)
+        root.addWidget(self._head)
+        self._intro = QLabel()
+        self._intro.setWordWrap(True)
+        root.addWidget(self._intro)
 
-        core_group = QGroupBox(_("Core configuration"))
+        core_group = QGroupBox()
+        self._core_group = core_group
         core_form = QFormLayout(core_group)
+        self._core_form = core_form
         self.model_type = QComboBox()
         self.model_type.addItems(["image_classification"])
         self.framework = QComboBox()
@@ -85,8 +87,10 @@ class TrainPage(QWidget):
         core_form.addRow("", self.train_subprocess)
         root.addWidget(core_group)
 
-        hp_group = QGroupBox(_("Hyperparameters"))
+        hp_group = QGroupBox()
+        self._hp_group = hp_group
         hp_form = QFormLayout(hp_group)
+        self._hp_form = hp_form
         self.frozen_epochs = QSpinBox()
         self.frozen_epochs.setRange(0, 10000)
         self.frozen_epochs.setValue(5)
@@ -137,6 +141,66 @@ class TrainPage(QWidget):
         self.framework.currentTextChanged.connect(self._refresh_architecture_hint)
         self.btn_validate.clicked.connect(self._validate_inputs)
         self.btn_start.clicked.connect(self._start_training)
+
+        self.retranslate_ui()
+
+    def retranslate_ui(self) -> None:
+        self._head.setText(f"<h2>{_('Train')}</h2>")
+        self._intro.setText(
+            _("Configure framework, architecture, paths, and hyperparameters (training CLI: {cmd}).").format(
+                cmd="mb train"
+            )
+        )
+        self._core_group.setTitle(_("Core configuration"))
+        apply_qform_label_column(
+            self._core_form,
+            [
+                _("Model type"),
+                _("Framework"),
+                _("Architecture"),
+                _("Data dir"),
+                _("Output dir"),
+                _("Resume checkpoint"),
+                _("Run ID (optional)"),
+                "",
+                "",
+            ],
+        )
+        self.skip_snapshot.setText(_("Skip unified snapshot update"))
+        self.train_subprocess.setText(
+            _("Run training in a separate process (survives closing this app; see log file)")
+        )
+        self._hp_group.setTitle(_("Hyperparameters"))
+        apply_qform_label_column(
+            self._hp_form,
+            [
+                _("Frozen epochs"),
+                _("Unfrozen epochs"),
+                _("Frozen LR"),
+                _("Unfrozen LR max"),
+                _("Unfrozen LR min"),
+                _("Batch size"),
+                _("Image size"),
+                _("Num workers"),
+            ],
+        )
+        self.batch_size.setSpecialValueText(_("Auto"))
+        self.num_workers.setSpecialValueText(_("Config default"))
+        self.btn_validate.setText(_("Validate Training Config"))
+        self.btn_start.setText(_("Start Training"))
+        self.output.setPlaceholderText(
+            _("Training validation and execution messages will appear here.")
+        )
+        for edit, sel_file in (
+            (self.data_dir, False),
+            (self.output_dir, False),
+            (self.resume_from, True),
+        ):
+            row = edit.parentWidget()
+            if row is not None:
+                btn = row.findChild(QPushButton)
+                if btn is not None:
+                    btn.setText(_("Browse..."))
 
     def _run_startup_validation(self) -> None:
         """Called from :meth:`MainWindow._run_page_startup_validation` after cache restore."""

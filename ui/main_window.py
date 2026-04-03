@@ -109,6 +109,7 @@ class MainWindow(QMainWindow):
         if not self._notifications.status_title_override_active:
             self.setWindowTitle(self._base_window_title)
         self._apply_main_window_geometry_from_config()
+        self.retranslate_shell_ui()
         cache = getattr(self, "_cache", None)
         if cache is not None:
             cache.restart_periodic_store()
@@ -225,7 +226,21 @@ class MainWindow(QMainWindow):
         scroll.setWidget(page)
         return scroll
 
+    def retranslate_shell_ui(self) -> None:
+        """Re-apply gettext to widgets built once at startup (nav, menus, page copy)."""
+        for i, (_page_cls, label) in enumerate(self.NAV_PAGE_SPECS):
+            item = self._nav.item(i)
+            if item is not None:
+                item.setText(_(label))
+        self._build_menu()
+        self._apply_workspace_to_ui()
+        for w in self._page_widgets:
+            fn = getattr(w, "retranslate_ui", None)
+            if callable(fn):
+                fn()
+
     def _build_menu(self) -> None:
+        self.menuBar().clear()
         file_menu = self.menuBar().addMenu(_("&File"))
         act_open = QAction(_("Set &workspace folder…"), self)
         act_open.triggered.connect(self._choose_workspace)
