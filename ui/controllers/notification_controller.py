@@ -18,6 +18,7 @@ from ui.lib.qt_alert import qt_alert
 from utils.config import get_application_config
 from mb.utils.logging_setup import get_logger
 from utils.notification_manager import notification_manager
+from mb.utils.translations import _
 
 logger = get_logger("ui.controllers.notification_controller")
 
@@ -41,6 +42,11 @@ class NotificationController:
             main_window.windowTitle() or "",
             window_id=wid,
         )
+
+    @property
+    def status_title_override_active(self) -> bool:
+        """True when :meth:`set_status_title` has applied a non-empty status suffix."""
+        return self._status_title_override_active
 
     def toast(
         self,
@@ -166,7 +172,7 @@ class NotificationController:
         import traceback
 
         traceback.print_exc()
-        t = title or "Error"
+        t = title or _("Error")
         self.alert(t, error_text, kind=kind)
 
     def set_label_state(self, *args, **kwargs) -> None:

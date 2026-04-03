@@ -34,9 +34,7 @@ from PySide6.QtWidgets import (
 
 import logging
 
-from mb.utils.translations import I18N
-
-_ = I18N._
+from mb.utils.translations import _
 
 logger = logging.getLogger(__name__)
 

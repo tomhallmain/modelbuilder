@@ -77,3 +77,13 @@ class I18N:
     Then for each locale once the PO files are set up as desired, run below in the deepest locale directory to produce the MO file from the PO file:
         ```python C:\\Python310\\Tools\\i18n\\msgfmt.py -o base.mo base```
     '''
+
+
+def _(message: str) -> str:
+    """
+    Translate *message* for the active locale.
+
+    Same as :meth:`I18N._`; prefer ``from mb.utils.translations import _`` in callers
+    instead of ``_ = I18N._``.
+    """
+    return I18N._(message)

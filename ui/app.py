@@ -20,11 +20,12 @@ def main() -> int:
 
     from PySide6.QtCore import QThreadPool
 
+    from mb.utils.translations import _
     from ui.main_window import MainWindow
     from utils.notification_manager import notification_manager
 
     app = QApplication(sys.argv)
-    app.setApplicationName("Model Builder")
+    app.setApplicationName(_("Model Builder"))
     app.setOrganizationName("ModelBuilder")
 
     def _on_about_to_quit() -> None:

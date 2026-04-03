@@ -2,9 +2,7 @@ from __future__ import annotations
 
 from enum import Enum
 
-from mb.utils.translations import I18N
-
-_ = I18N._
+from mb.utils.translations import _
 
 
 class ModelBuilderTaskType(str, Enum):
@@ -12,7 +10,7 @@ class ModelBuilderTaskType(str, Enum):
     Categories of long-running work started from the desktop shell.
 
     Values are persisted in recent-run history. :meth:`nav_row_index` matches
-    the order of :attr:`ui.main_window.MainWindow.NAV_ITEMS` (Home at 0).
+    the order of :attr:`ui.main_window.MainWindow.NAV_PAGE_SPECS` (Home at 0).
     """
 
     DATA = "data"
@@ -25,7 +23,7 @@ class ModelBuilderTaskType(str, Enum):
         return _MODEL_BUILDER_TASK_NAV_ROW[self]
 
 
-# Must stay in sync with MainWindow.NAV_ITEMS (Home, Data, Train, Convert, …).
+# Must stay in sync with MainWindow.NAV_PAGE_SPECS (Home, Data, Train, Convert, …).
 _MODEL_BUILDER_TASK_NAV_ROW: dict[ModelBuilderTaskType, int] = {
     ModelBuilderTaskType.DATA: 1,
     ModelBuilderTaskType.TRAIN: 2,

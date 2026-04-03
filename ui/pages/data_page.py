@@ -31,6 +31,7 @@ from mb.utils.storage import check_same_drive, check_target_external_storage
 from ui.lib.qt_alert import qt_alert, qt_operation_error
 from mb.utils.constants import DataPipelineSubcommand, ModelBuilderTaskType
 from mb.utils.recent_run_history import append_recent_run
+from mb.utils.translations import _
 from ui.lib.task_progress import attach_progress_dialog
 from ui.task_context import LongTaskContext
 from ui.task_runner import start_task
@@ -46,21 +47,25 @@ class DataPage(QWidget):
         root = QVBoxLayout(self)
         root.setSpacing(10)
 
-        title = QLabel("<h2>Data</h2>")
+        title = QLabel(f"<h2>{_('Data')}</h2>")
         root.addWidget(title)
-        root.addWidget(QLabel("Prepare datasets using gather, convert, deduplicate, upscale, and split flows."))
+        root.addWidget(
+            QLabel(
+                _("Prepare datasets using gather, convert, deduplicate, upscale, and split flows.")
+            )
+        )
 
         self.tabs = QTabWidget()
-        self.tabs.addTab(self._build_gather_tab(), "Gather")
-        self.tabs.addTab(self._build_convert_tab(), "Convert")
-        self.tabs.addTab(self._build_dedup_tab(), "Deduplicate")
-        self.tabs.addTab(self._build_upscale_tab(), "Upscale")
-        self.tabs.addTab(self._build_dataset_tab(), "Create Dataset")
+        self.tabs.addTab(self._build_gather_tab(), _("Gather"))
+        self.tabs.addTab(self._build_convert_tab(), _("Convert"))
+        self.tabs.addTab(self._build_dedup_tab(), _("Deduplicate"))
+        self.tabs.addTab(self._build_upscale_tab(), _("Upscale"))
+        self.tabs.addTab(self._build_dataset_tab(), _("Create Dataset"))
         root.addWidget(self.tabs, 1)
 
         actions = QHBoxLayout()
-        self.btn_validate = QPushButton("Validate Inputs")
-        self.btn_run = QPushButton("Run Data Command")
+        self.btn_validate = QPushButton(_("Validate Inputs"))
+        self.btn_run = QPushButton(_("Run Data Command"))
         actions.addWidget(self.btn_validate)
         actions.addWidget(self.btn_run)
         actions.addStretch(1)
@@ -68,7 +73,7 @@ class DataPage(QWidget):
 
         self.output = QTextEdit()
         self.output.setReadOnly(True)
-        self.output.setPlaceholderText("Validation and run results will appear here.")
+        self.output.setPlaceholderText(_("Validation and run results will appear here."))
         root.addWidget(self.output, 1)
 
         self.btn_validate.clicked.connect(self._validate_inputs)
@@ -186,13 +191,13 @@ class DataPage(QWidget):
         self.gather_subdir_weights = QLineEdit()
         self.gather_raw_data_dir = QLineEdit("raw_data")
 
-        form.addRow("Source dir", self._path_row(self.gather_source, select_dir=True))
-        form.addRow("Subdirs (space-separated)", self.gather_subdirs)
-        form.addRow("Target count", self.gather_target_count)
-        form.addRow("Target dir", self._path_row(self.gather_target_dir, select_dir=True))
-        form.addRow("Rejected dir", self._path_row(self.gather_rejected_dir, select_dir=True))
-        form.addRow("Subdir weights", self.gather_subdir_weights)
-        form.addRow("Raw data dir", self._path_row(self.gather_raw_data_dir, select_dir=True))
+        form.addRow(_("Source dir"), self._path_row(self.gather_source, select_dir=True))
+        form.addRow(_("Subdirs (space-separated)"), self.gather_subdirs)
+        form.addRow(_("Target count"), self.gather_target_count)
+        form.addRow(_("Target dir"), self._path_row(self.gather_target_dir, select_dir=True))
+        form.addRow(_("Rejected dir"), self._path_row(self.gather_rejected_dir, select_dir=True))
+        form.addRow(_("Subdir weights"), self.gather_subdir_weights)
+        form.addRow(_("Raw data dir"), self._path_row(self.gather_raw_data_dir, select_dir=True))
         v.addWidget(group)
         v.addStretch(1)
         return tab
@@ -205,8 +210,8 @@ class DataPage(QWidget):
         form = QFormLayout(group)
         self.convert_raw_data_dir = QLineEdit("raw_data")
         self.convert_format = QLineEdit("jpeg")
-        form.addRow("Raw data dir", self._path_row(self.convert_raw_data_dir, select_dir=True))
-        form.addRow("Format (jpeg/jpg)", self.convert_format)
+        form.addRow(_("Raw data dir"), self._path_row(self.convert_raw_data_dir, select_dir=True))
+        form.addRow(_("Format (jpeg/jpg)"), self.convert_format)
         v.addWidget(group)
         v.addStretch(1)
         return tab
@@ -218,7 +223,7 @@ class DataPage(QWidget):
         group = QGroupBox("mb data deduplicate")
         form = QFormLayout(group)
         self.dedup_raw_data_dir = QLineEdit("raw_data")
-        form.addRow("Raw data dir", self._path_row(self.dedup_raw_data_dir, select_dir=True))
+        form.addRow(_("Raw data dir"), self._path_row(self.dedup_raw_data_dir, select_dir=True))
         v.addWidget(group)
         v.addStretch(1)
         return tab
@@ -231,8 +236,11 @@ class DataPage(QWidget):
         form = QFormLayout(group)
         self.upscale_raw_data_dir = QLineEdit("raw_data")
         self.upscale_review_dir = QLineEdit()
-        form.addRow("Raw data dir", self._path_row(self.upscale_raw_data_dir, select_dir=True))
-        form.addRow("Review dir (optional)", self._path_row(self.upscale_review_dir, select_dir=True))
+        form.addRow(_("Raw data dir"), self._path_row(self.upscale_raw_data_dir, select_dir=True))
+        form.addRow(
+            _("Review dir (optional)"),
+            self._path_row(self.upscale_review_dir, select_dir=True),
+        )
         v.addWidget(group)
         v.addStretch(1)
         return tab
@@ -253,16 +261,16 @@ class DataPage(QWidget):
         self.dataset_run_id = QLineEdit()
         self.dataset_max_train = QSpinBox()
         self.dataset_max_train.setRange(0, 1_000_000)
-        self.dataset_max_train.setSpecialValueText("None")
-        self.dataset_balance_train = QCheckBox("Balance train set to smallest class")
-        self.dataset_allow_external = QCheckBox("Allow external/removable storage")
+        self.dataset_max_train.setSpecialValueText(_("None"))
+        self.dataset_balance_train = QCheckBox(_("Balance train set to smallest class"))
+        self.dataset_allow_external = QCheckBox(_("Allow external/removable storage"))
 
-        form.addRow("Raw data dir", self._path_row(self.dataset_raw_data_dir, select_dir=True))
-        form.addRow("Output data dir", self._path_row(self.dataset_data_dir, select_dir=True))
-        form.addRow("Test images per class", self.dataset_test_per_class)
-        form.addRow("Seed (optional)", self.dataset_seed)
-        form.addRow("Run ID (optional)", self.dataset_run_id)
-        form.addRow("Max train per class", self.dataset_max_train)
+        form.addRow(_("Raw data dir"), self._path_row(self.dataset_raw_data_dir, select_dir=True))
+        form.addRow(_("Output data dir"), self._path_row(self.dataset_data_dir, select_dir=True))
+        form.addRow(_("Test images per class"), self.dataset_test_per_class)
+        form.addRow(_("Seed (optional)"), self.dataset_seed)
+        form.addRow(_("Run ID (optional)"), self.dataset_run_id)
+        form.addRow(_("Max train per class"), self.dataset_max_train)
         form.addRow("", self.dataset_balance_train)
         form.addRow("", self.dataset_allow_external)
         v.addWidget(group)
@@ -274,7 +282,7 @@ class DataPage(QWidget):
         h = QHBoxLayout(row)
         h.setContentsMargins(0, 0, 0, 0)
         h.setSpacing(6)
-        browse = QPushButton("Browse...")
+        browse = QPushButton(_("Browse..."))
         browse.clicked.connect(lambda: self._browse(edit, select_dir=select_dir))
         h.addWidget(edit, 1)
         h.addWidget(browse, 0)
@@ -285,7 +293,7 @@ class DataPage(QWidget):
         if select_dir:
             value = QFileDialog.getExistingDirectory(
                 self,
-                "Select directory",
+                _("Select directory"),
                 start,
                 QFileDialog.Option.ShowDirsOnly | QFileDialog.Option.DontUseNativeDialog,
             )
@@ -294,9 +302,9 @@ class DataPage(QWidget):
         else:
             value, _ = QFileDialog.getOpenFileName(
                 self,
-                "Select file",
+                _("Select file"),
                 start,
-                "All files (*.*)",
+                _("All files (*.*)"),
                 options=QFileDialog.Option.DontUseNativeDialog,
             )
             if value:
@@ -328,26 +336,26 @@ class DataPage(QWidget):
             self._collect_inputs(command)
             self.btn_run.setEnabled(True)
             self.btn_run.setToolTip("")
-            self._append(f"[ok] {command}: inputs look valid")
+            self._append(_("[ok] {cmd}: inputs look valid").format(cmd=command))
         except ValueError as exc:
             self.btn_run.setEnabled(False)
             self.btn_run.setToolTip(str(exc))
-            self._append(f"[invalid] {command}: {exc}")
+            self._append(_("[invalid] {cmd}: {err}").format(cmd=command, err=exc))
 
     def _collect_inputs(self, command: str) -> dict:
         if command == "gather":
             source_dir = Path(self.gather_source.text().strip())
             if not source_dir.exists():
-                raise ValueError("Source dir does not exist.")
+                raise ValueError(_("Source dir does not exist."))
             subdirs = [x for x in self.gather_subdirs.text().strip().split() if x]
             if not subdirs:
-                raise ValueError("Provide at least one subdirectory.")
+                raise ValueError(_("Provide at least one subdirectory."))
             weights_raw = self.gather_subdir_weights.text().strip()
             weights = {}
             if weights_raw:
                 for pair in weights_raw.split(","):
                     if ":" not in pair:
-                        raise ValueError("Subdir weights must be in subdir:weight format.")
+                        raise ValueError(_("Subdir weights must be in subdir:weight format."))
                     name, value = pair.split(":", 1)
                     weights[name.strip()] = float(value.strip())
             return {
@@ -362,7 +370,7 @@ class DataPage(QWidget):
         if command == "convert":
             fmt = self.convert_format.text().strip().lower() or "jpeg"
             if fmt not in {"jpeg", "jpg"}:
-                raise ValueError("Format must be jpeg or jpg.")
+                raise ValueError(_("Format must be jpeg or jpg."))
             return {
                 "raw_data_dir": Path(self.convert_raw_data_dir.text().strip() or "raw_data"),
                 "format": fmt,
@@ -379,7 +387,7 @@ class DataPage(QWidget):
             raw_data_dir = Path(self.dataset_raw_data_dir.text().strip() or "raw_data")
             data_dir = Path(self.dataset_data_dir.text().strip() or "data")
             if not raw_data_dir.exists():
-                raise ValueError("Raw data dir does not exist.")
+                raise ValueError(_("Raw data dir does not exist."))
             return {
                 "raw_data_dir": raw_data_dir,
                 "data_dir": data_dir,
@@ -390,7 +398,7 @@ class DataPage(QWidget):
                 "max_train_per_class": int(self.dataset_max_train.value()) if self.dataset_max_train.value() > 0 else None,
                 "allow_external_storage": bool(self.dataset_allow_external.isChecked()),
             }
-        raise ValueError(f"Unknown command: {command}")
+        raise ValueError(_("Unknown command: {cmd}").format(cmd=command))
 
     def _run_current_command(self) -> None:
         command = self._current_command()
@@ -402,18 +410,20 @@ class DataPage(QWidget):
             ):
                 qt_alert(
                     self,
-                    "External storage",
-                    "The target data directory is on external or removable storage, and "
-                    '"Allow external storage" is not checked. Enable it on the Create Dataset tab '
-                    "or choose a different data directory.",
+                    _("External storage"),
+                    _(
+                        'The target data directory is on external or removable storage, and '
+                        '"Allow external storage" is not checked. Enable it on the Create Dataset tab '
+                        "or choose a different data directory."
+                    ),
                     kind="warning",
                 )
                 return
             if check_same_drive(payload["raw_data_dir"], payload["data_dir"]):
                 if not qt_alert(
                     self,
-                    "Confirm",
-                    "Source and target are on the same drive. Continue dataset creation?",
+                    _("Confirm"),
+                    _("Source and target are on the same drive. Continue dataset creation?"),
                     kind="askyesno",
                 ):
                     return
@@ -432,7 +442,7 @@ class DataPage(QWidget):
             pass_context=True,
             on_cancelled=self._on_run_cancelled,
         )
-        attach_progress_dialog(self, f"Data: {command}", handle, cancellable=True)
+        attach_progress_dialog(self, _("Data: {cmd}").format(cmd=command), handle, cancellable=True)
 
     def _execute_data_command(self, ctx: LongTaskContext, command: str, payload: dict) -> bool:
         ce = ctx.cancel_event
@@ -469,16 +479,16 @@ class DataPage(QWidget):
                 run_id=payload["run_id"],
             )
             return bool(creator.run(cancel_event=ce))
-        raise ValueError(f"Unknown command: {command}")
+        raise ValueError(_("Unknown command: {cmd}").format(cmd=command))
 
     def _on_run_success(self, success: bool) -> None:
         summary = getattr(self, "_pending_run_summary", "mb data")
         sub = getattr(self, "_pending_data_subcommand", None)
         if success:
-            self._append("[done] Data command completed successfully.")
+            self._append(_("[done] Data command completed successfully."))
             append_recent_run(ModelBuilderTaskType.DATA, summary, True, data_subcommand=sub)
         else:
-            self._append("[failed] Data command reported failure.")
+            self._append(_("[failed] Data command reported failure."))
             append_recent_run(
                 ModelBuilderTaskType.DATA,
                 summary,
@@ -488,7 +498,11 @@ class DataPage(QWidget):
             )
 
     def _on_run_cancelled(self) -> None:
-        self._append("[stopped] Data command cancelled — partial copies or snapshot updates may exist; check folders before re-running.")
+        self._append(
+            _(
+                "[stopped] Data command cancelled — partial copies or snapshot updates may exist; check folders before re-running."
+            )
+        )
         append_recent_run(
             ModelBuilderTaskType.DATA,
             getattr(self, "_pending_run_summary", "mb data"),
@@ -508,7 +522,7 @@ class DataPage(QWidget):
         )
         qt_operation_error(
             self,
-            "Data command failed",
-            "A data pipeline step reported an error. See Details for the full message.",
+            _("Data command failed"),
+            _("A data pipeline step reported an error. See Details for the full message."),
             detail=message,
         )

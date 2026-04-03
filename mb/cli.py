@@ -13,6 +13,7 @@ import logging
 from mb import __version__
 from mb.pipeline_config import get_pipeline_config, reload_pipeline_config
 from mb.utils.logging_setup import setup_logging
+from mb.utils.translations import _
 
 # Import data processing modules
 from mb.data.gather import ImageGatherer
@@ -37,7 +38,7 @@ def create_parser() -> argparse.ArgumentParser:
     """
     parser = argparse.ArgumentParser(
         prog="mb",
-        description="Model Builder - A unified CLI for building ML models",
+        description=_("Model Builder - A unified CLI for building ML models"),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     
@@ -50,366 +51,388 @@ def create_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--config",
         type=Path,
-        help="Path to configuration file (YAML)"
+        help=_("Path to configuration file (YAML)"),
     )
     
     parser.add_argument(
         "--verbose", "-v",
         action="store_true",
-        help="Enable verbose logging"
+        help=_("Enable verbose logging"),
     )
     
     # Create subparsers for different commands
     subparsers = parser.add_subparsers(
         dest="command",
-        help="Available commands",
-        metavar="COMMAND"
+        help=_("Available commands"),
+        metavar="COMMAND",
     )
     
     # Data subcommands
     data_parser = subparsers.add_parser(
         "data",
-        help="Data processing operations",
-        description="Data processing operations for preparing image datasets"
+        help=_("Data processing operations"),
+        description=_("Data processing operations for preparing image datasets"),
     )
     data_subparsers = data_parser.add_subparsers(
         dest="data_command",
-        help="Data subcommands",
-        metavar="SUBCOMMAND"
+        help=_("Data subcommands"),
+        metavar="SUBCOMMAND",
     )
     
     # mb data gather
     gather_parser = data_subparsers.add_parser(
         "gather",
-        help="Gather images from source directories",
-        description="Gather images from source directories into a target directory, "
-                    "with deduplication and optional weighting by subdirectory."
+        help=_("Gather images from source directories"),
+        description=_(
+            "Gather images from source directories into a target directory, "
+            "with deduplication and optional weighting by subdirectory."
+        ),
     )
     gather_parser.add_argument(
         "--source-dir",
         type=Path,
         required=True,
-        help="Source directory containing images"
+        help=_("Source directory containing images"),
     )
     gather_parser.add_argument(
         "--subdirs",
         nargs="+",
         required=True,
-        help="Subdirectories to process"
+        help=_("Subdirectories to process"),
     )
     gather_parser.add_argument(
         "--target-count",
         type=int,
         default=16000,
-        help="Target number of images to gather (default: 16000)"
+        help=_("Target number of images to gather (default: 16000)"),
     )
     gather_parser.add_argument(
         "--target-dir",
         type=Path,
         default=Path("raw_data/coherent"),
-        help="Target directory for gathered images (default: raw_data/coherent)"
+        help=_("Target directory for gathered images (default: raw_data/coherent)"),
     )
     gather_parser.add_argument(
         "--rejected-dir",
         type=Path,
-        help="Rejected directory for manually rejected images"
+        help=_("Rejected directory for manually rejected images"),
     )
     gather_parser.add_argument(
         "--subdir-weights",
         type=str,
-        help='Relative weights for subdirectories in format "subdir1:weight1,subdir2:weight2"'
+        help=_('Relative weights for subdirectories in format "subdir1:weight1,subdir2:weight2"'),
     )
     gather_parser.add_argument(
         "--raw-data-dir",
         type=Path,
         default=Path("raw_data"),
-        help="Root directory for raw data (default: raw_data)"
+        help=_("Root directory for raw data (default: raw_data)"),
     )
     
     # mb data convert
     convert_parser = data_subparsers.add_parser(
         "convert",
-        help="Convert images to specified format",
-        description="Convert images in the raw data directory to a specified format (e.g., JPEG). "
-                    "Large images are automatically resized to prevent memory issues."
+        help=_("Convert images to specified format"),
+        description=_(
+            "Convert images in the raw data directory to a specified format (e.g., JPEG). "
+            "Large images are automatically resized to prevent memory issues."
+        ),
     )
     convert_parser.add_argument(
         "--raw-data-dir",
         type=Path,
         default=Path("raw_data"),
-        help="Raw data directory (default: raw_data)"
+        help=_("Raw data directory (default: raw_data)"),
     )
     convert_parser.add_argument(
         "--format",
         choices=["jpeg", "jpg"],
         default="jpeg",
-        help="Target format (default: jpeg)"
+        help=_("Target format (default: jpeg)"),
     )
     
     # mb data deduplicate
     dedup_parser = data_subparsers.add_parser(
         "deduplicate",
-        help="Remove duplicate images",
-        description="Remove duplicate images within and across class directories. "
-                    "Uses perceptual hashing to identify duplicates and moves them to a review directory."
+        help=_("Remove duplicate images"),
+        description=_(
+            "Remove duplicate images within and across class directories. "
+            "Uses perceptual hashing to identify duplicates and moves them to a review directory."
+        ),
     )
     dedup_parser.add_argument(
         "--raw-data-dir",
         type=Path,
         default=Path("raw_data"),
-        help="Raw data directory (default: raw_data)"
+        help=_("Raw data directory (default: raw_data)"),
     )
     
     # mb data upscale
     upscale_parser = data_subparsers.add_parser(
         "upscale",
-        help="Upscale small images",
-        description="Upscale images that are smaller than a minimum dimension threshold. "
-                    "Small images are moved to a review directory for manual inspection before upscaling."
+        help=_("Upscale small images"),
+        description=_(
+            "Upscale images that are smaller than a minimum dimension threshold. "
+            "Small images are moved to a review directory for manual inspection before upscaling."
+        ),
     )
     upscale_parser.add_argument(
         "--raw-data-dir",
         type=Path,
         default=Path("raw_data"),
-        help="Raw data directory (default: raw_data)"
+        help=_("Raw data directory (default: raw_data)"),
     )
     upscale_parser.add_argument(
         "--review-dir",
         type=Path,
-        help="Review directory containing small images (default: raw_data/small_images_review)"
+        help=_("Review directory containing small images (default: raw_data/small_images_review)"),
     )
     
     # mb data create-dataset
     dataset_parser = data_subparsers.add_parser(
         "create-dataset",
-        help="Create train/test dataset splits",
-        description="Create training and test dataset splits from raw data. "
-                    "Validates images, removes corrupted files, filters by size, "
-                    "and creates balanced train/test splits with hash-based filenames."
+        help=_("Create train/test dataset splits"),
+        description=_(
+            "Create training and test dataset splits from raw data. "
+            "Validates images, removes corrupted files, filters by size, "
+            "and creates balanced train/test splits with hash-based filenames."
+        ),
     )
     dataset_parser.add_argument(
         "--raw-data-dir",
         type=Path,
         default=Path("raw_data"),
-        help="Raw data directory (default: raw_data)"
+        help=_("Raw data directory (default: raw_data)"),
     )
     dataset_parser.add_argument(
         "--data-dir",
         type=Path,
         default=Path("data"),
-        help="Output data directory (default: data)"
+        help=_("Output data directory (default: data)"),
     )
     dataset_parser.add_argument(
         "--test-per-class",
         type=int,
         default=1000,
-        help="Number of test images per class (default: 1000)"
+        help=_("Number of test images per class (default: 1000)"),
     )
     dataset_parser.add_argument(
         "--seed",
         type=int,
-        help="Random seed for reproducibility"
+        help=_("Random seed for reproducibility"),
     )
     dataset_parser.add_argument(
         "--run-id",
         type=str,
-        help="Run ID of unified snapshot to update (auto-detects latest if not provided)"
+        help=_("Run ID of unified snapshot to update (auto-detects latest if not provided)"),
     )
     dataset_parser.add_argument(
         "--balance-train",
         action="store_true",
-        help="Balance training set to smallest class size"
+        help=_("Balance training set to smallest class size"),
     )
     dataset_parser.add_argument(
         "--max-train-per-class",
         type=int,
-        help="Maximum number of training images per class"
+        help=_("Maximum number of training images per class"),
     )
     dataset_parser.add_argument(
         "--allow-external-storage",
         action="store_true",
-        help="Allow running on external/removable storage (not recommended)"
+        help=_("Allow running on external/removable storage (not recommended)"),
     )
     
     # Training command
     train_parser = subparsers.add_parser(
         "train",
-        help="Train a model",
-        description="Train a machine learning model using the specified framework and architecture. "
-                    "Supports transfer learning with frozen/unfrozen training phases."
+        help=_("Train a model"),
+        description=_(
+            "Train a machine learning model using the specified framework and architecture. "
+            "Supports transfer learning with frozen/unfrozen training phases."
+        ),
     )
     train_parser.add_argument(
         "--model-type",
         choices=["image_classification"],
         default="image_classification",
-        help="Model type (default: image_classification)"
+        help=_("Model type (default: image_classification)"),
     )
     train_parser.add_argument(
         "--framework",
         choices=["pytorch", "keras"],
-        help="Framework to use (default: from config)"
+        help=_("Framework to use (default: from config)"),
     )
     train_parser.add_argument(
         "--architecture",
-        help="Model architecture (e.g., resnet34)"
+        help=_("Model architecture (e.g., resnet34)"),
     )
     train_parser.add_argument(
         "--data-dir",
         type=Path,
-        help="Data directory (default: from config)"
+        help=_("Data directory (default: from config)"),
     )
     train_parser.add_argument(
         "--output-dir",
         type=Path,
-        help="Output directory for models (default: from config)"
+        help=_("Output directory for models (default: from config)"),
     )
     train_parser.add_argument(
         "--frozen-epochs",
         type=int,
-        help="Number of frozen training epochs (default: from config)"
+        help=_("Number of frozen training epochs (default: from config)"),
     )
     train_parser.add_argument(
         "--unfrozen-epochs",
         type=int,
-        help="Number of unfrozen training epochs (default: from config)"
+        help=_("Number of unfrozen training epochs (default: from config)"),
     )
     train_parser.add_argument(
         "--frozen-lr",
         type=float,
-        help="Learning rate for frozen phase (default: from config)"
+        help=_("Learning rate for frozen phase (default: from config)"),
     )
     train_parser.add_argument(
         "--unfrozen-lr-max",
         type=float,
-        help="Maximum learning rate for unfrozen phase (default: from config)"
+        help=_("Maximum learning rate for unfrozen phase (default: from config)"),
     )
     train_parser.add_argument(
         "--unfrozen-lr-min",
         type=float,
-        help="Minimum learning rate for unfrozen phase (default: from config)"
+        help=_("Minimum learning rate for unfrozen phase (default: from config)"),
     )
     train_parser.add_argument(
         "--batch-size",
         type=int,
-        help="Batch size (default: from config or auto-detect)"
+        help=_("Batch size (default: from config or auto-detect)"),
     )
     train_parser.add_argument(
         "--image-size",
         type=int,
-        help="Image size (default: 224)"
+        help=_("Image size (default: 224)"),
     )
     train_parser.add_argument(
         "--num-workers",
         type=int,
-        help="Number of data loading workers (default: from config)"
+        help=_("Number of data loading workers (default: from config)"),
     )
     train_parser.add_argument(
         "--resume-from",
         type=Path,
-        help="Path to checkpoint to resume training from"
+        help=_("Path to checkpoint to resume training from"),
     )
     train_parser.add_argument(
         "--run-id",
         type=str,
-        help="Run ID of unified snapshot to update (auto-detects latest if not provided)"
+        help=_("Run ID of unified snapshot to update (auto-detects latest if not provided)"),
     )
     train_parser.add_argument(
         "--skip-snapshot-update",
         action="store_true",
-        help="Skip updating the unified snapshot with training data"
+        help=_("Skip updating the unified snapshot with training data"),
     )
     train_parser.add_argument(
         "--train-args-json",
         type=Path,
         metavar="PATH",
-        help="Load TrainingRunArgs from JSON (see mb.training.run_args); other train flags are ignored",
+        help=_(
+            "Load TrainingRunArgs from JSON (see mb.training.run_args); other train flags are ignored"
+        ),
     )
     
     # Convert command
     convert_model_parser = subparsers.add_parser(
         "convert",
-        help="Convert model between formats",
-        description="Convert a trained model between different formats. "
-                    "Supports PyTorch -> ONNX, PyTorch -> SafeTensors, and Keras -> ONNX."
+        help=_("Convert model between formats"),
+        description=_(
+            "Convert a trained model between different formats. "
+            "Supports PyTorch -> ONNX, PyTorch -> SafeTensors, and Keras -> ONNX."
+        ),
     )
     convert_model_parser.add_argument(
         "--input",
         type=Path,
         required=True,
-        help="Input model file"
+        help=_("Input model file"),
     )
     convert_model_parser.add_argument(
         "--output",
         type=Path,
         required=True,
-        help="Output model file"
+        help=_("Output model file"),
     )
     convert_model_parser.add_argument(
         "--framework",
         choices=["pytorch", "keras"],
-        help="Source framework (auto-detected if not specified)"
+        help=_("Source framework (auto-detected if not specified)"),
     )
     convert_model_parser.add_argument(
         "--target",
         choices=["onnx", "safetensors"],
         required=True,
-        help="Target format (onnx or safetensors)"
+        help=_("Target format (onnx or safetensors)"),
     )
     convert_model_parser.add_argument(
         "--architecture",
-        help="Model architecture (required for PyTorch -> ONNX conversion, e.g., 'resnet34')"
+        help=_("Model architecture (required for PyTorch -> ONNX conversion, e.g., 'resnet34')"),
     )
     convert_model_parser.add_argument(
         "--num-classes",
         type=int,
-        help="Number of output classes (required for PyTorch -> ONNX conversion)"
+        help=_("Number of output classes (required for PyTorch -> ONNX conversion)"),
     )
     convert_model_parser.add_argument(
         "--image-size",
         type=int,
         default=224,
-        help="Input image size (default: 224, used for ONNX conversion)"
+        help=_("Input image size (default: 224, used for ONNX conversion)"),
     )
     
     # Info command
     info_parser = subparsers.add_parser(
         "info",
-        help="Show information about models or datasets",
-        description="Display information about trained models or datasets, including metadata, "
-                    "architecture details, and dataset statistics."
+        help=_("Show information about models or datasets"),
+        description=_(
+            "Display information about trained models or datasets, including metadata, "
+            "architecture details, and dataset statistics."
+        ),
     )
     info_subparsers = info_parser.add_subparsers(
         dest="info_command",
-        help="Info subcommands",
-        metavar="SUBCOMMAND"
+        help=_("Info subcommands"),
+        metavar="SUBCOMMAND",
     )
     
     # mb info model
     info_model_parser = info_subparsers.add_parser(
         "model",
-        help="Show model information",
-        description="Display detailed information about a trained model, including architecture, "
-                    "framework, number of parameters, and training metadata."
+        help=_("Show model information"),
+        description=_(
+            "Display detailed information about a trained model, including architecture, "
+            "framework, number of parameters, and training metadata."
+        ),
     )
     info_model_parser.add_argument(
         "--path",
         type=Path,
         required=True,
-        help="Path to model file"
+        help=_("Path to model file"),
     )
     
     # mb info dataset
     info_dataset_parser = info_subparsers.add_parser(
         "dataset",
-        help="Show dataset information",
-        description="Display statistics about a dataset, including class distributions, "
-                    "image counts, and data directory structure."
+        help=_("Show dataset information"),
+        description=_(
+            "Display statistics about a dataset, including class distributions, "
+            "image counts, and data directory structure."
+        ),
     )
     info_dataset_parser.add_argument(
         "--data-dir",
         type=Path,
         required=True,
-        help="Path to data directory"
+        help=_("Path to data directory"),
     )
     
     return parser
@@ -420,7 +443,7 @@ def handle_data_gather(args):
     try:
         # Validate subdirectories
         if not args.subdirs:
-            logger.error("Please specify valid subdirectories using --subdirs argument")
+            logger.error(_("Please specify valid subdirectories using --subdirs argument"))
             return 1
         
         # Parse subdirectory weights if provided
@@ -428,20 +451,32 @@ def handle_data_gather(args):
         if hasattr(args, 'subdir_weights') and args.subdir_weights:
             for pair in args.subdir_weights.split(','):
                 if ':' not in pair:
-                    logger.error(f"Invalid weight format: {pair}. Expected format: subdir:weight")
+                    logger.error(
+                        _("Invalid weight format: {pair}. Expected format: subdir:weight").format(
+                            pair=pair
+                        )
+                    )
                     return 1
                 subdir, weight_str = pair.split(':', 1)
                 subdir = subdir.strip()
                 weight = float(weight_str.strip())
                 if weight < 0:
-                    logger.error(f"Weight must be non-negative: {subdir}={weight}")
+                    logger.error(
+                        _("Weight must be non-negative: {subdir}={weight}").format(
+                            subdir=subdir, weight=weight
+                        )
+                    )
                     return 1
                 subdir_weights[subdir] = weight
             
             # Validate that weighted subdirectories exist in subdirs
             invalid_weights = set(subdir_weights.keys()) - set(args.subdirs)
             if invalid_weights:
-                logger.error(f"Subdirectories in weights not found in --subdirs: {invalid_weights}")
+                logger.error(
+                    _("Subdirectories in weights not found in --subdirs: {weights}").format(
+                        weights=invalid_weights
+                    )
+                )
                 return 1
         
         # Create and run gatherer
@@ -514,7 +549,7 @@ def handle_data_create_dataset(args):
         
         # Storage checks
         if check_target_external_storage(logger, args.data_dir, override=getattr(args, 'allow_external_storage', False)):
-            logger.error("Process terminated due to external storage detection.")
+            logger.error(_("Process terminated due to external storage detection."))
             return 1
         
         # User confirmation for same drive case
@@ -557,16 +592,16 @@ def handle_train(args):
             run_args = load_training_run_args_json(args.train_args_json)
             framework = run_args.framework.lower()
             if framework not in ("pytorch", "keras"):
-                logger.error(f"Unsupported framework in JSON: {framework}")
+                logger.error(_("Unsupported framework in JSON: {fw}").format(fw=framework))
                 return 1
             model_type_str = pipeline.get("model.default_type", "image_classification")
             if model_type_str != "image_classification":
-                logger.error(f"Unsupported model type from config: {model_type_str}")
+                logger.error(_("Unsupported model type from config: {t}").format(t=model_type_str))
                 return 1
             model_type = ModelType.IMAGE_CLASSIFICATION
             data_dir = run_args.data_dir
             if not data_dir.exists():
-                logger.error(f"Data directory does not exist: {data_dir}")
+                logger.error(_("Data directory does not exist: {path}").format(path=data_dir))
                 return 1
             output_dir = run_args.output_dir
             output_dir.mkdir(parents=True, exist_ok=True)
@@ -578,19 +613,23 @@ def handle_train(args):
             supported_archs = trainer.get_supported_architectures()
             if run_args.architecture not in supported_archs:
                 logger.error(
-                    f"Architecture '{run_args.architecture}' not supported for framework '{framework}'"
+                    _("Architecture '{arch}' not supported for framework '{fw}'").format(
+                        arch=run_args.architecture, fw=framework
+                    )
                 )
                 logger.info(f"Supported architectures: {supported_archs}")
                 return 1
             logger.info(f"Starting training from JSON ({framework}/{run_args.architecture})")
             model_path = trainer.train(run_args)
-            logger.info(f"Training completed successfully. Model saved to: {model_path}")
+            logger.info(
+                _("Training completed successfully. Model saved to: {path}").format(path=model_path)
+            )
             return 0
         
         # Determine framework
         framework = args.framework or pipeline.get('model.default_framework', 'pytorch')
         if framework not in ['pytorch', 'keras']:
-            logger.error(f"Unsupported framework: {framework}")
+            logger.error(_("Unsupported framework: {fw}").format(fw=framework))
             return 1
         
         # Determine model type
@@ -598,7 +637,7 @@ def handle_train(args):
         if model_type_str == 'image_classification':
             model_type = ModelType.IMAGE_CLASSIFICATION
         else:
-            logger.error(f"Unsupported model type: {model_type_str}")
+            logger.error(_("Unsupported model type: {t}").format(t=model_type_str))
             return 1
         
         # Determine architecture
@@ -607,7 +646,7 @@ def handle_train(args):
         # Determine data directory
         data_dir = args.data_dir or Path(pipeline.get('data.data_dir', 'data'))
         if not data_dir.exists():
-            logger.error(f"Data directory does not exist: {data_dir}")
+            logger.error(_("Data directory does not exist: {path}").format(path=data_dir))
             return 1
         
         # Determine output directory
@@ -643,7 +682,11 @@ def handle_train(args):
         # Check if architecture is supported
         supported_archs = trainer.get_supported_architectures()
         if architecture not in supported_archs:
-            logger.error(f"Architecture '{architecture}' not supported for framework '{framework}'")
+            logger.error(
+                _("Architecture '{arch}' not supported for framework '{fw}'").format(
+                    arch=architecture, fw=framework
+                )
+            )
             logger.info(f"Supported architectures: {supported_archs}")
             return 1
         
@@ -661,11 +704,13 @@ def handle_train(args):
         )
         model_path = trainer.train(run_args)
         
-        logger.info(f"Training completed successfully. Model saved to: {model_path}")
+        logger.info(
+            _("Training completed successfully. Model saved to: {path}").format(path=model_path)
+        )
         return 0
         
     except Exception as e:
-        logger.error(f"Training failed: {e}", exc_info=args.verbose)
+        logger.error(_("Training failed: {err}").format(err=e), exc_info=args.verbose)
         return 1
 
 
@@ -676,7 +721,7 @@ def handle_convert(args):
         
         # Validate arguments
         if not args.input.exists():
-            logger.error(f"Input model file not found: {args.input}")
+            logger.error(_("Input model file not found: {path}").format(path=args.input))
             return 1
         
         # Check if architecture/num_classes are needed
@@ -685,13 +730,13 @@ def handle_convert(args):
             from mb.conversion.converters import detect_model_framework
             source_framework = detect_model_framework(args.input)
             if source_framework is None:
-                logger.error("Could not detect source framework. Please specify --framework")
+                logger.error(_("Could not detect source framework. Please specify --framework"))
                 return 1
         
         if source_framework == 'pytorch' and args.target == 'onnx':
             if args.architecture is None or args.num_classes is None:
                 logger.error(
-                    "PyTorch -> ONNX conversion requires --architecture and --num-classes"
+                    _("PyTorch -> ONNX conversion requires --architecture and --num-classes")
                 )
                 return 1
         
@@ -709,20 +754,22 @@ def handle_convert(args):
         )
         
         if success:
-            logger.info(f"Conversion completed successfully: {args.output}")
+            logger.info(
+                _("Conversion completed successfully: {path}").format(path=args.output)
+            )
             return 0
         else:
-            logger.error("Conversion failed")
+            logger.error(_("Conversion failed"))
             return 1
             
     except Exception as e:
-        logger.error(f"Conversion error: {e}", exc_info=args.verbose)
+        logger.error(_("Conversion error: {err}").format(err=e), exc_info=args.verbose)
         return 1
 
 
 def handle_info_model(args):
     """Handle 'mb info model' command."""
-    logger.info("Info model command - not yet implemented")
+    logger.info(_("Info model command - not yet implemented"))
     logger.info(f"Model path: {args.path}")
     # TODO: Implement
     return 0
@@ -730,7 +777,7 @@ def handle_info_model(args):
 
 def handle_info_dataset(args):
     """Handle 'mb info dataset' command."""
-    logger.info("Info dataset command - not yet implemented")
+    logger.info(_("Info dataset command - not yet implemented"))
     logger.info(f"Data dir: {args.data_dir}")
     # TODO: Implement
     return 0
@@ -771,7 +818,7 @@ def main(args: Optional[list] = None) -> int:
             elif parsed_args.data_command == "create-dataset":
                 return handle_data_create_dataset(parsed_args)
             else:
-                logger.error("No data subcommand specified")
+                logger.error(_("No data subcommand specified"))
                 return 1
         
         elif parsed_args.command == "train":
@@ -786,18 +833,18 @@ def main(args: Optional[list] = None) -> int:
             elif parsed_args.info_command == "dataset":
                 return handle_info_dataset(parsed_args)
             else:
-                logger.error("No info subcommand specified")
+                logger.error(_("No info subcommand specified"))
                 return 1
         
         else:
-            logger.error(f"Unknown command: {parsed_args.command}")
+            logger.error(_("Unknown command: {cmd}").format(cmd=parsed_args.command))
             return 1
     
     except KeyboardInterrupt:
-        logger.info("Interrupted by user")
+        logger.info(_("Interrupted by user"))
         return 130
     except Exception as e:
-        logger.error(f"Error: {e}", exc_info=parsed_args.verbose)
+        logger.error(_("Error: {err}").format(err=e), exc_info=parsed_args.verbose)
         return 1
 
 

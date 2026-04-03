@@ -7,9 +7,7 @@ from PySide6.QtCore import QUrl
 from PySide6.QtGui import QDesktopServices, QGuiApplication
 from PySide6.QtWidgets import QWidget, QMessageBox
 
-from mb.utils.translations import I18N
-
-_ = I18N._
+from mb.utils.translations import _
 
 
 def _make_box(

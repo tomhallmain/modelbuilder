@@ -4,10 +4,8 @@ from typing import List, Optional
 
 from mb.utils.constants import ActionType
 from mb.utils.logging_setup import get_logger
-from mb.utils.translations import I18N
+from mb.utils.translations import _
 from utils.config import get_application_config
-
-_ = I18N._
 
 logger = get_logger("notification_manager")
 

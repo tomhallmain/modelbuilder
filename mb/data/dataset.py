@@ -24,6 +24,7 @@ except ImportError:
 
 # Import centralized logging configuration
 from mb.utils.logging_setup import log_completion_info, log_startup_info, setup_logging
+from mb.utils.translations import _
 from mb.cancellation import check_cancel_event
 from mb.utils.storage import check_target_external_storage, check_same_drive
 from mb.utils.snapshot import (
@@ -538,8 +539,10 @@ class DatasetCreator:
 
 def confirm_user_action(logger, args):
     # Platform-specific warning covering cases of potential external drive misdetection
-    logger.info("Source and target directories are on the same drive.")
-    logger.info("The script will use copy operations (not move) to preserve source files.")
+    logger.info(_("Source and target directories are on the same drive."))
+    logger.info(
+        _("The script will use copy operations (not move) to preserve source files.")
+    )
     
     import platform
     system_drive = None
@@ -556,24 +559,46 @@ def confirm_user_action(logger, args):
     
     # If we're on the system drive, no need to confirm - user knows what they're doing
     if system_drive and source_drive.upper() == system_drive.upper():
-        logger.info(f"Source drive {source_drive} is the system drive. Proceeding without confirmation.")
+        logger.info(
+            _("Source drive {drive} is the system drive. Proceeding without confirmation.").format(
+                drive=source_drive
+            )
+        )
         return True
     
     # Platform-specific warning about potential external drive misdetection
     if platform.system() == "Windows":
         if system_drive and source_drive.upper() != system_drive.upper():
-            logger.warning(f"NOTE: Source drive {source_drive} is different from system drive {system_drive}.")
-            logger.warning("This may indicate an external drive that failed detection. Consider whether to proceed.")
+            logger.warning(
+                _("NOTE: Source drive {src} is different from system drive {sys}.").format(
+                    src=source_drive, sys=system_drive
+                )
+            )
+            logger.warning(
+                _(
+                    "This may indicate an external drive that failed detection. Consider whether to proceed."
+                )
+            )
         else:
-            logger.warning("NOTE: Unable to determine system drive. If this is not your main system drive,")
-            logger.warning("it may indicate an external drive that failed detection. Consider whether to proceed.")
+            logger.warning(
+                _(
+                    "NOTE: Unable to determine system drive. If this is not your main system drive,"
+                )
+            )
+            logger.warning(
+                _(
+                    "it may indicate an external drive that failed detection. Consider whether to proceed."
+                )
+            )
     else:
-        logger.warning("NOTE: If this is not your main system drive, it may indicate an external drive")
-        logger.warning("that failed detection. Consider whether to proceed.")
+        logger.warning(
+            _("NOTE: If this is not your main system drive, it may indicate an external drive")
+        )
+        logger.warning(_("that failed detection. Consider whether to proceed."))
     
-    response = input("Continue with same-drive operation? (y/N): ").strip().lower()
+    response = input(_("Continue with same-drive operation? (y/N): ")).strip().lower()
     if response not in ['y', 'yes']:
-        logger.info("Operation cancelled by user.")
+        logger.info(_("Operation cancelled by user."))
         return False
     return True
 

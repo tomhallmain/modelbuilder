@@ -5,6 +5,7 @@ Main application window: sidebar navigation and stacked placeholder pages.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import ClassVar, Type
 
 from PySide6.QtCore import QSize, QThreadPool, QUrl
 from PySide6.QtGui import QAction, QDesktopServices
@@ -39,19 +40,20 @@ from utils.config import (
     reload_application_config,
 )
 from mb.utils.logging_setup import apply_application_log_settings
-from mb.utils.translations import apply_application_locale
+from mb.utils.translations import _, apply_application_locale
 from utils.notification_manager import notification_manager
 
 
 class MainWindow(QMainWindow):
-    #: Order is mirrored by :attr:`mb.utils.constants.ModelBuilderTaskType.nav_row_index` (Data/Train/Convert rows).
-    NAV_ITEMS = [
-        ("Home", HomePage),
-        ("Data", DataPage),
-        ("Train", TrainPage),
-        ("Convert", ConvertPage),
-        ("Config", ConfigPage),
-        ("Info", InfoPage),
+    #: (Page class, English gettext msgid for sidebar). Order mirrors
+    #: :attr:`mb.utils.constants.ModelBuilderTaskType.nav_row_index` (Data/Train/Convert rows).
+    NAV_PAGE_SPECS: ClassVar[list[tuple[Type[QWidget], str]]] = [
+        (HomePage, "Home"),
+        (DataPage, "Data"),
+        (TrainPage, "Train"),
+        (ConvertPage, "Convert"),
+        (ConfigPage, "Config"),
+        (InfoPage, "Info"),
     ]
 
     #: Used by :class:`NotificationController` for title restore (stable caption).
@@ -59,8 +61,6 @@ class MainWindow(QMainWindow):
 
     def __init__(self) -> None:
         super().__init__()
-        self._base_window_title = "Model Builder"
-        self.setWindowTitle(self._base_window_title)
 
         self._settings = default_settings()
         self._workspace = Workspace.load(self._settings)
@@ -69,6 +69,8 @@ class MainWindow(QMainWindow):
         apply_theme(QApplication.instance())
         apply_application_log_settings()
         apply_application_locale(verbose=False)
+        self._base_window_title = _("Model Builder")
+        self.setWindowTitle(self._base_window_title)
         self._apply_main_window_geometry_from_config()
 
         self._thread_bridge = MainThreadBridge(self)
@@ -103,6 +105,9 @@ class MainWindow(QMainWindow):
         apply_theme(QApplication.instance())
         apply_application_log_settings()
         apply_application_locale(verbose=False)
+        self._base_window_title = _("Model Builder")
+        if not self._notifications.status_title_override_active:
+            self.setWindowTitle(self._base_window_title)
         self._apply_main_window_geometry_from_config()
         cache = getattr(self, "_cache", None)
         if cache is not None:
@@ -192,8 +197,8 @@ class MainWindow(QMainWindow):
         self._nav = QListWidget()
         self._nav.setFixedWidth(180)
         self._nav.setSpacing(6)
-        for label, _page_cls in self.NAV_ITEMS:
-            item = QListWidgetItem(label)
+        for _page_cls, label in self.NAV_PAGE_SPECS:
+            item = QListWidgetItem(_(label))
             item.setSizeHint(QSize(0, 32))
             self._nav.addItem(item)
         self._nav.setCurrentRow(0)
@@ -202,7 +207,7 @@ class MainWindow(QMainWindow):
 
         self._stack = QStackedWidget()
         self._stack.setObjectName("main_nav_stack")
-        for _label, page_cls in self.NAV_ITEMS:
+        for page_cls, _label in self.NAV_PAGE_SPECS:
             page = page_cls()
             self._page_widgets.append(page)
             self._stack.addWidget(self._wrap_scroll(page))
@@ -221,27 +226,29 @@ class MainWindow(QMainWindow):
         return scroll
 
     def _build_menu(self) -> None:
-        file_menu = self.menuBar().addMenu("&File")
-        act_open = QAction("Set &workspace folder…", self)
+        file_menu = self.menuBar().addMenu(_("&File"))
+        act_open = QAction(_("Set &workspace folder…"), self)
         act_open.triggered.connect(self._choose_workspace)
         file_menu.addAction(act_open)
-        act_cfg = QAction("Set &config file…", self)
+        act_cfg = QAction(_("Set &config file…"), self)
         act_cfg.triggered.connect(self._choose_config)
         file_menu.addAction(act_cfg)
-        act_app_yaml = QAction("Open &application settings (YAML)…", self)
+        act_app_yaml = QAction(_("Open &application settings (YAML)…"), self)
         act_app_yaml.triggered.connect(self._open_application_settings_yaml)
         act_app_yaml.setToolTip(
-            "Desktop shell options (toasts, cache interval, …); see mb/config/application.example.yaml. "
-            "Reload the app or use Set config file for pipeline YAML."
+            _(
+                "Desktop shell options (toasts, cache interval, …); see mb/config/application.example.yaml. "
+                "Reload the app or use Set config file for pipeline YAML."
+            )
         )
         file_menu.addAction(act_app_yaml)
         file_menu.addSeparator()
-        act_exit = QAction("E&xit", self)
+        act_exit = QAction(_("E&xit"), self)
         act_exit.triggered.connect(self.close)
         file_menu.addAction(act_exit)
 
-        help_menu = self.menuBar().addMenu("&Help")
-        act_about = QAction("&About Model Builder", self)
+        help_menu = self.menuBar().addMenu(_("&Help"))
+        act_about = QAction(_("&About Model Builder"), self)
         act_about.triggered.connect(self._show_about)
         help_menu.addAction(act_about)
 
@@ -253,12 +260,12 @@ class MainWindow(QMainWindow):
         if self._workspace.root:
             root = str(self._workspace.root)
             cfg = (
-                f" | Config: {self._workspace.config_path}"
+                _(" | Config: {path}").format(path=self._workspace.config_path)
                 if self._workspace.config_path
                 else ""
             )
-            return f"Workspace: {root}{cfg}"
-        return "No workspace folder set — use File → Set workspace folder"
+            return _("Workspace: {root}{cfg}").format(root=root, cfg=cfg)
+        return _("No workspace folder set — use File → Set workspace folder")
 
     def _apply_workspace_to_ui(self) -> None:
         self.statusBar().showMessage(self._status_text())
@@ -269,8 +276,8 @@ class MainWindow(QMainWindow):
         if not path.is_file():
             qt_alert(
                 self,
-                "Application settings",
-                f"File not found:\n{path}",
+                _("Application settings"),
+                _("File not found:\n{path}").format(path=path),
             )
             return
         QDesktopServices.openUrl(QUrl.fromLocalFile(str(path.resolve())))
@@ -279,7 +286,7 @@ class MainWindow(QMainWindow):
         start = str(self._workspace.root) if self._workspace.root else ""
         path = QFileDialog.getExistingDirectory(
             self,
-            "Workspace root folder",
+            _("Workspace root folder"),
             start,
             QFileDialog.Option.ShowDirsOnly | QFileDialog.Option.DontUseNativeDialog,
         )
@@ -296,9 +303,9 @@ class MainWindow(QMainWindow):
             start = str(self._workspace.root)
         path, _ = QFileDialog.getOpenFileName(
             self,
-            "Optional YAML config",
+            _("Optional YAML config"),
             start,
-            "YAML (*.yaml *.yml);;All files (*.*)",
+            _("YAML (*.yaml *.yml);;All files (*.*)"),
             options=QFileDialog.Option.DontUseNativeDialog,
         )
         if not path:
@@ -311,11 +318,11 @@ class MainWindow(QMainWindow):
     def _show_about(self) -> None:
         QMessageBox.about(
             self,
-            "About Model Builder",
-            f"<h3>Model Builder</h3>"
-            f"<p>Desktop UI (PySide6) for the <code>mb</code> CLI and library.</p>"
-            f"<p><b>Version:</b> {MB_VERSION}</p>"
-            f"<p>CLI: <code>mb --help</code></p>",
+            _("About Model Builder"),
+            f"<h3>{_('Model Builder')}</h3>"
+            f"<p>{_('Desktop UI (PySide6) for the <code>mb</code> CLI and library.')}</p>"
+            f"<p><b>{_('Version:')}</b> {MB_VERSION}</p>"
+            f"<p>{_('CLI:')} <code>mb --help</code></p>",
         )
 
     def closeEvent(self, event) -> None:
@@ -323,9 +330,11 @@ class MainWindow(QMainWindow):
         if pool.activeThreadCount() > 0:
             answer = QMessageBox.warning(
                 self,
-                "Background task",
-                "A background task is still running. Closing now may leave partial outputs "
-                "(checkpoints, datasets, copies). Exit anyway?",
+                _("Background task"),
+                _(
+                    "A background task is still running. Closing now may leave partial outputs "
+                    "(checkpoints, datasets, copies). Exit anyway?"
+                ),
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                 QMessageBox.StandardButton.No,
             )

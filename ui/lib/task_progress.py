@@ -9,6 +9,7 @@ from typing import Optional
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QProgressDialog, QWidget
 
+from mb.utils.translations import _
 from ui.task_runner import BackgroundTaskHandle
 
 
@@ -27,13 +28,14 @@ def attach_progress_dialog(
     """
     dlg = QProgressDialog(parent)
     dlg.setWindowTitle(title)
-    dlg.setLabelText("Starting…")
+    dlg.setLabelText(_("Starting…"))
     dlg.setRange(0, 0)
     dlg.setMinimumDuration(0)
     dlg.setModal(True)
     dlg.setWindowModality(Qt.WindowModality.WindowModal)
 
     if cancellable:
+        dlg.setCancelButtonText(_("Cancel"))
         dlg.canceled.connect(handle.cancel_event.set)
     else:
         dlg.setCancelButton(None)

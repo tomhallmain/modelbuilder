@@ -14,6 +14,7 @@ from typing import Any, List, Optional, Union
 
 from mb.utils.constants import DataPipelineSubcommand, ModelBuilderTaskType
 from mb.utils.logging_setup import get_logger
+from mb.utils.translations import _
 
 logger = get_logger("recent_run_history")
 
@@ -125,18 +126,18 @@ def _display_task_column(task_kind: str, data_sub: object) -> str:
 def format_recent_runs_for_display(entries: List[dict[str, Any]], *, limit: int = 30) -> str:
     """Plain-text block for :class:`~PySide6.QtWidgets.QPlainTextEdit` or ``QLabel``."""
     if not entries:
-        return (
+        return _(
             "No runs recorded yet.\n\n"
             "Completed and failed jobs from Data, Train, and Convert are listed here."
         )
     lines: List[str] = []
     for e in entries[:limit]:
         ts_raw = str(e.get("ts") or "")
-        ts = ts_raw[:19].replace("T", " ") if ts_raw else "—"
+        ts = ts_raw[:19].replace("T", " ") if ts_raw else _("—")
         kind = _display_kind(e.get("task_type") or e.get("kind"))
         col = _display_task_column(kind, e.get("data_subcommand"))
         ok = bool(e.get("ok"))
-        status = "ok" if ok else "fail"
+        status = _("ok") if ok else _("fail")
         summary = str(e.get("summary") or "").strip()
         detail = str(e.get("detail") or "").strip()
         line = f"{ts}  [{col}] {status}  {summary}"

@@ -29,6 +29,7 @@ from mb.training.run_args import TrainingRunArgs
 from ui.lib.qt_alert import qt_operation_error
 from mb.utils.constants import ModelBuilderTaskType
 from mb.utils.recent_run_history import append_recent_run
+from mb.utils.translations import _
 from ui.lib.task_progress import attach_progress_dialog
 from ui.spawn_mb_train import spawn_mb_train_subprocess
 from ui.task_context import LongTaskContext
@@ -45,10 +46,16 @@ class TrainPage(QWidget):
         root = QVBoxLayout(self)
         root.setSpacing(10)
 
-        root.addWidget(QLabel("<h2>Train</h2>"))
-        root.addWidget(QLabel("Configure framework, architecture, paths, and hyperparameters for `mb train`."))
+        root.addWidget(QLabel(f"<h2>{_('Train')}</h2>"))
+        root.addWidget(
+            QLabel(
+                _("Configure framework, architecture, paths, and hyperparameters (training CLI: {cmd}).").format(
+                    cmd="mb train"
+                )
+            )
+        )
 
-        core_group = QGroupBox("Core configuration")
+        core_group = QGroupBox(_("Core configuration"))
         core_form = QFormLayout(core_group)
         self.model_type = QComboBox()
         self.model_type.addItems(["image_classification"])
@@ -62,23 +69,23 @@ class TrainPage(QWidget):
         self.output_dir.setObjectName("train_output_dir_edit")
         self.resume_from = QLineEdit()
         self.run_id = QLineEdit()
-        self.skip_snapshot = QCheckBox("Skip unified snapshot update")
+        self.skip_snapshot = QCheckBox(_("Skip unified snapshot update"))
 
-        core_form.addRow("Model type", self.model_type)
-        core_form.addRow("Framework", self.framework)
-        core_form.addRow("Architecture", self.architecture)
-        core_form.addRow("Data dir", self._path_row(self.data_dir, select_file=False))
-        core_form.addRow("Output dir", self._path_row(self.output_dir, select_file=False))
-        core_form.addRow("Resume checkpoint", self._path_row(self.resume_from, select_file=True))
-        core_form.addRow("Run ID (optional)", self.run_id)
+        core_form.addRow(_("Model type"), self.model_type)
+        core_form.addRow(_("Framework"), self.framework)
+        core_form.addRow(_("Architecture"), self.architecture)
+        core_form.addRow(_("Data dir"), self._path_row(self.data_dir, select_file=False))
+        core_form.addRow(_("Output dir"), self._path_row(self.output_dir, select_file=False))
+        core_form.addRow(_("Resume checkpoint"), self._path_row(self.resume_from, select_file=True))
+        core_form.addRow(_("Run ID (optional)"), self.run_id)
         core_form.addRow("", self.skip_snapshot)
         self.train_subprocess = QCheckBox(
-            "Run training in a separate process (survives closing this app; see log file)"
+            _("Run training in a separate process (survives closing this app; see log file)")
         )
         core_form.addRow("", self.train_subprocess)
         root.addWidget(core_group)
 
-        hp_group = QGroupBox("Hyperparameters")
+        hp_group = QGroupBox(_("Hyperparameters"))
         hp_form = QFormLayout(hp_group)
         self.frozen_epochs = QSpinBox()
         self.frozen_epochs.setRange(0, 10000)
@@ -91,28 +98,28 @@ class TrainPage(QWidget):
         self.unfrozen_lr_min = self._lr_spin(0.00001)
         self.batch_size = QSpinBox()
         self.batch_size.setRange(0, 8192)
-        self.batch_size.setSpecialValueText("Auto")
+        self.batch_size.setSpecialValueText(_("Auto"))
         self.image_size = QSpinBox()
         self.image_size.setRange(32, 4096)
         self.image_size.setValue(224)
         self.num_workers = QSpinBox()
         self.num_workers.setRange(0, 128)
-        self.num_workers.setSpecialValueText("Config default")
+        self.num_workers.setSpecialValueText(_("Config default"))
 
-        hp_form.addRow("Frozen epochs", self.frozen_epochs)
-        hp_form.addRow("Unfrozen epochs", self.unfrozen_epochs)
-        hp_form.addRow("Frozen LR", self.frozen_lr)
-        hp_form.addRow("Unfrozen LR max", self.unfrozen_lr_max)
-        hp_form.addRow("Unfrozen LR min", self.unfrozen_lr_min)
-        hp_form.addRow("Batch size", self.batch_size)
-        hp_form.addRow("Image size", self.image_size)
-        hp_form.addRow("Num workers", self.num_workers)
+        hp_form.addRow(_("Frozen epochs"), self.frozen_epochs)
+        hp_form.addRow(_("Unfrozen epochs"), self.unfrozen_epochs)
+        hp_form.addRow(_("Frozen LR"), self.frozen_lr)
+        hp_form.addRow(_("Unfrozen LR max"), self.unfrozen_lr_max)
+        hp_form.addRow(_("Unfrozen LR min"), self.unfrozen_lr_min)
+        hp_form.addRow(_("Batch size"), self.batch_size)
+        hp_form.addRow(_("Image size"), self.image_size)
+        hp_form.addRow(_("Num workers"), self.num_workers)
         root.addWidget(hp_group)
 
         actions = QHBoxLayout()
-        self.btn_validate = QPushButton("Validate Training Config")
+        self.btn_validate = QPushButton(_("Validate Training Config"))
         self.btn_validate.setObjectName("train_validate_btn")
-        self.btn_start = QPushButton("Start Training")
+        self.btn_start = QPushButton(_("Start Training"))
         self.btn_start.setObjectName("train_start_btn")
         actions.addWidget(self.btn_validate)
         actions.addWidget(self.btn_start)
@@ -122,7 +129,9 @@ class TrainPage(QWidget):
         self.output = QTextEdit()
         self.output.setObjectName("train_output_log")
         self.output.setReadOnly(True)
-        self.output.setPlaceholderText("Training validation and execution messages will appear here.")
+        self.output.setPlaceholderText(
+            _("Training validation and execution messages will appear here.")
+        )
         root.addWidget(self.output, 1)
 
         self.framework.currentTextChanged.connect(self._refresh_architecture_hint)
@@ -208,7 +217,7 @@ class TrainPage(QWidget):
         h = QHBoxLayout(row)
         h.setContentsMargins(0, 0, 0, 0)
         h.setSpacing(6)
-        browse = QPushButton("Browse...")
+        browse = QPushButton(_("Browse..."))
         browse.clicked.connect(lambda: self._browse(edit, select_file=select_file))
         h.addWidget(edit, 1)
         h.addWidget(browse, 0)
@@ -227,9 +236,9 @@ class TrainPage(QWidget):
         if select_file:
             value, _ = QFileDialog.getOpenFileName(
                 self,
-                "Select checkpoint file",
+                _("Select checkpoint file"),
                 start,
-                "Model/checkpoint files (*.pth *.pt *.h5 *.keras *.ckpt);;All files (*.*)",
+                _("Model/checkpoint files (*.pth *.pt *.h5 *.keras *.ckpt);;All files (*.*)"),
                 options=QFileDialog.Option.DontUseNativeDialog,
             )
             if value:
@@ -237,7 +246,7 @@ class TrainPage(QWidget):
         else:
             value = QFileDialog.getExistingDirectory(
                 self,
-                "Select directory",
+                _("Select directory"),
                 start,
                 QFileDialog.Option.ShowDirsOnly | QFileDialog.Option.DontUseNativeDialog,
             )
@@ -265,10 +274,18 @@ class TrainPage(QWidget):
             architectures = trainer.get_supported_architectures()
             if architectures:
                 self.architecture.setPlaceholderText(", ".join(architectures[:8]))
-                self._append(f"[info] {framework} architectures: {', '.join(architectures)}")
+                self._append(
+                    _("[info] {fw} architectures: {names}").format(
+                        fw=framework, names=", ".join(architectures)
+                    )
+                )
         except Exception as exc:
-            self.architecture.setPlaceholderText("Enter architecture manually")
-            self._append(f"[warn] Could not load architecture list for {framework}: {exc}")
+            self.architecture.setPlaceholderText(_("Enter architecture manually"))
+            self._append(
+                _("[warn] Could not load architecture list for {fw}: {err}").format(
+                    fw=framework, err=exc
+                )
+            )
 
     def _can_run(self) -> bool:
         try:
@@ -282,13 +299,13 @@ class TrainPage(QWidget):
         output_dir = Path(self.output_dir.text().strip() or "data/models")
         architecture = self.architecture.text().strip()
         if not architecture:
-            raise ValueError("Architecture is required.")
+            raise ValueError(_("Architecture is required."))
         if not data_dir.exists():
-            raise ValueError("Data directory does not exist.")
+            raise ValueError(_("Data directory does not exist."))
         resume_raw = self.resume_from.text().strip()
         resume_path = Path(resume_raw) if resume_raw else None
         if resume_path and not resume_path.exists():
-            raise ValueError("Resume checkpoint path does not exist.")
+            raise ValueError(_("Resume checkpoint path does not exist."))
 
         cli_hyperparams: dict[str, Any] = {
             "frozen_epochs": int(self.frozen_epochs.value()),
@@ -319,11 +336,11 @@ class TrainPage(QWidget):
             self._collect_inputs()
             self.btn_start.setEnabled(True)
             self.btn_start.setToolTip("")
-            self._append("[ok] training inputs look valid")
+            self._append(_("[ok] training inputs look valid"))
         except ValueError as exc:
             self.btn_start.setEnabled(False)
             self.btn_start.setToolTip(str(exc))
-            self._append(f"[invalid] {exc}")
+            self._append(_("[invalid] {err}").format(err=exc))
 
     def _start_training(self) -> None:
         args = self._collect_inputs()
@@ -341,7 +358,9 @@ class TrainPage(QWidget):
                     log_file=log_path,
                 )
                 self._append(
-                    f"[detached] PID {proc.pid} — log: {log_path} — args JSON: {json_path}"
+                    _("[detached] PID {pid} — log: {log} — args JSON: {args}").format(
+                        pid=proc.pid, log=log_path, args=json_path
+                    )
                 )
                 append_recent_run(
                     ModelBuilderTaskType.TRAIN,
@@ -351,15 +370,17 @@ class TrainPage(QWidget):
                 )
                 QMessageBox.information(
                     self,
-                    "Training started (separate process)",
-                    "Training is running outside this window. Closing the app does not stop it.\n\n"
-                    f"Process ID: {proc.pid}\n"
-                    f"Log file:\n{log_path}\n\n"
-                    f"Training arguments were written to:\n{json_path}\n\n"
-                    "Stop the process from Task Manager or your OS if you need to abort.",
+                    _("Training started (separate process)"),
+                    _(
+                        "Training is running outside this window. Closing the app does not stop it.\n\n"
+                        "Process ID: {pid}\n"
+                        "Log file:\n{log}\n\n"
+                        "Training arguments were written to:\n{args}\n\n"
+                        "Stop the process from Task Manager or your OS if you need to abort."
+                    ).format(pid=proc.pid, log=log_path, args=json_path),
                 )
             except Exception as exc:
-                self._append(f"[error] {exc}")
+                self._append(_("[error] {err}").format(err=exc))
                 append_recent_run(
                     ModelBuilderTaskType.TRAIN,
                     f"Train (detached) {summary_base}",
@@ -368,8 +389,8 @@ class TrainPage(QWidget):
                 )
                 qt_operation_error(
                     self,
-                    "Could not start detached training",
-                    "Failed to launch the training subprocess. See Details for the error.",
+                    _("Could not start detached training"),
+                    _("Failed to launch the training subprocess. See Details for the error."),
                     detail=str(exc),
                 )
             finally:
@@ -388,7 +409,7 @@ class TrainPage(QWidget):
             pass_context=True,
             on_cancelled=self._on_training_cancelled,
         )
-        attach_progress_dialog(self, "Training", handle, cancellable=True)
+        attach_progress_dialog(self, _("Training"), handle, cancellable=True)
 
     def _execute_training(self, ctx: LongTaskContext, args: TrainingRunArgs) -> str:
         from mb.training.trainer import ModelTrainer
@@ -401,7 +422,9 @@ class TrainPage(QWidget):
         supported = trainer.get_supported_architectures()
         if args.architecture not in supported:
             raise ValueError(
-                f"Architecture '{args.architecture}' not supported for {args.framework}. Supported: {supported}"
+                _(
+                    "Architecture '{arch}' not supported for {fw}. Supported: {sup}"
+                ).format(arch=args.architecture, fw=args.framework, sup=supported)
             )
         model_path = trainer.train(
             args,
@@ -411,7 +434,7 @@ class TrainPage(QWidget):
         return str(model_path)
 
     def _on_training_success(self, model_path: str) -> None:
-        self._append(f"[done] Training complete. Model saved: {model_path}")
+        self._append(_("[done] Training complete. Model saved: {path}").format(path=model_path))
         append_recent_run(
             ModelBuilderTaskType.TRAIN,
             getattr(self, "_pending_train_summary", "mb train"),
@@ -420,7 +443,11 @@ class TrainPage(QWidget):
         )
 
     def _on_training_cancelled(self) -> None:
-        self._append("[stopped] Training cancelled — partial checkpoints may exist; check the output folder before re-running.")
+        self._append(
+            _(
+                "[stopped] Training cancelled — partial checkpoints may exist; check the output folder before re-running."
+            )
+        )
         append_recent_run(
             ModelBuilderTaskType.TRAIN,
             getattr(self, "_pending_train_summary", "mb train"),
@@ -429,7 +456,7 @@ class TrainPage(QWidget):
         )
 
     def _on_training_error(self, message: str) -> None:
-        self._append(f"[error] {message}")
+        self._append(_("[error] {err}").format(err=message))
         append_recent_run(
             ModelBuilderTaskType.TRAIN,
             getattr(self, "_pending_train_summary", "mb train"),
@@ -438,7 +465,7 @@ class TrainPage(QWidget):
         )
         qt_operation_error(
             self,
-            "Training failed",
-            "Training stopped with an error. See Details for the message from the trainer.",
+            _("Training failed"),
+            _("Training stopped with an error. See Details for the message from the trainer."),
             detail=message,
         )

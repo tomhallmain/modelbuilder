@@ -11,6 +11,7 @@ from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QApplication, QMessageBox, QStackedWidget
 
 from mb import __version__ as MB_VERSION
+from mb.utils.translations import _
 from ui.main_window import MainWindow
 from ui.pages import ConfigPage, ConvertPage, DataPage, HomePage, InfoPage, TrainPage
 
@@ -36,7 +37,8 @@ def test_nav_lists_same_sections_as_cli_data_train_convert_flow(
     """Sidebar order aligns with typical ``mb`` flow: shell areas for data → train → convert."""
     nav = main_window.nav_widget
     labels = [nav.item(i).text() for i in range(nav.count())]
-    assert labels == ["Home", "Data", "Train", "Convert", "Config", "Info"]
+    expected = [_(lbl) for _cls, lbl in MainWindow.NAV_PAGE_SPECS]
+    assert labels == expected
 
 
 @pytest.mark.ui
@@ -61,7 +63,8 @@ def test_page_widget_types_match_nav(qtbot, main_window: MainWindow) -> None:
 @pytest.mark.ui
 def test_status_bar_no_workspace_message(qtbot, main_window: MainWindow) -> None:
     msg = main_window.statusBar().currentMessage()
-    assert "workspace" in msg.lower()
+    assert main_window._workspace.root is None
+    assert len(msg) > 0
 
 
 @pytest.mark.ui

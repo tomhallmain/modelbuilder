@@ -23,6 +23,7 @@ from mb.conversion.converters import convert_model, detect_model_framework
 from ui.lib.qt_alert import qt_operation_error
 from mb.utils.constants import ModelBuilderTaskType
 from mb.utils.recent_run_history import append_recent_run
+from mb.utils.translations import _
 from ui.lib.task_progress import attach_progress_dialog
 from ui.task_context import LongTaskContext
 from ui.task_runner import start_task
@@ -36,8 +37,8 @@ class ConvertPage(QWidget):
         root = QVBoxLayout(self)
         root.setSpacing(10)
 
-        root.addWidget(QLabel("<h2>Convert</h2>"))
-        root.addWidget(QLabel("Prepare conversion jobs for ONNX and SafeTensors targets."))
+        root.addWidget(QLabel(f"<h2>{_('Convert')}</h2>"))
+        root.addWidget(QLabel(_("Prepare conversion jobs for ONNX and SafeTensors targets.")))
 
         group = QGroupBox("mb convert")
         form = QFormLayout(group)
@@ -50,27 +51,27 @@ class ConvertPage(QWidget):
         self.architecture = QLineEdit()
         self.num_classes = QSpinBox()
         self.num_classes.setRange(0, 1_000_000)
-        self.num_classes.setSpecialValueText("Required only for PyTorch -> ONNX")
+        self.num_classes.setSpecialValueText(_("Required only for PyTorch -> ONNX"))
         self.image_size = QSpinBox()
         self.image_size.setRange(32, 4096)
         self.image_size.setValue(224)
 
-        form.addRow("Input model", self._path_row(self.input_model, select_dir=False, save=False))
-        form.addRow("Output model", self._path_row(self.output_model, select_dir=False, save=True))
-        form.addRow("Source framework", self.framework)
-        form.addRow("Target format", self.target)
-        form.addRow("Architecture", self.architecture)
-        form.addRow("Num classes", self.num_classes)
-        form.addRow("Image size", self.image_size)
+        form.addRow(_("Input model"), self._path_row(self.input_model, select_dir=False, save=False))
+        form.addRow(_("Output model"), self._path_row(self.output_model, select_dir=False, save=True))
+        form.addRow(_("Source framework"), self.framework)
+        form.addRow(_("Target format"), self.target)
+        form.addRow(_("Architecture"), self.architecture)
+        form.addRow(_("Num classes"), self.num_classes)
+        form.addRow(_("Image size"), self.image_size)
         root.addWidget(group)
 
-        hint = QLabel("Note: architecture/num_classes are needed for PyTorch -> ONNX.")
+        hint = QLabel(_("Note: architecture/num_classes are needed for PyTorch -> ONNX."))
         hint.setWordWrap(True)
         root.addWidget(hint)
 
         actions = QHBoxLayout()
-        self.btn_validate = QPushButton("Validate Conversion")
-        self.btn_convert = QPushButton("Run Conversion")
+        self.btn_validate = QPushButton(_("Validate Conversion"))
+        self.btn_convert = QPushButton(_("Run Conversion"))
         actions.addWidget(self.btn_validate)
         actions.addWidget(self.btn_convert)
         actions.addStretch(1)
@@ -78,7 +79,9 @@ class ConvertPage(QWidget):
 
         self.output = QTextEdit()
         self.output.setReadOnly(True)
-        self.output.setPlaceholderText("Conversion validation and execution messages will appear here.")
+        self.output.setPlaceholderText(
+            _("Conversion validation and execution messages will appear here.")
+        )
         root.addWidget(self.output, 1)
 
         self.btn_validate.clicked.connect(self._validate_inputs)
@@ -128,7 +131,7 @@ class ConvertPage(QWidget):
         h = QHBoxLayout(row)
         h.setContentsMargins(0, 0, 0, 0)
         h.setSpacing(6)
-        browse = QPushButton("Browse...")
+        browse = QPushButton(_("Browse..."))
         browse.clicked.connect(lambda: self._browse(edit, select_dir=select_dir, save=save))
         h.addWidget(edit, 1)
         h.addWidget(browse, 0)
@@ -139,7 +142,7 @@ class ConvertPage(QWidget):
         if select_dir:
             value = QFileDialog.getExistingDirectory(
                 self,
-                "Select directory",
+                _("Select directory"),
                 start,
                 QFileDialog.Option.ShowDirsOnly | QFileDialog.Option.DontUseNativeDialog,
             )
@@ -148,9 +151,9 @@ class ConvertPage(QWidget):
         elif save:
             value, _ = QFileDialog.getSaveFileName(
                 self,
-                "Select output file",
+                _("Select output file"),
                 start,
-                "Model files (*.onnx *.safetensors);;All files (*.*)",
+                _("Model files (*.onnx *.safetensors);;All files (*.*)"),
                 options=QFileDialog.Option.DontUseNativeDialog,
             )
             if value:
@@ -158,9 +161,9 @@ class ConvertPage(QWidget):
         else:
             value, _ = QFileDialog.getOpenFileName(
                 self,
-                "Select model file",
+                _("Select model file"),
                 start,
-                "Model files (*.pth *.pt *.h5 *.keras *.onnx *.safetensors);;All files (*.*)",
+                _("Model files (*.pth *.pt *.h5 *.keras *.onnx *.safetensors);;All files (*.*)"),
                 options=QFileDialog.Option.DontUseNativeDialog,
             )
             if value:
@@ -178,9 +181,9 @@ class ConvertPage(QWidget):
         input_path = Path(self.input_model.text().strip())
         output_path = Path(self.output_model.text().strip())
         if not input_path.exists():
-            raise ValueError("Input model file does not exist.")
+            raise ValueError(_("Input model file does not exist."))
         if not output_path.parent.exists():
-            raise ValueError("Output model parent directory does not exist.")
+            raise ValueError(_("Output model parent directory does not exist."))
 
         framework = self.framework.currentText()
         source_framework = None if framework == "auto-detect" else framework
@@ -191,7 +194,7 @@ class ConvertPage(QWidget):
         detected = source_framework or detect_model_framework(input_path)
         if detected == "pytorch" and target == "onnx":
             if architecture is None or num_classes is None:
-                raise ValueError("PyTorch -> ONNX requires architecture and num classes.")
+                raise ValueError(_("PyTorch -> ONNX requires architecture and num classes."))
 
         return {
             "input_path": input_path,
@@ -215,15 +218,21 @@ class ConvertPage(QWidget):
             payload = self._collect_inputs()
             detected = payload["source_framework"] or detect_model_framework(payload["input_path"])
             self.btn_convert.setEnabled(True)
-            self._append(f"[ok] conversion inputs valid (source={detected or 'unknown'})")
+            self._append(
+                _("[ok] conversion inputs valid (source={src})").format(
+                    src=detected or _("unknown")
+                )
+            )
         except ValueError as exc:
             self.btn_convert.setEnabled(False)
             self.btn_convert.setToolTip(str(exc))
-            self._append(f"[invalid] {exc}")
+            self._append(_("[invalid] {err}").format(err=exc))
 
     def _run_conversion(self) -> None:
         payload = self._collect_inputs()
-        self._append(f"[run] mb convert {payload['input_path'].name} -> {payload['target_format']}")
+        self._append(
+            f"[run] mb convert {payload['input_path'].name} -> {payload['target_format']}"
+        )
         self._pending_convert_summary = f"{payload['input_path'].name} → {payload['target_format']}"
         self._set_busy(True)
         handle = start_task(
@@ -235,7 +244,7 @@ class ConvertPage(QWidget):
             pass_context=True,
             on_cancelled=self._on_convert_cancelled,
         )
-        attach_progress_dialog(self, "Convert model", handle, cancellable=True)
+        attach_progress_dialog(self, _("Convert model"), handle, cancellable=True)
 
     def _execute_conversion(self, ctx: LongTaskContext, payload: dict) -> bool:
         return bool(
@@ -252,7 +261,7 @@ class ConvertPage(QWidget):
         )
 
     def _on_convert_cancelled(self) -> None:
-        self._append("[stopped] Conversion cancelled before completion.")
+        self._append(_("[stopped] Conversion cancelled before completion."))
         append_recent_run(
             ModelBuilderTaskType.CONVERT,
             getattr(self, "_pending_convert_summary", "mb convert"),
@@ -263,14 +272,14 @@ class ConvertPage(QWidget):
     def _on_success(self, success: bool) -> None:
         summary = getattr(self, "_pending_convert_summary", "mb convert")
         if success:
-            self._append("[done] Conversion succeeded.")
+            self._append(_("[done] Conversion succeeded."))
             append_recent_run(ModelBuilderTaskType.CONVERT, summary, True)
         else:
-            self._append("[failed] Conversion failed.")
+            self._append(_("[failed] Conversion failed."))
             append_recent_run(ModelBuilderTaskType.CONVERT, summary, False, "reported failure")
 
     def _on_error(self, message: str) -> None:
-        self._append(f"[error] {message}")
+        self._append(_("[error] {err}").format(err=message))
         append_recent_run(
             ModelBuilderTaskType.CONVERT,
             getattr(self, "_pending_convert_summary", "mb convert"),
@@ -279,7 +288,7 @@ class ConvertPage(QWidget):
         )
         qt_operation_error(
             self,
-            "Conversion failed",
-            "Model conversion reported an error. See Details for the underlying message.",
+            _("Conversion failed"),
+            _("Model conversion reported an error. See Details for the underlying message."),
             detail=message,
         )

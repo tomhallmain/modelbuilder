@@ -26,6 +26,7 @@ from PySide6.QtWidgets import (
 from mb.pipeline_config import reload_pipeline_config
 
 from ui.lib.qt_alert import qt_alert
+from mb.utils.translations import _
 from utils.config import (
     default_application_config_dict,
     get_application_config,
@@ -51,7 +52,7 @@ class ConfigPage(QWidget):
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(4)
 
-        title = QLabel("Config")
+        title = QLabel(_("Config"))
         tf = QFont(title.font())
         tf.setPointSizeF(tf.pointSizeF() + 3)
         tf.setBold(True)
@@ -60,9 +61,11 @@ class ConfigPage(QWidget):
         root.addWidget(title)
 
         desc = QLabel(
-            "Application shell settings (<code>gui</code>, <code>app</code>). "
-            "Save writes to your active config file, or to the user data folder when "
-            "the packaged example is the only source."
+            _(
+                "Application shell settings (<code>gui</code>, <code>app</code>). "
+                "Save writes to your active config file, or to the user data folder when "
+                "the packaged example is the only source."
+            )
         )
         desc.setWordWrap(True)
         desc.setContentsMargins(0, 0, 0, 0)
@@ -79,16 +82,18 @@ class ConfigPage(QWidget):
 
         root.addSpacing(4)
         row = QHBoxLayout()
-        self._btn_reload = QPushButton("Reload from disk")
+        self._btn_reload = QPushButton(_("Reload from disk"))
         self._btn_reload.clicked.connect(self._refresh_from_disk)
-        self._btn_save = QPushButton("Save")
+        self._btn_save = QPushButton(_("Save"))
         self._btn_save.setObjectName("config_save_btn")
         self._btn_save.clicked.connect(self._on_save)
-        self._btn_default = QPushButton("Set Default…")
+        self._btn_default = QPushButton(_("Set Default…"))
         self._btn_default.setObjectName("config_set_default_btn")
         self._btn_default.setToolTip(
-            "Replace your user application.yaml (next to the log folder) with built-in defaults. "
-            "Does not change workspace-specific YAML."
+            _(
+                "Replace your user application.yaml (next to the log folder) with built-in defaults. "
+                "Does not change workspace-specific YAML."
+            )
         )
         self._btn_default.clicked.connect(self._on_set_default)
         row.addWidget(self._btn_reload)
@@ -117,7 +122,7 @@ class ConfigPage(QWidget):
         self._apply_line_edit_text_contrast()
 
     def _build_gui_group(self) -> QGroupBox:
-        box = QGroupBox("gui")
+        box = QGroupBox(_("gui"))
         form = QFormLayout(box)
         form.setVerticalSpacing(10)
         form.setHorizontalSpacing(14)
@@ -127,62 +132,62 @@ class ConfigPage(QWidget):
         form.setLabelAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
 
         self._locale = QLineEdit()
-        self._locale.setPlaceholderText("empty — use OS locale")
-        form.addRow("Locale", self._locale)
+        self._locale.setPlaceholderText(_("empty — use OS locale"))
+        form.addRow(_("Locale"), self._locale)
 
         self._fg_color = QLineEdit()
         self._fg_color.setPlaceholderText("#ececec")
-        form.addRow("Foreground color", self._fg_color)
+        form.addRow(_("Foreground color"), self._fg_color)
 
         self._bg_color = QLineEdit()
         self._bg_color.setPlaceholderText("#1a1a1a")
-        form.addRow("Background color", self._bg_color)
+        form.addRow(_("Background color"), self._bg_color)
 
         self._toast_warn = QLineEdit()
         self._toast_warn.setPlaceholderText("#5D4037")
-        form.addRow("Toast color (warning)", self._toast_warn)
+        form.addRow(_("Toast color (warning)"), self._toast_warn)
 
         self._toast_ok = QLineEdit()
         self._toast_ok.setPlaceholderText("#33691E")
-        form.addRow("Toast color (success)", self._toast_ok)
+        form.addRow(_("Toast color (success)"), self._toast_ok)
 
         self._accent = QLineEdit()
         self._accent.setPlaceholderText("#F57C00")
-        form.addRow("Accent (primary)", self._accent)
+        form.addRow(_("Accent (primary)"), self._accent)
 
         self._accent_sec = QLineEdit()
         self._accent_sec.setPlaceholderText("#FFC107")
-        form.addRow("Accent (secondary)", self._accent_sec)
+        form.addRow(_("Accent (secondary)"), self._accent_sec)
 
-        self._show_toasts = QCheckBox("Show toasts")
+        self._show_toasts = QCheckBox(_("Show toasts"))
         form.addRow("", self._show_toasts)
 
         self._main_size = QLineEdit()
-        self._main_size.setPlaceholderText("e.g. 1200x960")
-        form.addRow("Default main window size", self._main_size)
+        self._main_size.setPlaceholderText(_("e.g. 1200x960"))
+        form.addRow(_("Default main window size"), self._main_size)
 
         self._toast_sec = QSpinBox()
         self._toast_sec.setRange(0, 3600)
-        form.addRow("Toast duration (seconds)", self._toast_sec)
+        form.addRow(_("Toast duration (seconds)"), self._toast_sec)
 
         self._title_sec = QSpinBox()
         self._title_sec.setRange(0, 3600)
-        form.addRow("Title notify duration (seconds)", self._title_sec)
+        form.addRow(_("Title notify duration (seconds)"), self._title_sec)
 
         self._font_size = QSpinBox()
         self._font_size.setRange(6, 72)
-        form.addRow("Font size", self._font_size)
+        form.addRow(_("Font size"), self._font_size)
 
         self._cache_interval = QDoubleSpinBox()
         self._cache_interval.setRange(1.0, 86400.0)
         self._cache_interval.setDecimals(1)
-        self._cache_interval.setSuffix(" s")
-        form.addRow("GUI cache store interval", self._cache_interval)
+        self._cache_interval.setSuffix(_(" s"))
+        form.addRow(_("GUI cache store interval"), self._cache_interval)
 
         return box
 
     def _build_app_group(self) -> QGroupBox:
-        box = QGroupBox("app")
+        box = QGroupBox(_("app"))
         form = QFormLayout(box)
         form.setVerticalSpacing(10)
         form.setHorizontalSpacing(14)
@@ -191,18 +196,18 @@ class ConfigPage(QWidget):
         form.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.FieldsStayAtSizeHint)
         form.setLabelAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
 
-        self._debug = QCheckBox("Debug logging")
+        self._debug = QCheckBox(_("Debug logging"))
         form.addRow("", self._debug)
 
-        self._debug2 = QCheckBox("Debug logging (verbose)")
+        self._debug2 = QCheckBox(_("Debug logging (verbose)"))
         form.addRow("", self._debug2)
 
         self._log_level = QComboBox()
         self._log_level.addItems(["debug", "info", "warning", "error", "critical"])
         self._log_level.setEditable(True)
-        form.addRow("Log level", self._log_level)
+        form.addRow(_("Log level"), self._log_level)
 
-        self._print_settings = QCheckBox("Print settings to log on load")
+        self._print_settings = QCheckBox(_("Print settings to log on load"))
         form.addRow("", self._print_settings)
 
         return box
@@ -292,9 +297,9 @@ class ConfigPage(QWidget):
         if path is None:
             path = _resolve_application_yaml_path(None)
         if path is not None and path.is_file():
-            self._path_label.setText(f"Reading: {path}")
+            self._path_label.setText(_("Reading: {path}").format(path=path))
         else:
-            self._path_label.setText("Reading: (built-in defaults — no file on disk)")
+            self._path_label.setText(_("Reading: (built-in defaults — no file on disk)"))
         self._apply_dict_to_form(ac.to_dict())
         self._apply_line_edit_text_contrast()
 
@@ -303,8 +308,8 @@ class ConfigPage(QWidget):
         if not _SIZE_RE.match(size):
             qt_alert(
                 self,
-                "Config",
-                "Default main window size must look like WIDTHxHEIGHT (e.g. 1200x960).",
+                _("Config"),
+                _("Default main window size must look like WIDTHxHEIGHT (e.g. 1200x960)."),
             )
             return
 
@@ -315,7 +320,7 @@ class ConfigPage(QWidget):
             with open(target, "w", encoding="utf-8") as f:
                 yaml.dump(filtered, f, default_flow_style=False, sort_keys=False)
         except OSError as e:
-            qt_alert(self, "Config", f"Could not write:\n{target}\n\n{e}")
+            qt_alert(self, _("Config"), _("Could not write:\n{path}\n\n{err}").format(path=target, err=e))
             return
 
         reload_application_config(target, force=True)
@@ -326,7 +331,7 @@ class ConfigPage(QWidget):
         else:
             reload_pipeline_config(None, force=True)
         self._refresh_from_disk()
-        qt_alert(self, "Config", f"Saved to:\n{target}")
+        qt_alert(self, _("Config"), _("Saved to:\n{path}").format(path=target))
 
     def _on_set_default(self) -> None:
         target = get_user_application_config_path()
@@ -336,7 +341,11 @@ class ConfigPage(QWidget):
             with open(target, "w", encoding="utf-8") as f:
                 yaml.dump(data, f, default_flow_style=False, sort_keys=False)
         except OSError as e:
-            qt_alert(self, "Config", f"Could not write defaults to:\n{target}\n\n{e}")
+            qt_alert(
+                self,
+                _("Config"),
+                _("Could not write defaults to:\n{path}\n\n{err}").format(path=target, err=e),
+            )
             return
         reload_application_config(target, force=True)
         mw = self._main_window()
@@ -346,4 +355,4 @@ class ConfigPage(QWidget):
         else:
             reload_pipeline_config(None, force=True)
         self._refresh_from_disk()
-        qt_alert(self, "Config", f"Reset user config to defaults:\n{target}")
+        qt_alert(self, _("Config"), _("Reset user config to defaults:\n{path}").format(path=target))

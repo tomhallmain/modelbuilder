@@ -21,6 +21,7 @@ from PySide6.QtWidgets import (
 from mb.conversion.converters import detect_model_framework
 from ui.lib.qt_alert import qt_alert
 from mb.models.frameworks.registry import list_architectures
+from mb.utils.translations import _
 
 
 class InfoPage(QWidget):
@@ -31,12 +32,12 @@ class InfoPage(QWidget):
         root = QVBoxLayout(self)
         root.setSpacing(10)
 
-        root.addWidget(QLabel("<h2>Info</h2>"))
-        root.addWidget(QLabel("Inspect model metadata and dataset structure/statistics."))
+        root.addWidget(QLabel(f"<h2>{_('Info')}</h2>"))
+        root.addWidget(QLabel(_("Inspect model metadata and dataset structure/statistics.")))
 
         self._tabs = QTabWidget()
-        self._tabs.addTab(self._build_model_tab(), "Model")
-        self._tabs.addTab(self._build_dataset_tab(), "Dataset")
+        self._tabs.addTab(self._build_model_tab(), _("Model"))
+        self._tabs.addTab(self._build_dataset_tab(), _("Dataset"))
         root.addWidget(self._tabs, 1)
 
         self.btn_model_info.clicked.connect(self._inspect_model)
@@ -69,18 +70,18 @@ class InfoPage(QWidget):
         group = QGroupBox("mb info model")
         form = QFormLayout(group)
         self.model_path = QLineEdit()
-        form.addRow("Model path", self._path_row(self.model_path, select_dir=False))
+        form.addRow(_("Model path"), self._path_row(self.model_path, select_dir=False))
         v.addWidget(group)
 
         actions = QHBoxLayout()
-        self.btn_model_info = QPushButton("Inspect Model")
+        self.btn_model_info = QPushButton(_("Inspect Model"))
         actions.addWidget(self.btn_model_info)
         actions.addStretch(1)
         v.addLayout(actions)
 
         self.model_output = QTextEdit()
         self.model_output.setReadOnly(True)
-        self.model_output.setPlaceholderText("Model info output will appear here.")
+        self.model_output.setPlaceholderText(_("Model info output will appear here."))
         v.addWidget(self.model_output, 1)
         return tab
 
@@ -91,18 +92,18 @@ class InfoPage(QWidget):
         group = QGroupBox("mb info dataset")
         form = QFormLayout(group)
         self.dataset_dir = QLineEdit("data")
-        form.addRow("Data dir", self._path_row(self.dataset_dir, select_dir=True))
+        form.addRow(_("Data dir"), self._path_row(self.dataset_dir, select_dir=True))
         v.addWidget(group)
 
         actions = QHBoxLayout()
-        self.btn_dataset_info = QPushButton("Inspect Dataset")
+        self.btn_dataset_info = QPushButton(_("Inspect Dataset"))
         actions.addWidget(self.btn_dataset_info)
         actions.addStretch(1)
         v.addLayout(actions)
 
         self.dataset_output = QTextEdit()
         self.dataset_output.setReadOnly(True)
-        self.dataset_output.setPlaceholderText("Dataset info output will appear here.")
+        self.dataset_output.setPlaceholderText(_("Dataset info output will appear here."))
         v.addWidget(self.dataset_output, 1)
 
         return tab
@@ -112,7 +113,7 @@ class InfoPage(QWidget):
         h = QHBoxLayout(row)
         h.setContentsMargins(0, 0, 0, 0)
         h.setSpacing(6)
-        browse = QPushButton("Browse...")
+        browse = QPushButton(_("Browse..."))
         browse.clicked.connect(lambda: self._browse(edit, select_dir=select_dir))
         h.addWidget(edit, 1)
         h.addWidget(browse, 0)
@@ -123,7 +124,7 @@ class InfoPage(QWidget):
         if select_dir:
             value = QFileDialog.getExistingDirectory(
                 self,
-                "Select directory",
+                _("Select directory"),
                 start,
                 QFileDialog.Option.ShowDirsOnly | QFileDialog.Option.DontUseNativeDialog,
             )
@@ -132,9 +133,9 @@ class InfoPage(QWidget):
         else:
             value, _ = QFileDialog.getOpenFileName(
                 self,
-                "Select model file",
+                _("Select model file"),
                 start,
-                "Model files (*.pth *.pt *.h5 *.keras *.onnx *.safetensors);;All files (*.*)",
+                _("Model files (*.pth *.pt *.h5 *.keras *.onnx *.safetensors);;All files (*.*)"),
                 options=QFileDialog.Option.DontUseNativeDialog,
             )
             if value:
@@ -143,18 +144,28 @@ class InfoPage(QWidget):
     def _inspect_model(self) -> None:
         path_text = self.model_path.text().strip()
         if not path_text:
-            qt_alert(self, "Model path required", "Please provide a model path.", kind="warning")
+            qt_alert(
+                self,
+                _("Model path required"),
+                _("Please provide a model path."),
+                kind="warning",
+            )
             return
         model_path = Path(path_text)
         if not model_path.exists():
-            qt_alert(self, "Missing file", f"Model path not found: {model_path}", kind="warning")
+            qt_alert(
+                self,
+                _("Missing file"),
+                _("Model path not found: {path}").format(path=model_path),
+                kind="warning",
+            )
             return
 
         framework = detect_model_framework(model_path)
         lines = [
-            f"Path: {model_path}",
-            f"Size: {model_path.stat().st_size:,} bytes",
-            f"Detected framework/type: {framework or 'unknown'}",
+            _("Path: {path}").format(path=model_path),
+            _("Size: {n:,} bytes").format(n=model_path.stat().st_size),
+            _("Detected framework/type: {fw}").format(fw=framework or _("unknown")),
             "",
         ]
         try:
@@ -166,24 +177,34 @@ class InfoPage(QWidget):
         except Exception:
             pass
         archs = list_architectures()
-        lines.append("Registered architectures:")
+        lines.append(_("Registered architectures:"))
         for fw, items in archs.items():
-            lines.append(f"- {fw}: {', '.join(items) if items else '(none)'}")
+            lines.append(
+                "- {fw}: {names}".format(
+                    fw=fw,
+                    names=", ".join(items) if items else _("(none)"),
+                )
+            )
 
         self.model_output.setPlainText("\n".join(lines))
 
     def _inspect_dataset(self) -> None:
         data_dir = Path(self.dataset_dir.text().strip() or "data")
         if not data_dir.exists():
-            qt_alert(self, "Missing directory", f"Data directory not found: {data_dir}", kind="warning")
+            qt_alert(
+                self,
+                _("Missing directory"),
+                _("Data directory not found: {path}").format(path=data_dir),
+                kind="warning",
+            )
             return
 
-        lines = [f"Data dir: {data_dir}", ""]
+        lines = [_("Data dir: {path}").format(path=data_dir), ""]
         for split in ["train", "test"]:
             split_dir = data_dir / split
             lines.append(f"[{split}]")
             if not split_dir.exists():
-                lines.append("  missing")
+                lines.append(_("  missing"))
                 lines.append("")
                 continue
             class_dirs = sorted([p for p in split_dir.iterdir() if p.is_dir()])
@@ -192,6 +213,6 @@ class InfoPage(QWidget):
                 count = len([x for x in cls.glob("*.jpg")]) + len([x for x in cls.glob("*.jpeg")]) + len([x for x in cls.glob("*.png")])
                 total += count
                 lines.append(f"  {cls.name}: {count}")
-            lines.append(f"  total: {total}")
+            lines.append(_("  total: {n}").format(n=total))
             lines.append("")
         self.dataset_output.setPlainText("\n".join(lines))
