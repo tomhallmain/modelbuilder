@@ -10,8 +10,12 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Tuple, Optional
 import json
 import logging
+import os
 import threading
 from datetime import datetime
+
+# Before importing TensorFlow: cut C++ INFO/WARN noise (oneDNN, absl pre-init) on stderr.
+os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
 
 try:
     from tensorflow import keras

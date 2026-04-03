@@ -550,7 +550,7 @@ def handle_train(args):
         from mb.training.trainer import ModelTrainer
 
         # Pipeline YAML (--config) for model/data/training/paths defaults
-        reload_pipeline_config(getattr(args, "config", None))
+        reload_pipeline_config(getattr(args, "config", None), force=True)
         pipeline = get_pipeline_config()
 
         if getattr(args, "train_args_json", None):

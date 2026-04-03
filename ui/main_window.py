@@ -79,8 +79,8 @@ class MainWindow(QMainWindow):
 
     def reload_mb_yaml_config(self) -> None:
         """Reload application + pipeline YAML (e.g. after user picks a config file)."""
-        reload_application_config(self._effective_application_config_path())
-        reload_pipeline_config(self._effective_pipeline_config_path())
+        reload_application_config(self._effective_application_config_path(), force=True)
+        reload_pipeline_config(self._effective_pipeline_config_path(), force=True)
 
     def _effective_application_config_path(self) -> Path | None:
         """
@@ -228,8 +228,8 @@ class MainWindow(QMainWindow):
             return
         self._workspace.root = Path(path)
         self._workspace.save(self._settings)
-        reload_application_config(self._effective_application_config_path())
-        reload_pipeline_config(self._effective_pipeline_config_path())
+        reload_application_config(self._effective_application_config_path(), force=True)
+        reload_pipeline_config(self._effective_pipeline_config_path(), force=True)
         self._cache.restart_periodic_store()
         self._apply_workspace_to_ui()
 

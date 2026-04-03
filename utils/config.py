@@ -285,15 +285,40 @@ def _resolve_application_yaml_path(config_path: Optional[Path]) -> Optional[Path
     return None
 
 
-def reload_application_config(config_path: Optional[Path] = None) -> ApplicationConfig:
+def _config_paths_equivalent(a: Optional[Path], b: Optional[Path]) -> bool:
+    """True when ``a`` and ``b`` denote the same config file (or both absent)."""
+    if a is None and b is None:
+        return True
+    if a is None or b is None:
+        return False
+    try:
+        return a.resolve() == b.resolve()
+    except OSError:
+        return a == b
+
+
+def reload_application_config(
+    config_path: Optional[Path] = None,
+    *,
+    force: bool = False,
+) -> ApplicationConfig:
     """
     Replace the global application config singleton.
 
     ``config_path`` ``None`` loads ``configs/application.yaml`` when present, else
     ``configs/default.yaml`` (legacy), else in-memory defaults only.
+
+    If the resolved path is already loaded, this is a no-op unless ``force`` is
+    true (avoids duplicate loads when :func:`get_application_config` ran first).
     """
     global _global_application
     path = _resolve_application_yaml_path(config_path)
+    if (
+        not force
+        and _global_application is not None
+        and _config_paths_equivalent(_global_application.active_path, path)
+    ):
+        return _global_application
     _global_application = ApplicationConfig(path)
     return _global_application
 
@@ -308,7 +333,7 @@ def get_application_config(config_path: Optional[Path] = None) -> ApplicationCon
     """
     global _global_application
     if config_path is not None:
-        reload_application_config(config_path)
+        reload_application_config(config_path, force=True)
     elif _global_application is None:
         reload_application_config(None)
     assert _global_application is not None
@@ -324,9 +349,13 @@ def reset_application_config() -> None:
 MbConfig = ApplicationConfig
 
 
-def reload_config(config_path: Optional[Path] = None) -> ApplicationConfig:
+def reload_config(
+    config_path: Optional[Path] = None,
+    *,
+    force: bool = False,
+) -> ApplicationConfig:
     """Alias for :func:`reload_application_config`."""
-    return reload_application_config(config_path)
+    return reload_application_config(config_path, force=force)
 
 
 def get_config(config_path: Optional[Path] = None) -> ApplicationConfig:

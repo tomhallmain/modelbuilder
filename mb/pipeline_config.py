@@ -160,10 +160,31 @@ def _resolve_default_pipeline_path(config_path: Optional[Path]) -> Optional[Path
     return None
 
 
-def reload_pipeline_config(config_path: Optional[Path] = None) -> PipelineConfig:
+def _pipeline_paths_equivalent(a: Optional[Path], b: Optional[Path]) -> bool:
+    if a is None and b is None:
+        return True
+    if a is None or b is None:
+        return False
+    try:
+        return a.resolve() == b.resolve()
+    except OSError:
+        return a == b
+
+
+def reload_pipeline_config(
+    config_path: Optional[Path] = None,
+    *,
+    force: bool = False,
+) -> PipelineConfig:
     """Replace the global pipeline config. ``None`` loads packaged defaults when present."""
     global _global_pipeline
     path = _resolve_default_pipeline_path(config_path)
+    if (
+        not force
+        and _global_pipeline is not None
+        and _pipeline_paths_equivalent(_global_pipeline.active_path, path)
+    ):
+        return _global_pipeline
     _global_pipeline = PipelineConfig(path)
     return _global_pipeline
 
@@ -178,7 +199,7 @@ def get_pipeline_config(config_path: Optional[Path] = None) -> PipelineConfig:
     """
     global _global_pipeline
     if config_path is not None:
-        reload_pipeline_config(config_path)
+        reload_pipeline_config(config_path, force=True)
     elif _global_pipeline is None:
         reload_pipeline_config(None)
     assert _global_pipeline is not None
