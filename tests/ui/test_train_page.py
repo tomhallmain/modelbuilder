@@ -22,7 +22,7 @@ def test_train_page_widgets_expose_stable_object_names(qtbot) -> None:
 
 @pytest.mark.ui
 def test_train_page_validate_enables_start_when_layout_valid(
-    qtbot, two_class_classification_data_dir, tmp_path
+    qtbot, english_gui_locale, two_class_classification_data_dir, tmp_path
 ) -> None:
     page = TrainPage()
     qtbot.addWidget(page)
@@ -35,7 +35,9 @@ def test_train_page_validate_enables_start_when_layout_valid(
 
 
 @pytest.mark.ui
-def test_train_page_validate_disables_start_when_data_dir_missing(qtbot, tmp_path) -> None:
+def test_train_page_validate_disables_start_when_data_dir_missing(
+    qtbot, english_gui_locale, tmp_path
+) -> None:
     page = TrainPage()
     qtbot.addWidget(page)
     page.data_dir.setText(str(tmp_path / "nonexistent_data"))

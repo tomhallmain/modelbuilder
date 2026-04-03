@@ -62,8 +62,12 @@ def test_page_widget_types_match_nav(qtbot, main_window: MainWindow) -> None:
 
 @pytest.mark.ui
 def test_status_bar_no_workspace_message(qtbot, main_window: MainWindow) -> None:
+    """Status bar shows a non-empty workspace hint; isolate from other tests that set workspace."""
+    main_window._workspace.root = None
+    main_window._workspace.config_path = None
+    main_window._workspace.save(main_window._settings)
+    main_window._apply_workspace_to_ui()
     msg = main_window.statusBar().currentMessage()
-    assert main_window._workspace.root is None
     assert len(msg) > 0
 
 

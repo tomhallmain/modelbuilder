@@ -32,6 +32,7 @@ from mb import __version__ as MB_VERSION
 from mb.data.dataset import CLASS_NAMES, DatasetCreator
 from ui.main_window import MainWindow
 from ui.pages.convert_page import ConvertPage
+from ui.pages.info_page import InfoPage
 from ui.pages.train_page import TrainPage
 
 from tests.test_utils import prepare_synthetic_raw_with_snapshot
@@ -42,6 +43,7 @@ _ONNX = "install ONNX for conversion: pip install onnx (see requirements-ml.txt)
 
 _NAV_TRAIN = 2
 _NAV_CONVERT = 3
+_NAV_INFO = 5
 
 
 def _sync_nav_and_stack(main_window: MainWindow, row: int) -> None:
@@ -223,3 +225,13 @@ def test_headless_ui_train_pytorch_and_convert_onnx(
         err_msg="Timeout waiting for ONNX conversion",
     )
     assert onnx_path.is_file() and onnx_path.stat().st_size > 0
+
+    # --- Info page (after train + convert produced artifacts) ---
+    info_page = main_window.page_widgets[_NAV_INFO]
+    assert isinstance(info_page, InfoPage)
+    _sync_nav_and_stack(main_window, _NAV_INFO)
+    info_page.model_path.setText(str(onnx_path))
+    qtbot.mouseClick(info_page.btn_model_info, Qt.MouseButton.LeftButton)
+    info_text = info_page.model_output.toPlainText()
+    assert str(onnx_path) in info_text or onnx_path.name in info_text
+    assert "onnx" in info_text.lower()

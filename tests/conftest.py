@@ -25,7 +25,8 @@ def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item
     2. ``tests/integration/`` — data pipeline steps
     3. ``tests/framework/`` — optional framework smoke (torch/tf)
     4. Other unit tests (e.g. CLI, cancellation, run args)
-    5. ``tests/ui/`` — headless PySide6 (pytest-qt)
+    5. ``tests/ui/`` — headless PySide6 (pytest-qt); ``test_ui_e2e_headless`` runs **last**
+       within this folder so Train → Convert → Info widget flow runs after page unit tests
     6. ``tests/e2e/`` — full CLI pipeline last
     """
 
@@ -43,7 +44,17 @@ def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item
             return 6
         return 3
 
-    items[:] = sorted(items, key=lambda it: (_phase(it.nodeid), it.nodeid))
+    def _ui_e2e_last(nodeid: str) -> int:
+        """Within ``tests/ui/``, run ``test_ui_e2e_headless.py`` after all other UI modules."""
+        n = nodeid.replace("\\", "/")
+        if "/ui/" in n and "test_ui_e2e_headless.py" in n:
+            return 1
+        return 0
+
+    items[:] = sorted(
+        items,
+        key=lambda it: (_phase(it.nodeid), _ui_e2e_last(it.nodeid), it.nodeid),
+    )
 
 
 @pytest.fixture

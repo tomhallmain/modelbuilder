@@ -27,7 +27,7 @@ from mb.pipeline_config import reload_pipeline_config
 
 from ui.lib.qt_alert import qt_alert
 from ui.lib.form_layout_i18n import apply_qform_label_column
-from mb.utils.translations import _
+from mb.utils.translations import _, normalize_gui_locale
 from utils.config import (
     default_application_config_dict,
     get_application_config,
@@ -149,7 +149,7 @@ class ConfigPage(QWidget):
                 "",
             ],
         )
-        self._locale.setPlaceholderText(_("empty — use OS locale"))
+        self._locale_combo.setItemText(0, _("System default (follow OS)"))
         self._main_size.setPlaceholderText(_("e.g. 1200x960"))
         self._cache_interval.setSuffix(_(" s"))
         self._show_toasts.setText(_("Show toasts"))
@@ -178,9 +178,12 @@ class ConfigPage(QWidget):
         form.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.FieldsStayAtSizeHint)
         form.setLabelAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
 
-        self._locale = QLineEdit()
-        self._locale.setPlaceholderText(_("empty — use OS locale"))
-        form.addRow(_("Locale"), self._locale)
+        self._locale_combo = QComboBox()
+        self._locale_combo.setObjectName("config_locale_combo")
+        self._locale_combo.addItem(_("System default (follow OS)"), "")
+        self._locale_combo.addItem("English", "en")
+        self._locale_combo.addItem("Deutsch", "de")
+        form.addRow(_("Locale"), self._locale_combo)
 
         self._fg_color = QLineEdit()
         self._fg_color.setPlaceholderText("#ececec")
@@ -279,11 +282,26 @@ class ConfigPage(QWidget):
         t = edit.text().strip()
         return None if t == "" else t
 
+    def _apply_locale_combo_from_config(self, locale_raw: object) -> None:
+        """Sync locale combo to config; unsupported values map to system default (index 0)."""
+        norm = normalize_gui_locale(locale_raw)
+        if norm is None:
+            self._locale_combo.setCurrentIndex(0)
+            return
+        idx = self._locale_combo.findData(norm)
+        self._locale_combo.setCurrentIndex(idx if idx >= 0 else 0)
+
+    def _locale_value_for_save(self) -> Any:
+        data = self._locale_combo.currentData()
+        if data is None or str(data).strip() == "":
+            return None
+        return str(data)
+
     def _apply_dict_to_form(self, data: dict[str, Any]) -> None:
         g = data.get("gui") or {}
         a = data.get("app") or {}
 
-        self._locale.setText("" if g.get("locale") in (None, "") else str(g["locale"]))
+        self._apply_locale_combo_from_config(g.get("locale"))
         for key, edit in (
             ("foreground_color", self._fg_color),
             ("background_color", self._bg_color),
@@ -316,7 +334,7 @@ class ConfigPage(QWidget):
         debug2_on = self._debug2.isChecked()
         debug_on = self._debug.isChecked() or debug2_on
         gui: dict[str, Any] = {
-            "locale": self._line_or_none(self._locale),
+            "locale": self._locale_value_for_save(),
             "foreground_color": self._line_or_none(self._fg_color),
             "background_color": self._line_or_none(self._bg_color),
             "toast_color_warning": self._line_or_none(self._toast_warn),

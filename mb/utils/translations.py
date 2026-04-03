@@ -9,6 +9,26 @@ logger = get_logger("translations")
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 
+# Locales offered in the desktop Config page. Other YAML values are treated as unsupported
+# (combo falls back to “system default” until the user picks en/de).
+SUPPORTED_GUI_LOCALES: tuple[str, ...] = ("en", "de")
+
+
+def normalize_gui_locale(locale: object) -> str | None:
+    """
+    Map a config or environment locale string to ``\"en\"``, ``\"de\"``, or ``None``.
+
+    ``None`` means use the OS / application default (empty ``gui.locale``).
+    Unknown region codes (e.g. ``de_AT``) map to the primary language when it is supported.
+    """
+    if locale is None or str(locale).strip() == "":
+        return None
+    s = str(locale).strip().lower().replace("-", "_")
+    short = s.split("_", 1)[0] if "_" in s else s
+    if short in SUPPORTED_GUI_LOCALES:
+        return short
+    return None
+
 
 def _short_locale(locale: str) -> str:
     loc = locale.replace("-", "_").strip()
@@ -27,8 +47,14 @@ def apply_application_locale(*, verbose: bool = False) -> None:
 
     loc = get_application_config().gui.locale
     if loc is None or str(loc).strip() == "":
-        loc = Utils.get_default_user_language()
-    loc_full = str(loc).strip()
+        loc_full = str(Utils.get_default_user_language()).strip()
+    else:
+        norm = normalize_gui_locale(loc)
+        if norm is not None:
+            loc_full = norm
+        else:
+            # Legacy or unsupported YAML value: follow OS default
+            loc_full = str(Utils.get_default_user_language()).strip()
     os.environ["LANG"] = loc_full
     short = _short_locale(loc_full)
     I18N.install_locale(short, verbose=verbose)

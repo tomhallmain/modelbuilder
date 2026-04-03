@@ -78,9 +78,9 @@ class DataPage(QWidget):
         self.btn_run.clicked.connect(self._run_current_command)
         self.tabs.currentChanged.connect(self._validate_inputs)
 
-        self.retranslate_ui()
+        self.retranslate_ui(refresh_output=False)
 
-    def retranslate_ui(self) -> None:
+    def retranslate_ui(self, *, refresh_output: bool = True) -> None:
         self._title.setText(f"<h2>{_('Data')}</h2>")
         self._intro.setText(
             _("Prepare datasets using gather, convert, deduplicate, upscale, and split flows.")
@@ -147,6 +147,8 @@ class DataPage(QWidget):
                 btn = row.findChild(QPushButton)
                 if btn is not None:
                     btn.setText(_("Browse..."))
+        if refresh_output:
+            self._run_startup_validation()
 
     def _run_startup_validation(self) -> None:
         """Called from :meth:`MainWindow._run_page_startup_validation` after cache restore."""

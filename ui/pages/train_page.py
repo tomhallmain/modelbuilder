@@ -142,9 +142,9 @@ class TrainPage(QWidget):
         self.btn_validate.clicked.connect(self._validate_inputs)
         self.btn_start.clicked.connect(self._start_training)
 
-        self.retranslate_ui()
+        self.retranslate_ui(refresh_output=False)
 
-    def retranslate_ui(self) -> None:
+    def retranslate_ui(self, *, refresh_output: bool = True) -> None:
         self._head.setText(f"<h2>{_('Train')}</h2>")
         self._intro.setText(
             _("Configure framework, architecture, paths, and hyperparameters (training CLI: {cmd}).").format(
@@ -201,6 +201,8 @@ class TrainPage(QWidget):
                 btn = row.findChild(QPushButton)
                 if btn is not None:
                     btn.setText(_("Browse..."))
+        if refresh_output:
+            self._run_startup_validation()
 
     def _run_startup_validation(self) -> None:
         """Called from :meth:`MainWindow._run_page_startup_validation` after cache restore."""
