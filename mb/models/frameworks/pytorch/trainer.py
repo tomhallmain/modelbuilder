@@ -513,10 +513,18 @@ class PyTorchTrainer(FrameworkTrainer):
         checkpoint_path = output_dir / f"checkpoint_epoch_{epoch}.pth"
         torch.save(checkpoint, checkpoint_path)
         
-        # Save metadata as JSON
+        # Save human-readable metadata only (state dicts contain Tensors and are not JSON-serializable)
+        metadata = {
+            'epoch': epoch,
+            'frozen_epochs_completed': frozen_epochs_completed,
+            'unfrozen_epochs_completed': unfrozen_epochs_completed,
+            'best_val_acc': float(best_val_acc),
+            'phase': phase,
+            'saved_at': checkpoint['saved_at'],
+        }
         metadata_path = checkpoint_path.with_suffix('.json')
         with open(metadata_path, 'w') as f:
-            json.dump(checkpoint, f, indent=2)
+            json.dump(metadata, f, indent=2)
         
         logger.debug(f"Saved checkpoint: {checkpoint_path}")
     
