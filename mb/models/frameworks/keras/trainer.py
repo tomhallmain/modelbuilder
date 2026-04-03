@@ -230,10 +230,11 @@ class KerasTrainer(FrameworkTrainer):
             callbacks.append(
                 keras.callbacks.LambdaCallback(on_epoch_begin=_on_frozen_epoch_begin)
             )
+            def _on_train_batch_begin(batch, logs=None):
+                check_cancel_event(cancel_event)
+
             callbacks.append(
-                keras.callbacks.LambdaCallback(
-                    on_batch_begin=lambda _batch, _logs: check_cancel_event(cancel_event)
-                )
+                keras.callbacks.LambdaCallback(on_batch_begin=_on_train_batch_begin)
             )
 
             # Train
@@ -303,10 +304,11 @@ class KerasTrainer(FrameworkTrainer):
             callbacks.append(
                 keras.callbacks.LambdaCallback(on_epoch_begin=_on_unfrozen_epoch_begin)
             )
+            def _on_train_batch_begin_unfrozen(batch, logs=None):
+                check_cancel_event(cancel_event)
+
             callbacks.append(
-                keras.callbacks.LambdaCallback(
-                    on_batch_begin=lambda _batch, _logs: check_cancel_event(cancel_event)
-                )
+                keras.callbacks.LambdaCallback(on_batch_begin=_on_train_batch_begin_unfrozen)
             )
 
             # Train
