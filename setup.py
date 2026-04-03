@@ -51,6 +51,8 @@ setup(
         ],
         "onnx": [
             "onnx>=1.12.0",
+            # torch.onnx.export (PyTorch 2.x) imports onnxscript internally
+            "onnxscript>=0.1.0",
         ],
         "post-quantum": [
             "liboqs-python @ git+https://github.com/open-quantum-safe/liboqs-python.git",
@@ -65,6 +67,7 @@ setup(
             "torchvision>=0.15.0",
             "tensorflow>=2.10.0",
             "onnx>=1.12.0",
+            "onnxscript>=0.1.0",
         ],
     },
     entry_points={

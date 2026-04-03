@@ -10,6 +10,8 @@ torchvision>=0.15.0
 
 # Export / import ONNX (mb convert --target onnx, some tests)
 onnx>=1.12.0
+# Required by torch.onnx.export on PyTorch 2.x (not pulled in via the onnx package)
+onnxscript>=0.1.0
 
 # Keras/TensorFlow — large; only if you use --framework keras
 # tensorflow>=2.10.0
