@@ -156,13 +156,13 @@ class InfoPage(QWidget):
             if value:
                 edit.setText(value)
         else:
-            value, _ = QFileDialog.getOpenFileName(
+            value = QFileDialog.getOpenFileName(
                 self,
                 _("Select model file"),
                 start,
                 _("Model files (*.pth *.pt *.h5 *.keras *.onnx *.safetensors);;All files (*.*)"),
                 options=QFileDialog.Option.DontUseNativeDialog,
-            )
+            )[0]
             if value:
                 edit.setText(value)
 

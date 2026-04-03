@@ -504,13 +504,13 @@ class DataPage(QWidget):
             if value:
                 edit.setText(value)
         else:
-            value, _ = QFileDialog.getOpenFileName(
+            value = QFileDialog.getOpenFileName(
                 self,
                 _("Select file"),
                 start,
                 _("All files (*.*)"),
                 options=QFileDialog.Option.DontUseNativeDialog,
-            )
+            )[0]
             if value:
                 edit.setText(value)
         self._validate_inputs()

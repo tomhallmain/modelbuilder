@@ -301,13 +301,13 @@ class TrainPage(QWidget):
     def _browse(self, edit: QLineEdit, select_file: bool = False) -> None:
         start = edit.text().strip() or str(Path.cwd())
         if select_file:
-            value, _ = QFileDialog.getOpenFileName(
+            value = QFileDialog.getOpenFileName(
                 self,
                 _("Select checkpoint file"),
                 start,
                 _("Model/checkpoint files (*.pth *.pt *.h5 *.keras *.ckpt);;All files (*.*)"),
                 options=QFileDialog.Option.DontUseNativeDialog,
-            )
+            )[0]
             if value:
                 edit.setText(value)
         else:

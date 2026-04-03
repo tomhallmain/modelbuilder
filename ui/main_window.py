@@ -326,13 +326,13 @@ class MainWindow(QMainWindow):
         start = str(self._workspace.config_path.parent) if self._workspace.config_path else ""
         if self._workspace.root and not start:
             start = str(self._workspace.root)
-        path, _ = QFileDialog.getOpenFileName(
+        path = QFileDialog.getOpenFileName(
             self,
             _("Optional YAML config"),
             start,
             _("YAML (*.yaml *.yml);;All files (*.*)"),
             options=QFileDialog.Option.DontUseNativeDialog,
-        )
+        )[0]
         if not path:
             return
         self._workspace.config_path = Path(path)

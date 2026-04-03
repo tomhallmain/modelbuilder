@@ -187,23 +187,23 @@ class ConvertPage(QWidget):
             if value:
                 edit.setText(value)
         elif save:
-            value, _ = QFileDialog.getSaveFileName(
+            value = QFileDialog.getSaveFileName(
                 self,
                 _("Select output file"),
                 start,
                 _("Model files (*.onnx *.safetensors);;All files (*.*)"),
                 options=QFileDialog.Option.DontUseNativeDialog,
-            )
+            )[0]
             if value:
                 edit.setText(value)
         else:
-            value, _ = QFileDialog.getOpenFileName(
+            value = QFileDialog.getOpenFileName(
                 self,
                 _("Select model file"),
                 start,
                 _("Model files (*.pth *.pt *.h5 *.keras *.onnx *.safetensors);;All files (*.*)"),
                 options=QFileDialog.Option.DontUseNativeDialog,
-            )
+            )[0]
             if value:
                 edit.setText(value)
         self._validate_inputs()
