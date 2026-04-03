@@ -1,0 +1,18 @@
+# Optional: PyTorch training, ONNX conversion, and (optionally) Keras.
+# Install after core:  pip install -r requirements.txt -r requirements-ml.txt
+# Or use setuptools extras (same idea):
+#   pip install -e ".[pytorch]"          # torch + torchvision only
+#   pip install -e ".[keras]"            # TensorFlow for Keras trainer
+#   pip install -e ".[all]"              # both frameworks
+
+torch>=2.0.0
+torchvision>=0.15.0
+
+# Export / import ONNX (mb convert --target onnx, some tests)
+onnx>=1.12.0
+
+# Keras/TensorFlow — large; only if you use --framework keras
+# tensorflow>=2.10.0
+
+# Advanced / rarely needed
+# onnx-tf>=1.10.0

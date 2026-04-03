@@ -49,6 +49,9 @@ setup(
         "keras": [
             "tensorflow>=2.10.0",
         ],
+        "onnx": [
+            "onnx>=1.12.0",
+        ],
         "post-quantum": [
             "liboqs-python @ git+https://github.com/open-quantum-safe/liboqs-python.git",
         ],
@@ -61,6 +64,7 @@ setup(
             "torch>=2.0.0",
             "torchvision>=0.15.0",
             "tensorflow>=2.10.0",
+            "onnx>=1.12.0",
         ],
     },
     entry_points={

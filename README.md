@@ -37,6 +37,20 @@ mb-gui
 
 See [docs/GUI_PLAN.md](docs/GUI_PLAN.md) for the full UI roadmap. Data/training/convert screens are placeholders until later Phase 7 tasks.
 
+## Tests
+
+Install dev dependencies (includes `pytest` via `requirements.txt`), then from the repository root:
+
+```bash
+pip install -r requirements.txt
+pip install -e .
+python -m pytest tests/
+```
+
+`tests/conftest.py` reorders collection (synthetic factory → integration → other unit tests → `tests/e2e/` last). See [docs/TESTING_PLAN.md](docs/TESTING_PLAN.md).
+
+**E2E** (`tests/e2e/`) needs PyTorch plus **`onnx`** for the export step. Install with `pip install -e ".[onnx]"`, `pip install -r requirements-ml.txt`, or use **`pip install -e ".[all]"`** (now includes `onnx` alongside torch/TensorFlow). If an import is missing, E2E tests are **skipped** (not failed). Use `python -m pytest tests/ -rs` for skip reasons. Quick run without slow E2E: `python -m pytest tests/ -m "not slow"`.
+
 ## Quick Start
 
 ### 1. Prepare Data
@@ -155,7 +169,8 @@ mb/
 
 - **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — Architecture and design decisions  
 - **[docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md)** — Implementation plan and progress  
-- **[docs/GUI_PLAN.md](docs/GUI_PLAN.md)** — Planned PySide6 GUI (Phase 7)
+- **[docs/GUI_PLAN.md](docs/GUI_PLAN.md)** — Planned PySide6 GUI (Phase 7)  
+- **[docs/TESTING_PLAN.md](docs/TESTING_PLAN.md)** — Automated testing roadmap and conventions
 
 ## License
 
