@@ -32,7 +32,7 @@ from mb.utils.constants import ModelBuilderTaskType
 from mb.utils.recent_run_history import append_recent_run
 from mb.utils.snapshot import find_latest_unified_snapshot_path
 from mb.utils.translations import _
-from ui.lib.task_progress import attach_progress_dialog
+from ui.lib.training_progress_dialog import attach_training_progress_dialog
 from ui.spawn_mb_train import spawn_mb_train_subprocess
 from ui.task_context import LongTaskContext
 from ui.task_runner import start_task
@@ -475,7 +475,7 @@ class TrainPage(QWidget):
             pass_context=True,
             on_cancelled=self._on_training_cancelled,
         )
-        attach_progress_dialog(self, _("Training"), handle, cancellable=True)
+        attach_training_progress_dialog(self, _("Training"), handle, cancellable=True)
 
     def _execute_training(self, ctx: LongTaskContext, args: TrainingRunArgs) -> str:
         from mb.training.trainer import ModelTrainer

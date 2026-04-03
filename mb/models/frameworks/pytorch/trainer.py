@@ -10,7 +10,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.optim.lr_scheduler import OneCycleLR, CosineAnnealingLR
 from pathlib import Path
-from typing import Any, Callable, Dict, Tuple, Optional
+from typing import Any, Callable, Dict, Optional, Tuple
 import json
 import logging
 import threading
@@ -18,6 +18,7 @@ from datetime import datetime
 
 from mb.cancellation import check_cancel_event
 from mb.models.base import FrameworkTrainer
+from mb.training.gui_progress import subepoch_progress_emit
 from mb.models.frameworks.pytorch.data_loader import create_data_loaders
 from mb.models.frameworks.pytorch.architectures import create_resnet, create_efficientnet
 from mb.models.frameworks.registry import get_architecture
@@ -206,27 +207,33 @@ class PyTorchTrainer(FrameworkTrainer):
             )
             
             remaining_frozen = frozen_epochs - frozen_epochs_completed
+            spe = len(train_loader) + len(val_loader)
             for epoch in range(remaining_frozen):
                 check_cancel_event(cancel_event)
                 epoch_num = frozen_epochs_completed + epoch + 1
                 logger.info(f"Frozen epoch {epoch_num}/{frozen_epochs}")
-                if progress_cb is not None:
-                    done = frozen_epochs_completed + unfrozen_epochs_completed
-                    pct = done / max(total_plan_epochs, 1)
-                    progress_cb(
-                        f"Frozen phase: epoch {epoch_num}/{frozen_epochs}",
-                        min(pct, 1.0),
-                    )
-                
+                epochs_done_before = frozen_epochs_completed + epoch
+                emit = subepoch_progress_emit(
+                    progress_cb,
+                    total_plan_epochs,
+                    epochs_done_before,
+                    spe,
+                    f"Frozen phase: epoch {epoch_num}/{frozen_epochs}",
+                )
+
                 # Train
                 train_loss, train_acc = self._train_epoch(
                     model, train_loader, criterion, optimizer, epoch_num,
                     cancel_event=cancel_event,
+                    on_batch_step=emit,
                 )
-                
+
                 # Validate
                 val_loss, val_acc = self._validate(
-                    model, val_loader, criterion, cancel_event=cancel_event,
+                    model, val_loader, criterion,
+                    cancel_event=cancel_event,
+                    train_step_count=len(train_loader),
+                    on_batch_step=emit,
                 )
                 
                 logger.info(f"  Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}")
@@ -267,27 +274,33 @@ class PyTorchTrainer(FrameworkTrainer):
             )
             
             remaining_unfrozen = unfrozen_epochs - unfrozen_epochs_completed
+            spe = len(train_loader) + len(val_loader)
             for epoch in range(remaining_unfrozen):
                 check_cancel_event(cancel_event)
                 epoch_num = unfrozen_epochs_completed + epoch + 1
                 logger.info(f"Unfrozen epoch {epoch_num}/{unfrozen_epochs}")
-                if progress_cb is not None:
-                    done = frozen_epochs_completed + unfrozen_epochs_completed
-                    pct = done / max(total_plan_epochs, 1)
-                    progress_cb(
-                        f"Fine-tune: epoch {epoch_num}/{unfrozen_epochs}",
-                        min(pct, 1.0),
-                    )
-                
+                epochs_done_before = frozen_epochs_completed + unfrozen_epochs_completed + epoch
+                emit = subepoch_progress_emit(
+                    progress_cb,
+                    total_plan_epochs,
+                    epochs_done_before,
+                    spe,
+                    f"Fine-tune: epoch {epoch_num}/{unfrozen_epochs}",
+                )
+
                 # Train
                 train_loss, train_acc = self._train_epoch(
                     model, train_loader, criterion, optimizer, epoch_num, scheduler,
                     cancel_event=cancel_event,
+                    on_batch_step=emit,
                 )
-                
+
                 # Validate
                 val_loss, val_acc = self._validate(
-                    model, val_loader, criterion, cancel_event=cancel_event,
+                    model, val_loader, criterion,
+                    cancel_event=cancel_event,
+                    train_step_count=len(train_loader),
+                    on_batch_step=emit,
                 )
                 
                 logger.info(f"  Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}")
@@ -418,40 +431,43 @@ class PyTorchTrainer(FrameworkTrainer):
         epoch: int,
         scheduler: Optional[Any] = None,
         cancel_event: Optional[threading.Event] = None,
+        on_batch_step: Optional[Callable[[int], None]] = None,
     ) -> Tuple[float, float]:
         """Train for one epoch."""
         model.train()
         running_loss = 0.0
         correct = 0
         total = 0
-        
-        for inputs, targets in train_loader:
+
+        for batch_idx, (inputs, targets) in enumerate(train_loader):
             check_cancel_event(cancel_event)
             inputs = inputs.to(self.device)
             targets = targets.to(self.device)
-            
+
             # Forward pass
             optimizer.zero_grad()
             outputs = model(inputs)
             loss = criterion(outputs, targets)
-            
+
             # Backward pass
             loss.backward()
             optimizer.step()
-            
+
             # Update scheduler if provided
             if scheduler:
                 scheduler.step()
-            
+
             # Statistics
             running_loss += loss.item()
             _, predicted = outputs.max(1)
             total += targets.size(0)
             correct += predicted.eq(targets).sum().item()
-        
-        epoch_loss = running_loss / len(train_loader)
-        epoch_acc = 100.0 * correct / total
-        
+            if on_batch_step is not None:
+                on_batch_step(batch_idx + 1)
+
+        epoch_loss = running_loss / max(len(train_loader), 1)
+        epoch_acc = 100.0 * correct / max(total, 1)
+
         return epoch_loss, epoch_acc
     
     def _validate(
@@ -460,30 +476,36 @@ class PyTorchTrainer(FrameworkTrainer):
         val_loader: DataLoader,
         criterion: nn.Module,
         cancel_event: Optional[threading.Event] = None,
+        train_step_count: int = 0,
+        on_batch_step: Optional[Callable[[int], None]] = None,
     ) -> Tuple[float, float]:
         """Validate the model."""
         model.eval()
         running_loss = 0.0
         correct = 0
         total = 0
-        
+
+        step = train_step_count
         with torch.no_grad():
             for inputs, targets in val_loader:
                 check_cancel_event(cancel_event)
                 inputs = inputs.to(self.device)
                 targets = targets.to(self.device)
-                
+
                 outputs = model(inputs)
                 loss = criterion(outputs, targets)
-                
+
                 running_loss += loss.item()
                 _, predicted = outputs.max(1)
                 total += targets.size(0)
                 correct += predicted.eq(targets).sum().item()
-        
-        epoch_loss = running_loss / len(val_loader)
-        epoch_acc = 100.0 * correct / total
-        
+                step += 1
+                if on_batch_step is not None:
+                    on_batch_step(step)
+
+        epoch_loss = running_loss / max(len(val_loader), 1)
+        epoch_acc = 100.0 * correct / max(total, 1)
+
         return epoch_loss, epoch_acc
     
     def _save_checkpoint(

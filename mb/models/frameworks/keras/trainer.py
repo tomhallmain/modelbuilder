@@ -28,6 +28,10 @@ except ImportError:
 
 from mb.cancellation import check_cancel_event
 from mb.models.base import FrameworkTrainer
+from mb.training.gui_progress import (
+    make_keras_frozen_gui_progress,
+    make_keras_unfrozen_gui_progress,
+)
 from mb.models.frameworks.keras.data_loader import create_data_generators
 from mb.models.frameworks.keras.architectures import create_resnet, create_efficientnet
 from mb.models.frameworks.registry import get_architecture
@@ -221,24 +225,16 @@ class KerasTrainer(FrameworkTrainer):
             callbacks = [checkpoint_cb]
             remaining_frozen = frozen_epochs - frozen_epochs_completed
 
-            def _on_frozen_epoch_begin(epoch: int, logs: Any) -> None:
-                check_cancel_event(cancel_event)
-                if progress_cb is not None:
-                    done = frozen_epochs_completed + unfrozen_epochs_completed + epoch
-                    pct = done / max(total_plan_epochs, 1)
-                    progress_cb(
-                        f"Frozen phase: epoch {epoch + 1}/{frozen_epochs}",
-                        min(pct, 1.0),
-                    )
-
             callbacks.append(
-                keras.callbacks.LambdaCallback(on_epoch_begin=_on_frozen_epoch_begin)
-            )
-            def _on_train_batch_begin(batch, logs=None):
-                check_cancel_event(cancel_event)
-
-            callbacks.append(
-                keras.callbacks.LambdaCallback(on_batch_begin=_on_train_batch_begin)
+                make_keras_frozen_gui_progress(
+                    progress_cb,
+                    cancel_event,
+                    total_plan_epochs,
+                    frozen_epochs,
+                    frozen_epochs_completed,
+                    train_loader,
+                    val_loader,
+                )
             )
 
             # Train
@@ -295,24 +291,17 @@ class KerasTrainer(FrameworkTrainer):
             callbacks = [checkpoint_cb, reduce_lr_cb, early_stop_cb]
             remaining_unfrozen = unfrozen_epochs - unfrozen_epochs_completed
 
-            def _on_unfrozen_epoch_begin(epoch: int, logs: Any) -> None:
-                check_cancel_event(cancel_event)
-                if progress_cb is not None:
-                    done = frozen_epochs_completed + unfrozen_epochs_completed + epoch
-                    pct = done / max(total_plan_epochs, 1)
-                    progress_cb(
-                        f"Fine-tune: epoch {epoch + 1}/{unfrozen_epochs}",
-                        min(pct, 1.0),
-                    )
-
             callbacks.append(
-                keras.callbacks.LambdaCallback(on_epoch_begin=_on_unfrozen_epoch_begin)
-            )
-            def _on_train_batch_begin_unfrozen(batch, logs=None):
-                check_cancel_event(cancel_event)
-
-            callbacks.append(
-                keras.callbacks.LambdaCallback(on_batch_begin=_on_train_batch_begin_unfrozen)
+                make_keras_unfrozen_gui_progress(
+                    progress_cb,
+                    cancel_event,
+                    total_plan_epochs,
+                    frozen_epochs,
+                    unfrozen_epochs,
+                    unfrozen_epochs_completed,
+                    train_loader,
+                    val_loader,
+                )
             )
 
             # Train
