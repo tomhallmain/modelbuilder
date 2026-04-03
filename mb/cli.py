@@ -144,7 +144,16 @@ def create_parser() -> argparse.ArgumentParser:
         default=_gather_def["raw_data_dir"],
         help=_("Root directory for raw data (default: data.gather.default_raw_data_dir)"),
     )
-    
+    gather_parser.add_argument(
+        "--model-type",
+        default=None,
+        choices=["image_classification"],
+        help=_(
+            "Pipeline model type (default: model.default_type). "
+            "When image_classification, gather also considers configured video extensions."
+        ),
+    )
+
     # mb data convert
     convert_parser = data_subparsers.add_parser(
         "convert",
@@ -167,6 +176,15 @@ def create_parser() -> argparse.ArgumentParser:
         help=_(
             "Target format for converted outputs (default: jpeg). "
             "The converter is currently JPEG-oriented; non-default values may be ignored until implemented."
+        ),
+    )
+    convert_parser.add_argument(
+        "--model-type",
+        default=None,
+        choices=["image_classification"],
+        help=_(
+            "Pipeline model type (default: model.default_type). "
+            "When image_classification, videos and multi-frame GIFs get a random frame as JPEG."
         ),
     )
     
@@ -474,6 +492,7 @@ def create_parser() -> argparse.ArgumentParser:
 def handle_data_gather(args):
     """Handle 'mb data gather' command."""
     try:
+        reload_pipeline_config(getattr(args, "config", None), force=True)
         # Validate subdirectories
         if not args.subdirs:
             logger.error(_("Please specify valid subdirectories using --subdirs argument"))
@@ -522,6 +541,7 @@ def handle_data_gather(args):
             rejected_dir=Path(args.rejected_dir) if args.rejected_dir is not None else None,
             subdir_weights=subdir_weights if subdir_weights else None,
             class_qualifying_subdir=layout.get("class_qualifying_subdir"),
+            model_type=getattr(args, "model_type", None),
         )
         
         # Store raw data directory
@@ -542,7 +562,11 @@ def handle_data_convert(args):
     # TODO: Pass args.format into ImageConverter (or downstream) when non-JPEG targets are supported.
     # Today ImageConverter is JPEG-oriented; --format is accepted but not yet applied.
     try:
-        converter = ImageConverter(raw_data_dir=args.raw_data_dir)
+        reload_pipeline_config(getattr(args, "config", None), force=True)
+        converter = ImageConverter(
+            raw_data_dir=args.raw_data_dir,
+            model_type=getattr(args, "model_type", None),
+        )
         success = converter.run()
         return 0 if success else 1
     except Exception as e:

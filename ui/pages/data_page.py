@@ -27,7 +27,11 @@ from mb.data.dataset import DatasetCreator
 from mb.data.deduplicate import ImageDeduplicator
 from mb.data.gather import ImageGatherer
 from mb.data.upscale import ImageUpscaler
-from mb.pipeline_config import data_class_layout_defaults, gather_pipeline_defaults
+from mb.pipeline_config import (
+    data_class_layout_defaults,
+    gather_pipeline_defaults,
+    get_pipeline_config,
+)
 from mb.utils.storage import check_same_drive, check_target_external_storage
 from ui.lib.qt_alert import qt_alert, qt_operation_error
 from mb.utils.constants import DataPipelineSubcommand, ModelBuilderTaskType
@@ -551,6 +555,7 @@ class DataPage(QWidget):
         ce = ctx.cancel_event
         if command == "gather":
             layout = data_class_layout_defaults()
+            mt = get_pipeline_config().get("model.default_type", "image_classification")
             gatherer = ImageGatherer(
                 source_dir=str(payload["source_dir"]),
                 valid_subdirs=payload["subdirs"],
@@ -559,11 +564,13 @@ class DataPage(QWidget):
                 rejected_dir=payload["rejected_dir"],
                 subdir_weights=payload["subdir_weights"],
                 class_qualifying_subdir=layout.get("class_qualifying_subdir"),
+                model_type=mt,
             )
             gatherer.raw_data_dir = payload["raw_data_dir"]
             return bool(gatherer.run(cancel_event=ce))
         if command == "convert":
-            converter = ImageConverter(raw_data_dir=payload["raw_data_dir"])
+            mt = get_pipeline_config().get("model.default_type", "image_classification")
+            converter = ImageConverter(raw_data_dir=payload["raw_data_dir"], model_type=mt)
             return bool(converter.run(cancel_event=ce))
         if command == "deduplicate":
             deduplicator = ImageDeduplicator(raw_data_dir=payload["raw_data_dir"])

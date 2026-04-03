@@ -11,9 +11,10 @@ inputs, and writes outputs while maintaining a unified snapshot for the pipeline
 
 import sys
 import shutil
+import random
 import threading
 from pathlib import Path
-from typing import List, Set, Optional
+from typing import List, Optional, Tuple
 from collections import defaultdict
 # Image processing imports
 try:
@@ -32,11 +33,21 @@ from mb.utils.snapshot import (
 )
 from mb.data.class_layout import (
     CONVERTED_MEDIA_SUBDIR,
+    VISUAL_MEDIA_REVIEW_SUBDIR,
     discover_class_names,
     normalize_qualifying_subdir,
     POST_CONVERT_SUBDIR_NAMES,
 )
-from mb.data.file_types import configured_media_suffixes, normalized_jpeg_suffixes
+from mb.data.file_types import (
+    configured_media_suffixes,
+    configured_video_suffixes,
+    normalized_jpeg_suffixes,
+)
+from mb.data.media_utils import (
+    classify_convert_source,
+    extract_random_gif_frame_to_jpeg,
+    extract_random_video_frame_to_jpeg,
+)
 from mb.pipeline_config import get_pipeline_config
 
 # Configure logging
@@ -51,14 +62,21 @@ DEFAULT_RAW_DATA_DIR = Path("raw_data")
 class ImageConverter:
     """Handles conversion of images to JPEG format for all class directories."""
     
-    def __init__(self, raw_data_dir: Path):
+    def __init__(self, raw_data_dir: Path, model_type: Optional[str] = None):
         self.raw_data_dir = Path(raw_data_dir)
+        pc = get_pipeline_config()
+        self.model_type = (
+            model_type
+            if model_type is not None
+            else pc.get("model.default_type", "image_classification")
+        )
         
         # Statistics tracking
         self.stats = {
             'total_files_found': 0,
             'files_converted': 0,
             'files_copied': 0,
+            'files_visual_extracted': 0,
             'files_skipped': 0,
             'errors': defaultdict(list),
         }
@@ -69,7 +87,27 @@ class ImageConverter:
         # Unified snapshot (will be created or loaded)
         self.unified_snapshot: Optional[UnifiedSnapshot] = None
         self.run_id: Optional[str] = None
-    
+        self._rng: random.Random = random.Random()
+
+    def _scan_suffixes(self) -> List[str]:
+        exts = set(configured_media_suffixes())
+        if self.model_type == "image_classification":
+            exts |= set(configured_video_suffixes())
+        return sorted(exts)
+
+    def _split_static_and_extract(self, paths: List[Path]) -> Tuple[List[Path], List[Path]]:
+        """Split inputs into normal still-image conversion vs random-frame extraction."""
+        ic = self.model_type == "image_classification"
+        static: List[Path] = []
+        extract: List[Path] = []
+        for p in paths:
+            kind, _ = classify_convert_source(p, image_classification=ic)
+            if kind == "extract":
+                extract.append(p)
+            else:
+                static.append(p)
+        return static, extract
+
     def validate_configuration(self) -> bool:
         """Validate the raw data directory."""
         if not self.raw_data_dir.exists():
@@ -124,13 +162,13 @@ class ImageConverter:
                 logger.info(f"Scanning subdirectories in: {class_dir.name}")
                 for subdir in subdirs:
                     logger.debug(f"  Scanning subdirectory: {subdir.name}")
-                    for ext in configured_media_suffixes():
+                    for ext in self._scan_suffixes():
                         for file_path in subdir.rglob(f'*{ext}'):
                             image_files.append(file_path)
             else:
                 # No subdirectories: scan root level (excluding post-convert dirs if present)
                 logger.info(f"Scanning root level in: {class_dir.name} (no subdirectories found)")
-                for ext in configured_media_suffixes():
+                for ext in self._scan_suffixes():
                     for file_path in class_dir.glob(f'*{ext}'):
                         if _under_post_convert(file_path):
                             continue
@@ -318,7 +356,71 @@ class ImageConverter:
                 else:
                     self.stats['files_skipped'] += 1
                     self.stats['errors']['conversion'].append(str(source_path))
-    
+
+    def process_visual_extractions(self, extract_paths: List[Path], class_dir: Path) -> None:
+        """
+        For videos and animated GIFs, extract one random frame as JPEG into ``CONVERTED``
+        and duplicate into ``VISUAL_MEDIA_REVIEW_SUBDIR`` for review.
+        """
+        if not extract_paths:
+            return
+        output_dir = class_dir / CONVERTED_MEDIA_SUBDIR
+        review_dir = class_dir / VISUAL_MEDIA_REVIEW_SUBDIR
+        output_dir.mkdir(parents=True, exist_ok=True)
+        review_dir.mkdir(parents=True, exist_ok=True)
+        logger.info(
+            f"Extracting random frames for {len(extract_paths)} visual media file(s) "
+            f"into {CONVERTED_MEDIA_SUBDIR}/ and {VISUAL_MEDIA_REVIEW_SUBDIR}/"
+        )
+
+        for i, source_path in enumerate(extract_paths, 1):
+            if i % 50 == 0:
+                check_cancel_event(getattr(self, "_cancel_event", None))
+                logger.info(f"Visual extraction progress: {i}/{len(extract_paths)} for {class_dir.name}")
+
+            target_filename = f"{source_path.stem}.jpg"
+            target_path = output_dir / target_filename
+            counter = 1
+            original_target = target_path
+            while target_path.exists():
+                target_path = output_dir / f"{original_target.stem}_{counter}.jpg"
+                counter += 1
+
+            ok = False
+            if source_path.suffix.lower() in configured_video_suffixes():
+                ok = extract_random_video_frame_to_jpeg(source_path, target_path, self._rng)
+                if not ok:
+                    self.stats["errors"]["visual_video"].append(str(source_path))
+                    logger.error(
+                        f"Could not extract a frame from video (install imageio + imageio-ffmpeg?): {source_path}"
+                    )
+            elif source_path.suffix.lower() == ".gif":
+                ok = extract_random_gif_frame_to_jpeg(source_path, target_path, self._rng)
+                if not ok:
+                    self.stats["errors"]["visual_gif"].append(str(source_path))
+                    logger.error(f"Could not extract a frame from GIF: {source_path}")
+            else:
+                self.stats["errors"]["visual_unknown"].append(str(source_path))
+                continue
+
+            if ok:
+                self.stats["files_visual_extracted"] += 1
+                review_path = review_dir / target_path.name
+                r_counter = 1
+                orig_review = review_path
+                while review_path.exists():
+                    review_path = review_dir / f"{orig_review.stem}_{r_counter}.jpg"
+                    r_counter += 1
+                try:
+                    shutil.copy2(target_path, review_path)
+                except OSError as e:
+                    logger.warning(f"Could not copy review JPEG {review_path}: {e}")
+                if self.unified_snapshot:
+                    self.unified_snapshot.add_pre_conversion_image(target_path, self.raw_data_dir)
+                logger.debug(f"Visual extract: {source_path.name} -> {target_path.name}")
+            else:
+                self.stats["files_skipped"] += 1
+
     def print_summary(self) -> None:
         """Print a summary of the operation."""
         logger.info("=" * 60)
@@ -328,6 +430,8 @@ class ImageConverter:
         logger.info(f"Total files found: {self.stats['total_files_found']}")
         logger.info(f"Files converted to JPEG: {self.stats['files_converted']}")
         logger.info(f"JPEG files copied: {self.stats['files_copied']}")
+        if self.stats["files_visual_extracted"]:
+            logger.info(f"Random frames from video/GIF (JPEG): {self.stats['files_visual_extracted']}")
         logger.info(f"Files skipped (errors): {self.stats['files_skipped']}")
         
         if self.stats['errors']:
@@ -339,7 +443,11 @@ class ImageConverter:
                 if len(errors) > 5:
                     logger.info(f"    ... and {len(errors) - 5} more")
         
-        total_processed = self.stats['files_converted'] + self.stats['files_copied']
+        total_processed = (
+            self.stats["files_converted"]
+            + self.stats["files_copied"]
+            + self.stats["files_visual_extracted"]
+        )
         logger.info(f"\nTotal files processed: {total_processed}")
     
     def run(self, cancel_event: Optional[threading.Event] = None) -> bool:
@@ -404,21 +512,25 @@ class ImageConverter:
             
             # Find image files for this class (excluding post-convert output trees)
             image_files = self.find_image_files(class_dir)
-            
+            static_paths, extract_paths = self._split_static_and_extract(image_files)
+
             if not image_files:
                 logger.info(f"No image files found in {class_name}")
                 continue
-            
-            self.stats['total_files_found'] += len(image_files)
-            logger.info(f"Found {len(image_files)} image files in {class_name}")
-            
-            # Add pre-conversion images to snapshot
+
+            self.stats["total_files_found"] += len(image_files)
+            logger.info(
+                f"Found {len(image_files)} media file(s) in {class_name} "
+                f"({len(static_paths)} still image(s), {len(extract_paths)} video/animated-GIF)"
+            )
+
+            # Pre-conversion snapshot: still inputs only (video/GIF sources are hashed after frame JPEG exists)
             logger.info(f"Adding pre-conversion images to snapshot for {class_name}...")
-            for image_file in image_files:
+            for image_file in static_paths:
                 self.unified_snapshot.add_pre_conversion_image(image_file, self.raw_data_dir)
-            
-            # Process the files for this class
-            self.process_files(image_files, class_dir)
+
+            self.process_files(static_paths, class_dir)
+            self.process_visual_extractions(extract_paths, class_dir)
             all_image_files.extend(image_files)
         
         if not all_image_files:
@@ -434,8 +546,15 @@ class ImageConverter:
         self.print_summary()
         
         # Log completion
-        success = self.stats['files_converted'] + self.stats['files_copied'] > 0
-        message = f"Converted {self.stats['files_converted']} files and copied {self.stats['files_copied']} JPEG files"
+        success = (
+            self.stats["files_converted"]
+            + self.stats["files_copied"]
+            + self.stats["files_visual_extracted"]
+        ) > 0
+        message = (
+            f"Converted {self.stats['files_converted']} files, copied {self.stats['files_copied']} JPEG files, "
+            f"extracted {self.stats['files_visual_extracted']} frame(s) from video/GIF"
+        )
         log_completion_info(logger, success, message)
         
         return success

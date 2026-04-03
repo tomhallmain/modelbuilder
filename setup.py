@@ -36,6 +36,8 @@ setup(
     install_requires=[
         "Pillow>=9.0.0",
         "numpy>=1.25.2,<2.0",
+        "imageio>=2.31.0",
+        "imageio-ffmpeg>=0.4.9",
         "pyyaml>=6.0",
         "cryptography>=41.0.0",
         "keyring>=24.0.0",

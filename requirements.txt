@@ -1,6 +1,8 @@
 # Core + unified GUI (PySide6 / Qt for Python). Single install: pip install -r requirements.txt
 Pillow>=9.0.0
 numpy>=1.25.2,<2.0  # SciPy/TensorFlow stack; TensorFlow expects NumPy < 2.0
+imageio>=2.31.0
+imageio-ffmpeg>=0.4.9
 pyyaml>=6.0
 
 # Encryption (utils/encryptor.py, app_info_cache encrypted store)

@@ -18,9 +18,11 @@ SYNTHETIC_DEFAULT_CLASS_NAMES: tuple[str, ...] = ("coherent", "semi-incoherent",
 CONVERTED_MEDIA_SUBDIR = "CONVERTED"
 # Legacy name; still recognized for reads and when scanning for conversion inputs.
 LEGACY_CONVERTED_MEDIA_SUBDIR = "JPEG_IMAGES"
+# Image-classification: one JPEG per video / animated GIF for human review (mirrors CONVERTED output).
+VISUAL_MEDIA_REVIEW_SUBDIR = "visual_media_review"
 
 POST_CONVERT_SUBDIR_NAMES: frozenset[str] = frozenset(
-    {CONVERTED_MEDIA_SUBDIR, LEGACY_CONVERTED_MEDIA_SUBDIR}
+    {CONVERTED_MEDIA_SUBDIR, LEGACY_CONVERTED_MEDIA_SUBDIR, VISUAL_MEDIA_REVIEW_SUBDIR}
 )
 
 # Immediate children of ``raw_data`` that are pipeline plumbing, not label/staging buckets.

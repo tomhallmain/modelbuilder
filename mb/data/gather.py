@@ -48,7 +48,8 @@ from mb.data.class_layout import (
     layout_dict_for_discovery,
     normalize_qualifying_subdir,
 )
-from mb.data.file_types import configured_media_suffixes
+from mb.data.file_types import configured_gather_scan_suffixes
+from mb.pipeline_config import get_pipeline_config
 
 # Configure logging
 logger = setup_logging(script_name="gather")
@@ -65,10 +66,16 @@ class ImageGatherer:
         rejected_dir: Path = None,
         subdir_weights: Dict[str, float] = None,
         class_qualifying_subdir: Optional[str] = None,
+        model_type: Optional[str] = None,
     ):
         self.source_dir = Path(source_dir)
         self.valid_subdirs = set(valid_subdirs)
         self.class_qualifying_subdir = class_qualifying_subdir
+        self.model_type = (
+            model_type
+            if model_type is not None
+            else get_pipeline_config().get("model.default_type", "image_classification")
+        )
         self.target_dir = target_dir
         self.rejected_dir = Path(rejected_dir) if rejected_dir else None
         self.subdir_weights = subdir_weights or {}
@@ -105,7 +112,9 @@ class ImageGatherer:
         # Rejected directory is flat (no run-specific subdirectories)
         if self.rejected_dir:
             self.rejected_dir.mkdir(parents=True, exist_ok=True)
-        
+
+        self._gather_scan_suffixes = configured_gather_scan_suffixes(self.model_type)
+
         # Cache file for storing file hashes
         self.cache_file = self.target_dir.parent / ".gather_cache.pkl"
         self.file_cache: Dict[str, str] = {}  # {file_path: hash_string} - optimized direct storage
@@ -270,7 +279,7 @@ class ImageGatherer:
         if self.target_dir.exists():
             logger.info("Scanning target directory for already-processed images...")
             # Use extension-specific globs to avoid expensive .is_file() checks
-            for ext in configured_media_suffixes():
+            for ext in self._gather_scan_suffixes:
                 for file_path in self.target_dir.rglob(f'*{ext}'):
                     # No .is_file() check needed - rglob with pattern only returns files
                     # Try to get from cache first
@@ -294,7 +303,7 @@ class ImageGatherer:
             # Only check files directly in rejected directory, not subdirectories
             # Check extension first (cheap) before .is_file() (expensive)
             for file_path in self.rejected_dir.iterdir():
-                if file_path.suffix.lower() in configured_media_suffixes() and file_path.is_file():
+                if file_path.suffix.lower() in self._gather_scan_suffixes and file_path.is_file():
                     # Try to get from cache first
                     image_hash = self.get_cached_hash(file_path)
                     if image_hash:
@@ -323,7 +332,7 @@ class ImageGatherer:
         count = 0
         if self.target_dir.exists():
             # Use extension-specific globs to avoid expensive .is_file() checks
-            for ext in configured_media_suffixes():
+            for ext in self._gather_scan_suffixes:
                 count += len(list(self.target_dir.rglob(f'*{ext}')))
         return count
     
@@ -365,7 +374,7 @@ class ImageGatherer:
             try:
                 # Use extension-specific globs to avoid expensive .is_file() checks
                 # rglob with patterns only matches files, not directories
-                for ext in configured_media_suffixes():
+                for ext in self._gather_scan_suffixes:
                     for file_path in subdir_path.rglob(f'*{ext}'):
                         # No .is_file() check needed - rglob with pattern only returns files
                         files_checked += 1
@@ -793,7 +802,7 @@ class ImageGatherer:
         logger.info(f"Scanning for duplicates in: {directory}")
         
         # Use extension-specific globs to avoid expensive .is_file() checks
-        for ext in configured_media_suffixes():
+        for ext in self._gather_scan_suffixes:
             for file_path in directory.rglob(f'*{ext}'):
                 # No .is_file() check needed - rglob with pattern only returns files
                 image_hash = self.calculate_image_hash_pil(file_path)
@@ -830,7 +839,7 @@ class ImageGatherer:
             logger.info(f"Scanning for duplicates in: {directory}")
             
             # Use extension-specific globs to avoid expensive .is_file() checks
-            for ext in configured_media_suffixes():
+            for ext in self._gather_scan_suffixes:
                 for file_path in directory.rglob(f'*{ext}'):
                     # No .is_file() check needed - rglob with pattern only returns files
                     image_hash = self.calculate_image_hash_pil(file_path)
