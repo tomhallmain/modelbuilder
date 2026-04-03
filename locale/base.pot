@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: APPLICATION 1.0\n"
 "Report-Msgid-Bugs-To: Thomas Hall <tomhall.main@gmail.com>\n"
-"POT-Creation-Date: 2026-04-03 15:39-0400\n"
-"PO-Revision-Date: 2026-04-03 15:39-0400\n"
+"POT-Creation-Date: 2026-04-03 16:39-0400\n"
+"PO-Revision-Date: 2026-04-03 16:39-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -102,7 +102,7 @@ msgid ""
 "to prevent memory issues."
 msgstr ""
 
-#: mb/cli.py:173 mb/cli.py:226 mb/cli.py:252
+#: mb/cli.py:173 mb/cli.py:234 mb/cli.py:260 mb/cli.py:334
 msgid "Raw data directory (default: raw_data)"
 msgstr ""
 
@@ -119,328 +119,362 @@ msgid ""
 msgstr ""
 
 #: mb/cli.py:197
+msgid ""
+"Allow convert to run even if the raw-data drive appears to have insufficient free space (heuristic estimate; not "
+"recommended)."
+msgstr ""
+
+#: mb/cli.py:205
 msgid "Remove duplicate images"
 msgstr ""
 
-#: mb/cli.py:199
+#: mb/cli.py:207
 msgid ""
 "Remove duplicate images within and across class directories. Uses perceptual hashing to identify duplicates and moves"
 " them to a review directory."
 msgstr ""
 
-#: mb/cli.py:208
+#: mb/cli.py:216
 msgid ""
 "Root raw data directory containing class subdirectories (default: raw_data). Typical layouts include multiple class "
 "folders under this root."
 msgstr ""
 
-#: mb/cli.py:216
+#: mb/cli.py:224
 msgid "Upscale small images"
 msgstr ""
 
-#: mb/cli.py:218
+#: mb/cli.py:226
 msgid ""
 "Upscale images that are smaller than a minimum dimension threshold. Small images are moved to a review directory for "
 "manual inspection before upscaling."
 msgstr ""
 
-#: mb/cli.py:232
+#: mb/cli.py:240
 msgid ""
 "Review directory containing small images to upscale (default: <raw-data-dir>/small_images_review). Upscaled outputs "
 "go under <review-dir>/upscaled_small_images."
 msgstr ""
 
-#: mb/cli.py:241
+#: mb/cli.py:249
 msgid "Create train/test dataset splits"
 msgstr ""
 
-#: mb/cli.py:243
+#: mb/cli.py:251
 msgid ""
 "Create training and test dataset splits from raw data. Validates images, removes corrupted files, filters by size, "
 "and creates balanced train/test splits with hash-based filenames."
 msgstr ""
 
-#: mb/cli.py:258
+#: mb/cli.py:266
 msgid "Output data directory (default: data)"
 msgstr ""
 
-#: mb/cli.py:265
+#: mb/cli.py:273
 msgid "Number of items per class in the test split (default: 1000). For image classification this is test images per class."
 msgstr ""
 
-#: mb/cli.py:272
+#: mb/cli.py:280
 msgid "Random seed for reproducibility"
 msgstr ""
 
-#: mb/cli.py:277 mb/cli.py:381
+#: mb/cli.py:285 mb/cli.py:424
 msgid "Run ID of unified snapshot to update (auto-detects latest if not provided)"
 msgstr ""
 
-#: mb/cli.py:283
+#: mb/cli.py:291
 msgid "Balance the training set to the smallest class size (default: off, keeps natural proportions)."
 msgstr ""
 
-#: mb/cli.py:290
+#: mb/cli.py:298
 msgid "Maximum training items per class (no limit if omitted; keeps natural proportions below the cap)."
 msgstr ""
 
-#: mb/cli.py:296
+#: mb/cli.py:304
 msgid "Allow running on external/removable storage (not recommended)"
 msgstr ""
 
-#: mb/cli.py:302
+#: mb/cli.py:310
+msgid ""
+"Allow create-dataset even if the output data drive appears to have insufficient free space (heuristic estimate; not "
+"recommended)."
+msgstr ""
+
+#: mb/cli.py:318
+msgid "Estimate disk space needed for convert or create-dataset"
+msgstr ""
+
+#: mb/cli.py:320
+msgid ""
+"Walks source files (same rules as convert/dataset) and compares a rough byte estimate to free space on the target "
+"volume. Exits non-zero if the estimate exceeds free space."
+msgstr ""
+
+#: mb/cli.py:328
+msgid "Which step to estimate for"
+msgstr ""
+
+#: mb/cli.py:339
+msgid "Output data directory (required when operation is create-dataset)"
+msgstr ""
+
+#: mb/cli.py:345
 msgid "Train a model"
 msgstr ""
 
-#: mb/cli.py:304
+#: mb/cli.py:347
 msgid ""
 "Train a machine learning model using the specified framework and architecture. Supports transfer learning with "
 "frozen/unfrozen training phases."
 msgstr ""
 
-#: mb/cli.py:312
+#: mb/cli.py:355
 msgid "Model type (default: image_classification)"
 msgstr ""
 
-#: mb/cli.py:317
+#: mb/cli.py:360
 msgid "Framework to use (default: from config)"
 msgstr ""
 
-#: mb/cli.py:321
+#: mb/cli.py:364
 msgid "Model architecture (e.g., resnet34)"
 msgstr ""
 
-#: mb/cli.py:326
+#: mb/cli.py:369
 msgid "Data directory (default: from config)"
 msgstr ""
 
-#: mb/cli.py:331
+#: mb/cli.py:374
 msgid "Output directory for models (default: from config)"
 msgstr ""
 
-#: mb/cli.py:336
+#: mb/cli.py:379
 msgid "Number of frozen training epochs (default: from config)"
 msgstr ""
 
-#: mb/cli.py:341
+#: mb/cli.py:384
 msgid "Number of unfrozen training epochs (default: from config)"
 msgstr ""
 
-#: mb/cli.py:346
+#: mb/cli.py:389
 msgid "Learning rate for frozen phase (default: from config)"
 msgstr ""
 
-#: mb/cli.py:351
+#: mb/cli.py:394
 msgid "Maximum learning rate for unfrozen phase (default: from config)"
 msgstr ""
 
-#: mb/cli.py:356
+#: mb/cli.py:399
 msgid "Minimum learning rate for unfrozen phase (default: from config)"
 msgstr ""
 
-#: mb/cli.py:361
+#: mb/cli.py:404
 msgid "Batch size (default: from config or auto-detect)"
 msgstr ""
 
-#: mb/cli.py:366
+#: mb/cli.py:409
 msgid "Image size (default: 224)"
 msgstr ""
 
-#: mb/cli.py:371
+#: mb/cli.py:414
 msgid "Number of data loading workers (default: from config)"
 msgstr ""
 
-#: mb/cli.py:376
+#: mb/cli.py:419
 msgid "Path to checkpoint to resume training from"
 msgstr ""
 
-#: mb/cli.py:386
+#: mb/cli.py:429
 msgid "Skip updating the unified snapshot with training data"
 msgstr ""
 
-#: mb/cli.py:393
+#: mb/cli.py:436
 msgid "Load TrainingRunArgs from JSON (see mb.training.run_args); other train flags are ignored"
 msgstr ""
 
-#: mb/cli.py:400
+#: mb/cli.py:443
 msgid "Convert model between formats"
 msgstr ""
 
-#: mb/cli.py:402
+#: mb/cli.py:445
 msgid ""
 "Convert a trained model between different formats. Supports PyTorch -> ONNX, PyTorch -> SafeTensors, and Keras -> "
 "ONNX."
 msgstr ""
 
-#: mb/cli.py:410
+#: mb/cli.py:453
 msgid "Input model file"
 msgstr ""
 
-#: mb/cli.py:416
+#: mb/cli.py:459
 msgid "Output model file"
 msgstr ""
 
-#: mb/cli.py:421
+#: mb/cli.py:464
 msgid "Source framework (auto-detected if not specified)"
 msgstr ""
 
-#: mb/cli.py:427
+#: mb/cli.py:470
 msgid "Target format (onnx or safetensors)"
 msgstr ""
 
-#: mb/cli.py:431
+#: mb/cli.py:474
 msgid "Model architecture (required for PyTorch -> ONNX conversion, e.g., 'resnet34')"
 msgstr ""
 
-#: mb/cli.py:436
+#: mb/cli.py:479
 msgid "Number of output classes (required for PyTorch -> ONNX conversion)"
 msgstr ""
 
-#: mb/cli.py:442
+#: mb/cli.py:485
 msgid "Input image size (default: 224, used for ONNX conversion)"
 msgstr ""
 
-#: mb/cli.py:448
+#: mb/cli.py:491
 msgid "Show information about models or datasets"
 msgstr ""
 
-#: mb/cli.py:450
+#: mb/cli.py:493
 msgid ""
 "Display information about trained models or datasets, including metadata, architecture details, and dataset "
 "statistics."
 msgstr ""
 
-#: mb/cli.py:456
+#: mb/cli.py:499
 msgid "Info subcommands"
 msgstr ""
 
-#: mb/cli.py:463
+#: mb/cli.py:506
 msgid "Show model information"
 msgstr ""
 
-#: mb/cli.py:465
+#: mb/cli.py:508
 msgid ""
 "Display detailed information about a trained model, including architecture, framework, number of parameters, and "
 "training metadata."
 msgstr ""
 
-#: mb/cli.py:473
+#: mb/cli.py:516
 msgid "Path to model file"
 msgstr ""
 
-#: mb/cli.py:479
+#: mb/cli.py:522
 msgid "Show dataset information"
 msgstr ""
 
-#: mb/cli.py:481
+#: mb/cli.py:524
 msgid "Display statistics about a dataset, including class distributions, image counts, and data directory structure."
 msgstr ""
 
-#: mb/cli.py:489
+#: mb/cli.py:532
 msgid "Path to data directory"
 msgstr ""
 
-#: mb/cli.py:501
+#: mb/cli.py:544
 msgid "Please specify valid subdirectories using --subdirs argument"
 msgstr ""
 
-#: mb/cli.py:510
+#: mb/cli.py:553
 msgid "Invalid weight format: {pair}. Expected format: subdir:weight"
 msgstr ""
 
-#: mb/cli.py:520
+#: mb/cli.py:563
 msgid "Weight must be non-negative: {subdir}={weight}"
 msgstr ""
 
-#: mb/cli.py:531
+#: mb/cli.py:574
 msgid "Subdirectories in weights not found in --subdirs: {weights}"
 msgstr ""
 
-#: mb/cli.py:619
+#: mb/cli.py:662
 msgid "Process terminated due to external storage detection."
 msgstr ""
 
-#: mb/cli.py:662
+#: mb/cli.py:706
+msgid "--data-dir is required when operation is create-dataset"
+msgstr ""
+
+#: mb/cli.py:732
 msgid "Unsupported framework in JSON: {fw}"
 msgstr ""
 
-#: mb/cli.py:666
+#: mb/cli.py:736
 msgid "Unsupported model type from config: {t}"
 msgstr ""
 
-#: mb/cli.py:671 mb/cli.py:715
+#: mb/cli.py:741 mb/cli.py:785
 msgid "Data directory does not exist: {path}"
 msgstr ""
 
-#: mb/cli.py:683 mb/cli.py:752
+#: mb/cli.py:753 mb/cli.py:822
 msgid "Architecture '{arch}' not supported for framework '{fw}'"
 msgstr ""
 
-#: mb/cli.py:692 mb/cli.py:774
+#: mb/cli.py:762 mb/cli.py:844
 msgid "Training completed successfully. Model saved to: {path}"
 msgstr ""
 
-#: mb/cli.py:699
+#: mb/cli.py:769
 msgid "Unsupported framework: {fw}"
 msgstr ""
 
-#: mb/cli.py:705
+#: mb/cli.py:775
 msgid "Unsupported model type: {t}"
 msgstr ""
 
-#: mb/cli.py:779
+#: mb/cli.py:849
 msgid "Training failed: {err}"
 msgstr ""
 
-#: mb/cli.py:790
+#: mb/cli.py:860
 msgid "Input model file not found: {path}"
 msgstr ""
 
-#: mb/cli.py:799
+#: mb/cli.py:869
 msgid "Could not detect source framework. Please specify --framework"
 msgstr ""
 
-#: mb/cli.py:805
+#: mb/cli.py:875
 msgid "PyTorch -> ONNX conversion requires --architecture and --num-classes"
 msgstr ""
 
-#: mb/cli.py:824
+#: mb/cli.py:894
 msgid "Conversion completed successfully: {path}"
 msgstr ""
 
-#: mb/cli.py:828 ui/pages/convert_page.py:329
+#: mb/cli.py:898 ui/pages/convert_page.py:330
 msgid "Conversion failed"
 msgstr ""
 
-#: mb/cli.py:832
+#: mb/cli.py:902
 msgid "Conversion error: {err}"
 msgstr ""
 
-#: mb/cli.py:841 ui/pages/info_page.py:186
+#: mb/cli.py:911 ui/pages/info_page.py:184
 msgid "Model path not found: {path}"
 msgstr ""
 
-#: mb/cli.py:855 ui/pages/info_page.py:200
+#: mb/cli.py:925 ui/pages/info_page.py:198
 msgid "Data directory not found: {path}"
 msgstr ""
 
-#: mb/cli.py:899
+#: mb/cli.py:971
 msgid "No data subcommand specified"
 msgstr ""
 
-#: mb/cli.py:914
+#: mb/cli.py:986
 msgid "No info subcommand specified"
 msgstr ""
 
-#: mb/cli.py:918 ui/pages/data_page.py:581 ui/pages/data_page.py:685
+#: mb/cli.py:990 ui/pages/data_page.py:612 ui/pages/data_page.py:769
 msgid "Unknown command: {cmd}"
 msgstr ""
 
-#: mb/cli.py:922
+#: mb/cli.py:994
 msgid "Interrupted by user"
 msgstr ""
 
-#: mb/cli.py:925
+#: mb/cli.py:997
 msgid "Error: {err}"
 msgstr ""
 
@@ -460,7 +494,7 @@ msgstr ""
 msgid "Detected framework/type: {fw}"
 msgstr ""
 
-#: mb/info_inspect.py:45 ui/pages/convert_page.py:261
+#: mb/info_inspect.py:45 ui/pages/convert_page.py:262
 msgid "unknown"
 msgstr ""
 
@@ -488,47 +522,47 @@ msgstr ""
 msgid "  total: {n}"
 msgstr ""
 
-#: mb/data/dataset.py:601
+#: mb/data/dataset.py:624
 msgid "Source and target directories are on the same drive."
 msgstr ""
 
-#: mb/data/dataset.py:603
+#: mb/data/dataset.py:626
 msgid "The script will use copy operations (not move) to preserve source files."
 msgstr ""
 
-#: mb/data/dataset.py:622
+#: mb/data/dataset.py:645
 msgid "Source drive {drive} is the system drive. Proceeding without confirmation."
 msgstr ""
 
-#: mb/data/dataset.py:632
+#: mb/data/dataset.py:655
 msgid "NOTE: Source drive {src} is different from system drive {sys}."
 msgstr ""
 
-#: mb/data/dataset.py:638
+#: mb/data/dataset.py:661
 msgid "This may indicate an external drive that failed detection. Consider whether to proceed."
 msgstr ""
 
-#: mb/data/dataset.py:644
+#: mb/data/dataset.py:667
 msgid "NOTE: Unable to determine system drive. If this is not your main system drive,"
 msgstr ""
 
-#: mb/data/dataset.py:649
+#: mb/data/dataset.py:672
 msgid "it may indicate an external drive that failed detection. Consider whether to proceed."
 msgstr ""
 
-#: mb/data/dataset.py:654
+#: mb/data/dataset.py:677
 msgid "NOTE: If this is not your main system drive, it may indicate an external drive"
 msgstr ""
 
-#: mb/data/dataset.py:656
+#: mb/data/dataset.py:679
 msgid "that failed detection. Consider whether to proceed."
 msgstr ""
 
-#: mb/data/dataset.py:658
+#: mb/data/dataset.py:681
 msgid "Continue with same-drive operation? (y/N): "
 msgstr ""
 
-#: mb/data/dataset.py:660
+#: mb/data/dataset.py:683
 msgid "Operation cancelled by user."
 msgstr ""
 
@@ -559,83 +593,83 @@ msgstr ""
 msgid "fail"
 msgstr ""
 
-#: ui/app.py:28 ui/main_window.py:72 ui/main_window.py:108
+#: ui/app.py:28 ui/main_window.py:81 ui/main_window.py:117
 msgid "Model Builder"
 msgstr ""
 
-#: ui/main_window.py:253
+#: ui/main_window.py:262
 msgid "File"
 msgstr ""
 
-#: ui/main_window.py:254
+#: ui/main_window.py:263
 msgid "Set workspace folder…"
 msgstr ""
 
-#: ui/main_window.py:257
+#: ui/main_window.py:266
 msgid "Set config file…"
 msgstr ""
 
-#: ui/main_window.py:260
+#: ui/main_window.py:269
 msgid "Open application settings (YAML)…"
 msgstr ""
 
-#: ui/main_window.py:264
+#: ui/main_window.py:273
 msgid ""
 "Desktop shell options (toasts, cache interval, …); see mb/config/application.example.yaml. Reload the app or use Set "
 "config file for pipeline YAML."
 msgstr ""
 
-#: ui/main_window.py:270
+#: ui/main_window.py:279
 msgid "Exit"
 msgstr ""
 
-#: ui/main_window.py:275
+#: ui/main_window.py:284
 msgid "Help"
 msgstr ""
 
-#: ui/main_window.py:276 ui/main_window.py:346
+#: ui/main_window.py:285 ui/main_window.py:353
 msgid "About Model Builder"
 msgstr ""
 
-#: ui/main_window.py:288
+#: ui/main_window.py:297
 msgid " | Config: {path}"
 msgstr ""
 
-#: ui/main_window.py:292
+#: ui/main_window.py:301
 msgid "Workspace: {root}{cfg}"
 msgstr ""
 
-#: ui/main_window.py:293
+#: ui/main_window.py:302
 msgid "No workspace folder set — use File → Set workspace folder"
 msgstr ""
 
-#: ui/main_window.py:304
+#: ui/main_window.py:313
 msgid "Application settings"
 msgstr ""
 
-#: ui/main_window.py:305
+#: ui/main_window.py:314
 msgid ""
 "File not found:\n"
 "{path}"
 msgstr ""
 
-#: ui/main_window.py:314
+#: ui/main_window.py:323
 msgid "Workspace root folder"
 msgstr ""
 
-#: ui/main_window.py:331
+#: ui/main_window.py:339
 msgid "Optional YAML config"
 msgstr ""
 
-#: ui/main_window.py:333
+#: ui/main_window.py:341
 msgid "YAML (*.yaml *.yml);;All files (*.*)"
 msgstr ""
 
-#: ui/main_window.py:358
+#: ui/main_window.py:365
 msgid "Background task"
 msgstr ""
 
-#: ui/main_window.py:360
+#: ui/main_window.py:367
 msgid ""
 "A background task is still running. Closing now may leave partial outputs (checkpoints, datasets, copies). Exit "
 "anyway?"
@@ -645,7 +679,8 @@ msgstr ""
 msgid "Error"
 msgstr ""
 
-#: ui/lib/custom_dialogs_qt.py:120 ui/lib/fast_directory_picker_qt.py:345 ui/lib/qt_alert.py:28 ui/lib/task_progress.py:38
+#: ui/lib/custom_dialogs_qt.py:120 ui/lib/fast_directory_picker_qt.py:411 ui/lib/fast_directory_picker_qt.py:673
+#: ui/lib/fast_directory_picker_qt.py:994 ui/lib/qt_alert.py:28 ui/lib/task_progress.py:38
 msgid "Cancel"
 msgstr ""
 
@@ -653,99 +688,152 @@ msgstr ""
 msgid "OK"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:151 ui/lib/fast_directory_picker_qt.py:212
+#: ui/lib/fast_directory_picker_qt.py:217 ui/lib/fast_directory_picker_qt.py:278
 msgid "Home"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:161
+#: ui/lib/fast_directory_picker_qt.py:227
 msgid "Removable"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:162
+#: ui/lib/fast_directory_picker_qt.py:228
 msgid "Local"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:163
+#: ui/lib/fast_directory_picker_qt.py:229
 msgid "Network"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:164
+#: ui/lib/fast_directory_picker_qt.py:230
 msgid "CD/DVD"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:165
+#: ui/lib/fast_directory_picker_qt.py:231
 msgid "RAM Disk"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:177
+#: ui/lib/fast_directory_picker_qt.py:243
 msgid "Unknown"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:269 ui/lib/fast_directory_picker_qt.py:554
+#: ui/lib/fast_directory_picker_qt.py:335 ui/lib/fast_directory_picker_qt.py:1236
 msgid "Select Directory"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:292
+#: ui/lib/fast_directory_picker_qt.py:358 ui/lib/fast_directory_picker_qt.py:615 ui/lib/fast_directory_picker_qt.py:928
 msgid "Locations"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:297
+#: ui/lib/fast_directory_picker_qt.py:363 ui/lib/fast_directory_picker_qt.py:620 ui/lib/fast_directory_picker_qt.py:933
 msgid "Refresh locations"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:310
+#: ui/lib/fast_directory_picker_qt.py:376 ui/lib/fast_directory_picker_qt.py:946
 msgid "Type or paste a directory path"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:314
+#: ui/lib/fast_directory_picker_qt.py:380 ui/lib/fast_directory_picker_qt.py:637 ui/lib/fast_directory_picker_qt.py:950
 msgid "Go"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:318
+#: ui/lib/fast_directory_picker_qt.py:384 ui/lib/fast_directory_picker_qt.py:641 ui/lib/fast_directory_picker_qt.py:954
 msgid "Up"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:322
+#: ui/lib/fast_directory_picker_qt.py:388 ui/lib/fast_directory_picker_qt.py:645 ui/lib/fast_directory_picker_qt.py:958
 msgid "New Folder"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:326
+#: ui/lib/fast_directory_picker_qt.py:392 ui/lib/fast_directory_picker_qt.py:649 ui/lib/fast_directory_picker_qt.py:962
 msgid "Refresh"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:330
+#: ui/lib/fast_directory_picker_qt.py:396 ui/lib/fast_directory_picker_qt.py:653 ui/lib/fast_directory_picker_qt.py:966
 msgid "Folders"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:349
+#: ui/lib/fast_directory_picker_qt.py:415
 msgid "Select"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:414
+#: ui/lib/fast_directory_picker_qt.py:480 ui/lib/fast_directory_picker_qt.py:750 ui/lib/fast_directory_picker_qt.py:1072
 msgid "Create New Folder"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:415
+#: ui/lib/fast_directory_picker_qt.py:481 ui/lib/fast_directory_picker_qt.py:751 ui/lib/fast_directory_picker_qt.py:1073
 msgid "Folder name:"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:421
+#: ui/lib/fast_directory_picker_qt.py:487 ui/lib/fast_directory_picker_qt.py:757 ui/lib/fast_directory_picker_qt.py:1079
 msgid "Folder name cannot be empty."
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:433
+#: ui/lib/fast_directory_picker_qt.py:499 ui/lib/fast_directory_picker_qt.py:767 ui/lib/fast_directory_picker_qt.py:1089
 msgid "A folder with that name already exists."
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:438
+#: ui/lib/fast_directory_picker_qt.py:504 ui/lib/fast_directory_picker_qt.py:771 ui/lib/fast_directory_picker_qt.py:1093
 msgid "Failed to create folder (check permissions/path)."
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:487
+#: ui/lib/fast_directory_picker_qt.py:553 ui/lib/fast_directory_picker_qt.py:848 ui/lib/fast_directory_picker_qt.py:1155
 msgid "No folders found (or folder is not currently accessible)."
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:547
+#: ui/lib/fast_directory_picker_qt.py:590 ui/lib/fast_directory_picker_qt.py:1284
+msgid "Open File"
+msgstr ""
+
+#: ui/lib/fast_directory_picker_qt.py:633
+msgid "Type or paste a directory or file path"
+msgstr ""
+
+#: ui/lib/fast_directory_picker_qt.py:658
+msgid "Files"
+msgstr ""
+
+#: ui/lib/fast_directory_picker_qt.py:677
+msgid "Open"
+msgstr ""
+
+#: ui/lib/fast_directory_picker_qt.py:802 ui/lib/fast_directory_picker_qt.py:1123
+msgid "Path not found or not accessible."
+msgstr ""
+
+#: ui/lib/fast_directory_picker_qt.py:887
+msgid "Select a file or navigate into a folder."
+msgstr ""
+
+#: ui/lib/fast_directory_picker_qt.py:904 ui/lib/fast_directory_picker_qt.py:1334
+msgid "Save File"
+msgstr ""
+
+#: ui/lib/fast_directory_picker_qt.py:971
+msgid "Files (optional — double-click to fill name)"
+msgstr ""
+
+#: ui/lib/fast_directory_picker_qt.py:978
+msgid "File name"
+msgstr ""
+
+#: ui/lib/fast_directory_picker_qt.py:980
+msgid "output.onnx"
+msgstr ""
+
+#: ui/lib/fast_directory_picker_qt.py:998 ui/pages/config_page.py:82 ui/pages/config_page.py:160
+#: ui/pages/pipeline_config_page.py:213
+msgid "Save"
+msgstr ""
+
+#: ui/lib/fast_directory_picker_qt.py:1173
+msgid "Enter a file name."
+msgstr ""
+
+#: ui/lib/fast_directory_picker_qt.py:1177
+msgid "Use a simple file name (no path separators)."
+msgstr ""
+
+#: ui/lib/fast_directory_picker_qt.py:1195
 msgid "Current Base Directory"
 msgstr ""
 
@@ -769,21 +857,16 @@ msgstr ""
 msgid "Starting…"
 msgstr ""
 
-#: ui/pages/config_page.py:80 ui/pages/config_page.py:159
+#: ui/pages/config_page.py:80 ui/pages/config_page.py:159 ui/pages/pipeline_config_page.py:211
 msgid "Reload from disk"
-msgstr ""
-
-#: ui/pages/config_page.py:82 ui/pages/config_page.py:160
-msgid "Save"
 msgstr ""
 
 #: ui/pages/config_page.py:85 ui/pages/config_page.py:161
 msgid "Set Default…"
 msgstr ""
 
-#: ui/pages/config_page.py:115 ui/pages/config_page.py:378 ui/pages/config_page.py:390 ui/pages/config_page.py:401
-#: ui/pages/config_page.py:413 ui/pages/config_page.py:425
-msgid "Config"
+#: ui/pages/config_page.py:115
+msgid "App"
 msgstr ""
 
 #: ui/pages/config_page.py:118
@@ -894,11 +977,16 @@ msgstr ""
 msgid "Reading: (built-in defaults — no file on disk)"
 msgstr ""
 
+#: ui/pages/config_page.py:378 ui/pages/config_page.py:390 ui/pages/config_page.py:401 ui/pages/config_page.py:413
+#: ui/pages/config_page.py:425
+msgid "Config"
+msgstr ""
+
 #: ui/pages/config_page.py:379
 msgid "Default main window size must look like WIDTHxHEIGHT (e.g. 1200x960)."
 msgstr ""
 
-#: ui/pages/config_page.py:390
+#: ui/pages/config_page.py:390 ui/pages/pipeline_config_page.py:570
 msgid ""
 "Could not write:\n"
 "{path}\n"
@@ -906,13 +994,13 @@ msgid ""
 "{err}"
 msgstr ""
 
-#: ui/pages/config_page.py:401
+#: ui/pages/config_page.py:401 ui/pages/pipeline_config_page.py:578
 msgid ""
 "Saved to:\n"
 "{path}"
 msgstr ""
 
-#: ui/pages/config_page.py:414
+#: ui/pages/config_page.py:414 ui/pages/pipeline_config_page.py:591
 msgid ""
 "Could not write defaults to:\n"
 "{path}\n"
@@ -926,374 +1014,401 @@ msgid ""
 "{path}"
 msgstr ""
 
-#: ui/pages/convert_page.py:59 ui/pages/convert_page.py:112
+#: ui/pages/convert_page.py:63 ui/pages/convert_page.py:116
 msgid "Required only for PyTorch -> ONNX"
 msgstr ""
 
-#: ui/pages/convert_page.py:64 ui/pages/convert_page.py:103
+#: ui/pages/convert_page.py:68 ui/pages/convert_page.py:107
 msgid "Input model"
 msgstr ""
 
-#: ui/pages/convert_page.py:65 ui/pages/convert_page.py:104
+#: ui/pages/convert_page.py:69 ui/pages/convert_page.py:108
 msgid "Output model"
 msgstr ""
 
-#: ui/pages/convert_page.py:66 ui/pages/convert_page.py:105
+#: ui/pages/convert_page.py:70 ui/pages/convert_page.py:109
 msgid "Source framework"
 msgstr ""
 
-#: ui/pages/convert_page.py:67 ui/pages/convert_page.py:106
+#: ui/pages/convert_page.py:71 ui/pages/convert_page.py:110
 msgid "Target format"
 msgstr ""
 
-#: ui/pages/convert_page.py:68 ui/pages/convert_page.py:107 ui/pages/train_page.py:79 ui/pages/train_page.py:161
+#: ui/pages/convert_page.py:72 ui/pages/convert_page.py:111 ui/pages/train_page.py:79 ui/pages/train_page.py:161
 msgid "Architecture"
 msgstr ""
 
-#: ui/pages/convert_page.py:69 ui/pages/convert_page.py:108
+#: ui/pages/convert_page.py:73 ui/pages/convert_page.py:112
 msgid "Num classes"
 msgstr ""
 
-#: ui/pages/convert_page.py:70 ui/pages/convert_page.py:109 ui/pages/train_page.py:120 ui/pages/train_page.py:184
+#: ui/pages/convert_page.py:74 ui/pages/convert_page.py:113 ui/pages/train_page.py:120 ui/pages/train_page.py:184
 msgid "Image size"
 msgstr ""
 
-#: ui/pages/convert_page.py:78 ui/pages/convert_page.py:114
+#: ui/pages/convert_page.py:82 ui/pages/convert_page.py:118
 msgid "Validate Conversion"
 msgstr ""
 
-#: ui/pages/convert_page.py:79 ui/pages/convert_page.py:115
+#: ui/pages/convert_page.py:83 ui/pages/convert_page.py:119
 msgid "Run Conversion"
 msgstr ""
 
-#: ui/pages/convert_page.py:88 ui/pages/convert_page.py:117
+#: ui/pages/convert_page.py:92 ui/pages/convert_page.py:121
 msgid "Conversion validation and execution messages will appear here."
 msgstr ""
 
-#: ui/pages/convert_page.py:99
+#: ui/pages/convert_page.py:103
 msgid "Prepare conversion jobs for ONNX and SafeTensors targets."
 msgstr ""
 
-#: ui/pages/convert_page.py:113
+#: ui/pages/convert_page.py:117
 msgid "Note: architecture/num_classes are needed for PyTorch -> ONNX."
 msgstr ""
 
-#: ui/pages/convert_page.py:124 ui/pages/convert_page.py:172 ui/pages/data_page.py:167 ui/pages/data_page.py:458
+#: ui/pages/convert_page.py:128 ui/pages/convert_page.py:176 ui/pages/data_page.py:186 ui/pages/data_page.py:489
 #: ui/pages/info_page.py:67 ui/pages/info_page.py:141 ui/pages/train_page.py:204 ui/pages/train_page.py:287
 msgid "Browse..."
 msgstr ""
 
-#: ui/pages/convert_page.py:183 ui/pages/data_page.py:469 ui/pages/info_page.py:152 ui/pages/train_page.py:316
+#: ui/pages/convert_page.py:187 ui/pages/data_page.py:500 ui/pages/info_page.py:152 ui/pages/train_page.py:315
 msgid "Select directory"
 msgstr ""
 
-#: ui/pages/convert_page.py:192
+#: ui/pages/convert_page.py:195
 msgid "Select output file"
 msgstr ""
 
-#: ui/pages/convert_page.py:194
+#: ui/pages/convert_page.py:197
 msgid "Model files (*.onnx *.safetensors);;All files (*.*)"
 msgstr ""
 
-#: ui/pages/convert_page.py:202 ui/pages/info_page.py:161
+#: ui/pages/convert_page.py:204 ui/pages/info_page.py:160
 msgid "Select model file"
 msgstr ""
 
-#: ui/pages/convert_page.py:204 ui/pages/info_page.py:163
+#: ui/pages/convert_page.py:206 ui/pages/info_page.py:162
 msgid "Model files (*.pth *.pt *.h5 *.keras *.onnx *.safetensors);;All files (*.*)"
 msgstr ""
 
-#: ui/pages/convert_page.py:222
+#: ui/pages/convert_page.py:223
 msgid "Input model file does not exist."
 msgstr ""
 
-#: ui/pages/convert_page.py:224
+#: ui/pages/convert_page.py:225
 msgid "Output model parent directory does not exist."
 msgstr ""
 
-#: ui/pages/convert_page.py:235
+#: ui/pages/convert_page.py:236
 msgid "PyTorch -> ONNX requires architecture and num classes."
 msgstr ""
 
-#: ui/pages/convert_page.py:260
+#: ui/pages/convert_page.py:261
 msgid "[ok] conversion inputs valid (source={src})"
 msgstr ""
 
-#: ui/pages/convert_page.py:267 ui/pages/train_page.py:410
+#: ui/pages/convert_page.py:268 ui/pages/train_page.py:408
 msgid "[invalid] {err}"
 msgstr ""
 
-#: ui/pages/convert_page.py:285
+#: ui/pages/convert_page.py:286
 msgid "Convert model"
 msgstr ""
 
-#: ui/pages/convert_page.py:302
+#: ui/pages/convert_page.py:303
 msgid "[stopped] Conversion cancelled before completion."
 msgstr ""
 
-#: ui/pages/convert_page.py:313
+#: ui/pages/convert_page.py:314
 msgid "[done] Conversion succeeded."
 msgstr ""
 
-#: ui/pages/convert_page.py:316
+#: ui/pages/convert_page.py:317
 msgid "[failed] Conversion failed."
 msgstr ""
 
-#: ui/pages/convert_page.py:320 ui/pages/train_page.py:450 ui/pages/train_page.py:535
+#: ui/pages/convert_page.py:321 ui/pages/train_page.py:448 ui/pages/train_page.py:533
 msgid "[error] {err}"
 msgstr ""
 
-#: ui/pages/convert_page.py:330
+#: ui/pages/convert_page.py:331
 msgid "Model conversion reported an error. See Details for the underlying message."
 msgstr ""
 
-#: ui/pages/data_page.py:98
+#: ui/pages/data_page.py:106
 msgid ""
 "Typical order: Gather → Convert → Deduplicate (optional) → Upscale (optional) → Create Dataset. If class folders are "
 "already under your raw data root, skip Gather and start at Convert. See docs/DATA_PIPELINE.md for storage on external"
 " drives and large vs small images."
 msgstr ""
 
-#: ui/pages/data_page.py:103
+#: ui/pages/data_page.py:111
 msgid "Gather"
 msgstr ""
 
-#: ui/pages/data_page.py:104
+#: ui/pages/data_page.py:112
 msgid "Convert"
 msgstr ""
 
-#: ui/pages/data_page.py:105
+#: ui/pages/data_page.py:113
 msgid "Deduplicate"
 msgstr ""
 
-#: ui/pages/data_page.py:106
+#: ui/pages/data_page.py:114
 msgid "Upscale"
 msgstr ""
 
-#: ui/pages/data_page.py:107
+#: ui/pages/data_page.py:115
 msgid "Create Dataset"
 msgstr ""
 
-#: ui/pages/data_page.py:108
+#: ui/pages/data_page.py:116
 msgid "Validate Inputs"
 msgstr ""
 
-#: ui/pages/data_page.py:109
+#: ui/pages/data_page.py:117
 msgid "Run Data Command"
 msgstr ""
 
-#: ui/pages/data_page.py:110
+#: ui/pages/data_page.py:118
 msgid "Validation and run results will appear here."
 msgstr ""
 
-#: ui/pages/data_page.py:114 ui/pages/data_page.py:284
+#: ui/pages/data_page.py:121 ui/pages/data_page.py:642 ui/pages/data_page.py:658
+msgid "Latest space check"
+msgstr ""
+
+#: ui/pages/data_page.py:126
+msgid "No space estimate yet. It appears here when you run Convert or Create Dataset (before the command starts)."
+msgstr ""
+
+#: ui/pages/data_page.py:133 ui/pages/data_page.py:307
 msgid "Source dir"
 msgstr ""
 
-#: ui/pages/data_page.py:115 ui/pages/data_page.py:285
+#: ui/pages/data_page.py:134 ui/pages/data_page.py:308
 msgid "Subdirs (space-separated)"
 msgstr ""
 
-#: ui/pages/data_page.py:116 ui/pages/data_page.py:286
+#: ui/pages/data_page.py:135 ui/pages/data_page.py:309
 msgid "Target count"
 msgstr ""
 
-#: ui/pages/data_page.py:117 ui/pages/data_page.py:287
+#: ui/pages/data_page.py:136 ui/pages/data_page.py:310
 msgid "Target dir"
 msgstr ""
 
-#: ui/pages/data_page.py:118 ui/pages/data_page.py:288
+#: ui/pages/data_page.py:137 ui/pages/data_page.py:311
 msgid "Rejected dir"
 msgstr ""
 
-#: ui/pages/data_page.py:119 ui/pages/data_page.py:289
+#: ui/pages/data_page.py:138 ui/pages/data_page.py:312
 msgid "Subdir weights"
 msgstr ""
 
-#: ui/pages/data_page.py:120 ui/pages/data_page.py:125 ui/pages/data_page.py:127 ui/pages/data_page.py:130
-#: ui/pages/data_page.py:135 ui/pages/data_page.py:290 ui/pages/data_page.py:304 ui/pages/data_page.py:318
-#: ui/pages/data_page.py:332 ui/pages/data_page.py:362
+#: ui/pages/data_page.py:139 ui/pages/data_page.py:144 ui/pages/data_page.py:146 ui/pages/data_page.py:149
+#: ui/pages/data_page.py:154 ui/pages/data_page.py:313 ui/pages/data_page.py:327 ui/pages/data_page.py:345
+#: ui/pages/data_page.py:359 ui/pages/data_page.py:389
 msgid "Raw data dir"
 msgstr ""
 
-#: ui/pages/data_page.py:125 ui/pages/data_page.py:305
+#: ui/pages/data_page.py:144 ui/pages/data_page.py:328
 msgid "Format (jpeg/jpg)"
 msgstr ""
 
-#: ui/pages/data_page.py:130 ui/pages/data_page.py:334
+#: ui/pages/data_page.py:149 ui/pages/data_page.py:361
 msgid "Review dir (optional)"
 msgstr ""
 
-#: ui/pages/data_page.py:136 ui/pages/data_page.py:363
+#: ui/pages/data_page.py:155 ui/pages/data_page.py:390
 msgid "Output data dir"
 msgstr ""
 
-#: ui/pages/data_page.py:137 ui/pages/data_page.py:364
+#: ui/pages/data_page.py:156 ui/pages/data_page.py:391
 msgid "Test items per class"
 msgstr ""
 
-#: ui/pages/data_page.py:138 ui/pages/data_page.py:365
+#: ui/pages/data_page.py:157 ui/pages/data_page.py:392
 msgid "Seed (optional)"
 msgstr ""
 
-#: ui/pages/data_page.py:139 ui/pages/data_page.py:366 ui/pages/train_page.py:83 ui/pages/train_page.py:165
+#: ui/pages/data_page.py:158 ui/pages/data_page.py:393 ui/pages/train_page.py:83 ui/pages/train_page.py:165
 msgid "Run ID (optional)"
 msgstr ""
 
-#: ui/pages/data_page.py:140 ui/pages/data_page.py:367
+#: ui/pages/data_page.py:159 ui/pages/data_page.py:394
 msgid "Max train per class"
 msgstr ""
 
-#: ui/pages/data_page.py:145 ui/pages/data_page.py:358
+#: ui/pages/data_page.py:164 ui/pages/data_page.py:385
 msgid "None"
 msgstr ""
 
-#: ui/pages/data_page.py:146 ui/pages/data_page.py:359
+#: ui/pages/data_page.py:165 ui/pages/data_page.py:386
 msgid "Balance train set to smallest class"
 msgstr ""
 
-#: ui/pages/data_page.py:147 ui/pages/data_page.py:360
+#: ui/pages/data_page.py:166 ui/pages/data_page.py:387
 msgid "Allow external/removable storage"
 msgstr ""
 
-#: ui/pages/data_page.py:378
+#: ui/pages/data_page.py:330
+msgid "Skip free-space check (not recommended; use if you accept the risk)"
+msgstr ""
+
+#: ui/pages/data_page.py:398
+msgid "Skip free-space check on output drive (not recommended)"
+msgstr ""
+
+#: ui/pages/data_page.py:409
 msgid ""
 "Copy samples from source subdirectories into class folders under the raw data root. Skip this tab if your data is "
 "already organized as one folder per class."
 msgstr ""
 
-#: ui/pages/data_page.py:382
+#: ui/pages/data_page.py:413
 msgid ""
 "Normalize images to JPEG under each class’s CONVERTED/ folder. Point Raw data dir at the same tree on an internal or "
 "external drive; outputs stay beside sources."
 msgstr ""
 
-#: ui/pages/data_page.py:386
+#: ui/pages/data_page.py:417
 msgid "Remove duplicates and quarantine very small images (by pixel size) to small_images_review/ under the raw root."
 msgstr ""
 
-#: ui/pages/data_page.py:389
+#: ui/pages/data_page.py:420
 msgid ""
 "Upscale images previously moved to the small-image review area (after deduplicate). Default review dir is "
 "raw_data/small_images_review when left empty."
 msgstr ""
 
-#: ui/pages/data_page.py:393
+#: ui/pages/data_page.py:424
 msgid ""
 "Build train/ and test/ under the output data directory from the raw tree. A good place to put the final dataset on "
 "your main drive while raw data stays external."
 msgstr ""
 
-#: ui/pages/data_page.py:412
+#: ui/pages/data_page.py:443
 msgid ""
 "Gather copies files into timestamped runs under the target dir and tracks hashes so reruns skip already-seen files. "
 "Set raw data dir to the pipeline root used by later steps."
 msgstr ""
 
-#: ui/pages/data_page.py:416
+#: ui/pages/data_page.py:447
 msgid ""
 "Convert walks class folders, writes CONVERTED/ JPEGs, and records a unified snapshot. For image classification, "
 "videos and multi-frame GIFs may yield a random frame JPEG. Very large images are downscaled (max edge 4000px)."
 msgstr ""
 
-#: ui/pages/data_page.py:421
+#: ui/pages/data_page.py:452
 msgid ""
 "Deduplicate removes duplicate images and handles tiny dimensions: removes very small images and moves borderline-"
 "small ones to small_images_review/ for manual review before upscale."
 msgstr ""
 
-#: ui/pages/data_page.py:425
+#: ui/pages/data_page.py:456
 msgid "Upscale processes the review tree produced by deduplicate for undersized images you choose to keep."
 msgstr ""
 
-#: ui/pages/data_page.py:428
+#: ui/pages/data_page.py:459
 msgid ""
 "Create-dataset reads from raw data (including CONVERTED/) and writes the train/test split to the output data dir. Set"
 " output on a spacious internal disk if raw data lives on external storage."
 msgstr ""
 
-#: ui/pages/data_page.py:443
+#: ui/pages/data_page.py:474
 msgid ""
 "Storage: convert reads and writes under the raw data path you choose (including on removable drives). Create Dataset "
 "copies into the output data directory—often set that to your main disk. Large images: convert downscales long edges; "
 "tiny images: deduplicate moves small files to small_images_review/. Full discussion: docs/DATA_PIPELINE.md."
 msgstr ""
 
-#: ui/pages/data_page.py:478
+#: ui/pages/data_page.py:508
 msgid "Select file"
 msgstr ""
 
-#: ui/pages/data_page.py:480
+#: ui/pages/data_page.py:510
 msgid "All files (*.*)"
 msgstr ""
 
-#: ui/pages/data_page.py:512
+#: ui/pages/data_page.py:541
 msgid "[ok] {cmd}: inputs look valid"
 msgstr ""
 
-#: ui/pages/data_page.py:516
+#: ui/pages/data_page.py:545
 msgid "[invalid] {cmd}: {err}"
 msgstr ""
 
-#: ui/pages/data_page.py:523
+#: ui/pages/data_page.py:552
 msgid "Source dir does not exist."
 msgstr ""
 
-#: ui/pages/data_page.py:526
+#: ui/pages/data_page.py:555
 msgid "Provide at least one subdirectory."
 msgstr ""
 
-#: ui/pages/data_page.py:532
+#: ui/pages/data_page.py:561
 msgid "Subdir weights must be in subdir:weight format."
 msgstr ""
 
-#: ui/pages/data_page.py:553
+#: ui/pages/data_page.py:582
 msgid "Format must be jpeg or jpg."
 msgstr ""
 
-#: ui/pages/data_page.py:570
+#: ui/pages/data_page.py:600
 msgid "Raw data dir does not exist."
 msgstr ""
 
-#: ui/pages/data_page.py:609
+#: ui/pages/data_page.py:648 ui/pages/data_page.py:664
+msgid "Insufficient disk space (estimate)"
+msgstr ""
+
+#: ui/pages/data_page.py:649 ui/pages/data_page.py:665
+msgid ""
+"{msg}\n"
+"\n"
+"Continue anyway?"
+msgstr ""
+
+#: ui/pages/data_page.py:687
 msgid "External storage"
 msgstr ""
 
-#: ui/pages/data_page.py:611
+#: ui/pages/data_page.py:689
 msgid ""
 "The target data directory is on external or removable storage, and \"Allow external storage\" is not checked. Enable "
 "it on the Create Dataset tab or choose a different data directory."
 msgstr ""
 
-#: ui/pages/data_page.py:621
+#: ui/pages/data_page.py:699
 msgid "Confirm"
 msgstr ""
 
-#: ui/pages/data_page.py:622
+#: ui/pages/data_page.py:700
 msgid "Source and target are on the same drive. Continue dataset creation?"
 msgstr ""
 
-#: ui/pages/data_page.py:643
+#: ui/pages/data_page.py:721
 msgid "Data: {cmd}"
 msgstr ""
 
-#: ui/pages/data_page.py:692
+#: ui/pages/data_page.py:776
 msgid "[done] Data command completed successfully."
 msgstr ""
 
-#: ui/pages/data_page.py:703
+#: ui/pages/data_page.py:787
 msgid "[failed] Data command reported failure."
 msgstr ""
 
-#: ui/pages/data_page.py:715
+#: ui/pages/data_page.py:799
 msgid "[stopped] Data command cancelled — partial copies or snapshot updates may exist; check folders before re-running."
 msgstr ""
 
-#: ui/pages/data_page.py:737
+#: ui/pages/data_page.py:821
 msgid "Data command failed"
 msgstr ""
 
-#: ui/pages/data_page.py:738
+#: ui/pages/data_page.py:822
 msgid "A data pipeline step reported an error. See Details for the full message."
 msgstr ""
 
@@ -1318,7 +1433,7 @@ msgid "- Model conversion and dataset / model inspection (Info)"
 msgstr ""
 
 #: ui/pages/home_page.py:109
-msgid "- Application shell settings (Config)"
+msgid "- App shell (App) and ML defaults (Pipeline)"
 msgstr ""
 
 #: ui/pages/home_page.py:110
@@ -1359,7 +1474,7 @@ msgstr ""
 msgid "Inspect model metadata and dataset structure/statistics."
 msgstr ""
 
-#: ui/pages/info_page.py:54
+#: ui/pages/info_page.py:54 ui/pages/pipeline_config_page.py:152
 msgid "Model"
 msgstr ""
 
@@ -1391,24 +1506,241 @@ msgstr ""
 msgid "Dataset info output will appear here."
 msgstr ""
 
-#: ui/pages/info_page.py:174
+#: ui/pages/info_page.py:172
 msgid "Model path required"
 msgstr ""
 
-#: ui/pages/info_page.py:175
+#: ui/pages/info_page.py:173
 msgid "Please provide a model path."
 msgstr ""
 
-#: ui/pages/info_page.py:185
+#: ui/pages/info_page.py:183
 msgid "Missing file"
 msgstr ""
 
-#: ui/pages/info_page.py:190 ui/pages/info_page.py:204
+#: ui/pages/info_page.py:188 ui/pages/info_page.py:202
 msgid "Invalid path"
 msgstr ""
 
-#: ui/pages/info_page.py:199
+#: ui/pages/info_page.py:197
 msgid "Missing directory"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:143 ui/pages/pipeline_config_page.py:533 ui/pages/pipeline_config_page.py:536
+#: ui/pages/pipeline_config_page.py:542 ui/pages/pipeline_config_page.py:554 ui/pages/pipeline_config_page.py:570
+#: ui/pages/pipeline_config_page.py:578 ui/pages/pipeline_config_page.py:590 ui/pages/pipeline_config_page.py:599
+msgid "Pipeline"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:146
+msgid ""
+"Machine-learning defaults (<code>model</code>, <code>data</code>, <code>training</code>, <code>paths</code>). Save "
+"writes to your active pipeline file, or to <code>pipeline.yaml</code> beside <code>application.yaml</code> in app "
+"data when only packaged defaults are loaded."
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:153
+msgid "Data"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:154 ui/pages/train_page.py:478
+msgid "Training"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:155
+msgid "Paths"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:156
+msgid "Advanced (YAML)"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:157
+msgid "model"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:158
+msgid "data"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:159
+msgid "data.gather"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:160
+msgid "training"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:161
+msgid "paths"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:164 ui/pages/pipeline_config_page.py:232
+msgid "default_type"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:164 ui/pages/pipeline_config_page.py:235
+msgid "default_framework"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:164 ui/pages/pipeline_config_page.py:238
+msgid "default_architecture"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:169 ui/pages/pipeline_config_page.py:254
+msgid "raw_data_dir"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:170 ui/pages/pipeline_config_page.py:257
+msgid "data_dir"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:171 ui/pages/pipeline_config_page.py:261
+msgid "test_per_class"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:172 ui/pages/pipeline_config_page.py:265
+msgid "image_size"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:173 ui/pages/pipeline_config_page.py:269
+msgid "batch_size (empty = null)"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:174 ui/pages/pipeline_config_page.py:273
+msgid "image_types (one extension per line)"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:175 ui/pages/pipeline_config_page.py:277
+msgid "video_types (one extension per line)"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:176 ui/pages/pipeline_config_page.py:282
+msgid "class_names (empty = auto-discover)"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:177 ui/pages/pipeline_config_page.py:286
+msgid "class_qualifying_subdir (empty = any)"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:183 ui/pages/pipeline_config_page.py:298
+msgid "default_target_count"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:184 ui/pages/pipeline_config_page.py:301
+msgid "default_target_dir"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:185 ui/pages/pipeline_config_page.py:304
+msgid "default_rejected_dir"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:186 ui/pages/pipeline_config_page.py:307
+msgid "default_raw_data_dir"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:192 ui/pages/pipeline_config_page.py:324
+msgid "frozen_epochs"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:193 ui/pages/pipeline_config_page.py:328
+msgid "unfrozen_epochs"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:194 ui/pages/pipeline_config_page.py:334
+msgid "frozen_lr"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:195 ui/pages/pipeline_config_page.py:339
+msgid "unfrozen_lr_max"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:196 ui/pages/pipeline_config_page.py:344
+msgid "unfrozen_lr_min"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:197 ui/pages/pipeline_config_page.py:348
+msgid "num_workers"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:203 ui/pages/pipeline_config_page.py:367
+msgid "models_dir"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:203 ui/pages/pipeline_config_page.py:370
+msgid "logs_dir"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:203 ui/pages/pipeline_config_page.py:373
+msgid "timing_dir"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:207
+msgid ""
+"Full pipeline document. Click “Apply YAML” to parse and refresh the tabs, or edit the tabs and Save — the Advanced "
+"view updates on reload."
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:212
+msgid "Apply YAML"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:214
+msgid "Reset to shipped defaults…"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:216
+msgid "Replace your user pipeline.yaml (app data) with the package default_pipeline.yaml."
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:218
+msgid "store_checkpoints"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:268 ui/pages/pipeline_config_page.py:285
+msgid "empty → null"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:281
+msgid "One class folder name per line; empty = discover"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:516
+msgid ""
+"Loaded: {path}\n"
+"Save will write to: {save}"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:522
+msgid ""
+"Loaded: packaged defaults\n"
+"Save will write to: {path}"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:533
+msgid ""
+"Invalid YAML:\n"
+"{err}"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:536
+msgid "Root value must be a mapping."
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:544
+msgid ""
+"The document contains keys outside model/data/training/paths: {keys}\n"
+"They will be ignored when applying to the form. Continue?"
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:554
+msgid "No model/data/training/paths keys found."
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:599
+msgid ""
+"Reset user pipeline to shipped defaults:\n"
+"{path}"
 msgstr ""
 
 #: ui/pages/train_page.py:75 ui/pages/train_page.py:170
@@ -1503,43 +1835,43 @@ msgstr ""
 msgid "Model/checkpoint files (*.pth *.pt *.h5 *.keras *.ckpt);;All files (*.*)"
 msgstr ""
 
-#: ui/pages/train_page.py:345
+#: ui/pages/train_page.py:343
 msgid "[info] {fw} architectures: {names}"
 msgstr ""
 
-#: ui/pages/train_page.py:350
+#: ui/pages/train_page.py:348
 msgid "Enter architecture manually"
 msgstr ""
 
-#: ui/pages/train_page.py:352
+#: ui/pages/train_page.py:350
 msgid "[warn] Could not load architecture list for {fw}: {err}"
 msgstr ""
 
-#: ui/pages/train_page.py:369
+#: ui/pages/train_page.py:367
 msgid "Architecture is required."
 msgstr ""
 
-#: ui/pages/train_page.py:371
+#: ui/pages/train_page.py:369
 msgid "Data directory does not exist."
 msgstr ""
 
-#: ui/pages/train_page.py:375
+#: ui/pages/train_page.py:373
 msgid "Resume checkpoint path does not exist."
 msgstr ""
 
-#: ui/pages/train_page.py:406
+#: ui/pages/train_page.py:404
 msgid "[ok] training inputs look valid"
 msgstr ""
 
-#: ui/pages/train_page.py:428
+#: ui/pages/train_page.py:426
 msgid "[detached] PID {pid} — log: {log} — args JSON: {args}"
 msgstr ""
 
-#: ui/pages/train_page.py:440
+#: ui/pages/train_page.py:438
 msgid "Training started (separate process)"
 msgstr ""
 
-#: ui/pages/train_page.py:442
+#: ui/pages/train_page.py:440
 msgid ""
 "Training is running outside this window. Closing the app does not stop it.\n"
 "\n"
@@ -1553,35 +1885,31 @@ msgid ""
 "Stop the process from Task Manager or your OS if you need to abort."
 msgstr ""
 
-#: ui/pages/train_page.py:459
+#: ui/pages/train_page.py:457
 msgid "Could not start detached training"
 msgstr ""
 
-#: ui/pages/train_page.py:460
+#: ui/pages/train_page.py:458
 msgid "Failed to launch the training subprocess. See Details for the error."
 msgstr ""
 
-#: ui/pages/train_page.py:480
-msgid "Training"
-msgstr ""
-
-#: ui/pages/train_page.py:494
+#: ui/pages/train_page.py:492
 msgid "Architecture '{arch}' not supported for {fw}. Supported: {sup}"
 msgstr ""
 
-#: ui/pages/train_page.py:505
+#: ui/pages/train_page.py:503
 msgid "[done] Training complete. Model saved: {path}"
 msgstr ""
 
-#: ui/pages/train_page.py:524
+#: ui/pages/train_page.py:522
 msgid "[stopped] Training cancelled — partial checkpoints may exist; check the output folder before re-running."
 msgstr ""
 
-#: ui/pages/train_page.py:544
+#: ui/pages/train_page.py:542
 msgid "Training failed"
 msgstr ""
 
-#: ui/pages/train_page.py:545
+#: ui/pages/train_page.py:543
 msgid "Training stopped with an error. See Details for the message from the trainer."
 msgstr ""
 
