@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QGroupBox,
@@ -14,7 +16,9 @@ from PySide6.QtWidgets import (
 )
 
 from mb.utils.constants import ModelBuilderTaskType
+from mb.pipeline_config import get_pipeline_config
 from mb.utils.recent_run_history import format_recent_runs_for_display, get_recent_runs
+from mb.utils.snapshot import format_latest_unified_snapshot_summary
 from mb.utils.translations import _
 
 
@@ -66,6 +70,15 @@ class HomePage(QWidget):
         quick_layout.addWidget(self._btn_convert)
         layout.addWidget(self._quick)
 
+        self._snapshot_box = QGroupBox()
+        snapshot_layout = QVBoxLayout(self._snapshot_box)
+        self._snapshot_detail = QPlainTextEdit()
+        self._snapshot_detail.setObjectName("home_snapshot_detail")
+        self._snapshot_detail.setReadOnly(True)
+        self._snapshot_detail.setMinimumHeight(100)
+        snapshot_layout.addWidget(self._snapshot_detail)
+        layout.addWidget(self._snapshot_box)
+
         self._history = QGroupBox()
         history_layout = QVBoxLayout(self._history)
         self._recent_runs = QPlainTextEdit()
@@ -98,9 +111,12 @@ class HomePage(QWidget):
         self._btn_data.setText(_("Open Data Page"))
         self._btn_train.setText(_("Open Train Page"))
         self._btn_convert.setText(_("Open Convert Page"))
+        self._snapshot_box.setTitle(_("Latest unified snapshot"))
+        self._snapshot_detail.setPlaceholderText(_("Loading…"))
         self._history.setTitle(_("Recent run history"))
         self._recent_runs.setPlaceholderText(_("Loading…"))
         self.refresh_recent_runs()
+        self.refresh_snapshot_panel()
 
     def _open_nav_row(self, row: int) -> None:
         from ui.main_window import MainWindow
@@ -113,6 +129,22 @@ class HomePage(QWidget):
         text = format_recent_runs_for_display(get_recent_runs())
         self._recent_runs.setPlainText(text)
 
+    def refresh_snapshot_panel(self) -> None:
+        pc = get_pipeline_config()
+        raw = Path(str(pc.get("data.raw_data_dir", "raw_data")))
+        data = Path(str(pc.get("data.data_dir", "data")))
+        text = format_latest_unified_snapshot_summary([raw, data])
+        if not text.strip():
+            self._snapshot_detail.setPlainText(
+                _(
+                    "No snapshot_*.json found under the configured raw data or data directories.\n"
+                    "(Run convert and create-dataset to create one.)"
+                )
+            )
+        else:
+            self._snapshot_detail.setPlainText(text)
+
     def showEvent(self, event) -> None:
         super().showEvent(event)
         self.refresh_recent_runs()
+        self.refresh_snapshot_panel()

@@ -30,6 +30,7 @@ from mb.training.run_args import TrainingRunArgs
 from ui.lib.qt_alert import qt_operation_error
 from mb.utils.constants import ModelBuilderTaskType
 from mb.utils.recent_run_history import append_recent_run
+from mb.utils.snapshot import find_latest_unified_snapshot_path
 from mb.utils.translations import _
 from ui.lib.task_progress import attach_progress_dialog
 from ui.spawn_mb_train import spawn_mb_train_subprocess
@@ -465,6 +466,7 @@ class TrainPage(QWidget):
 
         self._append(f"[run] mb train ({summary_base})")
         self._pending_train_summary = f"mb train ({summary_base})"
+        self._pending_training_args = args
         self._set_busy(True)
         handle = start_task(
             self._execute_training,
@@ -501,11 +503,19 @@ class TrainPage(QWidget):
 
     def _on_training_success(self, model_path: str) -> None:
         self._append(_("[done] Training complete. Model saved: {path}").format(path=model_path))
+        snap: str | None = None
+        args = getattr(self, "_pending_training_args", None)
+        if args is not None and getattr(args, "update_snapshot", False):
+            p = find_latest_unified_snapshot_path([args.data_dir])
+            if p is not None:
+                snap = str(p.resolve())
+                self._append(f"[snapshot] {snap}")
         append_recent_run(
             ModelBuilderTaskType.TRAIN,
             getattr(self, "_pending_train_summary", "mb train"),
             True,
             model_path or "",
+            snapshot_path=snap,
         )
 
     def _on_training_cancelled(self) -> None:

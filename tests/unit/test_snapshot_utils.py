@@ -13,6 +13,7 @@ from mb.utils import snapshot as snapshot_mod
 from mb.utils.snapshot import (
     UnifiedSnapshot,
     calculate_file_hash,
+    find_latest_unified_snapshot_path,
     find_unified_snapshot,
     generate_run_id,
     preload_gather_cache,
@@ -82,6 +83,21 @@ def test_unified_snapshot_save_load_roundtrip(tmp_path: Path) -> None:
     assert loaded.raw_data_directory == str(raw)
     assert "deadbeef" in loaded.images
     assert loaded.images["deadbeef"]["original"]["basename"] == "a.jpg"
+
+
+def test_find_latest_unified_snapshot_path_prefers_newest_mtime(tmp_path: Path) -> None:
+    d = tmp_path / "raw"
+    d.mkdir()
+    older = d / "snapshot_old.json"
+    newer = d / "snapshot_new.json"
+    older.write_text('{"run_id":"old"}', encoding="utf-8")
+    newer.write_text('{"run_id":"new"}', encoding="utf-8")
+    import os
+
+    os.utime(older, (100, 100))
+    os.utime(newer, (200, 200))
+    got = find_latest_unified_snapshot_path([d])
+    assert got is not None and got.name == "snapshot_new.json"
 
 
 def test_find_unified_snapshot_by_run_id(tmp_path: Path) -> None:

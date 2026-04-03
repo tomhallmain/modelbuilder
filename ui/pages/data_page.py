@@ -32,6 +32,7 @@ from mb.utils.storage import check_same_drive, check_target_external_storage
 from ui.lib.qt_alert import qt_alert, qt_operation_error
 from mb.utils.constants import DataPipelineSubcommand, ModelBuilderTaskType
 from mb.utils.recent_run_history import append_recent_run
+from mb.utils.snapshot import find_latest_unified_snapshot_path
 from mb.utils.translations import _
 from ui.lib.form_layout_i18n import apply_qform_label_column
 from ui.lib.task_progress import attach_progress_dialog
@@ -484,6 +485,22 @@ class DataPage(QWidget):
             }
         raise ValueError(_("Unknown command: {cmd}").format(cmd=command))
 
+    def _snapshot_path_after_successful_data_run(self) -> str | None:
+        """Best-effort path to the newest ``snapshot_*.json`` after convert or create-dataset."""
+        cmd = getattr(self, "_pending_command", "")
+        payload = getattr(self, "_pending_payload", None) or {}
+        if cmd == "convert":
+            raw = payload.get("raw_data_dir")
+            p = find_latest_unified_snapshot_path([raw]) if raw else None
+            return str(p.resolve()) if p else None
+        if cmd == "create-dataset":
+            data_dir = payload.get("data_dir")
+            raw = payload.get("raw_data_dir")
+            paths = [x for x in (data_dir, raw) if x]
+            p = find_latest_unified_snapshot_path(paths) if paths else None
+            return str(p.resolve()) if p else None
+        return None
+
     def _run_current_command(self) -> None:
         command = self._current_command()
         payload = self._collect_inputs(command)
@@ -514,6 +531,8 @@ class DataPage(QWidget):
 
         self._append(f"[run] mb data {command}")
         self._pending_run_summary = f"mb data {command}"
+        self._pending_command = command
+        self._pending_payload = payload
         self._pending_data_subcommand = DataPipelineSubcommand.try_from(command)
         self._set_busy(True)
         handle = start_task(
@@ -570,9 +589,18 @@ class DataPage(QWidget):
     def _on_run_success(self, success: bool) -> None:
         summary = getattr(self, "_pending_run_summary", "mb data")
         sub = getattr(self, "_pending_data_subcommand", None)
+        snap = self._snapshot_path_after_successful_data_run() if success else None
         if success:
             self._append(_("[done] Data command completed successfully."))
-            append_recent_run(ModelBuilderTaskType.DATA, summary, True, data_subcommand=sub)
+            if snap:
+                self._append(f"[snapshot] {snap}")
+            append_recent_run(
+                ModelBuilderTaskType.DATA,
+                summary,
+                True,
+                data_subcommand=sub,
+                snapshot_path=snap,
+            )
         else:
             self._append(_("[failed] Data command reported failure."))
             append_recent_run(

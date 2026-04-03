@@ -504,6 +504,53 @@ class UnifiedSnapshot:
             return None
 
 
+def find_latest_unified_snapshot_path(search_paths: List[Path]) -> Optional[Path]:
+    """
+    Return the path to the **newest** ``snapshot_*.json`` (by file mtime) under any of
+    *search_paths*, or ``None`` if none exist.
+    """
+    candidates: List[Path] = []
+    for d in search_paths:
+        try:
+            p = Path(d)
+        except TypeError:
+            continue
+        if p.is_dir():
+            candidates.extend(p.glob("snapshot_*.json"))
+    if not candidates:
+        return None
+    return max(candidates, key=lambda x: x.stat().st_mtime)
+
+
+def format_latest_unified_snapshot_summary(search_paths: List[Path]) -> str:
+    """
+    Short multi-line summary for UI (absolute path, run id, image count, last updated).
+
+    Uses :func:`find_latest_unified_snapshot_path`; reads JSON on success.
+    """
+    path = find_latest_unified_snapshot_path(search_paths)
+    if path is None or not path.exists():
+        return ""
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        return str(path.resolve())
+    rid = data.get("run_id", "?")
+    lu = str(data.get("last_updated") or "")[:22]
+    summary = data.get("summary") or {}
+    n = summary.get("total_images")
+    if n is None and isinstance(data.get("images"), list):
+        n = len(data["images"])
+    lines = [
+        str(path.resolve()),
+        f"run_id: {rid}",
+        f"last_updated: {lu}",
+        f"images: {n if n is not None else '?'}",
+    ]
+    return "\n".join(lines)
+
+
 def find_unified_snapshot(search_paths: List[Path], run_id: Optional[str] = None, logger=None) -> Optional[UnifiedSnapshot]:
     """
     Find and load unified snapshot by run ID or latest.

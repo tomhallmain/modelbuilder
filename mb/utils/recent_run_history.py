@@ -1,9 +1,9 @@
 """
 Persist recent GUI job runs to :mod:`utils.app_info_cache` for the Home page.
 
-Future: the CLI could reuse the same record shape (task type + optional data subcommand)
-when users want a unified audit trail; see :func:`append_recent_run` and cache key
-:data:`RECENT_RUN_HISTORY_KEY`. Not wired for ``mb`` subcommands yet.
+Each entry may include optional ``snapshot_path`` (newest unified ``snapshot_*.json``
+after convert / create-dataset / training with snapshot updates) for the Home page
+history display.
 """
 
 from __future__ import annotations
@@ -47,6 +47,7 @@ def append_recent_run(
     detail: str = "",
     *,
     data_subcommand: DataSubcommandArg = None,
+    snapshot_path: Optional[str] = None,
 ) -> None:
     """
     Prepend a run record and trim to :data:`MAX_RECENT_RUNS`.
@@ -74,6 +75,9 @@ def append_recent_run(
     }
     if sub_str is not None:
         entry["data_subcommand"] = sub_str
+    sp = (snapshot_path or "").strip()[:1000]
+    if sp:
+        entry["snapshot_path"] = sp
 
     items.insert(0, entry)
     del items[MAX_RECENT_RUNS:]
@@ -146,5 +150,8 @@ def format_recent_runs_for_display(entries: List[dict[str, Any]], *, limit: int 
                 line += f" — {detail}"
             else:
                 line += f" — {detail[:97]}…"
+        snap = str(e.get("snapshot_path") or "").strip()
+        if snap:
+            line += f"\n    {_('Snapshot')}: {snap}"
         lines.append(line)
     return "\n".join(lines)
