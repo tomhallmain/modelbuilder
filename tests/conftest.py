@@ -61,7 +61,7 @@ def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item
 def synthetic_raw_data_dir(tmp_path: Path) -> Path:
     """
     A temporary raw data directory with ~100 synthetic JPEGs under
-    ``<class>/JPEG_IMAGES/``, matching :class:`mb.data.dataset.DatasetCreator`.
+    ``<class>/CONVERTED/``, matching :class:`mb.data.dataset.DatasetCreator`.
     """
     root = tmp_path / "raw_data"
     build_synthetic_raw_data_dir(root, total_images=100, seed=42)

@@ -6,7 +6,8 @@ from pathlib import Path
 
 from PIL import Image
 
-from mb.data.convert import JPEG_IMAGES_DIR, ImageConverter
+from mb.data.class_layout import CONVERTED_MEDIA_SUBDIR
+from mb.data.convert import ImageConverter
 
 
 def _write_png(path: Path, color: tuple[int, int, int]) -> None:
@@ -14,7 +15,7 @@ def _write_png(path: Path, color: tuple[int, int, int]) -> None:
     Image.new("RGB", (32, 32), color).save(path, format="PNG")
 
 
-def test_image_converter_pngs_to_jpeg_images_subdir(tmp_path: Path) -> None:
+def test_image_converter_pngs_to_converted_subdir(tmp_path: Path) -> None:
     raw = tmp_path / "raw_data"
     cls_dir = raw / "coherent"
     _write_png(cls_dir / "a.png", (40, 80, 120))
@@ -23,7 +24,7 @@ def test_image_converter_pngs_to_jpeg_images_subdir(tmp_path: Path) -> None:
     converter = ImageConverter(raw_data_dir=raw)
     assert converter.run() is True
 
-    out = cls_dir / JPEG_IMAGES_DIR
+    out = cls_dir / CONVERTED_MEDIA_SUBDIR
     assert out.is_dir()
     jpgs = sorted(out.glob("*.jpg"))
     assert len(jpgs) == 2

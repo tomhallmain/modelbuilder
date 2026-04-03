@@ -30,11 +30,16 @@ from mb.cancellation import check_cancel_event
 from mb.utils.snapshot import (
     UnifiedSnapshot, generate_run_id, save_unified_snapshot, preload_gather_cache
 )
-from mb.data.class_layout import discover_class_names, normalize_qualifying_subdir
+from mb.data.class_layout import (
+    CONVERTED_MEDIA_SUBDIR,
+    discover_class_names,
+    normalize_qualifying_subdir,
+    POST_CONVERT_SUBDIR_NAMES,
+)
 from mb.pipeline_config import get_pipeline_config
 
 # Configure logging
-logger = setup_logging(script_name="convert_to_jpeg")
+logger = setup_logging(script_name="convert")
 
 # Image file extensions to process
 IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif', '.gif', '.webp'}
@@ -42,7 +47,6 @@ JPEG_EXTENSIONS = {'.jpg', '.jpeg'}
 
 # Default raw data directory (contains all class directories)
 DEFAULT_RAW_DATA_DIR = Path("raw_data")
-JPEG_IMAGES_DIR = "JPEG_IMAGES"  # Output subdirectory for converted JPEGs per class
 
 
 class ImageConverter:
@@ -90,7 +94,8 @@ class ImageConverter:
     
     def find_image_files(self, class_dir: Path) -> List[Path]:
         """
-        Find all image files in a class directory, excluding JPEG_IMAGES subdirectory.
+        Find all image files in a class directory, excluding post-convert output trees
+        (``CONVERTED``, legacy ``JPEG_IMAGES``).
         
         Args:
             class_dir: Class directory to scan (e.g. ``raw_data/<class_name>``)
@@ -99,12 +104,22 @@ class ImageConverter:
             List of image file paths found
         """
         image_files = []
-        jpeg_images_dir = class_dir / JPEG_IMAGES_DIR
-        
+        post_convert_roots = [class_dir / n for n in POST_CONVERT_SUBDIR_NAMES]
+
+        def _under_post_convert(p: Path) -> bool:
+            for root in post_convert_roots:
+                if root.exists() and p.is_relative_to(root):
+                    return True
+            return False
+
         try:
-            # Check if directory has subdirectories (excluding JPEG_IMAGES)
-            subdirs = [d for d in class_dir.iterdir() if d.is_dir() and d != jpeg_images_dir]
-            
+            # Check if directory has subdirectories (excluding post-convert outputs)
+            subdirs = [
+                d
+                for d in class_dir.iterdir()
+                if d.is_dir() and d.name not in POST_CONVERT_SUBDIR_NAMES
+            ]
+
             if subdirs:
                 # Has subdirectories: scan recursively in subdirectories (not root)
                 logger.info(f"Scanning subdirectories in: {class_dir.name}")
@@ -114,14 +129,11 @@ class ImageConverter:
                         for file_path in subdir.rglob(f'*{ext}'):
                             image_files.append(file_path)
             else:
-                # No subdirectories: scan root level (excluding JPEG_IMAGES if it exists)
+                # No subdirectories: scan root level (excluding post-convert dirs if present)
                 logger.info(f"Scanning root level in: {class_dir.name} (no subdirectories found)")
-                # Check once if JPEG_IMAGES exists (performance optimization)
-                jpeg_images_exists = jpeg_images_dir.exists()
                 for ext in IMAGE_EXTENSIONS:
                     for file_path in class_dir.glob(f'*{ext}'):
-                        # Exclude JPEG_IMAGES directory contents
-                        if jpeg_images_exists and file_path.is_relative_to(jpeg_images_dir):
+                        if _under_post_convert(file_path):
                             continue
                         image_files.append(file_path)
                         
@@ -249,16 +261,15 @@ class ImageConverter:
     def process_files(self, image_files: List[Path], class_dir: Path) -> None:
         """
         Process the image files for a class directory, converting to JPEG or copying if already JPEG.
-        All converted JPEGs are placed in JPEG_IMAGES subdirectory for consistency.
+        Normalized outputs go under ``CONVERTED_MEDIA_SUBDIR`` (``CONVERTED``).
         
         Args:
             image_files: List of image file paths to process
             class_dir: Class directory (determines where to place output)
         """
-        # Always place converted JPEGs in JPEG_IMAGES subdirectory
-        output_dir = class_dir / JPEG_IMAGES_DIR
+        output_dir = class_dir / CONVERTED_MEDIA_SUBDIR
         output_dir.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Processing {len(image_files)} files for {class_dir.name} (output: {JPEG_IMAGES_DIR}/)")
+        logger.info(f"Processing {len(image_files)} files for {class_dir.name} (output: {CONVERTED_MEDIA_SUBDIR}/)")
         
         for i, source_path in enumerate(image_files, 1):
             if i % 100 == 0:
@@ -272,10 +283,12 @@ class ImageConverter:
             target_filename = f"{source_path.stem}.jpg"
             target_path = output_dir / target_filename
             
-            # Check if file already exists in JPEG_IMAGES (skip if already converted)
+            # Check if file already exists under CONVERTED (skip if already converted)
             try:
                 if target_path.stat().st_size > 0:
-                    logger.debug(f"Skipping {source_path.name} - already exists in {JPEG_IMAGES_DIR}/: {target_path.name}")
+                    logger.debug(
+                        f"Skipping {source_path.name} - already exists in {CONVERTED_MEDIA_SUBDIR}/: {target_path.name}"
+                    )
                     self.stats['files_skipped'] += 1
                     continue
             except (OSError, FileNotFoundError):
@@ -390,7 +403,7 @@ class ImageConverter:
             logger.info(f"Processing class: {class_name}")
             logger.info(f"{'='*60}")
             
-            # Find image files for this class (excluding JPEG_IMAGES)
+            # Find image files for this class (excluding post-convert output trees)
             image_files = self.find_image_files(class_dir)
             
             if not image_files:

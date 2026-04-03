@@ -3,7 +3,7 @@ Synthetic image trees for tests — matches :class:`mb.data.dataset.DatasetCreat
 
 Layout (under *raw_data_dir*):
 
-    <class_name>/JPEG_IMAGES/*.jpg
+    <class_name>/CONVERTED/*.jpg
 
 Class names default to :data:`mb.data.class_layout.SYNTHETIC_DEFAULT_CLASS_NAMES`. JPEG files are random RGB
 noise saved large enough to satisfy :data:`mb.data.dataset.MIN_FILE_SIZE` (6 KiB).
@@ -15,7 +15,7 @@ import random
 from pathlib import Path
 from typing import Mapping, Sequence
 
-from mb.data.class_layout import SYNTHETIC_DEFAULT_CLASS_NAMES
+from mb.data.class_layout import CONVERTED_MEDIA_SUBDIR, SYNTHETIC_DEFAULT_CLASS_NAMES
 from mb.data.dataset import MIN_FILE_SIZE
 
 try:
@@ -81,7 +81,7 @@ def build_synthetic_raw_data_dir(
     out: dict[str, int] = {}
     image_index = 0
     for class_name, n in zip(names, counts):
-        jpeg_dir = raw_data_dir / class_name / "JPEG_IMAGES"
+        jpeg_dir = raw_data_dir / class_name / CONVERTED_MEDIA_SUBDIR
         jpeg_dir.mkdir(parents=True, exist_ok=True)
         for i in range(n):
             path = jpeg_dir / f"synth_{image_index:04d}.jpg"

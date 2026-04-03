@@ -63,24 +63,24 @@ Pipeline config already has `data.image_types` (and `video_types`), but gather/c
 
 ## 6. Gather naming and defaults
 
-- Gather logging uses script name **`gather_images`**.
+- Gather logging uses script name **`gather`**.
 - Example default gather target in YAML may still show a concrete path (e.g. under ``raw_data/``); override per project in ``data.gather``.
 
 ---
 
-## 7. Convert output folder `JPEG_IMAGES`
+## 7. Convert output folder (`CONVERTED`)
 
-`mb/data/convert.py` always writes converted JPEGs under **`class_dir/JPEG_IMAGES/`** (`JPEG_IMAGES_DIR`). That matches the legacy layout and pairs with `class_layout.resolve_class_media_dir` (which prefers `JPEG_IMAGES` then `IMAGES` when no qualifier is set).
+`mb/data/convert.py` writes normalized media under **`class_dir/CONVERTED/`** (:data:`mb.data.class_layout.CONVERTED_MEDIA_SUBDIR`). Legacy trees may still use ``JPEG_IMAGES``; :func:`mb.data.class_layout.resolve_class_media_dir` prefers ``CONVERTED``, then legacy ``JPEG_IMAGES``, then ``IMAGES``.
 
-**Follow-up:** Optionally make the **output** subdir configurable (parallel to `class_qualifying_subdir` for inputs), if you need convert output to land in `IMAGES` instead of `JPEG_IMAGES`.
+**Follow-up:** Optionally make the **output** subdir configurable (parallel to `class_qualifying_subdir` for inputs).
 
 ---
 
 ## 8. User-facing strings referencing old script filenames
 
-Example: `mb/data/dataset.py` error text still says to run **`convert_to_jpeg.py`** first.
+**Status:** Dataset creation errors point at **`mb data convert`** where relevant.
 
-**Follow-up:** Point users at **`mb data convert`** (and/or `python -m mb.data.convert`) for consistency.
+**Follow-up:** Scan UI strings for any remaining ``*.py`` script-era filenames.
 
 ---
 

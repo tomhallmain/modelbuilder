@@ -34,7 +34,7 @@ def generate_run_id() -> str:
 
 def preload_gather_cache(raw_data_dir: Optional[Path] = None) -> bool:
     """
-    Preload the gather cache from gather_coherent_images.py if available.
+    Preload the gather cache from :mod:`mb.data.gather` if available.
     Cache is stored at raw_data/.gather_cache.pkl
     
     This should be called once before processing many files to avoid

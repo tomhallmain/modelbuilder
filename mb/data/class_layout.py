@@ -14,6 +14,15 @@ from typing import Any, Dict, List, Optional, Sequence
 # Default class directory names used by :mod:`tests.fixtures.synthetic_dataset` (legacy three-way split).
 SYNTHETIC_DEFAULT_CLASS_NAMES: tuple[str, ...] = ("coherent", "semi-incoherent", "incoherent")
 
+# Post-convert staging under each raw class folder (:mod:`mb.data.convert` writes here).
+CONVERTED_MEDIA_SUBDIR = "CONVERTED"
+# Legacy name; still recognized for reads and when scanning for conversion inputs.
+LEGACY_CONVERTED_MEDIA_SUBDIR = "JPEG_IMAGES"
+
+POST_CONVERT_SUBDIR_NAMES: frozenset[str] = frozenset(
+    {CONVERTED_MEDIA_SUBDIR, LEGACY_CONVERTED_MEDIA_SUBDIR}
+)
+
 # Immediate children of ``raw_data`` that are pipeline plumbing, not label/staging buckets.
 _RAW_DATA_NON_CLASS_SUBDIRS: frozenset[str] = frozenset({"rejected", "small_images_review"})
 
@@ -139,7 +148,7 @@ def resolve_class_media_dir(
 
     If *class_qualifying_subdir* is set, use ``raw_class_dir / <qualifier>`` only if it exists.
 
-    If unset, prefer ``JPEG_IMAGES``, then ``IMAGES``, then fall back to *raw_class_dir*
+    If unset, prefer ``CONVERTED`` (then legacy ``JPEG_IMAGES``), then ``IMAGES``, then fall back to *raw_class_dir*
     (images may live directly in the class folder).
     """
     raw_class_dir = Path(raw_class_dir)
@@ -147,7 +156,7 @@ def resolve_class_media_dir(
     if q:
         d = raw_class_dir / q
         return d if d.is_dir() else None
-    for name in ("JPEG_IMAGES", "IMAGES"):
+    for name in (CONVERTED_MEDIA_SUBDIR, LEGACY_CONVERTED_MEDIA_SUBDIR, "IMAGES"):
         d = raw_class_dir / name
         if d.is_dir():
             return d

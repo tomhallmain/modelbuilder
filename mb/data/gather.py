@@ -50,7 +50,7 @@ from mb.data.class_layout import (
 )
 
 # Configure logging
-logger = setup_logging(script_name="gather_images")
+logger = setup_logging(script_name="gather")
 
 # Image file extensions for source scans (pre-convert; not identical to pipeline data.image_types).
 IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif', '.gif', '.webp'}

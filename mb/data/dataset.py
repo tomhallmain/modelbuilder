@@ -543,7 +543,7 @@ class DatasetCreator:
             if not self.unified_snapshot.data_directory:
                 self.unified_snapshot.data_directory = str(self.data_dir)
         else:
-            logger.error("No unified snapshot found! Please run convert_to_jpeg.py first to create a snapshot.")
+            logger.error("No unified snapshot found! Run ``mb data convert`` (or equivalent) first to create a snapshot.")
             logger.error("Or provide a valid --run-id if the snapshot exists elsewhere.")
             return False
         

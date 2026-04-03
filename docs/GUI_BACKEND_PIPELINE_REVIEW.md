@@ -38,7 +38,7 @@
 Typical image-classification flow implied by `mb` and `mb/data/dataset.py`:
 
 1. **Gather** (`mb data gather` / Data → Gather) — copy samples into a coherent/raw layout under `target_dir` (e.g. `raw_data/coherent/...`).
-2. **Convert** (`mb data convert` / Data → Convert) — normalize to JPEG under each class (often under `JPEG_IMAGES/`), and build/update **unified snapshot** metadata.
+2. **Convert** (`mb data convert` / Data → Convert) — normalize to JPEG under each class (under `CONVERTED/` per class), and build/update **unified snapshot** metadata.
 3. **Deduplicate** (optional, `mb data deduplicate`) — **destructive** within `raw_data_dir` (see §3).
 4. **Upscale** (optional, `mb data upscale`) — reads from **review** folders (e.g. small images); writes upscaled outputs under the review tree.
 5. **Create dataset** (`mb data create-dataset` / Data → Create Dataset) — **requires a unified snapshot** from convert; writes **`data_dir/train`** and **`data_dir/test`**; can delete, move, or balance files (see §3).
@@ -61,7 +61,7 @@ This section answers: *“Could I lose my dataset?”*
 
 ### Convert (`ImageConverter`)
 
-- **Writes:** JPEG outputs and snapshot JSON; may create `JPEG_IMAGES` subtrees per class.
+- **Writes:** JPEG outputs and snapshot JSON; may create `CONVERTED` subtrees per class.
 - **Deletes:** Not typically “wipe dataset”; may replace or skip per implementation—**review `mb/data/convert.py`** for your version if you rely on originals in-place.
 
 ### Deduplicate (`ImageDeduplicator`)
@@ -77,7 +77,7 @@ This section answers: *“Could I lose my dataset?”*
 ### Create dataset (`DatasetCreator`)
 
 - **Requires:** **Unified snapshot** present (from convert pipeline). Without it, run **aborts**—no train/test folder build.
-- **Copies** from raw (`JPEG_IMAGES` per class) into `data_dir/train/...`.
+- **Copies** from raw (`CONVERTED` per class) into `data_dir/train/...`.
 - **Destructive inside `data_dir`:**
   - **Deletes** “corrupted” images (failed PIL verify) from **train** copies.
   - **Moves** invalid-size images to `data_dir/invalid_size_review/`.

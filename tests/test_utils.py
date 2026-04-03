@@ -30,7 +30,7 @@ def write_minimal_unified_snapshot(
 
     :class:`mb.data.dataset.DatasetCreator` refuses to run without
     ``snapshot_*.json``; the creator then fills ``images`` while copying from
-    ``JPEG_IMAGES/``. A minimal file satisfies the loader.
+    ``CONVERTED/``. A minimal file satisfies the loader.
     """
     rid = run_id or generate_run_id()
     snap = UnifiedSnapshot(run_id=rid, raw_data_dir=str(raw_data_dir.resolve()))
@@ -48,7 +48,7 @@ def prepare_synthetic_raw_with_snapshot(
     snapshot_run_id: str = "e2e_minimal_snapshot",
 ) -> Path:
     """
-    Build ``<class>/JPEG_IMAGES/*.jpg`` under ``workspace/raw_data`` and write
+    Build ``<class>/CONVERTED/*.jpg`` under ``workspace/raw_data`` and write
     ``snapshot_<snapshot_run_id>.json`` beside it.
 
     Returns:
