@@ -139,9 +139,14 @@ Subprocess: ``tests/test_mb_cli.py`` runs ``python -m mb.cli --help`` with ``PYT
 Document in `README` or `requirements-dev.txt` (when added):
 
 - `pytest`, `pytest-cov` (optional)
+- `pytest-qt` for headless GUI tests
 - `torch`, `torchvision` for E2E / train smoke (CPU wheels)
 - `onnx` for optional ONNX structural check
 - TensorFlow only for Keras-marked tests
+
+### App info cache under pytest
+
+``tests/conftest.py`` sets ``MODELBUILDER_TEST_CACHE=1`` before imports. That selects :class:`utils.app_info_cache.IsolationAppInfoCache` (in-memory; optional plain JSON if ``MODELBUILDER_TEST_CACHE_PATH`` is set) so tests **do not read, write, rotate, or encrypt** the real ``app_info_cache.enc`` / migration JSON. To exercise the production cache inside pytest (not recommended), set ``MODELBUILDER_TEST_CACHE=0`` before running pytest.
 
 ---
 

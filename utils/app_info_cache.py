@@ -190,6 +190,117 @@ class InflationMonitor(ABC):
         }
 
 
+def _use_test_isolation_cache() -> bool:
+    """
+    When ``MODELBUILDER_TEST_CACHE`` is a truthy value (``1``, ``true``, …), use
+    :class:`IsolationAppInfoCache` — no encryption, no reads/writes of the real
+    ``app_info_cache.enc`` tree. Set from ``tests/conftest.py`` under pytest.
+
+    Set ``MODELBUILDER_TEST_CACHE=0`` to force the production :class:`AppInfoCache`
+    inside a pytest run (can touch the user's encrypted cache — use with care).
+    """
+    v = (os.environ.get("MODELBUILDER_TEST_CACHE") or "").strip().lower()
+    if v in ("0", "false", "no", "off", ""):
+        return False
+    return v in ("1", "true", "yes", "on")
+
+
+class IsolationAppInfoCache(InflationMonitor):
+    """
+    In-memory app info store for automated tests.
+
+    - Never calls :mod:`utils.encryptor`.
+    - Never loads or saves ``app_info_cache.enc`` / workspace JSON migration paths.
+    - Optional: set ``MODELBUILDER_TEST_CACHE_PATH`` to a JSON file path to persist
+      ``store()`` output (plain JSON only), e.g. for debugging GUI tests.
+    """
+
+    META_INFO_KEY = "info"
+
+    def __init__(self):
+        super().__init__()
+        self._lock = threading.RLock()
+        self._cache = {self.META_INFO_KEY: {}}
+        self._maybe_load_seed_json()
+        self.validate()
+
+    def _normalize_loaded_cache(self, data: Any) -> None:
+        if not isinstance(data, dict):
+            self._cache = {self.META_INFO_KEY: {}}
+            return
+        data.pop("directories", None)
+        if self.META_INFO_KEY not in data or not isinstance(data[self.META_INFO_KEY], dict):
+            data[self.META_INFO_KEY] = {}
+        self._cache = data
+
+    def _maybe_load_seed_json(self) -> None:
+        path = (os.environ.get("MODELBUILDER_TEST_CACHE_PATH") or "").strip()
+        if not path or not os.path.isfile(path):
+            return
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                raw = json.load(f)
+            self._normalize_loaded_cache(raw)
+        except Exception as e:
+            logger.warning("IsolationAppInfoCache: skip seed load %s: %s", path, e)
+
+    def get_cache_dict(self, scope_key: str = "info") -> Dict:
+        with self._lock:
+            if scope_key == "info":
+                return self._cache.get(self.META_INFO_KEY, {})
+            return self._cache.get(scope_key, {})
+
+    def store(self):
+        """Write plain JSON to ``MODELBUILDER_TEST_CACHE_PATH`` when set; otherwise no-op."""
+        with self._lock:
+            if self._monitor_inflation:
+                self.check_for_inflation()
+            path = (os.environ.get("MODELBUILDER_TEST_CACHE_PATH") or "").strip()
+            if not path:
+                return True
+            try:
+                with open(path, "w", encoding="utf-8") as f:
+                    json.dump(self._cache, f)
+            except Exception as e:
+                logger.warning("IsolationAppInfoCache: store failed (%s): %s", path, e)
+        return True
+
+    def load(self) -> None:
+        """Compatibility hook; loading is handled in ``__init__``."""
+        return
+
+    def validate(self) -> None:
+        return
+
+    def set(self, key, value):
+        with self._lock:
+            if self.META_INFO_KEY not in self._cache:
+                self._cache[self.META_INFO_KEY] = {}
+            self._cache[self.META_INFO_KEY][key] = value
+
+    def get(self, key, default_val=None):
+        with self._lock:
+            info = self._cache.get(self.META_INFO_KEY, {})
+            if key not in info:
+                return default_val
+            return info[key]
+
+    def get_meta(self, key: str, default_val: Any = None) -> Any:
+        return self.get(key, default_val)
+
+    def export_as_json(self, json_path=None):
+        if json_path is None:
+            json_path = (os.environ.get("MODELBUILDER_TEST_CACHE_PATH") or "").strip() or None
+        if json_path is None:
+            raise ValueError(
+                "IsolationAppInfoCache.export_as_json requires json_path or MODELBUILDER_TEST_CACHE_PATH"
+            )
+        with self._lock:
+            with open(json_path, "w", encoding="utf-8") as f:
+                json.dump(self._cache, f, ensure_ascii=False, indent=2)
+        return json_path
+
+
 class AppInfoCache(InflationMonitor):
     CACHE_LOC = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "app_info_cache.enc")
     JSON_LOC = os.path.join(os.path.dirname(os.path.abspath(os.path.dirname(__file__))), "app_info_cache.json")
@@ -358,5 +469,8 @@ class AppInfoCache(InflationMonitor):
         return rotated_count
 
 
-app_info_cache = AppInfoCache()
+if _use_test_isolation_cache():
+    app_info_cache = IsolationAppInfoCache()
+else:
+    app_info_cache = AppInfoCache()
 # app_info_cache.enable_inflation_monitoring(True)

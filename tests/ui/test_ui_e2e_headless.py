@@ -8,18 +8,12 @@ from __future__ import annotations
 
 import pytest
 from PySide6.QtCore import QTimer
-from PySide6.QtWidgets import QApplication, QMessageBox, QStackedWidget
+from PySide6.QtWidgets import QApplication, QMessageBox
 
 from mb import __version__ as MB_VERSION
 from ui.main_window import MainWindow
 
-
-def _stack(main_window: MainWindow) -> QStackedWidget:
-    c = main_window.centralWidget()
-    assert c is not None
-    stacks = c.findChildren(QStackedWidget)
-    assert len(stacks) == 1
-    return stacks[0]
+from tests.ui.qt_helpers import main_nav_stacked_widget
 
 
 @pytest.mark.slow
@@ -27,7 +21,7 @@ def _stack(main_window: MainWindow) -> QStackedWidget:
 @pytest.mark.ui_e2e
 def test_headless_ui_full_navigation_and_about(qtbot, main_window: MainWindow) -> None:
     nav = main_window.nav_widget
-    stack = _stack(main_window)
+    stack = main_nav_stacked_widget(main_window)
 
     for row in range(nav.count()):
         nav.setCurrentRow(row)

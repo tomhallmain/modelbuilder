@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import os
+
+# Isolate :mod:`utils.app_info_cache` from encrypted store / user cache (see ``IsolationAppInfoCache``).
+os.environ.setdefault("MODELBUILDER_TEST_CACHE", "1")
+
 from pathlib import Path
 from typing import List
 

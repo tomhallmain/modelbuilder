@@ -8,17 +8,13 @@ from __future__ import annotations
 
 import pytest
 from PySide6.QtCore import QTimer
-from PySide6.QtWidgets import QApplication, QMessageBox, QStackedWidget
+from PySide6.QtWidgets import QApplication, QMessageBox
 
 from mb import __version__ as MB_VERSION
 from ui.main_window import MainWindow
 from ui.pages import ConvertPage, DataPage, HomePage, InfoPage, TrainPage
 
-
-def _stacked_widget(parent) -> QStackedWidget:
-    stacks = parent.findChildren(QStackedWidget)
-    assert len(stacks) == 1
-    return stacks[0]
+from tests.ui.qt_helpers import main_nav_stacked_widget
 
 
 @pytest.mark.ui
@@ -39,7 +35,7 @@ def test_nav_lists_same_sections_as_cli_data_train_convert_flow(
 @pytest.mark.ui
 def test_navigation_switches_stacked_pages(qtbot, main_window: MainWindow) -> None:
     nav = main_window.nav_widget
-    stack = _stacked_widget(main_window.centralWidget())
+    stack = main_nav_stacked_widget(main_window)
     for row in range(nav.count()):
         nav.setCurrentRow(row)
         assert stack.currentIndex() == row
@@ -47,7 +43,7 @@ def test_navigation_switches_stacked_pages(qtbot, main_window: MainWindow) -> No
 
 @pytest.mark.ui
 def test_page_widget_types_match_nav(qtbot, main_window: MainWindow) -> None:
-    stack = _stacked_widget(main_window.centralWidget())
+    stack = main_nav_stacked_widget(main_window)
     expected = (HomePage, DataPage, TrainPage, ConvertPage, InfoPage)
     for i, cls in enumerate(expected):
         scroll = stack.widget(i)
@@ -63,16 +59,16 @@ def test_status_bar_no_workspace_message(qtbot, main_window: MainWindow) -> None
 
 @pytest.mark.ui
 def test_about_dialog_contains_mb_version(qtbot, main_window: MainWindow) -> None:
-    box_holder: list[QMessageBox | None] = [None]
+    """Copy About text before closing — ``close()`` deletes the C++ side immediately."""
+    texts: list[str] = []
 
-    def grab_and_close() -> None:
+    def grab_text_and_close() -> None:
         w = QApplication.activeModalWidget()
         if isinstance(w, QMessageBox):
-            box_holder[0] = w
+            texts.append(w.text())
             w.close()
 
-    QTimer.singleShot(0, grab_and_close)
+    QTimer.singleShot(0, grab_text_and_close)
     main_window._show_about()
-    qtbot.waitUntil(lambda: box_holder[0] is not None, timeout=2000)
-    assert box_holder[0] is not None
-    assert MB_VERSION in box_holder[0].text()
+    qtbot.waitUntil(lambda: len(texts) > 0, timeout=2000)
+    assert MB_VERSION in texts[0]
