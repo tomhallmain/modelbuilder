@@ -3,14 +3,26 @@ Headless Qt: set platform before any PySide6 import.
 
 Uses ``offscreen`` (no display). On unusual platforms you can override with
 ``QT_QPA_PLATFORM`` in the environment before invoking pytest.
+
+Pytest loads this file **before** parent ``tests/conftest.py``, so
+``MODELBUILDER_TEST_APP_DATA`` must be set here before ``import ui.*`` pulls in
+``utils.config`` (which attaches loggers).
 """
 
 from __future__ import annotations
 
+import atexit
 import os
+import shutil
+import tempfile
 from collections.abc import Generator
 from pathlib import Path
 from typing import Callable
+
+if not os.environ.get("MODELBUILDER_TEST_APP_DATA"):
+    _test_app_data_ui = tempfile.mkdtemp(prefix="modelbuilder_test_appdata_")
+    os.environ["MODELBUILDER_TEST_APP_DATA"] = _test_app_data_ui
+    atexit.register(lambda: shutil.rmtree(_test_app_data_ui, ignore_errors=True))
 
 # Must run before importing Qt or ui.*
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")

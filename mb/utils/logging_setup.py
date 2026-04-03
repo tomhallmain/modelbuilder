@@ -3,9 +3,27 @@ import os
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import List, Optional
+from typing import FrozenSet, List, Optional
 
 from mb.utils.custom_formatter import CustomFormatter
+
+# When MODELBUILDER_TEST_APP_DATA is set (pytest), these modules log at WARNING so
+# routine INFO from config reload (e.g. "Loaded application configuration…") does
+# not flood pytest's stderr. Other ``modelbuilder.*`` loggers stay at DEBUG.
+# Must match the ``module_name`` passed to :func:`get_logger` (``modelbuilder.{name}``).
+_TEST_QUIET_LOG_MODULES = frozenset(
+    {
+        "config",
+        "mb.pipeline_config",
+        "cache_controller",
+        "utils.app_info_cache",
+    }
+)
+
+
+def _test_quiet_logger_full_names() -> FrozenSet[str]:
+    """``logging`` names (``modelbuilder.*``) for modules quieted under pytest."""
+    return frozenset(f"modelbuilder.{m}" for m in _TEST_QUIET_LOG_MODULES)
 
 
 def get_log_directory() -> Path:
@@ -70,16 +88,25 @@ def get_logger(module_name: str) -> logging.Logger:
     """
     # Create logger with module name
     logger: logging.Logger = logging.getLogger(f"modelbuilder.{module_name}")
-    logger.setLevel(logging.DEBUG)
+    test_app_data = os.environ.get("MODELBUILDER_TEST_APP_DATA")
+    if test_app_data and module_name in _TEST_QUIET_LOG_MODULES:
+        logger.setLevel(logging.WARNING)
+    else:
+        logger.setLevel(logging.DEBUG)
     logger.propagate = False
 
-    # If handlers are already set up, return the logger
+    # If handlers are already set up, return the logger (may have been created before
+    # MODELBUILDER_TEST_APP_DATA was set — e.g. pytest loads tests/ui/conftest.py first).
     if logger.handlers:
+        if test_app_data and module_name in _TEST_QUIET_LOG_MODULES:
+            logger.setLevel(logging.WARNING)
+            for h in logger.handlers:
+                h.setLevel(logging.WARNING)
         return logger
 
     # create console handler with a higher log level
     ch: logging.StreamHandler = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
+    ch.setLevel(logging.WARNING if test_app_data and module_name in _TEST_QUIET_LOG_MODULES else logging.DEBUG)
     ch.setFormatter(CustomFormatter())
     logger.addHandler(ch)
 
@@ -93,7 +120,7 @@ def get_logger(module_name: str) -> logging.Logger:
 
     # Add file handler
     fh: logging.FileHandler = logging.FileHandler(log_file, mode='a', encoding='utf-8')
-    fh.setLevel(logging.DEBUG)
+    fh.setLevel(logging.WARNING if test_app_data and module_name in _TEST_QUIET_LOG_MODULES else logging.DEBUG)
     fh.setFormatter(CustomFormatter())
     logger.addHandler(fh)
 
@@ -188,10 +215,16 @@ def apply_application_log_settings() -> None:
     except Exception:
         level = logging.INFO
 
-    def _apply_to_logger(log: logging.Logger) -> None:
-        log.setLevel(level)
+    test_app_data = os.environ.get("MODELBUILDER_TEST_APP_DATA")
+    quiet_names = _test_quiet_logger_full_names() if test_app_data else frozenset()
+
+    def _apply_to_logger(log: logging.Logger, name: str) -> None:
+        eff = level
+        if name in quiet_names:
+            eff = logging.WARNING
+        log.setLevel(eff)
         for handler in log.handlers:
-            handler.setLevel(level)
+            handler.setLevel(eff)
 
     for name in list(logging.Logger.manager.loggerDict.keys()):
         if not isinstance(name, str):
@@ -201,9 +234,9 @@ def apply_application_log_settings() -> None:
         candidate = logging.Logger.manager.loggerDict[name]
         if not isinstance(candidate, logging.Logger):
             continue
-        _apply_to_logger(candidate)
+        _apply_to_logger(candidate, name)
 
-    _apply_to_logger(logging.getLogger("root"))
+    _apply_to_logger(logging.getLogger("root"), "root")
 
 
 def set_logger_level(debug: bool) -> None:

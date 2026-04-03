@@ -1,4 +1,10 @@
-"""Shared pytest configuration and fixtures."""
+"""Shared pytest configuration and fixtures.
+
+Pytest does not silence the stdlib ``logging`` package: handlers that write to
+stderr still print during the run unless levels are raised. Chatty ``INFO`` from
+application/pipeline config reload is quieted in :func:`mb.utils.logging_setup.get_logger`
+when ``MODELBUILDER_TEST_APP_DATA`` is set (see also ``tests/ui/conftest.py`` bootstrap order).
+"""
 
 from __future__ import annotations
 
@@ -9,9 +15,11 @@ import tempfile
 
 # Ephemeral app-data root: application.yaml, pipeline.yaml, and logs never use the developer's
 # Roaming folder during pytest (see :func:`utils.config.get_user_application_config_path`).
-_test_app_data = tempfile.mkdtemp(prefix="modelbuilder_test_appdata_")
-os.environ["MODELBUILDER_TEST_APP_DATA"] = _test_app_data
-atexit.register(lambda: shutil.rmtree(_test_app_data, ignore_errors=True))
+# tests/ui/conftest.py may set this first (it loads before this file); only create one temp dir.
+if not os.environ.get("MODELBUILDER_TEST_APP_DATA"):
+    _test_app_data = tempfile.mkdtemp(prefix="modelbuilder_test_appdata_")
+    os.environ["MODELBUILDER_TEST_APP_DATA"] = _test_app_data
+    atexit.register(lambda: shutil.rmtree(_test_app_data, ignore_errors=True))
 
 # Isolate :mod:`utils.app_info_cache` from encrypted store / user cache (see ``IsolationAppInfoCache``).
 os.environ.setdefault("MODELBUILDER_TEST_CACHE", "1")
@@ -23,7 +31,35 @@ import pytest
 
 from PIL import Image
 
+from mb.utils.logging_setup import _test_quiet_logger_full_names
+
 from tests.fixtures.synthetic_dataset import build_synthetic_raw_data_dir
+
+
+def _quiet_modelbuilder_loggers() -> None:
+    import logging
+
+    if not os.environ.get("MODELBUILDER_TEST_APP_DATA"):
+        return
+    for name in _test_quiet_logger_full_names():
+        lg = logging.getLogger(name)
+        lg.setLevel(logging.WARNING)
+        for h in lg.handlers:
+            h.setLevel(logging.WARNING)
+
+
+def pytest_configure(config: pytest.Config) -> None:
+    """
+    Runs after this conftest's imports (including pipeline/config loggers). Ensures
+    routine INFO does not flood stderr — import order can still create loggers before
+    ``MODELBUILDER_TEST_APP_DATA`` is visible to a submodule.
+    """
+    _quiet_modelbuilder_loggers()
+
+
+def pytest_sessionstart(session: pytest.Session) -> None:
+    """Re-apply after any plugin may have adjusted logging; before tests execute."""
+    _quiet_modelbuilder_loggers()
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]) -> None:
