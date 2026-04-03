@@ -27,6 +27,7 @@ from mb.data.dataset import DatasetCreator
 from mb.data.deduplicate import ImageDeduplicator
 from mb.data.gather import ImageGatherer
 from mb.data.upscale import ImageUpscaler
+from mb.pipeline_config import data_class_layout_defaults, gather_pipeline_defaults
 from mb.utils.storage import check_same_drive, check_target_external_storage
 from ui.lib.qt_alert import qt_alert, qt_operation_error
 from mb.utils.constants import DataPipelineSubcommand, ModelBuilderTaskType
@@ -249,6 +250,7 @@ class DataPage(QWidget):
         tab = QWidget()
         v = QVBoxLayout(tab)
 
+        gd = gather_pipeline_defaults()
         group = QGroupBox("mb data gather")
         form = QFormLayout(group)
         self._gather_form = form
@@ -256,11 +258,11 @@ class DataPage(QWidget):
         self.gather_subdirs = QLineEdit()
         self.gather_target_count = QSpinBox()
         self.gather_target_count.setRange(1, 5_000_000)
-        self.gather_target_count.setValue(16000)
-        self.gather_target_dir = QLineEdit("raw_data/coherent")
-        self.gather_rejected_dir = QLineEdit()
+        self.gather_target_count.setValue(gd["target_count"])
+        self.gather_target_dir = QLineEdit(str(gd["target_dir"]))
+        self.gather_rejected_dir = QLineEdit(str(gd["rejected_dir"]))
         self.gather_subdir_weights = QLineEdit()
-        self.gather_raw_data_dir = QLineEdit("raw_data")
+        self.gather_raw_data_dir = QLineEdit(str(gd["raw_data_dir"]))
 
         form.addRow(_("Source dir"), self._path_row(self.gather_source, select_dir=True))
         form.addRow(_("Subdirs (space-separated)"), self.gather_subdirs)
@@ -419,6 +421,7 @@ class DataPage(QWidget):
 
     def _collect_inputs(self, command: str) -> dict:
         if command == "gather":
+            gd = gather_pipeline_defaults()
             source_dir = Path(self.gather_source.text().strip())
             if not source_dir.exists():
                 raise ValueError(_("Source dir does not exist."))
@@ -437,10 +440,16 @@ class DataPage(QWidget):
                 "source_dir": source_dir,
                 "subdirs": subdirs,
                 "target_count": int(self.gather_target_count.value()),
-                "target_dir": Path(self.gather_target_dir.text().strip() or "raw_data/coherent"),
-                "rejected_dir": Path(self.gather_rejected_dir.text().strip()) if self.gather_rejected_dir.text().strip() else None,
+                "target_dir": Path(
+                    self.gather_target_dir.text().strip() or str(gd["target_dir"])
+                ),
+                "rejected_dir": Path(self.gather_rejected_dir.text().strip())
+                if self.gather_rejected_dir.text().strip()
+                else None,
                 "subdir_weights": weights if weights else None,
-                "raw_data_dir": Path(self.gather_raw_data_dir.text().strip() or "raw_data"),
+                "raw_data_dir": Path(
+                    self.gather_raw_data_dir.text().strip() or str(gd["raw_data_dir"])
+                ),
             }
         if command == "convert":
             fmt = self.convert_format.text().strip().lower() or "jpeg"
@@ -522,6 +531,7 @@ class DataPage(QWidget):
     def _execute_data_command(self, ctx: LongTaskContext, command: str, payload: dict) -> bool:
         ce = ctx.cancel_event
         if command == "gather":
+            layout = data_class_layout_defaults()
             gatherer = ImageGatherer(
                 source_dir=str(payload["source_dir"]),
                 valid_subdirs=payload["subdirs"],
@@ -529,6 +539,7 @@ class DataPage(QWidget):
                 target_count=payload["target_count"],
                 rejected_dir=payload["rejected_dir"],
                 subdir_weights=payload["subdir_weights"],
+                class_qualifying_subdir=layout.get("class_qualifying_subdir"),
             )
             gatherer.raw_data_dir = payload["raw_data_dir"]
             return bool(gatherer.run(cancel_event=ce))

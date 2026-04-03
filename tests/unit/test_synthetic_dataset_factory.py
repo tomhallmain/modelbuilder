@@ -6,7 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from mb.data.dataset import CLASS_NAMES, MIN_FILE_SIZE
+from mb.data.class_layout import SYNTHETIC_DEFAULT_CLASS_NAMES
+from mb.data.dataset import MIN_FILE_SIZE
 
 from tests.fixtures.synthetic_dataset import build_synthetic_raw_data_dir
 
@@ -15,10 +16,10 @@ def test_build_synthetic_raw_data_default_total(tmp_path: Path) -> None:
     root = tmp_path / "raw"
     counts = build_synthetic_raw_data_dir(root, total_images=100, seed=1)
     assert sum(counts.values()) == 100
-    assert set(counts.keys()) == set(CLASS_NAMES)
+    assert set(counts.keys()) == set(SYNTHETIC_DEFAULT_CLASS_NAMES)
     assert all(c >= 1 for c in counts.values())
 
-    for name in CLASS_NAMES:
+    for name in SYNTHETIC_DEFAULT_CLASS_NAMES:
         jpeg_dir = root / name / "JPEG_IMAGES"
         assert jpeg_dir.is_dir()
         jpgs = list(jpeg_dir.glob("*.jpg"))
@@ -35,7 +36,7 @@ def test_build_synthetic_requires_enough_images_for_all_classes(tmp_path: Path) 
 def test_synthetic_raw_data_dir_fixture(synthetic_raw_data_dir: Path) -> None:
     assert synthetic_raw_data_dir.name == "raw_data"
     total = 0
-    for name in CLASS_NAMES:
+    for name in SYNTHETIC_DEFAULT_CLASS_NAMES:
         n = len(list((synthetic_raw_data_dir / name / "JPEG_IMAGES").glob("*.jpg")))
         total += n
     assert total == 100

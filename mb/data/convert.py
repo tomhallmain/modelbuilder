@@ -29,6 +29,8 @@ from mb.cancellation import check_cancel_event
 from mb.utils.snapshot import (
     UnifiedSnapshot, generate_run_id, save_unified_snapshot, preload_gather_cache
 )
+from mb.data.class_layout import discover_class_names, normalize_qualifying_subdir
+from mb.pipeline_config import get_pipeline_config
 
 # Configure logging
 logger = setup_logging(script_name="convert_to_jpeg")
@@ -39,8 +41,7 @@ JPEG_EXTENSIONS = {'.jpg', '.jpeg'}
 
 # Default raw data directory (contains all class directories)
 DEFAULT_RAW_DATA_DIR = Path("raw_data")
-CLASS_NAMES = ["coherent", "semi-incoherent", "incoherent"]
-JPEG_IMAGES_DIR = "JPEG_IMAGES"  # Subdirectory for converted JPEGs when no subdirectories exist
+JPEG_IMAGES_DIR = "JPEG_IMAGES"  # Output subdirectory for converted JPEGs per class
 
 
 class ImageConverter:
@@ -361,9 +362,22 @@ class ImageConverter:
         if cache_loaded:
             logger.info("Gather cache loaded successfully - hash lookups will be faster")
         
+        pc = get_pipeline_config()
+        qual = normalize_qualifying_subdir(pc.get("data.class_qualifying_subdir"))
+        ex = pc.get("data.class_names")
+        explicit_list = ex if isinstance(ex, list) else None
+        class_names = discover_class_names(
+            self.raw_data_dir,
+            explicit=explicit_list,
+            class_qualifying_subdir=qual,
+        )
+        if not class_names:
+            logger.warning("No class directories found under %s", self.raw_data_dir)
+            return True
+
         # Process each class directory
         all_image_files = []
-        for class_name in CLASS_NAMES:
+        for class_name in class_names:
             check_cancel_event(self._cancel_event)
             class_dir = self.raw_data_dir / class_name
             

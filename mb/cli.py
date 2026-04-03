@@ -11,7 +11,12 @@ from typing import Optional
 import logging
 
 from mb import __version__
-from mb.pipeline_config import get_pipeline_config, reload_pipeline_config
+from mb.pipeline_config import (
+    data_class_layout_defaults,
+    gather_pipeline_defaults,
+    get_pipeline_config,
+    reload_pipeline_config,
+)
 from mb.utils.logging_setup import setup_logging
 from mb.utils.translations import _
 
@@ -41,7 +46,9 @@ def create_parser() -> argparse.ArgumentParser:
         description=_("Model Builder - A unified CLI for building ML models"),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    
+
+    _gather_def = gather_pipeline_defaults()
+
     parser.add_argument(
         "--version",
         action="version",
@@ -103,19 +110,22 @@ def create_parser() -> argparse.ArgumentParser:
     gather_parser.add_argument(
         "--target-count",
         type=int,
-        default=16000,
-        help=_("Target number of images to gather (default: 16000)"),
+        default=_gather_def["target_count"],
+        help=_(
+            "Target number of images to gather (default: from pipeline data.gather.default_target_count)"
+        ),
     )
     gather_parser.add_argument(
         "--target-dir",
         type=Path,
-        default=Path("raw_data/coherent"),
-        help=_("Target directory for gathered images (default: raw_data/coherent)"),
+        default=_gather_def["target_dir"],
+        help=_("Target directory for gathered images (default: from pipeline data.gather.default_target_dir)"),
     )
     gather_parser.add_argument(
         "--rejected-dir",
         type=Path,
-        help=_("Rejected directory for manually rejected images"),
+        default=_gather_def["rejected_dir"],
+        help=_("Rejected directory for manually rejected images (default: data.gather.default_rejected_dir)"),
     )
     gather_parser.add_argument(
         "--subdir-weights",
@@ -125,8 +135,8 @@ def create_parser() -> argparse.ArgumentParser:
     gather_parser.add_argument(
         "--raw-data-dir",
         type=Path,
-        default=Path("raw_data"),
-        help=_("Root directory for raw data (default: raw_data)"),
+        default=_gather_def["raw_data_dir"],
+        help=_("Root directory for raw data (default: data.gather.default_raw_data_dir)"),
     )
     
     # mb data convert
@@ -479,14 +489,16 @@ def handle_data_gather(args):
                 )
                 return 1
         
+        layout = data_class_layout_defaults()
         # Create and run gatherer
         gatherer = ImageGatherer(
             source_dir=str(args.source_dir),
             valid_subdirs=args.subdirs,
-            target_dir=args.target_dir,
+            target_dir=Path(args.target_dir),
             target_count=args.target_count,
-            rejected_dir=args.rejected_dir if hasattr(args, 'rejected_dir') and args.rejected_dir else None,
-            subdir_weights=subdir_weights if subdir_weights else None
+            rejected_dir=Path(args.rejected_dir) if args.rejected_dir is not None else None,
+            subdir_weights=subdir_weights if subdir_weights else None,
+            class_qualifying_subdir=layout.get("class_qualifying_subdir"),
         )
         
         # Store raw data directory

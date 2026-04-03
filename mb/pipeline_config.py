@@ -6,6 +6,11 @@ This is separate from the desktop shell settings in ``utils.config`` (``gui`` /
 ``mb train``, :class:`~mb.training.trainer.ModelTrainer`, and training UI.
 
 Default file: ``mb/config/default_pipeline.yaml`` (shipped with the package).
+
+**Data pipeline order** (image classification): **gather** → **convert** →
+**create-dataset**. Defaults under ``data.gather`` apply to
+:mod:`mb.data.gather` / ``mb data gather``; raw layout and class layout also use
+``data.*`` (see :func:`gather_pipeline_defaults`).
 """
 
 from __future__ import annotations
@@ -65,6 +70,17 @@ class PipelineConfig:
                     ".avif",
                 ],
                 "video_types": [".mp4", ".mkv", ".avi", ".wmv", ".mov", ".flv"],
+                # null = discover class folders under raw_data_dir; else explicit list (order preserved).
+                "class_names": None,
+                # null = do not require a nested folder; else e.g. "IMAGES" — class dirs must contain it.
+                "class_qualifying_subdir": None,
+                # Defaults for mb data gather / ImageGatherer (see gather_pipeline_defaults).
+                "gather": {
+                    "default_target_count": 16000,
+                    "default_target_dir": "raw_data/coherent",
+                    "default_rejected_dir": "raw_data/rejected",
+                    "default_raw_data_dir": "raw_data",
+                },
             },
             "training": {
                 "frozen_epochs": 5,
@@ -204,6 +220,34 @@ def get_pipeline_config(config_path: Optional[Path] = None) -> PipelineConfig:
         reload_pipeline_config(None)
     assert _global_pipeline is not None
     return _global_pipeline
+
+
+def data_class_layout_defaults() -> Dict[str, Any]:
+    """
+    ``data.class_names`` and ``data.class_qualifying_subdir`` for discovery / gather validation.
+    """
+    pc = get_pipeline_config()
+    cn = pc.get("data.class_names")
+    cq = pc.get("data.class_qualifying_subdir")
+    return {
+        "class_names": cn if isinstance(cn, list) else None,
+        "class_qualifying_subdir": cq if cq is None or isinstance(cq, str) else None,
+    }
+
+
+def gather_pipeline_defaults() -> Dict[str, Any]:
+    """
+    Defaults for :mod:`mb.data.gather` (``mb data gather``, Data page gather tab).
+
+    Paths are relative to the process working directory unless overridden in YAML.
+    """
+    g = get_pipeline_config().get("data.gather") or {}
+    return {
+        "target_count": int(g.get("default_target_count", 16000)),
+        "target_dir": Path(str(g.get("default_target_dir", "raw_data/coherent"))),
+        "rejected_dir": Path(str(g.get("default_rejected_dir", "raw_data/rejected"))),
+        "raw_data_dir": Path(str(g.get("default_raw_data_dir", "raw_data"))),
+    }
 
 
 def reset_pipeline_config() -> None:

@@ -117,7 +117,7 @@ These gaps are **operational**, not “wrong backend”—but for parity testing
 1. **Copy or backup** the image root (or use a **staging copy** of `raw_data`) before **deduplicate** or **create-dataset** with balancing enabled.
 2. **Run convert** and confirm a **unified snapshot** exists before **create-dataset** (CLI or GUI will both fail otherwise by design).
 3. Use a **fresh or dedicated `data_dir`** (e.g. `data_run_2026`) so you do not merge with an old train/test tree unintentionally.
-4. **Align folder names** with `CLASS_NAMES` in `dataset.py` or adjust the code for your taxonomy before scaling up.
+4. **Align folder names** with `data.class_names` / discovery in pipeline YAML (see `mb.data.class_layout`) or adjust for your taxonomy before scaling up.
 5. For **training**, point **data_dir** at the folder that contains **`train/` and `test/`** subfolders with per-class subdirs.
 6. Monitor **disk space**: gather + copy + train checkpoints can use **multiples** of raw data size.
 7. Prefer **CLI + log files** for the first full pipeline dry run; use the GUI once paths are proven.

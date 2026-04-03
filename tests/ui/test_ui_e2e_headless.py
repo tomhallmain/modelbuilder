@@ -29,7 +29,8 @@ from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import QApplication, QMessageBox
 
 from mb import __version__ as MB_VERSION
-from mb.data.dataset import CLASS_NAMES, DatasetCreator
+from mb.data.class_layout import SYNTHETIC_DEFAULT_CLASS_NAMES
+from mb.data.dataset import DatasetCreator
 from ui.main_window import MainWindow
 from ui.pages.convert_page import ConvertPage
 from ui.pages.info_page import InfoPage
@@ -147,7 +148,7 @@ def test_headless_ui_train_pytorch_and_convert_onnx(
     )
     assert creator.run() is True
     assert (data_dir / "train").is_dir() and (data_dir / "test").is_dir()
-    for name in CLASS_NAMES:
+    for name in SYNTHETIC_DEFAULT_CLASS_NAMES:
         assert (data_dir / "train" / name).is_dir()
         assert (data_dir / "test" / name).is_dir()
 

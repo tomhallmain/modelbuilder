@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 from PySide6.QtCore import Qt
 
-from mb.data.dataset import CLASS_NAMES
+from mb.data.class_layout import SYNTHETIC_DEFAULT_CLASS_NAMES
 from ui.pages.data_page import DataPage
 
 
@@ -47,7 +47,7 @@ def test_data_page_validate_enables_run_on_gather_tab(qtbot, synthetic_raw_data_
     qtbot.addWidget(page)
     page.tabs.setCurrentIndex(0)
     page.gather_source.setText(str(synthetic_raw_data_dir))
-    page.gather_subdirs.setText(CLASS_NAMES[0])
+    page.gather_subdirs.setText(SYNTHETIC_DEFAULT_CLASS_NAMES[0])
     qtbot.mouseClick(page.btn_validate, Qt.MouseButton.LeftButton)
     assert page.btn_run.isEnabled()
 

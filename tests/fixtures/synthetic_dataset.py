@@ -5,7 +5,7 @@ Layout (under *raw_data_dir*):
 
     <class_name>/JPEG_IMAGES/*.jpg
 
-Class names default to :data:`mb.data.dataset.CLASS_NAMES`. JPEG files are random RGB
+Class names default to :data:`mb.data.class_layout.SYNTHETIC_DEFAULT_CLASS_NAMES`. JPEG files are random RGB
 noise saved large enough to satisfy :data:`mb.data.dataset.MIN_FILE_SIZE` (6 KiB).
 """
 
@@ -15,7 +15,8 @@ import random
 from pathlib import Path
 from typing import Mapping, Sequence
 
-from mb.data.dataset import CLASS_NAMES, MIN_FILE_SIZE
+from mb.data.class_layout import SYNTHETIC_DEFAULT_CLASS_NAMES
+from mb.data.dataset import MIN_FILE_SIZE
 
 try:
     from PIL import Image
@@ -66,13 +67,13 @@ def build_synthetic_raw_data_dir(
         raw_data_dir: Root directory (e.g. ``tmp_path / "raw_data"``).
         total_images: Total ``.jpg`` files to create (split evenly across classes).
         seed: Base seed for reproducible image bytes.
-        class_names: Defaults to ``mb.data.dataset.CLASS_NAMES`` (three classes).
+        class_names: Defaults to :data:`mb.data.class_layout.SYNTHETIC_DEFAULT_CLASS_NAMES` (three classes).
         min_bytes: Minimum JPEG file size (must be ``>= MIN_FILE_SIZE`` for dataset creation).
 
     Returns:
         Mapping of class name → number of images written.
     """
-    names = list(class_names) if class_names is not None else list(CLASS_NAMES)
+    names = list(class_names) if class_names is not None else list(SYNTHETIC_DEFAULT_CLASS_NAMES)
     n_classes = len(names)
     if n_classes == 0:
         raise ValueError("class_names must not be empty")

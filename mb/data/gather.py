@@ -1,8 +1,14 @@
 #!/usr/bin/env python3
 """
-Script to gather coherent images for training dataset.
+Gather images into the raw data tree for training.
+
+This is the **first** step in the usual image pipeline: **gather** → **convert**
+→ **create-dataset** (see :func:`mb.pipeline_config.gather_pipeline_defaults` and
+``data.gather`` in pipeline YAML).
+
 Randomly selects images from specified subdirectories up to a target limit,
-and copies them to raw_data/coherent preserving original format.
+and copies them into the configured target directory (default ``raw_data/coherent``)
+preserving original format.
 
 Features:
 - Supports subsequent runs: filters out already-processed images (in target and rejected directories)
@@ -35,35 +41,31 @@ except ImportError:
 # Import centralized logging configuration
 from mb.utils.logging_setup import log_completion_info, log_startup_info, setup_logging
 from mb.cancellation import check_cancel_event
+from mb.data.class_layout import normalize_qualifying_subdir
 
 # Configure logging
 logger = setup_logging(script_name="gather_coherent_images")
 
-# Configuration - MODIFY THESE VALUES
-SOURCE_DIRECTORY = "/path/to/your/coherent/images/source"  # Change this to your source directory
-VALID_SUBDIRECTORIES = [
-    # Add your valid subdirectory names here, for example:
-    # "nature",
-    # "architecture", 
-    # "landscapes",
-    # etc.
-]
-
-# Image file extensions to process
+# Image file extensions for source scans (pre-convert; not identical to pipeline data.image_types).
 IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif', '.gif', '.webp'}
 TARGET_EXTENSIONS = {'.jpg', '.jpeg'}
-
-# Target settings
-TARGET_COUNT = 16000
-TARGET_DIRECTORY = Path("raw_data/coherent")
-REJECTED_DIRECTORY = Path("raw_data/rejected")
 
 class ImageGatherer:
     """Handles the gathering and processing of coherent images."""
     
-    def __init__(self, source_dir: str, valid_subdirs: List[str], target_dir: Path, target_count: int, rejected_dir: Path = None, subdir_weights: Dict[str, float] = None):
+    def __init__(
+        self,
+        source_dir: str,
+        valid_subdirs: List[str],
+        target_dir: Path,
+        target_count: int,
+        rejected_dir: Path = None,
+        subdir_weights: Dict[str, float] = None,
+        class_qualifying_subdir: Optional[str] = None,
+    ):
         self.source_dir = Path(source_dir)
         self.valid_subdirs = set(valid_subdirs)
+        self.class_qualifying_subdir = class_qualifying_subdir
         self.target_dir = target_dir
         self.rejected_dir = Path(rejected_dir) if rejected_dir else None
         self.subdir_weights = subdir_weights or {}
@@ -219,7 +221,22 @@ class ImageGatherer:
         if missing_subdirs:
             logger.error(f"Specified subdirectories do not exist: {missing_subdirs}")
             return False
-            
+
+        q = normalize_qualifying_subdir(self.class_qualifying_subdir)
+        if q:
+            bad_qual: List[str] = []
+            for subdir in self.valid_subdirs:
+                qual_path = self.source_dir / subdir / q
+                if not qual_path.is_dir():
+                    bad_qual.append(str(qual_path))
+            if bad_qual:
+                logger.error(
+                    "Required qualifying subdirectory %r under each of --subdirs; missing or not a directory: %s",
+                    q,
+                    bad_qual,
+                )
+                return False
+
         # Check if target directory is writable
         try:
             self.target_dir.mkdir(parents=True, exist_ok=True)
@@ -1106,22 +1123,50 @@ class ImageGatherer:
 
 
 def main():
-    """Main function with command line argument support."""
+    """CLI entry when run as ``python -m mb.data.gather``; defaults from pipeline YAML."""
+    from mb.pipeline_config import data_class_layout_defaults, gather_pipeline_defaults
+
+    gd = gather_pipeline_defaults()
+    layout = data_class_layout_defaults()
     parser = argparse.ArgumentParser(description='Gather coherent images for training dataset')
-    parser.add_argument('--source-dir', type=str, default=SOURCE_DIRECTORY,
-                       help='Source directory containing coherent images')
-    parser.add_argument('--target-count', type=int, default=TARGET_COUNT,
-                       help='Target limit for total images (default: 16000). Treated as a limit, not exact requirement.')
-    parser.add_argument('--target-dir', type=str, default=str(TARGET_DIRECTORY),
-                       help='Target directory for copied images')
-    parser.add_argument('--rejected-dir', type=str, default=str(REJECTED_DIRECTORY),
-                       help='Rejected directory for manually rejected images (default: raw_data/rejected)')
-    parser.add_argument('--subdirs', nargs='+', default=VALID_SUBDIRECTORIES,
-                       help='Valid subdirectories to search in')
+    parser.add_argument(
+        '--source-dir',
+        type=str,
+        required=True,
+        help='Source directory containing coherent images',
+    )
+    parser.add_argument(
+        '--target-count',
+        type=int,
+        default=gd['target_count'],
+        help=f"Target limit for total images (default: {gd['target_count']}). Treated as a limit, not exact requirement.",
+    )
+    parser.add_argument(
+        '--target-dir',
+        type=str,
+        default=str(gd['target_dir']),
+        help=f"Target directory for copied images (default: {gd['target_dir']})",
+    )
+    parser.add_argument(
+        '--rejected-dir',
+        type=str,
+        default=str(gd['rejected_dir']),
+        help=f"Rejected directory for manually rejected images (default: {gd['rejected_dir']})",
+    )
+    parser.add_argument(
+        '--subdirs',
+        nargs='+',
+        required=True,
+        help='Valid subdirectories to search in',
+    )
     parser.add_argument('--subdir-weights', type=str, default=None,
                        help='Relative weights for subdirectories in format "subdir1:weight1,subdir2:weight2" (e.g., "neutral:4,drawing:1" = 80%%/20%% or "neutral:0.8,drawing:0.2"). Weights are normalized automatically - any positive numbers work.')
-    parser.add_argument('--raw-data-dir', type=str, default='raw_data',
-                       help='Root directory for raw data (default: raw_data)')
+    parser.add_argument(
+        '--raw-data-dir',
+        type=str,
+        default=str(gd['raw_data_dir']),
+        help=f"Root directory for raw data (default: {gd['raw_data_dir']})",
+    )
     
     args = parser.parse_args()
     
@@ -1177,7 +1222,8 @@ def main():
             target_dir=target_directory,
             target_count=target_count,
             rejected_dir=rejected_directory,
-            subdir_weights=subdir_weights if subdir_weights else None
+            subdir_weights=subdir_weights if subdir_weights else None,
+            class_qualifying_subdir=layout.get("class_qualifying_subdir"),
         )
     except ValueError as e:
         logger.error(f"Configuration error: {e}")

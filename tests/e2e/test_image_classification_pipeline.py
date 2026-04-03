@@ -20,7 +20,8 @@ from pathlib import Path
 
 import pytest
 
-from mb.data.dataset import CLASS_NAMES, DatasetCreator
+from mb.data.class_layout import SYNTHETIC_DEFAULT_CLASS_NAMES
+from mb.data.dataset import DatasetCreator
 from mb.cli import main
 
 from tests.test_utils import default_pipeline_config_path, prepare_synthetic_raw_with_snapshot
@@ -51,7 +52,7 @@ def test_image_classification_train_pytorch_and_export_onnx(tmp_path: Path) -> N
     assert creator.run() is True
 
     assert (data_dir / "train").is_dir() and (data_dir / "test").is_dir()
-    for name in CLASS_NAMES:
+    for name in SYNTHETIC_DEFAULT_CLASS_NAMES:
         assert (data_dir / "train" / name).is_dir()
         assert (data_dir / "test" / name).is_dir()
 
