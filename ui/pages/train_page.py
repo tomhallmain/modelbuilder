@@ -126,6 +126,10 @@ class TrainPage(QWidget):
         self.framework.currentTextChanged.connect(self._refresh_architecture_hint)
         self.btn_validate.clicked.connect(self._validate_inputs)
         self.btn_start.clicked.connect(self._start_training)
+
+    def _run_startup_validation(self) -> None:
+        """Called from :meth:`MainWindow._run_page_startup_validation` after cache restore."""
+        self.output.clear()
         self._refresh_architecture_hint()
         self._validate_inputs()
 
@@ -154,6 +158,7 @@ class TrainPage(QWidget):
     def restore_gui_state(self, state: dict) -> None:
         if not state:
             return
+        self.framework.blockSignals(True)
         try:
             mti = state.get("model_type_idx")
             if isinstance(mti, int) and 0 <= mti < self.model_type.count():
@@ -193,8 +198,8 @@ class TrainPage(QWidget):
                     spin.setValue(v)
         except Exception:
             pass
-        self._refresh_architecture_hint()
-        self._validate_inputs()
+        finally:
+            self.framework.blockSignals(False)
 
     def _path_row(self, edit: QLineEdit, select_file: bool = False) -> QWidget:
         row = QWidget()

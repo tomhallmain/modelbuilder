@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtCore import QSize, QThreadPool
-from PySide6.QtGui import QAction
+from PySide6.QtCore import QSize, QThreadPool, QUrl
+from PySide6.QtGui import QAction, QDesktopServices
 from PySide6.QtWidgets import (
     QFileDialog,
     QHBoxLayout,
@@ -26,11 +26,16 @@ from ui.app_actions import AppActions
 from ui.controllers.cache_controller import CacheController
 from ui.main_thread_bridge import MainThreadBridge
 from ui.controllers.notification_controller import NotificationController
+from ui.lib.qt_alert import qt_alert
 from ui.pages import ConvertPage, DataPage, HomePage, InfoPage, TrainPage
 from ui.workspace import Workspace, default_settings, effective_pipeline_config_path
 from mb.pipeline_config import reload_pipeline_config
 
-from utils.config import get_application_config, reload_application_config
+from utils.config import (
+    DEFAULT_APPLICATION_YAML,
+    get_application_config,
+    reload_application_config,
+)
 from utils.notification_manager import notification_manager
 
 
@@ -66,6 +71,7 @@ class MainWindow(QMainWindow):
         self._build_ui()
         self._cache = CacheController(self)
         self._cache.load_info_cache()
+        self._run_page_startup_validation()
         self._cache.start_periodic_store()
         self._apply_workspace_to_ui()
 
@@ -142,6 +148,19 @@ class MainWindow(QMainWindow):
             master=self,
         )
 
+    def _run_page_startup_validation(self) -> None:
+        """
+        Run each page's validation once after constructor + cache restore.
+
+        Without this, pages validate in ``__init__`` and again in
+        ``restore_gui_state`` (and signal handlers like ``currentChanged``),
+        doubling ``[invalid]`` / ``[info]`` lines on startup.
+        """
+        for w in self._page_widgets:
+            fn = getattr(w, "_run_startup_validation", None)
+            if callable(fn):
+                fn()
+
     def _build_ui(self) -> None:
         central = QWidget()
         self.setCentralWidget(central)
@@ -188,6 +207,13 @@ class MainWindow(QMainWindow):
         act_cfg = QAction("Set &config file…", self)
         act_cfg.triggered.connect(self._choose_config)
         file_menu.addAction(act_cfg)
+        act_app_yaml = QAction("Open &application settings (YAML)…", self)
+        act_app_yaml.triggered.connect(self._open_application_settings_yaml)
+        act_app_yaml.setToolTip(
+            "Desktop shell options (toasts, cache interval, …) in configs/application.yaml. "
+            "Reload the app or use Set config file for pipeline YAML."
+        )
+        file_menu.addAction(act_app_yaml)
         file_menu.addSeparator()
         act_exit = QAction("E&xit", self)
         act_exit.triggered.connect(self.close)
@@ -215,6 +241,18 @@ class MainWindow(QMainWindow):
 
     def _apply_workspace_to_ui(self) -> None:
         self.statusBar().showMessage(self._status_text())
+
+    def _open_application_settings_yaml(self) -> None:
+        """Open repo ``configs/application.yaml`` in the OS default editor / viewer."""
+        path = DEFAULT_APPLICATION_YAML
+        if not path.is_file():
+            qt_alert(
+                self,
+                "Application settings",
+                f"File not found:\n{path}",
+            )
+            return
+        QDesktopServices.openUrl(QUrl.fromLocalFile(str(path.resolve())))
 
     def _choose_workspace(self) -> None:
         start = str(self._workspace.root) if self._workspace.root else ""

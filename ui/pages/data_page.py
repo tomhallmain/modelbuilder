@@ -72,6 +72,10 @@ class DataPage(QWidget):
         self.btn_validate.clicked.connect(self._validate_inputs)
         self.btn_run.clicked.connect(self._run_current_command)
         self.tabs.currentChanged.connect(self._validate_inputs)
+
+    def _run_startup_validation(self) -> None:
+        """Called from :meth:`MainWindow._run_page_startup_validation` after cache restore."""
+        self.output.clear()
         self._validate_inputs()
 
     def collect_gui_state(self) -> dict:
@@ -111,6 +115,7 @@ class DataPage(QWidget):
     def restore_gui_state(self, state: dict) -> None:
         if not state:
             return
+        self.tabs.blockSignals(True)
         try:
             tab = state.get("tab")
             if isinstance(tab, int) and 0 <= tab < self.tabs.count():
@@ -160,7 +165,8 @@ class DataPage(QWidget):
                 self.dataset_allow_external.setChecked(bool(ds.get("allow_external", False)))
         except Exception:
             pass
-        self._validate_inputs()
+        finally:
+            self.tabs.blockSignals(False)
 
     def _build_gather_tab(self) -> QWidget:
         tab = QWidget()

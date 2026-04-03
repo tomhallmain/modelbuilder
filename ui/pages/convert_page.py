@@ -81,6 +81,10 @@ class ConvertPage(QWidget):
 
         self.btn_validate.clicked.connect(self._validate_inputs)
         self.btn_convert.clicked.connect(self._run_conversion)
+
+    def _run_startup_validation(self) -> None:
+        """Called from :meth:`MainWindow._run_page_startup_validation` after cache restore."""
+        self.output.clear()
         self._validate_inputs()
 
     def collect_gui_state(self) -> dict:
@@ -116,7 +120,6 @@ class ConvertPage(QWidget):
                 self.image_size.setValue(iz)
         except Exception:
             pass
-        self._validate_inputs()
 
     def _path_row(self, edit: QLineEdit, select_dir: bool = True, save: bool = False) -> QWidget:
         row = QWidget()
