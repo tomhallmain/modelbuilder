@@ -41,6 +41,7 @@ from mb.utils.snapshot import find_latest_unified_snapshot_path
 from mb.utils.translations import _
 from ui.lib.form_layout_i18n import apply_qform_label_column
 from ui.lib.task_progress import attach_progress_dialog
+from ui.lib.tooltip_qt import ToolTip, create_tooltip
 from ui.task_context import LongTaskContext
 from ui.task_runner import start_task
 
@@ -60,6 +61,9 @@ class DataPage(QWidget):
         self._intro = QLabel()
         self._intro.setWordWrap(True)
         root.addWidget(self._intro)
+
+        self._pipeline_group_tooltips: list[ToolTip] | None = None
+        self._intro_tooltip: ToolTip | None = None
 
         self.tabs = QTabWidget()
         self.tabs.addTab(self._build_gather_tab(), "")
@@ -90,7 +94,11 @@ class DataPage(QWidget):
     def retranslate_ui(self, *, refresh_output: bool = True) -> None:
         self._title.setText(f"<h2>{_('Data')}</h2>")
         self._intro.setText(
-            _("Prepare datasets using gather, convert, deduplicate, upscale, and split flows.")
+            _(
+                "Typical order: Gather → Convert → Deduplicate (optional) → Upscale (optional) → Create Dataset. "
+                "If class folders are already under your raw data root, skip Gather and start at Convert. "
+                "See docs/DATA_PIPELINE.md for storage on external drives and large vs small images."
+            )
         )
         self.tabs.setTabText(0, _("Gather"))
         self.tabs.setTabText(1, _("Convert"))
@@ -126,7 +134,7 @@ class DataPage(QWidget):
             [
                 _("Raw data dir"),
                 _("Output data dir"),
-                _("Test images per class"),
+                _("Test items per class"),
                 _("Seed (optional)"),
                 _("Run ID (optional)"),
                 _("Max train per class"),
@@ -137,6 +145,9 @@ class DataPage(QWidget):
         self.dataset_max_train.setSpecialValueText(_("None"))
         self.dataset_balance_train.setText(_("Balance train set to smallest class"))
         self.dataset_allow_external.setText(_("Allow external/removable storage"))
+        self._apply_pipeline_tab_tooltips()
+        self._apply_pipeline_group_tooltips()
+        self._apply_intro_tooltip()
         for edit in (
             self.gather_source,
             self.gather_target_dir,
@@ -257,8 +268,8 @@ class DataPage(QWidget):
         v = QVBoxLayout(tab)
 
         gd = gather_pipeline_defaults()
-        group = QGroupBox("mb data gather")
-        form = QFormLayout(group)
+        self._gather_group = QGroupBox("mb data gather")
+        form = QFormLayout(self._gather_group)
         self._gather_form = form
         self.gather_source = QLineEdit()
         self.gather_subdirs = QLineEdit()
@@ -277,7 +288,7 @@ class DataPage(QWidget):
         form.addRow(_("Rejected dir"), self._path_row(self.gather_rejected_dir, select_dir=True))
         form.addRow(_("Subdir weights"), self.gather_subdir_weights)
         form.addRow(_("Raw data dir"), self._path_row(self.gather_raw_data_dir, select_dir=True))
-        v.addWidget(group)
+        v.addWidget(self._gather_group)
         v.addStretch(1)
         return tab
 
@@ -285,14 +296,14 @@ class DataPage(QWidget):
         tab = QWidget()
         v = QVBoxLayout(tab)
 
-        group = QGroupBox("mb data convert")
-        form = QFormLayout(group)
+        self._convert_group = QGroupBox("mb data convert")
+        form = QFormLayout(self._convert_group)
         self._convert_form = form
         self.convert_raw_data_dir = QLineEdit("raw_data")
         self.convert_format = QLineEdit("jpeg")
         form.addRow(_("Raw data dir"), self._path_row(self.convert_raw_data_dir, select_dir=True))
         form.addRow(_("Format (jpeg/jpg)"), self.convert_format)
-        v.addWidget(group)
+        v.addWidget(self._convert_group)
         v.addStretch(1)
         return tab
 
@@ -300,12 +311,12 @@ class DataPage(QWidget):
         tab = QWidget()
         v = QVBoxLayout(tab)
 
-        group = QGroupBox("mb data deduplicate")
-        form = QFormLayout(group)
+        self._dedup_group = QGroupBox("mb data deduplicate")
+        form = QFormLayout(self._dedup_group)
         self._dedup_form = form
         self.dedup_raw_data_dir = QLineEdit("raw_data")
         form.addRow(_("Raw data dir"), self._path_row(self.dedup_raw_data_dir, select_dir=True))
-        v.addWidget(group)
+        v.addWidget(self._dedup_group)
         v.addStretch(1)
         return tab
 
@@ -313,8 +324,8 @@ class DataPage(QWidget):
         tab = QWidget()
         v = QVBoxLayout(tab)
 
-        group = QGroupBox("mb data upscale")
-        form = QFormLayout(group)
+        self._upscale_group = QGroupBox("mb data upscale")
+        form = QFormLayout(self._upscale_group)
         self._upscale_form = form
         self.upscale_raw_data_dir = QLineEdit("raw_data")
         self.upscale_review_dir = QLineEdit()
@@ -323,7 +334,7 @@ class DataPage(QWidget):
             _("Review dir (optional)"),
             self._path_row(self.upscale_review_dir, select_dir=True),
         )
-        v.addWidget(group)
+        v.addWidget(self._upscale_group)
         v.addStretch(1)
         return tab
 
@@ -331,8 +342,8 @@ class DataPage(QWidget):
         tab = QWidget()
         v = QVBoxLayout(tab)
 
-        group = QGroupBox("mb data create-dataset")
-        form = QFormLayout(group)
+        self._dataset_group = QGroupBox("mb data create-dataset")
+        form = QFormLayout(self._dataset_group)
         self._dataset_form = form
         self.dataset_raw_data_dir = QLineEdit("raw_data")
         self.dataset_data_dir = QLineEdit("data")
@@ -356,9 +367,88 @@ class DataPage(QWidget):
         form.addRow(_("Max train per class"), self.dataset_max_train)
         form.addRow("", self.dataset_balance_train)
         form.addRow("", self.dataset_allow_external)
-        v.addWidget(group)
+        v.addWidget(self._dataset_group)
         v.addStretch(1)
         return tab
+
+    def _apply_pipeline_tab_tooltips(self) -> None:
+        """Hover hints for each Data tab (native tab bar tooltips)."""
+        tips = [
+            _(
+                "Copy samples from source subdirectories into class folders under the raw data root. "
+                "Skip this tab if your data is already organized as one folder per class."
+            ),
+            _(
+                "Normalize images to JPEG under each class’s CONVERTED/ folder. "
+                "Point Raw data dir at the same tree on an internal or external drive; outputs stay beside sources."
+            ),
+            _(
+                "Remove duplicates and quarantine very small images (by pixel size) to small_images_review/ under the raw root."
+            ),
+            _(
+                "Upscale images previously moved to the small-image review area (after deduplicate). "
+                "Default review dir is raw_data/small_images_review when left empty."
+            ),
+            _(
+                "Build train/ and test/ under the output data directory from the raw tree. "
+                "A good place to put the final dataset on your main drive while raw data stays external."
+            ),
+        ]
+        for i, text in enumerate(tips):
+            if i < self.tabs.count():
+                self.tabs.setTabToolTip(i, text)
+
+    def _apply_pipeline_group_tooltips(self) -> None:
+        """Delayed tooltips on each step’s group box (see ui.lib.tooltip_qt)."""
+        groups = [
+            self._gather_group,
+            self._convert_group,
+            self._dedup_group,
+            self._upscale_group,
+            self._dataset_group,
+        ]
+        texts = [
+            _(
+                "Gather copies files into timestamped runs under the target dir and tracks hashes so reruns skip "
+                "already-seen files. Set raw data dir to the pipeline root used by later steps."
+            ),
+            _(
+                "Convert walks class folders, writes CONVERTED/ JPEGs, and records a unified snapshot. "
+                "For image classification, videos and multi-frame GIFs may yield a random frame JPEG. "
+                "Very large images are downscaled (max edge 4000px)."
+            ),
+            _(
+                "Deduplicate removes duplicate images and handles tiny dimensions: removes very small images and "
+                "moves borderline-small ones to small_images_review/ for manual review before upscale."
+            ),
+            _(
+                "Upscale processes the review tree produced by deduplicate for undersized images you choose to keep."
+            ),
+            _(
+                "Create-dataset reads from raw data (including CONVERTED/) and writes the train/test split to the "
+                "output data dir. Set output on a spacious internal disk if raw data lives on external storage."
+            ),
+        ]
+        if self._pipeline_group_tooltips is None:
+            self._pipeline_group_tooltips = [
+                create_tooltip(g, t) for g, t in zip(groups, texts)
+            ]
+        else:
+            for tip, t in zip(self._pipeline_group_tooltips, texts):
+                tip.set_text(t)
+
+    def _apply_intro_tooltip(self) -> None:
+        """Extra detail on hover over the intro paragraph."""
+        detail = _(
+            "Storage: convert reads and writes under the raw data path you choose (including on removable drives). "
+            "Create Dataset copies into the output data directory—often set that to your main disk. "
+            "Large images: convert downscales long edges; tiny images: deduplicate moves small files to "
+            "small_images_review/. Full discussion: docs/DATA_PIPELINE.md."
+        )
+        if self._intro_tooltip is None:
+            self._intro_tooltip = create_tooltip(self._intro, detail)
+        else:
+            self._intro_tooltip.set_text(detail)
 
     def _path_row(self, edit: QLineEdit, select_dir: bool = True) -> QWidget:
         row = QWidget()
