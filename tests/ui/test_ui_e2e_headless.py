@@ -91,6 +91,7 @@ def _poll_until(
 @pytest.mark.slow
 @pytest.mark.ui
 @pytest.mark.ui_e2e
+@pytest.mark.timeout(180)
 def test_headless_ui_full_navigation_and_about(qtbot, main_window: MainWindow) -> None:
     nav = main_window.nav_widget
     stack = main_nav_stacked_widget(main_window)
@@ -122,6 +123,7 @@ def test_headless_ui_full_navigation_and_about(qtbot, main_window: MainWindow) -
 @pytest.mark.ui
 @pytest.mark.ui_e2e
 @pytest.mark.e2e
+@pytest.mark.timeout(180)  # typical ~1 min locally; cap hung runs (polls below fail faster with a message)
 def test_headless_ui_train_pytorch_and_convert_onnx(
     qtbot, main_window: MainWindow, tmp_path: Path
 ) -> None:
@@ -189,7 +191,7 @@ def test_headless_ui_train_pytorch_and_convert_onnx(
     _poll_until(
         qtbot,
         _train_done,
-        timeout_ms=600_000,
+        timeout_ms=120_000,
         poll_ms=200,
         err_msg="Timeout waiting for training (see Train log in failure output)",
     )
@@ -221,7 +223,7 @@ def test_headless_ui_train_pytorch_and_convert_onnx(
     _poll_until(
         qtbot,
         _convert_done,
-        timeout_ms=120_000,
+        timeout_ms=60_000,
         poll_ms=200,
         err_msg="Timeout waiting for ONNX conversion",
     )

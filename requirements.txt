@@ -19,6 +19,7 @@ PySide6>=6.5.0
 # Development / tests
 pytest>=7.0.0
 pytest-qt>=4.4.0
+pytest-timeout>=2.2.0
 
 # Legacy dependencies (kept for existing scripts, not required for new mb CLI)
 # fastai>=2.0.0
