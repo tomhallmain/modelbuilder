@@ -9,7 +9,6 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
-    QFileDialog,
     QFormLayout,
     QGroupBox,
     QHBoxLayout,
@@ -27,6 +26,7 @@ from PySide6.QtWidgets import (
 from mb.models.types import ModelType
 from mb.pipeline_config import get_pipeline_config
 from mb.training.run_args import TrainingRunArgs
+from ui.lib.fast_directory_picker_qt import get_existing_directory, get_open_file_name
 from ui.lib.qt_alert import qt_operation_error
 from mb.utils.constants import ModelBuilderTaskType
 from mb.utils.recent_run_history import append_recent_run
@@ -301,21 +301,19 @@ class TrainPage(QWidget):
     def _browse(self, edit: QLineEdit, select_file: bool = False) -> None:
         start = edit.text().strip() or str(Path.cwd())
         if select_file:
-            value = QFileDialog.getOpenFileName(
+            value = get_open_file_name(
                 self,
                 _("Select checkpoint file"),
                 start,
                 _("Model/checkpoint files (*.pth *.pt *.h5 *.keras *.ckpt);;All files (*.*)"),
-                options=QFileDialog.Option.DontUseNativeDialog,
-            )[0]
+            )
             if value:
                 edit.setText(value)
         else:
-            value = QFileDialog.getExistingDirectory(
+            value = get_existing_directory(
                 self,
                 _("Select directory"),
                 start,
-                QFileDialog.Option.ShowDirsOnly | QFileDialog.Option.DontUseNativeDialog,
             )
             if value:
                 edit.setText(value)

@@ -11,7 +11,6 @@ from PySide6.QtCore import QSize, QThreadPool, QUrl
 from PySide6.QtGui import QAction, QDesktopServices, QKeySequence
 from PySide6.QtWidgets import (
     QApplication,
-    QFileDialog,
     QHBoxLayout,
     QListWidget,
     QListWidgetItem,
@@ -29,6 +28,7 @@ from ui.app_theme import apply_theme
 from ui.controllers.cache_controller import CacheController
 from ui.main_thread_bridge import MainThreadBridge
 from ui.controllers.notification_controller import NotificationController
+from ui.lib.fast_directory_picker_qt import get_existing_directory, get_open_file_name
 from ui.lib.qt_alert import qt_alert
 from ui.pages import ConfigPage, ConvertPage, DataPage, HomePage, InfoPage, TrainPage
 from ui.workspace import Workspace, default_settings, effective_pipeline_config_path
@@ -309,11 +309,10 @@ class MainWindow(QMainWindow):
 
     def _choose_workspace(self) -> None:
         start = str(self._workspace.root) if self._workspace.root else ""
-        path = QFileDialog.getExistingDirectory(
+        path = get_existing_directory(
             self,
             _("Workspace root folder"),
             start,
-            QFileDialog.Option.ShowDirsOnly | QFileDialog.Option.DontUseNativeDialog,
         )
         if not path:
             return
@@ -326,13 +325,12 @@ class MainWindow(QMainWindow):
         start = str(self._workspace.config_path.parent) if self._workspace.config_path else ""
         if self._workspace.root and not start:
             start = str(self._workspace.root)
-        path = QFileDialog.getOpenFileName(
+        path = get_open_file_name(
             self,
             _("Optional YAML config"),
             start,
             _("YAML (*.yaml *.yml);;All files (*.*)"),
-            options=QFileDialog.Option.DontUseNativeDialog,
-        )[0]
+        )
         if not path:
             return
         self._workspace.config_path = Path(path)

@@ -8,7 +8,6 @@ from pathlib import Path
 
 from PySide6.QtWidgets import (
     QCheckBox,
-    QFileDialog,
     QFormLayout,
     QGroupBox,
     QHBoxLayout,
@@ -41,6 +40,7 @@ from mb.utils.constants import DataPipelineSubcommand, ModelBuilderTaskType
 from mb.utils.recent_run_history import append_recent_run
 from mb.utils.snapshot import find_latest_unified_snapshot_path
 from mb.utils.translations import _
+from ui.lib.fast_directory_picker_qt import get_existing_directory, get_open_file_name
 from ui.lib.form_layout_i18n import apply_qform_label_column
 from ui.lib.task_progress import attach_progress_dialog
 from ui.lib.tooltip_qt import ToolTip, create_tooltip
@@ -495,22 +495,20 @@ class DataPage(QWidget):
     def _browse(self, edit: QLineEdit, select_dir: bool = True) -> None:
         start = edit.text().strip() or str(Path.cwd())
         if select_dir:
-            value = QFileDialog.getExistingDirectory(
+            value = get_existing_directory(
                 self,
                 _("Select directory"),
                 start,
-                QFileDialog.Option.ShowDirsOnly | QFileDialog.Option.DontUseNativeDialog,
             )
             if value:
                 edit.setText(value)
         else:
-            value = QFileDialog.getOpenFileName(
+            value = get_open_file_name(
                 self,
                 _("Select file"),
                 start,
                 _("All files (*.*)"),
-                options=QFileDialog.Option.DontUseNativeDialog,
-            )[0]
+            )
             if value:
                 edit.setText(value)
         self._validate_inputs()

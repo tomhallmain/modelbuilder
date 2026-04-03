@@ -6,7 +6,6 @@ from pathlib import Path
 
 from PySide6.QtWidgets import (
     QComboBox,
-    QFileDialog,
     QFormLayout,
     QGroupBox,
     QHBoxLayout,
@@ -20,6 +19,11 @@ from PySide6.QtWidgets import (
 )
 
 from mb.conversion.converters import convert_model, detect_model_framework
+from ui.lib.fast_directory_picker_qt import (
+    get_existing_directory,
+    get_open_file_name,
+    get_save_file_name,
+)
 from ui.lib.qt_alert import qt_operation_error
 from mb.utils.constants import ModelBuilderTaskType
 from mb.utils.recent_run_history import append_recent_run
@@ -178,32 +182,29 @@ class ConvertPage(QWidget):
     def _browse(self, edit: QLineEdit, select_dir: bool = True, save: bool = False) -> None:
         start = edit.text().strip() or str(Path.cwd())
         if select_dir:
-            value = QFileDialog.getExistingDirectory(
+            value = get_existing_directory(
                 self,
                 _("Select directory"),
                 start,
-                QFileDialog.Option.ShowDirsOnly | QFileDialog.Option.DontUseNativeDialog,
             )
             if value:
                 edit.setText(value)
         elif save:
-            value = QFileDialog.getSaveFileName(
+            value = get_save_file_name(
                 self,
                 _("Select output file"),
                 start,
                 _("Model files (*.onnx *.safetensors);;All files (*.*)"),
-                options=QFileDialog.Option.DontUseNativeDialog,
-            )[0]
+            )
             if value:
                 edit.setText(value)
         else:
-            value = QFileDialog.getOpenFileName(
+            value = get_open_file_name(
                 self,
                 _("Select model file"),
                 start,
                 _("Model files (*.pth *.pt *.h5 *.keras *.onnx *.safetensors);;All files (*.*)"),
-                options=QFileDialog.Option.DontUseNativeDialog,
-            )[0]
+            )
             if value:
                 edit.setText(value)
         self._validate_inputs()

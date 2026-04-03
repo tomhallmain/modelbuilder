@@ -5,7 +5,6 @@ from __future__ import annotations
 from pathlib import Path
 
 from PySide6.QtWidgets import (
-    QFileDialog,
     QFormLayout,
     QGroupBox,
     QHBoxLayout,
@@ -19,6 +18,7 @@ from PySide6.QtWidgets import (
 )
 
 from mb.info_inspect import dataset_info_text, model_info_text
+from ui.lib.fast_directory_picker_qt import get_existing_directory, get_open_file_name
 from ui.lib.qt_alert import qt_alert
 from mb.utils.translations import _
 from ui.lib.form_layout_i18n import apply_qform_label_column
@@ -147,22 +147,20 @@ class InfoPage(QWidget):
     def _browse(self, edit: QLineEdit, select_dir: bool = True) -> None:
         start = edit.text().strip() or str(Path.cwd())
         if select_dir:
-            value = QFileDialog.getExistingDirectory(
+            value = get_existing_directory(
                 self,
                 _("Select directory"),
                 start,
-                QFileDialog.Option.ShowDirsOnly | QFileDialog.Option.DontUseNativeDialog,
             )
             if value:
                 edit.setText(value)
         else:
-            value = QFileDialog.getOpenFileName(
+            value = get_open_file_name(
                 self,
                 _("Select model file"),
                 start,
                 _("Model files (*.pth *.pt *.h5 *.keras *.onnx *.safetensors);;All files (*.*)"),
-                options=QFileDialog.Option.DontUseNativeDialog,
-            )[0]
+            )
             if value:
                 edit.setText(value)
 

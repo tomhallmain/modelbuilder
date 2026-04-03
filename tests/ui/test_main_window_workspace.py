@@ -16,7 +16,7 @@ def test_choose_workspace_updates_status_bar(qtbot, main_window: MainWindow, tmp
         return str(ws)
 
     monkeypatch.setattr(
-        "ui.main_window.QFileDialog.getExistingDirectory",
+        "ui.main_window.get_existing_directory",
         fake_get_existing_directory,
     )
     main_window._choose_workspace()
