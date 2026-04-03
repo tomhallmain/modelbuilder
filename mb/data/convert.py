@@ -49,6 +49,7 @@ from mb.data.media_utils import (
     extract_random_video_frame_to_jpeg,
 )
 from mb.pipeline_config import get_pipeline_config
+from mb.models.types import ModelType, VisualMediaSourceType
 
 # Configure logging
 logger = setup_logging(script_name="convert")
@@ -62,13 +63,13 @@ DEFAULT_RAW_DATA_DIR = Path("raw_data")
 class ImageConverter:
     """Handles conversion of images to JPEG format for all class directories."""
     
-    def __init__(self, raw_data_dir: Path, model_type: Optional[str] = None):
+    def __init__(self, raw_data_dir: Path, model_type: Optional[ModelType] = None):
         self.raw_data_dir = Path(raw_data_dir)
         pc = get_pipeline_config()
         self.model_type = (
             model_type
             if model_type is not None
-            else pc.get("model.default_type", "image_classification")
+            else ModelType.from_pipeline_value(pc.get("model.default_type"))
         )
         
         # Statistics tracking
@@ -91,18 +92,17 @@ class ImageConverter:
 
     def _scan_suffixes(self) -> List[str]:
         exts = set(configured_media_suffixes())
-        if self.model_type == "image_classification":
+        if self.model_type == ModelType.IMAGE_CLASSIFICATION:
             exts |= set(configured_video_suffixes())
         return sorted(exts)
 
     def _split_static_and_extract(self, paths: List[Path]) -> Tuple[List[Path], List[Path]]:
         """Split inputs into normal still-image conversion vs random-frame extraction."""
-        ic = self.model_type == "image_classification"
         static: List[Path] = []
         extract: List[Path] = []
         for p in paths:
-            kind, _ = classify_convert_source(p, image_classification=ic)
-            if kind == "extract":
+            st = classify_convert_source(p, model_type=self.model_type)
+            if st in (VisualMediaSourceType.VIDEO_EXTRACT, VisualMediaSourceType.ANIMATED_GIF_EXTRACT):
                 extract.append(p)
             else:
                 static.append(p)

@@ -9,6 +9,7 @@ from PIL import Image
 
 from mb.data.class_layout import CONVERTED_MEDIA_SUBDIR, VISUAL_MEDIA_REVIEW_SUBDIR
 from mb.data.convert import ImageConverter
+from mb.models.types import ModelType, VisualMediaSourceType
 from mb.data.media_utils import (
     classify_convert_source,
     extract_random_gif_frame_to_jpeg,
@@ -33,22 +34,22 @@ def test_pil_gif_frame_count_multi(tmp_path: Path) -> None:
 def test_classify_convert_source(tmp_path: Path) -> None:
     png = tmp_path / "x.png"
     Image.new("RGB", (2, 2), (0, 0, 0)).save(png)
-    assert classify_convert_source(png, image_classification=True)[0] == "static"
+    assert classify_convert_source(png, model_type=ModelType.IMAGE_CLASSIFICATION) == VisualMediaSourceType.STATIC
 
     mp4 = tmp_path / "c.mp4"
     mp4.touch()
-    assert classify_convert_source(mp4, image_classification=True) == ("extract", "video")
-    assert classify_convert_source(mp4, image_classification=False)[0] == "static"
+    assert classify_convert_source(mp4, model_type=ModelType.IMAGE_CLASSIFICATION) == VisualMediaSourceType.VIDEO_EXTRACT
+    assert classify_convert_source(mp4, model_type=ModelType.OBJECT_DETECTION) == VisualMediaSourceType.STATIC
 
     g1 = tmp_path / "sg.gif"
     Image.new("RGB", (2, 2), (1, 1, 1)).save(g1, format="GIF")
-    assert classify_convert_source(g1, image_classification=True)[0] == "static"
+    assert classify_convert_source(g1, model_type=ModelType.IMAGE_CLASSIFICATION) == VisualMediaSourceType.STATIC
 
     gm = tmp_path / "mg.gif"
     a = Image.new("RGB", (2, 2), (10, 0, 0))
     b = Image.new("RGB", (2, 2), (0, 10, 0))
     a.save(gm, save_all=True, append_images=[b], duration=50, loop=0, format="GIF")
-    assert classify_convert_source(gm, image_classification=True) == ("extract", "animated_gif")
+    assert classify_convert_source(gm, model_type=ModelType.IMAGE_CLASSIFICATION) == VisualMediaSourceType.ANIMATED_GIF_EXTRACT
 
 
 def test_extract_random_gif_frame_to_jpeg(tmp_path: Path) -> None:
@@ -73,7 +74,7 @@ def test_image_converter_animated_gif_writes_converted_and_review(tmp_path: Path
     f1 = Image.new("RGB", (12, 12), (0, 100, 0))
     f0.save(gif_path, save_all=True, append_images=[f1], duration=80, loop=0, format="GIF")
 
-    c = ImageConverter(raw_data_dir=raw, model_type="image_classification")
+    c = ImageConverter(raw_data_dir=raw, model_type=ModelType.IMAGE_CLASSIFICATION)
     assert c.run() is True
 
     jpg = cls_dir / CONVERTED_MEDIA_SUBDIR / "anim.jpg"

@@ -9,12 +9,13 @@ from __future__ import annotations
 
 import random
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal, Optional, Tuple
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from PIL import Image as PILImage
 
 from mb.data.file_types import configured_video_suffixes
+from mb.models.types import ModelType, VisualMediaSourceType
 
 # Match mb.data.convert: max edge before downscale
 _MAX_JPEG_EDGE = 4000
@@ -41,30 +42,28 @@ def is_configured_video_suffix(path: Path) -> bool:
 def classify_convert_source(
     path: Path,
     *,
-    image_classification: bool,
-) -> Tuple[Literal["static", "extract"], Optional[str]]:
+    model_type: ModelType,
+) -> VisualMediaSourceType:
     """
     Decide whether *path* is converted as a normal still image or needs a random frame.
 
-    When *image_classification* is False, every file is treated as ``static`` (videos
-    are not expected in the scan).
-
-    Returns:
-        (``static`` | ``extract``, reason for extract or ``None``)
+    Unless *model_type* is :attr:`~mb.models.types.ModelType.IMAGE_CLASSIFICATION`,
+    every file is treated as :attr:`~mb.models.types.SourceType.STATIC` (videos are not
+    scanned as extract sources).
     """
-    if not image_classification:
-        return ("static", None)
+    if model_type != ModelType.IMAGE_CLASSIFICATION:
+        return VisualMediaSourceType.STATIC
     suf = path.suffix.lower()
     if suf in configured_video_suffixes():
-        return ("extract", "video")
+        return VisualMediaSourceType.VIDEO_EXTRACT
     if suf == ".gif":
         n = pil_gif_frame_count(path)
         if n is None:
-            return ("static", None)
+            return VisualMediaSourceType.STATIC
         if n <= 1:
-            return ("static", None)
-        return ("extract", "animated_gif")
-    return ("static", None)
+            return VisualMediaSourceType.STATIC
+        return VisualMediaSourceType.ANIMATED_GIF_EXTRACT
+    return VisualMediaSourceType.STATIC
 
 
 def pil_image_to_jpeg_normalized(img: "PILImage.Image", target_path: Path) -> bool:

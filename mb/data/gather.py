@@ -49,6 +49,7 @@ from mb.data.class_layout import (
     normalize_qualifying_subdir,
 )
 from mb.data.file_types import configured_gather_scan_suffixes
+from mb.models.types import ModelType
 from mb.pipeline_config import get_pipeline_config
 
 # Configure logging
@@ -66,7 +67,7 @@ class ImageGatherer:
         rejected_dir: Path = None,
         subdir_weights: Dict[str, float] = None,
         class_qualifying_subdir: Optional[str] = None,
-        model_type: Optional[str] = None,
+        model_type: Optional[ModelType] = None,
     ):
         self.source_dir = Path(source_dir)
         self.valid_subdirs = set(valid_subdirs)
@@ -74,7 +75,7 @@ class ImageGatherer:
         self.model_type = (
             model_type
             if model_type is not None
-            else get_pipeline_config().get("model.default_type", "image_classification")
+            else ModelType.from_pipeline_value(get_pipeline_config().get("model.default_type"))
         )
         self.target_dir = target_dir
         self.rejected_dir = Path(rejected_dir) if rejected_dir else None

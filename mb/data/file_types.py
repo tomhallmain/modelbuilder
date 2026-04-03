@@ -12,6 +12,8 @@ from __future__ import annotations
 
 from typing import FrozenSet, Optional
 
+from mb.models.types import ModelType
+
 
 def _normalize_suffix(entry: str) -> str:
     s = str(entry).strip().lower()
@@ -44,20 +46,20 @@ def configured_video_suffixes() -> FrozenSet[str]:
     return frozenset(_normalize_suffix(x) for x in raw if str(x).strip())
 
 
-def configured_gather_scan_suffixes(model_type: Optional[str] = None) -> FrozenSet[str]:
+def configured_gather_scan_suffixes(model_type: Optional[ModelType] = None) -> FrozenSet[str]:
     """
     Extensions to scan for gather / dedupe-style discovery.
 
-    For ``image_classification``, includes :func:`configured_video_suffixes` in addition
-    to :func:`configured_media_suffixes`.
+    For :attr:`~mb.models.types.ModelType.IMAGE_CLASSIFICATION`, includes
+    :func:`configured_video_suffixes` in addition to :func:`configured_media_suffixes`.
     """
     from mb.pipeline_config import get_pipeline_config
 
     mt = model_type
     if mt is None:
-        mt = get_pipeline_config().get("model.default_type", "image_classification")
+        mt = ModelType.from_pipeline_value(get_pipeline_config().get("model.default_type"))
     base = set(configured_media_suffixes())
-    if mt == "image_classification":
+    if mt == ModelType.IMAGE_CLASSIFICATION:
         base |= set(configured_video_suffixes())
     return frozenset(base)
 

@@ -32,6 +32,9 @@ from mb.info_inspect import dataset_info_text, model_info_text
 from mb.training.run_args import TrainingRunArgs, load_training_run_args_json
 from mb.models.types import ModelType
 
+# CLI ``--model-type`` for gather/convert (all declared pipeline types).
+_MODEL_TYPE_CLI_CHOICES = [m.value for m in ModelType]
+
 logger = logging.getLogger(__name__)
 
 
@@ -147,7 +150,7 @@ def create_parser() -> argparse.ArgumentParser:
     gather_parser.add_argument(
         "--model-type",
         default=None,
-        choices=["image_classification"],
+        choices=_MODEL_TYPE_CLI_CHOICES,
         help=_(
             "Pipeline model type (default: model.default_type). "
             "When image_classification, gather also considers configured video extensions."
@@ -181,7 +184,7 @@ def create_parser() -> argparse.ArgumentParser:
     convert_parser.add_argument(
         "--model-type",
         default=None,
-        choices=["image_classification"],
+        choices=_MODEL_TYPE_CLI_CHOICES,
         help=_(
             "Pipeline model type (default: model.default_type). "
             "When image_classification, videos and multi-frame GIFs get a random frame as JPEG."
@@ -532,6 +535,9 @@ def handle_data_gather(args):
                 return 1
         
         layout = data_class_layout_defaults()
+        mt = ModelType.from_pipeline_value(
+            getattr(args, "model_type", None) or get_pipeline_config().get("model.default_type")
+        )
         # Create and run gatherer
         gatherer = ImageGatherer(
             source_dir=str(args.source_dir),
@@ -541,7 +547,7 @@ def handle_data_gather(args):
             rejected_dir=Path(args.rejected_dir) if args.rejected_dir is not None else None,
             subdir_weights=subdir_weights if subdir_weights else None,
             class_qualifying_subdir=layout.get("class_qualifying_subdir"),
-            model_type=getattr(args, "model_type", None),
+            model_type=mt,
         )
         
         # Store raw data directory
@@ -563,10 +569,10 @@ def handle_data_convert(args):
     # Today ImageConverter is JPEG-oriented; --format is accepted but not yet applied.
     try:
         reload_pipeline_config(getattr(args, "config", None), force=True)
-        converter = ImageConverter(
-            raw_data_dir=args.raw_data_dir,
-            model_type=getattr(args, "model_type", None),
+        mt = ModelType.from_pipeline_value(
+            getattr(args, "model_type", None) or get_pipeline_config().get("model.default_type")
         )
+        converter = ImageConverter(raw_data_dir=args.raw_data_dir, model_type=mt)
         success = converter.run()
         return 0 if success else 1
     except Exception as e:
@@ -655,9 +661,9 @@ def handle_train(args):
             if framework not in ("pytorch", "keras"):
                 logger.error(_("Unsupported framework in JSON: {fw}").format(fw=framework))
                 return 1
-            model_type_str = pipeline.get("model.default_type", "image_classification")
-            if model_type_str != "image_classification":
-                logger.error(_("Unsupported model type from config: {t}").format(t=model_type_str))
+            mt_cfg = ModelType.from_pipeline_value(pipeline.get("model.default_type"))
+            if mt_cfg != ModelType.IMAGE_CLASSIFICATION:
+                logger.error(_("Unsupported model type from config: {t}").format(t=mt_cfg.value))
                 return 1
             model_type = ModelType.IMAGE_CLASSIFICATION
             data_dir = run_args.data_dir
@@ -694,12 +700,11 @@ def handle_train(args):
             return 1
         
         # Determine model type
-        model_type_str = args.model_type or pipeline.get('model.default_type', 'image_classification')
-        if model_type_str == 'image_classification':
-            model_type = ModelType.IMAGE_CLASSIFICATION
-        else:
-            logger.error(_("Unsupported model type: {t}").format(t=model_type_str))
+        mt = ModelType.from_pipeline_value(args.model_type or pipeline.get("model.default_type"))
+        if mt != ModelType.IMAGE_CLASSIFICATION:
+            logger.error(_("Unsupported model type: {t}").format(t=mt.value))
             return 1
+        model_type = mt
         
         # Determine architecture
         architecture = args.architecture or pipeline.get('model.default_architecture', 'resnet34')

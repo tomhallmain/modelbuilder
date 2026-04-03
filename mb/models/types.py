@@ -5,20 +5,49 @@ This module defines the supported model types and provides base classes
 for model type handlers.
 """
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from enum import Enum
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
 
 
-class ModelType(Enum):
-    """Enumeration of supported model types."""
-    
+class ModelType(str, Enum):
+    """Pipeline / training model type (YAML ``model.default_type``, CLI, gather, convert)."""
+
     IMAGE_CLASSIFICATION = "image_classification"
-    # Future model types:
-    # OBJECT_DETECTION = "object_detection"
-    # IMAGE_SEGMENTATION = "image_segmentation"
-    # TEXT_CLASSIFICATION = "text_classification"
+    # Reserved for future handlers; gather/convert treat as non-image-classification until wired.
+    OBJECT_DETECTION = "object_detection"
+
+    @classmethod
+    def from_pipeline_value(cls, value: Optional[object]) -> ModelType:
+        """Resolve ``model.default_type`` or CLI string to a member (unknown → image classification)."""
+        if value is None:
+            return cls.IMAGE_CLASSIFICATION
+        if isinstance(value, ModelType):
+            return value
+        s = str(value).strip()
+        if not s:
+            return cls.IMAGE_CLASSIFICATION
+        try:
+            return cls(s)
+        except ValueError:
+            return cls.IMAGE_CLASSIFICATION
+
+
+class VisualMediaSourceType(str, Enum):
+    """
+    How a raw media file is handled by :func:`~mb.data.media_utils.classify_convert_source`
+    (image-classification convert path).
+    """
+
+    STATIC = "static"
+    """Still image path: convert or copy JPEG as today (includes single-frame GIF)."""
+    VIDEO_EXTRACT = "video"
+    """Random frame from a configured video type."""
+    ANIMATED_GIF_EXTRACT = "animated_gif"
+    """Random frame from a multi-frame GIF."""
 
 
 class ModelTypeHandler(ABC):
