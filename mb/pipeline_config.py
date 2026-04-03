@@ -78,7 +78,7 @@ class PipelineConfig:
                 "class_qualifying_subdir": None,
                 # Defaults for mb data gather / ImageGatherer (see gather_pipeline_defaults).
                 "gather": {
-                    "default_target_count": 16000,
+                    "default_target_count": 100000,
                     "default_target_dir": "raw_data/coherent",
                     "default_rejected_dir": "raw_data/rejected",
                     "default_raw_data_dir": "raw_data",
@@ -245,7 +245,7 @@ def gather_pipeline_defaults() -> Dict[str, Any]:
     """
     g = get_pipeline_config().get("data.gather") or {}
     return {
-        "target_count": int(g.get("default_target_count", 16000)),
+        "target_count": int(g.get("default_target_count", 100000)),
         "target_dir": Path(str(g.get("default_target_dir", "raw_data/coherent"))),
         "rejected_dir": Path(str(g.get("default_rejected_dir", "raw_data/rejected"))),
         "raw_data_dir": Path(str(g.get("default_raw_data_dir", "raw_data"))),

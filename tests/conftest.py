@@ -2,7 +2,16 @@
 
 from __future__ import annotations
 
+import atexit
 import os
+import shutil
+import tempfile
+
+# Ephemeral app-data root: application.yaml, pipeline.yaml, and logs never use the developer's
+# Roaming folder during pytest (see :func:`utils.config.get_user_application_config_path`).
+_test_app_data = tempfile.mkdtemp(prefix="modelbuilder_test_appdata_")
+os.environ["MODELBUILDER_TEST_APP_DATA"] = _test_app_data
+atexit.register(lambda: shutil.rmtree(_test_app_data, ignore_errors=True))
 
 # Isolate :mod:`utils.app_info_cache` from encrypted store / user cache (see ``IsolationAppInfoCache``).
 os.environ.setdefault("MODELBUILDER_TEST_CACHE", "1")

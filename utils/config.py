@@ -288,6 +288,10 @@ class ApplicationConfig:
 
 def get_user_application_config_path() -> Path:
     """Writable ``application.yaml`` beside the log directory (e.g. ``…/ModelBuilder/application.yaml``)."""
+    test_root = os.environ.get("MODELBUILDER_TEST_APP_DATA")
+    if test_root:
+        return Path(test_root) / "application.yaml"
+
     from mb.utils.logging_setup import get_log_directory
 
     return get_log_directory().parent / "application.yaml"
@@ -295,6 +299,10 @@ def get_user_application_config_path() -> Path:
 
 def get_user_pipeline_config_path() -> Path:
     """Writable ``pipeline.yaml`` next to :func:`get_user_application_config_path` (same app-data folder)."""
+    test_root = os.environ.get("MODELBUILDER_TEST_APP_DATA")
+    if test_root:
+        return Path(test_root) / "pipeline.yaml"
+
     return get_user_application_config_path().parent / "pipeline.yaml"
 
 

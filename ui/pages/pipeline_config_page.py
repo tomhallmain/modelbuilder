@@ -467,7 +467,7 @@ class PipelineConfigPage(QWidget):
         self._d_qual.setText("" if cq is None else str(cq))
 
         g = d.get("gather") or {}
-        self._g_target_n.setValue(int(g.get("default_target_count") or 16000))
+        self._g_target_n.setValue(int(g.get("default_target_count") or 100000))
         self._g_target_dir.setText(str(g.get("default_target_dir") or ""))
         self._g_rej.setText(str(g.get("default_rejected_dir") or ""))
         self._g_raw.setText(str(g.get("default_raw_data_dir") or ""))

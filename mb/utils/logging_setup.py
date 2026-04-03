@@ -12,7 +12,15 @@ def get_log_directory() -> Path:
     """
     Directory for ``modelbuilder_*.log`` files — the same path used when
     :func:`get_logger` attaches its file handler. Ensures the directory exists.
+
+    When ``MODELBUILDER_TEST_APP_DATA`` is set (pytest), logs go under that
+    directory so tests do not write to the real app-data folder.
     """
+    test_root = os.environ.get("MODELBUILDER_TEST_APP_DATA")
+    if test_root:
+        log_dir = Path(test_root) / "logs"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        return log_dir
     appdata_dir: str = os.getenv("APPDATA") if sys.platform == "win32" else os.path.expanduser("~/.local/share")
     log_dir: Path = Path(appdata_dir) / "ModelBuilder" / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
