@@ -26,12 +26,10 @@ except ImportError:
 from mb.utils.logging_setup import log_completion_info, log_startup_info, setup_logging
 from mb.cancellation import check_cancel_event
 from mb.data.class_layout import discover_review_bucket_names, layout_dict_for_discovery
+from mb.data.file_types import configured_media_suffixes
 
 # Configure logging
 logger = setup_logging(script_name="upscale_small_images")
-
-# Image file extensions to process
-IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif', '.gif', '.webp'}
 
 # Minimum dimension target
 MIN_DIMENSION_TARGET = 300
@@ -82,7 +80,7 @@ class ImageUpscaler:
         image_files = []
         
         # Use extension-specific globs to avoid expensive .is_file() checks
-        for ext in IMAGE_EXTENSIONS:
+        for ext in configured_media_suffixes():
             for file_path in category_dir.rglob(f'*{ext}'):
                 # No .is_file() check needed - rglob with pattern only returns files
                 image_files.append(file_path)

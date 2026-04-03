@@ -42,14 +42,7 @@ Data modules expose ``python -m mb.data.<module>`` as a thin wrapper around the 
 
 ## 4. Duplicate `IMAGE_EXTENSIONS` (and drift from pipeline YAML)
 
-The same extension set is **redefined** in multiple places:
-
-- `mb/data/gather.py`, `convert.py`, `deduplicate.py`, `upscale.py`
-- `mb/utils/snapshot.py` (also imported by `mb/training/snapshot_integration.py`)
-
-Pipeline config already has `data.image_types` (and `video_types`), but gather/convert paths **do not** read it today; sets are similar but not guaranteed identical (e.g. vs `.heic` / `.avif` in YAML).
-
-**Follow-up:** Centralize (e.g. `mb.data.file_types` or read from `get_pipeline_config()`), with a clear rule for **pre-convert** vs **post-convert** scanning.
+**Status:** :mod:`mb.data.file_types` provides :func:`~mb.data.file_types.configured_media_suffixes` (from ``data.image_types``) for scanning media in gather, convert inputs, deduplicate, upscale, training snapshot integration, and ``mb info dataset``. :func:`~mb.data.file_types.normalized_jpeg_suffixes` covers JPEG-only paths (e.g. convert’s JPEG detection, gather copy targets). ``data.video_types`` remains separate for future video pipelines.
 
 ---
 
@@ -112,6 +105,7 @@ Recent work reduced some legacy surface area:
 - **Class lists** — `data.class_names`, `data.class_qualifying_subdir`, `mb.data.class_layout`
 - **Gather defaults** — `data.gather` in pipeline YAML; `gather_pipeline_defaults()`
 - **Synthetic tests** — `SYNTHETIC_DEFAULT_CLASS_NAMES` instead of a hardcoded export from `dataset.py`
+- **Media suffixes** — `mb.data.file_types` + `data.image_types`
 
 ---
 
@@ -119,6 +113,6 @@ Recent work reduced some legacy surface area:
 
 1. **Low risk:** Docstring / comment / error-message cleanup (sections 3, 8, 9, 10).  
 2. **Medium:** CLI `mb info` parity with GUI (section 1).  
-3. **Larger refactors:** Dedup/gather/upscale three-folder assumption (section 5); unified `IMAGE_EXTENSIONS` (section 4); optional convert output dir (section 7).
+3. **Larger refactors:** Optional convert output dir (section 7); any remaining taxonomy/docs cleanup (sections 5, 9–10).
 
 If you add new items, keep them as **bullet + file path + one-line action** so this file stays scannable.

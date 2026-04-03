@@ -12,9 +12,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Set
 
-# Image file extensions to process
-IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif', '.gif', '.webp'}
-
 # Global cache for gather cache (lazy-loaded)
 _gather_cache: Optional[Dict[str, str]] = None
 _gather_cache_path: Optional[Path] = None

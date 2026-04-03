@@ -20,6 +20,7 @@ data:
     - .tiff
     - .webp
     - .bmp
+    - .gif
     - .heic
     - .avif
   video_types:

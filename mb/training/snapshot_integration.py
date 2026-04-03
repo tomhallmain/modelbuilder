@@ -8,9 +8,13 @@ from pathlib import Path
 from typing import Optional
 import logging
 
+from mb.data.file_types import configured_media_suffixes
 from mb.utils.snapshot import (
-    UnifiedSnapshot, find_unified_snapshot, save_unified_snapshot,
-    calculate_file_hash, preload_gather_cache, IMAGE_EXTENSIONS
+    UnifiedSnapshot,
+    find_unified_snapshot,
+    save_unified_snapshot,
+    calculate_file_hash,
+    preload_gather_cache,
 )
 
 logger = logging.getLogger(__name__)
@@ -49,7 +53,7 @@ def update_training_snapshot(
             
             # Find all image files recursively
             image_files = []
-            for ext in IMAGE_EXTENSIONS:
+            for ext in configured_media_suffixes():
                 image_files.extend(class_dir.rglob(f'*{ext}'))
                 image_files.extend(class_dir.rglob(f'*{ext.upper()}'))
             

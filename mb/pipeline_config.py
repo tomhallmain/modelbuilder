@@ -66,6 +66,7 @@ class PipelineConfig:
                     ".tiff",
                     ".webp",
                     ".bmp",
+                    ".gif",
                     ".heic",
                     ".avif",
                 ],

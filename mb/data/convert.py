@@ -36,14 +36,13 @@ from mb.data.class_layout import (
     normalize_qualifying_subdir,
     POST_CONVERT_SUBDIR_NAMES,
 )
+from mb.data.file_types import configured_media_suffixes, normalized_jpeg_suffixes
 from mb.pipeline_config import get_pipeline_config
 
 # Configure logging
 logger = setup_logging(script_name="convert")
 
-# Image file extensions to process
-IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif', '.gif', '.webp'}
-JPEG_EXTENSIONS = {'.jpg', '.jpeg'}
+# Media suffixes: :func:`configured_media_suffixes` / :func:`normalized_jpeg_suffixes` in :mod:`mb.data.file_types`
 
 # Default raw data directory (contains all class directories)
 DEFAULT_RAW_DATA_DIR = Path("raw_data")
@@ -125,13 +124,13 @@ class ImageConverter:
                 logger.info(f"Scanning subdirectories in: {class_dir.name}")
                 for subdir in subdirs:
                     logger.debug(f"  Scanning subdirectory: {subdir.name}")
-                    for ext in IMAGE_EXTENSIONS:
+                    for ext in configured_media_suffixes():
                         for file_path in subdir.rglob(f'*{ext}'):
                             image_files.append(file_path)
             else:
                 # No subdirectories: scan root level (excluding post-convert dirs if present)
                 logger.info(f"Scanning root level in: {class_dir.name} (no subdirectories found)")
-                for ext in IMAGE_EXTENSIONS:
+                for ext in configured_media_suffixes():
                     for file_path in class_dir.glob(f'*{ext}'):
                         if _under_post_convert(file_path):
                             continue
@@ -277,7 +276,7 @@ class ImageConverter:
                 logger.info(f"Progress: {i}/{len(image_files)} files processed for {class_dir.name}")
             
             # Determine if file is already JPEG
-            is_jpeg = source_path.suffix.lower() in JPEG_EXTENSIONS
+            is_jpeg = source_path.suffix.lower() in normalized_jpeg_suffixes()
             
             # Create target filename - always use .jpg extension
             target_filename = f"{source_path.stem}.jpg"

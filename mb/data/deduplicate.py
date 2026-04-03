@@ -29,12 +29,10 @@ except ImportError:
 from mb.utils.logging_setup import log_completion_info, log_startup_info, setup_logging
 from mb.cancellation import check_cancel_event
 from mb.data.class_layout import discover_raw_data_bucket_names, layout_dict_for_discovery
+from mb.data.file_types import configured_media_suffixes
 
 # Configure logging
 logger = setup_logging(script_name="deduplicate_images")
-
-# Image file extensions to process
-IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif', '.gif', '.webp'}
 
 # Default raw data directory
 DEFAULT_RAW_DATA_DIR = Path("raw_data")
@@ -229,7 +227,7 @@ class ImageDeduplicator:
         logger.info(f"Scanning for duplicates in: {directory}")
         
         # Use extension-specific globs to avoid expensive .is_file() checks
-        for ext in IMAGE_EXTENSIONS:
+        for ext in configured_media_suffixes():
             for file_path in directory.rglob(f'*{ext}'):
                 # No .is_file() check needed - rglob with pattern only returns files
                 image_hash = self.calculate_file_hash(file_path)
@@ -266,7 +264,7 @@ class ImageDeduplicator:
             logger.info(f"Scanning for duplicates in: {directory}")
             
             # Use extension-specific globs to avoid expensive .is_file() checks
-            for ext in IMAGE_EXTENSIONS:
+            for ext in configured_media_suffixes():
                 for file_path in directory.rglob(f'*{ext}'):
                     # No .is_file() check needed - rglob with pattern only returns files
                     image_hash = self.calculate_file_hash(file_path)
@@ -338,7 +336,7 @@ class ImageDeduplicator:
         logger.info(f"Scanning {directory} for small images...")
         
         # Use extension-specific globs to avoid expensive .is_file() checks
-        for ext in IMAGE_EXTENSIONS:
+        for ext in configured_media_suffixes():
             for file_path in directory.rglob(f'*{ext}'):
                 # No .is_file() check needed - rglob with pattern only returns files
                 try:

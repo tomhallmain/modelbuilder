@@ -10,16 +10,14 @@ from __future__ import annotations
 from pathlib import Path
 
 from mb.conversion.converters import detect_model_framework
+from mb.data.file_types import configured_media_suffixes
 from mb.models.frameworks.registry import list_architectures
 from mb.utils.translations import _
-
-# Match legacy Info page / CLI: common image extensions under class folders
-_IMAGE_EXTS = (".jpg", ".jpeg", ".png")
 
 
 def _count_class_images(class_dir: Path) -> int:
     n = 0
-    for ext in _IMAGE_EXTS:
+    for ext in configured_media_suffixes():
         n += len(list(class_dir.glob(f"*{ext}")))
     return n
 
