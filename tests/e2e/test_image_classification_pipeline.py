@@ -47,7 +47,7 @@ def test_image_classification_train_pytorch_and_export_onnx(tmp_path: Path) -> N
     creator = DatasetCreator(
         raw_data_dir=raw,
         data_dir=data_dir,
-        test_images_per_class=10,
+        test_per_class=10,
     )
     assert creator.run() is True
 

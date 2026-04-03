@@ -10,6 +10,9 @@ Randomly selects images from specified subdirectories up to a target limit,
 and copies them into the configured target directory (default ``raw_data/coherent``)
 preserving original format.
 
+**CLI:** ``mb data gather``; ``python -m mb.data.gather`` delegates to the same parser
+via :func:`mb.cli.run_data_subcommand_cli`.
+
 Features:
 - Supports subsequent runs: filters out already-processed images (in target and rejected directories)
 - Target count is treated as a limit, not an exact requirement
@@ -29,7 +32,6 @@ import threading
 from pathlib import Path
 from typing import List, Dict, Set, Tuple, Optional
 from collections import defaultdict
-import argparse
 from datetime import datetime
 
 # Image processing imports
@@ -1122,127 +1124,7 @@ class ImageGatherer:
         return success
 
 
-def main():
-    """CLI entry when run as ``python -m mb.data.gather``; defaults from pipeline YAML."""
-    from mb.pipeline_config import data_class_layout_defaults, gather_pipeline_defaults
-
-    gd = gather_pipeline_defaults()
-    layout = data_class_layout_defaults()
-    parser = argparse.ArgumentParser(description='Gather coherent images for training dataset')
-    parser.add_argument(
-        '--source-dir',
-        type=str,
-        required=True,
-        help='Source directory containing coherent images',
-    )
-    parser.add_argument(
-        '--target-count',
-        type=int,
-        default=gd['target_count'],
-        help=f"Target limit for total images (default: {gd['target_count']}). Treated as a limit, not exact requirement.",
-    )
-    parser.add_argument(
-        '--target-dir',
-        type=str,
-        default=str(gd['target_dir']),
-        help=f"Target directory for copied images (default: {gd['target_dir']})",
-    )
-    parser.add_argument(
-        '--rejected-dir',
-        type=str,
-        default=str(gd['rejected_dir']),
-        help=f"Rejected directory for manually rejected images (default: {gd['rejected_dir']})",
-    )
-    parser.add_argument(
-        '--subdirs',
-        nargs='+',
-        required=True,
-        help='Valid subdirectories to search in',
-    )
-    parser.add_argument('--subdir-weights', type=str, default=None,
-                       help='Relative weights for subdirectories in format "subdir1:weight1,subdir2:weight2" (e.g., "neutral:4,drawing:1" = 80%%/20%% or "neutral:0.8,drawing:0.2"). Weights are normalized automatically - any positive numbers work.')
-    parser.add_argument(
-        '--raw-data-dir',
-        type=str,
-        default=str(gd['raw_data_dir']),
-        help=f"Root directory for raw data (default: {gd['raw_data_dir']})",
-    )
-    
-    args = parser.parse_args()
-    
-    # Update configuration from command line arguments
-    source_directory = args.source_dir
-    valid_subdirs = args.subdirs
-    target_directory = Path(args.target_dir)
-    rejected_directory = Path(args.rejected_dir) if args.rejected_dir else None
-    target_count = args.target_count
-    
-    # Parse subdirectory weights if provided
-    subdir_weights = {}
-    if args.subdir_weights:
-        try:
-            for pair in args.subdir_weights.split(','):
-                if ':' not in pair:
-                    logger.error(f"Invalid weight format: {pair}. Expected format: subdir:weight")
-                    return False
-                subdir, weight_str = pair.split(':', 1)
-                subdir = subdir.strip()
-                weight = float(weight_str.strip())
-                if weight < 0:
-                    logger.error(f"Weight must be non-negative: {subdir}={weight}")
-                    return False
-                subdir_weights[subdir] = weight
-            logger.info(f"Parsed subdirectory weights: {subdir_weights}")
-        except ValueError as e:
-            logger.error(f"Error parsing subdirectory weights: {e}")
-            return False
-    
-    # Check if subdirectories are specified
-    if not valid_subdirs:
-        logger.error("Please specify valid subdirectories using --subdirs argument")
-        return False
-    
-    # Validate that weighted subdirectories exist in valid_subdirs
-    if subdir_weights:
-        invalid_weights = set(subdir_weights.keys()) - set(valid_subdirs)
-        if invalid_weights:
-            logger.error(f"Subdirectories in weights not found in --subdirs: {invalid_weights}")
-            return False
-    
-    # Validate target count
-    if target_count <= 0:
-        logger.error("Target count must be positive")
-        return False
-    
-    # Create and run the gatherer
-    try:
-        gatherer = ImageGatherer(
-            source_dir=source_directory,
-            valid_subdirs=valid_subdirs,
-            target_dir=target_directory,
-            target_count=target_count,
-            rejected_dir=rejected_directory,
-            subdir_weights=subdir_weights if subdir_weights else None,
-            class_qualifying_subdir=layout.get("class_qualifying_subdir"),
-        )
-    except ValueError as e:
-        logger.error(f"Configuration error: {e}")
-        return False
-    
-    # Store raw data directory (for reference, deduplication is now separate)
-    gatherer.raw_data_dir = Path(args.raw_data_dir)
-    
-    success = gatherer.run()
-    return success
-
-
 if __name__ == "__main__":
-    try:
-        success = main()
-        sys.exit(0 if success else 1)
-    except KeyboardInterrupt:
-        logger.info("Operation cancelled by user")
-        sys.exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        sys.exit(1) 
+    from mb.cli import run_data_subcommand_cli
+
+    sys.exit(run_data_subcommand_cli("gather"))

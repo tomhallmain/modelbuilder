@@ -144,7 +144,7 @@ def test_headless_ui_train_pytorch_and_convert_onnx(
     creator = DatasetCreator(
         raw_data_dir=raw,
         data_dir=data_dir,
-        test_images_per_class=10,
+        test_per_class=10,
     )
     assert creator.run() is True
     assert (data_dir / "train").is_dir() and (data_dir / "test").is_dir()

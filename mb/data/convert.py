@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """
-Script to convert images to JPEG format.
-Searches subdirectories in the target directory and converts all images to JPEG,
-placing them in the root of the target directory. Files that are already JPEG
-are simply copied.
+Convert raw class-folder images to a normalized layout (JPEG-oriented).
+
+:class:`ImageConverter` walks per-class directories under ``raw_data_dir``, validates
+inputs, and writes outputs while maintaining a unified snapshot for the pipeline.
+
+**CLI:** ``mb data convert``; ``python -m mb.data.convert`` delegates via
+:func:`mb.cli.run_data_subcommand_cli`.
 """
 
 import sys
@@ -12,8 +15,6 @@ import threading
 from pathlib import Path
 from typing import List, Set, Optional
 from collections import defaultdict
-import argparse
-
 # Image processing imports
 try:
     from PIL import Image, UnidentifiedImageError
@@ -428,31 +429,8 @@ class ImageConverter:
         return success
 
 
-def main():
-    """Main function with command line argument support."""
-    parser = argparse.ArgumentParser(description='Convert images in all class directories to JPEG format')
-    parser.add_argument('--raw-data-dir', type=str, default=str(DEFAULT_RAW_DATA_DIR),
-                       help='Raw data directory containing class subdirectories (default: raw_data)')
-    
-    args = parser.parse_args()
-    
-    raw_data_directory = Path(args.raw_data_dir)
-    
-    # Create and run the converter
-    converter = ImageConverter(raw_data_dir=raw_data_directory)
-    
-    success = converter.run()
-    return success
-
-
 if __name__ == "__main__":
-    try:
-        success = main()
-        sys.exit(0 if success else 1)
-    except KeyboardInterrupt:
-        logger.info("Operation cancelled by user")
-        sys.exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        sys.exit(1)
+    from mb.cli import run_data_subcommand_cli
+
+    sys.exit(run_data_subcommand_cli("convert"))
 

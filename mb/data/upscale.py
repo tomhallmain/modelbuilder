@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 """
-Script to upscale small images from the review directory.
-Resizes images so that the minimum dimension is at least 300px.
-Places upscaled images in raw_data/small_images_review/upscaled_small_images.
+Upscale undersized images staged in the small-image review area.
+
+:class:`ImageUpscaler` enforces a minimum edge length and writes outputs next to the
+review tree. Used after deduplication when very small files are quarantined.
+
+**CLI:** ``mb data upscale``; ``python -m mb.data.upscale`` delegates via
+:func:`mb.cli.run_data_subcommand_cli`.
 """
 
 import sys
@@ -12,8 +16,6 @@ import time
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 from collections import defaultdict
-import argparse
-
 # Image processing imports
 try:
     from PIL import Image, UnidentifiedImageError
@@ -333,31 +335,8 @@ class ImageUpscaler:
         return success
 
 
-def main():
-    """Main function with command line argument support."""
-    parser = argparse.ArgumentParser(description='Upscale small images from review directory')
-    parser.add_argument('--review-dir', type=str, default=str(DEFAULT_REVIEW_DIR),
-                       help=f'Review directory containing small images (default: {DEFAULT_REVIEW_DIR})')
-    
-    args = parser.parse_args()
-    
-    review_directory = Path(args.review_dir)
-    
-    # Create and run the upscaler
-    upscaler = ImageUpscaler(review_dir=review_directory)
-    
-    success = upscaler.run()
-    return success
-
-
 if __name__ == "__main__":
-    try:
-        success = main()
-        sys.exit(0 if success else 1)
-    except KeyboardInterrupt:
-        logger.info("Operation cancelled by user")
-        sys.exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        sys.exit(1)
+    from mb.cli import run_data_subcommand_cli
+
+    sys.exit(run_data_subcommand_cli("upscale"))
 

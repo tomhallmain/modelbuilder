@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 """
-Script to perform deduplication across raw data directories.
-Removes duplicate images within directories and identifies duplicates across directories.
+Deduplicate raw training files within and across class directories.
+
+:class:`ImageDeduplicator` uses perceptual hashing, moves suspected duplicates to a
+review area, and tracks cache state for incremental runs.
+
+**CLI:** ``mb data deduplicate``; ``python -m mb.data.deduplicate`` delegates via
+:func:`mb.cli.run_data_subcommand_cli`.
 """
 
 import sys
@@ -14,8 +19,6 @@ import time
 from pathlib import Path
 from typing import List, Dict, Tuple, Optional
 from collections import defaultdict
-import argparse
-
 # Image processing imports
 try:
     from PIL import Image, UnidentifiedImageError
@@ -580,31 +583,8 @@ class ImageDeduplicator:
         return success
 
 
-def main():
-    """Main function with command line argument support."""
-    parser = argparse.ArgumentParser(description='Deduplicate images across raw data directories')
-    parser.add_argument('--raw-data-dir', type=str, default=str(DEFAULT_RAW_DATA_DIR),
-                       help='Root directory containing coherent, incoherent, and semi-incoherent subdirectories (default: raw_data)')
-    
-    args = parser.parse_args()
-    
-    raw_data_directory = Path(args.raw_data_dir)
-    
-    # Create and run the deduplicator
-    deduplicator = ImageDeduplicator(raw_data_dir=raw_data_directory)
-    
-    success = deduplicator.run()
-    return success
-
-
 if __name__ == "__main__":
-    try:
-        success = main()
-        sys.exit(0 if success else 1)
-    except KeyboardInterrupt:
-        logger.info("Operation cancelled by user")
-        sys.exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        sys.exit(1)
+    from mb.cli import run_data_subcommand_cli
+
+    sys.exit(run_data_subcommand_cli("deduplicate"))
 

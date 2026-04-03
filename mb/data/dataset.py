@@ -1,10 +1,20 @@
 #!/usr/bin/env python3
 """
-Script to create training and test datasets from raw data.
-Combines the functionality of the original shell scripts with improvements:
+Build train/test splits under ``data_dir`` from raw class folders (ImageFolder-style layout).
+
+:class:`DatasetCreator` resolves class names from pipeline YAML and/or discovery
+(see :mod:`mb.data.class_layout`), copies validated files with hash-based names,
+optionally balances classes, and forms a per-class test split. PIL validates images
+and enforces size bounds for the image pipeline.
+
+**CLI:** ``mb data create-dataset``; ``python -m mb.data.dataset`` delegates via
+:func:`mb.cli.run_data_subcommand_cli`. Pipeline: gather → convert → this step;
+requires a unified snapshot from conversion where applicable.
+
+Implementation notes:
 - Efficient image validation using PIL
-- Proper randomization for dataset creation
-- Combined logic for better maintainability
+- Randomization for split creation
+- Combined logic for maintainability
 """
 
 import sys
@@ -14,7 +24,6 @@ import threading
 from pathlib import Path
 from typing import List, Optional
 from collections import defaultdict
-import argparse
 
 # Image processing imports
 try:
@@ -41,7 +50,7 @@ from mb.pipeline_config import get_pipeline_config
 # Configure logging
 logger = setup_logging(script_name="create_datasets")
 
-TEST_IMAGES_PER_CLASS = 1000  # Number of test images per class (CLI default; pipeline may override)
+DEFAULT_TEST_PER_CLASS = 1000  # Default test-split size per class (CLI / library; pipeline YAML may override)
 MIN_FILE_SIZE = 6 * 1024  # 6KB minimum
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB maximum
 
@@ -52,7 +61,7 @@ class DatasetCreator:
         self,
         raw_data_dir: Path,
         data_dir: Path,
-        test_images_per_class: int = 1000,
+        test_per_class: int = DEFAULT_TEST_PER_CLASS,
         balance_train: bool = False,
         max_train_per_class: Optional[int] = None,
         run_id: Optional[str] = None,
@@ -61,7 +70,7 @@ class DatasetCreator:
     ):
         self.raw_data_dir = Path(raw_data_dir)
         self.data_dir = Path(data_dir)
-        self.test_images_per_class = test_images_per_class
+        self.test_per_class = test_per_class
         self.balance_train = balance_train  # If True, balance training set to smallest class
         self.max_train_per_class = max_train_per_class  # Optional: limit per class (None = no limit)
         self.run_id = run_id  # Optional run ID for unified snapshot
@@ -383,7 +392,7 @@ class DatasetCreator:
     
     def create_test_dataset(self) -> None:
         """Create test dataset by randomly moving files from train to test."""
-        logger.info(f"Creating test dataset with {self.test_images_per_class} images per class...")
+        logger.info(f"Creating test dataset with {self.test_per_class} items per class...")
         
         for class_name in self._class_names:
             train_class_dir = self.train_dir / class_name
@@ -398,13 +407,13 @@ class DatasetCreator:
             # Get all image files in train directory
             train_images = list(train_class_dir.glob("*.jpg"))
             
-            if len(train_images) < self.test_images_per_class:
-                logger.warning(f"Not enough images in class '{class_name}': {len(train_images)} available, {self.test_images_per_class} needed")
+            if len(train_images) < self.test_per_class:
+                logger.warning(f"Not enough images in class '{class_name}': {len(train_images)} available, {self.test_per_class} needed")
                 # Use all available images for test
                 selected_images = train_images
             else:
                 # Randomly select images for test set
-                selected_images = random.sample(train_images, self.test_images_per_class)
+                selected_images = random.sample(train_images, self.test_per_class)
             
             # Move selected images to test directory and update snapshot
             for image_file in selected_images:
@@ -509,7 +518,7 @@ class DatasetCreator:
         log_startup_info(logger, "Dataset creation process")
         logger.info(f"Raw data directory: {self.raw_data_dir}")
         logger.info(f"Output data directory: {self.data_dir}")
-        logger.info(f"Test images per class: {self.test_images_per_class}")
+        logger.info(f"Test split size per class: {self.test_per_class}")
         
         check_cancel_event(self._cancel_event)
         
@@ -651,66 +660,7 @@ def confirm_user_action(logger, args):
     return True
 
 
-def main():
-    """Main function with command line argument support."""
-    parser = argparse.ArgumentParser(description='Create training and test datasets from raw data')
-    parser.add_argument('--raw-data-dir', type=str, default='raw_data',
-                       help='Directory containing raw data (default: raw_data)')
-    parser.add_argument('--data-dir', type=str, default='data',
-                       help='Output directory for processed data (default: data)')
-    parser.add_argument('--test-images-per-class', type=int, default=TEST_IMAGES_PER_CLASS,
-                       help=f'Number of test images per class (default: {TEST_IMAGES_PER_CLASS})')
-    parser.add_argument('--seed', type=int, default=None,
-                       help='Random seed for reproducible results')
-    parser.add_argument('--run-id', type=str, default=None,
-                       help='Run ID of unified snapshot to update (auto-detects latest if not provided)')
-    parser.add_argument('--balance-train', action='store_true',
-                       help='Balance training set to smallest class size (default: False, keeps natural proportions)')
-    parser.add_argument('--max-train-per-class', type=int, default=None,
-                       help='Maximum number of training images per class (None = no limit, keeps natural proportions)')
-    parser.add_argument('--allow-external-storage', action='store_true',
-                       help='Allow running on external/removable storage (not recommended)')
-    
-    args = parser.parse_args()
-    
-    # SSD/external storage check and advice
-    if check_target_external_storage(logger, Path(args.data_dir), override=args.allow_external_storage):
-        logger.error("Process terminated due to external storage detection.")
-        return False
-    
-    # User confirmation for same drive case
-    if check_same_drive(Path(args.raw_data_dir), Path(args.data_dir)):
-        if not confirm_user_action(logger, args):
-            return False
-    
-    # Set random seed if provided
-    if args.seed is not None:
-        random.seed(args.seed)
-        logger.info(f"Using random seed: {args.seed}")
-    
-    # Create and run the dataset creator
-    creator = DatasetCreator(
-        raw_data_dir=Path(args.raw_data_dir),
-        data_dir=Path(args.data_dir),
-        test_images_per_class=args.test_images_per_class,
-        balance_train=args.balance_train,
-        max_train_per_class=args.max_train_per_class,
-        run_id=args.run_id
-    )
-    
-    success = creator.run()
-    return success
-
-
 if __name__ == "__main__":
-    import traceback
-    try:
-        success = main()
-        sys.exit(0 if success else 1)
-    except KeyboardInterrupt:
-        logger.info("Operation cancelled by user")
-        sys.exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        logger.error(f"Traceback:\n{traceback.format_exc()}")
-        sys.exit(1) 
+    from mb.cli import run_data_subcommand_cli
+
+    sys.exit(run_data_subcommand_cli("create-dataset"))

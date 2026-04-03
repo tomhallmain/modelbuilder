@@ -20,7 +20,7 @@ def test_dataset_creator_produces_train_and_test_splits(tmp_path: Path) -> None:
     creator = DatasetCreator(
         raw_data_dir=raw,
         data_dir=data_dir,
-        test_images_per_class=test_per_class,
+        test_per_class=test_per_class,
         class_names=list(SYNTHETIC_DEFAULT_CLASS_NAMES),
     )
     assert creator.run() is True

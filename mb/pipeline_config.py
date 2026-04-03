@@ -55,7 +55,7 @@ class PipelineConfig:
             "data": {
                 "raw_data_dir": "raw_data",
                 "data_dir": "data",
-                "test_images_per_class": 1000,
+                "test_per_class": 1000,
                 "image_size": 224,
                 "batch_size": None,
                 "image_types": [

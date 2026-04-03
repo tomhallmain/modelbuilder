@@ -7,7 +7,7 @@ This module provides the main CLI entry point and subcommand structure.
 import argparse
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 import logging
 
 from mb import __version__
@@ -112,7 +112,8 @@ def create_parser() -> argparse.ArgumentParser:
         type=int,
         default=_gather_def["target_count"],
         help=_(
-            "Target number of images to gather (default: from pipeline data.gather.default_target_count)"
+            "Target number of images to gather (default: from pipeline data.gather.default_target_count). "
+            "Treated as a limit, not an exact requirement."
         ),
     )
     gather_parser.add_argument(
@@ -130,7 +131,11 @@ def create_parser() -> argparse.ArgumentParser:
     gather_parser.add_argument(
         "--subdir-weights",
         type=str,
-        help=_('Relative weights for subdirectories in format "subdir1:weight1,subdir2:weight2"'),
+        help=_(
+            'Relative weights for subdirectories: "subdir1:weight1,subdir2:weight2" '
+            '(e.g. "neutral:4,drawing:1" ≈ 80%%/20%%, or "neutral:0.8,drawing:0.2"). '
+            "Weights are normalized automatically; any positive numbers work."
+        ),
     )
     gather_parser.add_argument(
         "--raw-data-dir",
@@ -158,7 +163,10 @@ def create_parser() -> argparse.ArgumentParser:
         "--format",
         choices=["jpeg", "jpg"],
         default="jpeg",
-        help=_("Target format (default: jpeg)"),
+        help=_(
+            "Target format for converted outputs (default: jpeg). "
+            "The converter is currently JPEG-oriented; non-default values may be ignored until implemented."
+        ),
     )
     
     # mb data deduplicate
@@ -174,7 +182,10 @@ def create_parser() -> argparse.ArgumentParser:
         "--raw-data-dir",
         type=Path,
         default=Path("raw_data"),
-        help=_("Raw data directory (default: raw_data)"),
+        help=_(
+            "Root raw data directory containing class subdirectories (default: raw_data). "
+            "Typical layouts include multiple class folders under this root."
+        ),
     )
     
     # mb data upscale
@@ -195,7 +206,11 @@ def create_parser() -> argparse.ArgumentParser:
     upscale_parser.add_argument(
         "--review-dir",
         type=Path,
-        help=_("Review directory containing small images (default: raw_data/small_images_review)"),
+        help=_(
+            "Review directory containing small images to upscale "
+            "(default: <raw-data-dir>/small_images_review). "
+            "Upscaled outputs go under <review-dir>/upscaled_small_images."
+        ),
     )
     
     # mb data create-dataset
@@ -224,7 +239,10 @@ def create_parser() -> argparse.ArgumentParser:
         "--test-per-class",
         type=int,
         default=1000,
-        help=_("Number of test images per class (default: 1000)"),
+        help=_(
+            "Number of items per class in the test split (default: 1000). "
+            "For image classification this is test images per class."
+        ),
     )
     dataset_parser.add_argument(
         "--seed",
@@ -239,12 +257,16 @@ def create_parser() -> argparse.ArgumentParser:
     dataset_parser.add_argument(
         "--balance-train",
         action="store_true",
-        help=_("Balance training set to smallest class size"),
+        help=_(
+            "Balance the training set to the smallest class size (default: off, keeps natural proportions)."
+        ),
     )
     dataset_parser.add_argument(
         "--max-train-per-class",
         type=int,
-        help=_("Maximum number of training images per class"),
+        help=_(
+            "Maximum training items per class (no limit if omitted; keeps natural proportions below the cap)."
+        ),
     )
     dataset_parser.add_argument(
         "--allow-external-storage",
@@ -516,6 +538,8 @@ def handle_data_gather(args):
 
 def handle_data_convert(args):
     """Handle 'mb data convert' command."""
+    # TODO: Pass args.format into ImageConverter (or downstream) when non-JPEG targets are supported.
+    # Today ImageConverter is JPEG-oriented; --format is accepted but not yet applied.
     try:
         converter = ImageConverter(raw_data_dir=args.raw_data_dir)
         success = converter.run()
@@ -578,7 +602,7 @@ def handle_data_create_dataset(args):
         creator = DatasetCreator(
             raw_data_dir=args.raw_data_dir,
             data_dir=args.data_dir,
-            test_images_per_class=args.test_per_class,
+            test_per_class=args.test_per_class,
             balance_train=getattr(args, 'balance_train', False),
             max_train_per_class=getattr(args, 'max_train_per_class', None),
             run_id=getattr(args, 'run_id', None)
@@ -858,6 +882,18 @@ def main(args: Optional[list] = None) -> int:
     except Exception as e:
         logger.error(_("Error: {err}").format(err=e), exc_info=parsed_args.verbose)
         return 1
+
+
+def run_data_subcommand_cli(subcommand: str, argv: Optional[List[str]] = None) -> int:
+    """
+    Run ``mb data <subcommand>`` for ``python -m mb.data.<module>`` entry points.
+
+    *subcommand* is one of: ``gather``, ``convert``, ``deduplicate``, ``upscale``,
+    ``create-dataset``. *argv* defaults to ``sys.argv[1:]``.
+    """
+    if argv is None:
+        argv = sys.argv[1:]
+    return main(["data", subcommand, *argv])
 
 
 if __name__ == "__main__":

@@ -344,7 +344,7 @@ class DataPage(QWidget):
 
         form.addRow(_("Raw data dir"), self._path_row(self.dataset_raw_data_dir, select_dir=True))
         form.addRow(_("Output data dir"), self._path_row(self.dataset_data_dir, select_dir=True))
-        form.addRow(_("Test images per class"), self.dataset_test_per_class)
+        form.addRow(_("Test items per class"), self.dataset_test_per_class)
         form.addRow(_("Seed (optional)"), self.dataset_seed)
         form.addRow(_("Run ID (optional)"), self.dataset_run_id)
         form.addRow(_("Max train per class"), self.dataset_max_train)
@@ -559,7 +559,7 @@ class DataPage(QWidget):
             creator = DatasetCreator(
                 raw_data_dir=payload["raw_data_dir"],
                 data_dir=payload["data_dir"],
-                test_images_per_class=payload["test_per_class"],
+                test_per_class=payload["test_per_class"],
                 balance_train=payload["balance_train"],
                 max_train_per_class=payload["max_train_per_class"],
                 run_id=payload["run_id"],
