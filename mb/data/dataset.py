@@ -35,10 +35,12 @@ except ImportError:
 from mb.utils.logging_setup import log_completion_info, log_startup_info, setup_logging
 from mb.utils.translations import _
 from mb.cancellation import check_cancel_event
-from mb.utils.storage import check_target_external_storage, check_same_drive
 from mb.utils.snapshot import (
-    UnifiedSnapshot, find_unified_snapshot, save_unified_snapshot,
-    calculate_file_hash, preload_gather_cache
+    UnifiedSnapshot,
+    calculate_file_hash,
+    find_unified_snapshot,
+    preload_gather_cache,
+    save_unified_snapshot,
 )
 from mb.data.class_layout import (
     discover_class_names,

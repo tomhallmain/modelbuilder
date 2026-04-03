@@ -1,7 +1,10 @@
 """
-Snapshot integration for training.
+Training-time updates to the unified image snapshot.
 
-This module provides utilities for updating unified snapshots during training.
+:class:`~mb.utils.snapshot.UnifiedSnapshot` is produced during convert / dataset
+creation; :func:`update_training_snapshot` walks ``train/`` and ``test/`` under
+``data_dir`` and attaches ``training`` metadata for each file that matches an
+existing dataset record.
 """
 
 from pathlib import Path
@@ -9,13 +12,7 @@ from typing import Optional
 import logging
 
 from mb.data.file_types import configured_media_suffixes
-from mb.utils.snapshot import (
-    UnifiedSnapshot,
-    find_unified_snapshot,
-    save_unified_snapshot,
-    calculate_file_hash,
-    preload_gather_cache,
-)
+from mb.utils.snapshot import UnifiedSnapshot, calculate_file_hash
 
 logger = logging.getLogger(__name__)
 
@@ -25,10 +22,8 @@ def update_training_snapshot(
     unified_snapshot: UnifiedSnapshot
 ) -> None:
     """
-    Update unified snapshot with training stage data.
-    
-    Scans train and test directories and adds image info to unified snapshot.
-    This mirrors the functionality from the original train_model.py script.
+    Scan ``data_dir/train`` and ``data_dir/test`` and populate the ``training`` field
+    on matching snapshot records (see :meth:`~mb.utils.snapshot.UnifiedSnapshot.add_training_image`).
     
     Args:
         data_dir: Root data directory containing train/ and test/ subdirectories

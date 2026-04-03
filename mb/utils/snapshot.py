@@ -12,6 +12,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Set
 
+
+def _posix_rel(p: Optional[str]) -> Optional[str]:
+    """Normalize relative path strings for comparisons (Windows ``\\\\`` vs ``/``)."""
+    if p is None:
+        return None
+    return str(p).replace("\\", "/")
+
+
 # Global cache for gather cache (lazy-loaded)
 _gather_cache: Optional[Dict[str, str]] = None
 _gather_cache_path: Optional[Path] = None
@@ -118,17 +126,15 @@ def calculate_file_hash(file_path: Path, algorithm: str = 'md5', raw_data_dir: O
         if _gather_cache is None:
             preload_gather_cache(raw_data_dir)
         
-        # Try to use unified snapshot to get hash directly (avoids recalculation)
-        # Since create_datasets.py only copies files (doesn't modify), the hash from
-        # the converted stage should be identical to the file in train/test directories
+        # Try to use unified snapshot to get hash directly (avoids recalculation).
+        # Dataset creation copies bytes without changing content, so converted MD5 matches train/test files.
         if unified_snapshot and relative_path:
             # Look up the image record by dataset path
+            rp = _posix_rel(relative_path)
             for image_record in unified_snapshot.images.values():
                 dataset_info = image_record.get('dataset')
-                if dataset_info and dataset_info.get('path') == relative_path:
-                    # Found the record - get the converted MD5 hash
-                    # This is the hash of the JPEG file, which is identical to the
-                    # file in train/test since create_datasets.py only copies (doesn't modify)
+                if dataset_info and _posix_rel(dataset_info.get('path')) == rp:
+                    # Found the record — use stored converted MD5 (same bytes as train/test copy).
                     converted_info = image_record.get('converted')
                     if converted_info and isinstance(converted_info, dict):
                         converted_md5 = converted_info.get('md5')
@@ -182,8 +188,10 @@ def calculate_file_hash(file_path: Path, algorithm: str = 'md5', raw_data_dir: O
 
 class UnifiedSnapshot:
     """
-    Unified snapshot that tracks images through the entire pipeline.
-    All scripts update the same file using a run ID.
+    Unified snapshot that tracks images through the pipeline (convert, dataset, training).
+
+    Typically persisted as ``snapshot_<run_id>.json`` under ``raw_data`` or ``data``; the
+    run ID ties updates together across stages.
     
     Structure: One record per original image, with all pipeline stages nested within.
     This makes analysis easier as no joins are needed.
@@ -371,11 +379,12 @@ class UnifiedSnapshot:
             hash: MD5 hash of the image
             basename: Basename of the image file
         """
+        path_key = _posix_rel(path)
         # Find image record by matching dataset path (most reliable)
         found = False
         for image_record in self.images.values():
             dataset_info = image_record.get('dataset')
-            if dataset_info and dataset_info.get('path') == path:
+            if dataset_info and _posix_rel(dataset_info.get('path')) == path_key:
                 # Get original and converted info from the record itself
                 original = image_record.get('original', {})
                 converted = image_record.get('converted', {})
@@ -383,7 +392,7 @@ class UnifiedSnapshot:
                 image_record['training'] = {
                     'split': split,
                     'class': class_name,
-                    'path': path,
+                    'path': path_key,
                     'hash': hash,
                     'basename': basename,
                     'original_hash': original.get('hash'),
@@ -403,7 +412,7 @@ class UnifiedSnapshot:
                     image_record['training'] = {
                         'split': split,
                         'class': class_name,
-                        'path': path,
+                        'path': path_key,
                         'hash': hash,
                         'basename': basename,
                         'original_hash': original.get('hash'),
