@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List, Optional
 
-from utils.custom_formatter import CustomFormatter
+from mb.utils.custom_formatter import CustomFormatter
 
 
 def get_log_directory() -> Path:

@@ -1,10 +1,13 @@
 import gettext
 import os
+from pathlib import Path
 
-from utils.logging_setup import get_logger
-from utils.utils import Utils
+from mb.utils.logging_setup import get_logger
+from mb.utils.utils import Utils
 
 logger = get_logger("translations")
+
+_REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
 def _short_locale(locale: str) -> str:
@@ -38,7 +41,7 @@ elif "_" in _locale:
     _locale = _locale.split("_")[0]
 
 class I18N:
-    localedir = os.path.join(os.path.dirname(os.path.abspath(os.path.dirname(__file__))), 'locale')
+    localedir = str(_REPO_ROOT / "locale")
     locale = "en"
     translate = gettext.translation(
         "base", localedir, languages=[_locale or "en"], fallback=True

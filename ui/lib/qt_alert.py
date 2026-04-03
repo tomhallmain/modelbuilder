@@ -7,7 +7,7 @@ from PySide6.QtCore import QUrl
 from PySide6.QtGui import QDesktopServices, QGuiApplication
 from PySide6.QtWidgets import QWidget, QMessageBox
 
-from utils.translations import I18N
+from mb.utils.translations import I18N
 
 _ = I18N._
 
@@ -109,7 +109,7 @@ def qt_operation_error(
 
     When ``with_log_actions`` is True (default), adds **Copy details** (clipboard)
     and **Open log folder** (Model Builder log directory from
-    :func:`utils.logging_setup.get_log_directory`) in addition to **OK**.
+    :func:`mb.utils.logging_setup.get_log_directory`) in addition to **OK**.
     """
     box = QMessageBox(parent)
     box.setIcon(QMessageBox.Icon.Critical)
@@ -142,7 +142,7 @@ def qt_operation_error(
             QGuiApplication.clipboard().setText(text)
     elif log_btn is not None and clicked == log_btn:
         try:
-            from utils.logging_setup import get_log_directory
+            from mb.utils.logging_setup import get_log_directory
 
             QDesktopServices.openUrl(QUrl.fromLocalFile(str(get_log_directory())))
         except Exception:

@@ -16,8 +16,8 @@ from typing import Any, Dict, Optional
 
 import yaml
 
-from utils.logging_setup import get_logger
-from utils.utils import Utils
+from mb.utils.logging_setup import get_logger
+from mb.utils.utils import Utils
 
 logger = get_logger("config")
 
@@ -288,7 +288,7 @@ class ApplicationConfig:
 
 def get_user_application_config_path() -> Path:
     """Writable ``application.yaml`` beside the log directory (e.g. ``…/ModelBuilder/application.yaml``)."""
-    from utils.logging_setup import get_log_directory
+    from mb.utils.logging_setup import get_log_directory
 
     return get_log_directory().parent / "application.yaml"
 

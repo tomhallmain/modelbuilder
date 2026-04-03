@@ -29,6 +29,8 @@ from mb.data.gather import ImageGatherer
 from mb.data.upscale import ImageUpscaler
 from mb.utils.storage import check_same_drive, check_target_external_storage
 from ui.lib.qt_alert import qt_alert, qt_operation_error
+from mb.utils.constants import DataPipelineSubcommand, ModelBuilderTaskType
+from mb.utils.recent_run_history import append_recent_run
 from ui.lib.task_progress import attach_progress_dialog
 from ui.task_context import LongTaskContext
 from ui.task_runner import start_task
@@ -417,6 +419,8 @@ class DataPage(QWidget):
                     return
 
         self._append(f"[run] mb data {command}")
+        self._pending_run_summary = f"mb data {command}"
+        self._pending_data_subcommand = DataPipelineSubcommand.try_from(command)
         self._set_busy(True)
         handle = start_task(
             self._execute_data_command,
@@ -468,16 +472,40 @@ class DataPage(QWidget):
         raise ValueError(f"Unknown command: {command}")
 
     def _on_run_success(self, success: bool) -> None:
+        summary = getattr(self, "_pending_run_summary", "mb data")
+        sub = getattr(self, "_pending_data_subcommand", None)
         if success:
             self._append("[done] Data command completed successfully.")
+            append_recent_run(ModelBuilderTaskType.DATA, summary, True, data_subcommand=sub)
         else:
             self._append("[failed] Data command reported failure.")
+            append_recent_run(
+                ModelBuilderTaskType.DATA,
+                summary,
+                False,
+                "reported failure",
+                data_subcommand=sub,
+            )
 
     def _on_run_cancelled(self) -> None:
         self._append("[stopped] Data command cancelled — partial copies or snapshot updates may exist; check folders before re-running.")
+        append_recent_run(
+            ModelBuilderTaskType.DATA,
+            getattr(self, "_pending_run_summary", "mb data"),
+            False,
+            "cancelled",
+            data_subcommand=getattr(self, "_pending_data_subcommand", None),
+        )
 
     def _on_run_error(self, message: str) -> None:
         self._append(f"[error] {message}")
+        append_recent_run(
+            ModelBuilderTaskType.DATA,
+            getattr(self, "_pending_run_summary", "mb data"),
+            False,
+            message,
+            data_subcommand=getattr(self, "_pending_data_subcommand", None),
+        )
         qt_operation_error(
             self,
             "Data command failed",

@@ -14,7 +14,7 @@ from PySide6.QtCore import QTimer
 
 from utils.app_info_cache import app_info_cache
 from utils.config import get_application_config
-from utils.logging_setup import get_logger
+from mb.utils.logging_setup import get_logger
 
 if TYPE_CHECKING:
     from ui.main_window import MainWindow

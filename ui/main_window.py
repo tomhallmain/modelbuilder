@@ -38,12 +38,13 @@ from utils.config import (
     get_application_config,
     reload_application_config,
 )
-from utils.logging_setup import apply_application_log_settings
-from utils.translations import apply_application_locale
+from mb.utils.logging_setup import apply_application_log_settings
+from mb.utils.translations import apply_application_locale
 from utils.notification_manager import notification_manager
 
 
 class MainWindow(QMainWindow):
+    #: Order is mirrored by :attr:`mb.utils.constants.ModelBuilderTaskType.nav_row_index` (Data/Train/Convert rows).
     NAV_ITEMS = [
         ("Home", HomePage),
         ("Data", DataPage),

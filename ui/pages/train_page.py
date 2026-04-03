@@ -27,6 +27,8 @@ from mb.models.types import ModelType
 from mb.pipeline_config import get_pipeline_config
 from mb.training.run_args import TrainingRunArgs
 from ui.lib.qt_alert import qt_operation_error
+from mb.utils.constants import ModelBuilderTaskType
+from mb.utils.recent_run_history import append_recent_run
 from ui.lib.task_progress import attach_progress_dialog
 from ui.spawn_mb_train import spawn_mb_train_subprocess
 from ui.task_context import LongTaskContext
@@ -325,8 +327,9 @@ class TrainPage(QWidget):
 
     def _start_training(self) -> None:
         args = self._collect_inputs()
+        summary_base = f"{args.framework}/{args.architecture}"
         if self.train_subprocess.isChecked():
-            self._append(f"[run] mb train — detached subprocess ({args.framework}/{args.architecture})")
+            self._append(f"[run] mb train — detached subprocess ({summary_base})")
             self._set_busy(True)
             try:
                 ws = Workspace.load(default_settings())
@@ -340,6 +343,12 @@ class TrainPage(QWidget):
                 self._append(
                     f"[detached] PID {proc.pid} — log: {log_path} — args JSON: {json_path}"
                 )
+                append_recent_run(
+                    ModelBuilderTaskType.TRAIN,
+                    f"Train (detached) {summary_base}",
+                    True,
+                    f"PID {proc.pid} — {log_path}",
+                )
                 QMessageBox.information(
                     self,
                     "Training started (separate process)",
@@ -351,6 +360,12 @@ class TrainPage(QWidget):
                 )
             except Exception as exc:
                 self._append(f"[error] {exc}")
+                append_recent_run(
+                    ModelBuilderTaskType.TRAIN,
+                    f"Train (detached) {summary_base}",
+                    False,
+                    str(exc),
+                )
                 qt_operation_error(
                     self,
                     "Could not start detached training",
@@ -361,7 +376,8 @@ class TrainPage(QWidget):
                 self._set_busy(False)
             return
 
-        self._append(f"[run] mb train ({args.framework}/{args.architecture})")
+        self._append(f"[run] mb train ({summary_base})")
+        self._pending_train_summary = f"mb train ({summary_base})"
         self._set_busy(True)
         handle = start_task(
             self._execute_training,
@@ -396,12 +412,30 @@ class TrainPage(QWidget):
 
     def _on_training_success(self, model_path: str) -> None:
         self._append(f"[done] Training complete. Model saved: {model_path}")
+        append_recent_run(
+            ModelBuilderTaskType.TRAIN,
+            getattr(self, "_pending_train_summary", "mb train"),
+            True,
+            model_path or "",
+        )
 
     def _on_training_cancelled(self) -> None:
         self._append("[stopped] Training cancelled — partial checkpoints may exist; check the output folder before re-running.")
+        append_recent_run(
+            ModelBuilderTaskType.TRAIN,
+            getattr(self, "_pending_train_summary", "mb train"),
+            False,
+            "cancelled",
+        )
 
     def _on_training_error(self, message: str) -> None:
         self._append(f"[error] {message}")
+        append_recent_run(
+            ModelBuilderTaskType.TRAIN,
+            getattr(self, "_pending_train_summary", "mb train"),
+            False,
+            message,
+        )
         qt_operation_error(
             self,
             "Training failed",

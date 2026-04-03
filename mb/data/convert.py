@@ -24,7 +24,7 @@ except ImportError:
     raise ImportError("Error: PIL/Pillow not available. Image conversion is required.")
 
 # Import centralized logging configuration
-from utils.logging_setup import setup_logging, log_startup_info, log_completion_info
+from mb.utils.logging_setup import log_completion_info, log_startup_info, setup_logging
 from mb.cancellation import check_cancel_event
 from mb.utils.snapshot import (
     UnifiedSnapshot, generate_run_id, save_unified_snapshot, preload_gather_cache

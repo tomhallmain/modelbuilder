@@ -1,4 +1,4 @@
-"""Home page with summary and quick-start placeholders."""
+"""Home page with summary, quick navigation, and recent run history."""
 
 from __future__ import annotations
 
@@ -7,10 +7,14 @@ from PySide6.QtWidgets import (
     QGroupBox,
     QHBoxLayout,
     QLabel,
+    QPlainTextEdit,
     QPushButton,
     QVBoxLayout,
     QWidget,
 )
+
+from mb.utils.constants import ModelBuilderTaskType
+from mb.utils.recent_run_history import format_recent_runs_for_display, get_recent_runs
 
 
 class HomePage(QWidget):
@@ -18,6 +22,7 @@ class HomePage(QWidget):
 
     def __init__(self) -> None:
         super().__init__()
+        self.setObjectName("home_page")
         layout = QVBoxLayout(self)
         layout.setSpacing(12)
 
@@ -33,26 +38,50 @@ class HomePage(QWidget):
 
         summary = QGroupBox("Current scope")
         summary_layout = QVBoxLayout(summary)
-        summary_layout.addWidget(QLabel("- Data pipeline forms (element scaffolding)"))
-        summary_layout.addWidget(QLabel("- Training setup forms (framework/architecture/hyperparams)"))
-        summary_layout.addWidget(QLabel("- Conversion and info pages"))
-        summary_layout.addWidget(QLabel("- Callback wiring and job execution in later phase"))
+        summary_layout.addWidget(QLabel("- Data pipeline: gather, convert, dedupe, upscale, create dataset"))
+        summary_layout.addWidget(QLabel("- Training: in-process or detached ``mb train``"))
+        summary_layout.addWidget(QLabel("- Model conversion and dataset / model inspection (Info)"))
+        summary_layout.addWidget(QLabel("- Application shell settings (Config)"))
         layout.addWidget(summary)
 
         quick = QGroupBox("Quick actions")
         quick_layout = QHBoxLayout(quick)
-        for text in [
-            "Open Data Page",
-            "Open Train Page",
-            "Open Convert Page",
-        ]:
-            btn = QPushButton(text)
-            btn.setEnabled(False)
-            btn.setToolTip("Navigation callbacks not wired yet.")
+        for label, task in (
+            ("Open Data Page", ModelBuilderTaskType.DATA),
+            ("Open Train Page", ModelBuilderTaskType.TRAIN),
+            ("Open Convert Page", ModelBuilderTaskType.CONVERT),
+        ):
+            btn = QPushButton(label)
+            row = task.nav_row_index
+            btn.clicked.connect(lambda checked=False, r=row: self._open_nav_row(r))
             quick_layout.addWidget(btn)
         layout.addWidget(quick)
 
-        note = QLabel("Note: Page controls are in place; command execution wiring is intentionally pending.")
-        note.setWordWrap(True)
-        layout.addWidget(note)
-        layout.addStretch(1)
+        history = QGroupBox("Recent run history")
+        history_layout = QVBoxLayout(history)
+        self._recent_runs = QPlainTextEdit()
+        self._recent_runs.setObjectName("home_recent_runs")
+        self._recent_runs.setReadOnly(True)
+        self._recent_runs.setPlaceholderText("Loading…")
+        self._recent_runs.setMinimumHeight(180)
+        history_layout.addWidget(self._recent_runs)
+        layout.addWidget(history, 1)
+
+        layout.addStretch(0)
+
+        self.refresh_recent_runs()
+
+    def _open_nav_row(self, row: int) -> None:
+        from ui.main_window import MainWindow
+
+        w = self.window()
+        if isinstance(w, MainWindow):
+            w.nav_widget.setCurrentRow(row)
+
+    def refresh_recent_runs(self) -> None:
+        text = format_recent_runs_for_display(get_recent_runs())
+        self._recent_runs.setPlainText(text)
+
+    def showEvent(self, event) -> None:
+        super().showEvent(event)
+        self.refresh_recent_runs()

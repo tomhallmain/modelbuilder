@@ -34,7 +34,7 @@ from PySide6.QtWidgets import (
 
 import logging
 
-from utils.translations import I18N
+from mb.utils.translations import I18N
 
 _ = I18N._
 

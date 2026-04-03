@@ -21,6 +21,8 @@ from PySide6.QtWidgets import (
 
 from mb.conversion.converters import convert_model, detect_model_framework
 from ui.lib.qt_alert import qt_operation_error
+from mb.utils.constants import ModelBuilderTaskType
+from mb.utils.recent_run_history import append_recent_run
 from ui.lib.task_progress import attach_progress_dialog
 from ui.task_context import LongTaskContext
 from ui.task_runner import start_task
@@ -222,6 +224,7 @@ class ConvertPage(QWidget):
     def _run_conversion(self) -> None:
         payload = self._collect_inputs()
         self._append(f"[run] mb convert {payload['input_path'].name} -> {payload['target_format']}")
+        self._pending_convert_summary = f"{payload['input_path'].name} → {payload['target_format']}"
         self._set_busy(True)
         handle = start_task(
             self._execute_conversion,
@@ -250,15 +253,30 @@ class ConvertPage(QWidget):
 
     def _on_convert_cancelled(self) -> None:
         self._append("[stopped] Conversion cancelled before completion.")
+        append_recent_run(
+            ModelBuilderTaskType.CONVERT,
+            getattr(self, "_pending_convert_summary", "mb convert"),
+            False,
+            "cancelled",
+        )
 
     def _on_success(self, success: bool) -> None:
+        summary = getattr(self, "_pending_convert_summary", "mb convert")
         if success:
             self._append("[done] Conversion succeeded.")
+            append_recent_run(ModelBuilderTaskType.CONVERT, summary, True)
         else:
             self._append("[failed] Conversion failed.")
+            append_recent_run(ModelBuilderTaskType.CONVERT, summary, False, "reported failure")
 
     def _on_error(self, message: str) -> None:
         self._append(f"[error] {message}")
+        append_recent_run(
+            ModelBuilderTaskType.CONVERT,
+            getattr(self, "_pending_convert_summary", "mb convert"),
+            False,
+            message,
+        )
         qt_operation_error(
             self,
             "Conversion failed",

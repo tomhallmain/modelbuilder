@@ -21,7 +21,7 @@ from typing import Any, Callable, Optional
 from PySide6.QtCore import QObject, Qt, QRunnable, QThreadPool, Signal, Slot
 
 from mb.cancellation import OperationCancelled
-from utils.logging_setup import get_logger
+from mb.utils.logging_setup import get_logger
 
 from ui.task_context import LongTaskContext, TaskCancelled
 

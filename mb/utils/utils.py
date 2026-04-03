@@ -1,4 +1,4 @@
-"""Small shared helpers used by ``utils`` (e.g. translations)."""
+"""Small shared helpers used by ``mb.utils`` (e.g. translations)."""
 
 from __future__ import annotations
 

@@ -19,7 +19,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont
 
-from utils.translations import I18N
+from mb.utils.translations import I18N
 
 _ = I18N._
 

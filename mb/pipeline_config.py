@@ -15,7 +15,7 @@ from typing import Any, Dict, List, Optional
 
 import yaml
 
-from utils.logging_setup import get_logger
+from mb.utils.logging_setup import get_logger
 
 logger = get_logger("mb.pipeline_config")
 

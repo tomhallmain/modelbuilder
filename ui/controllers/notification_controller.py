@@ -16,7 +16,7 @@ from PySide6.QtWidgets import QApplication, QLabel, QVBoxLayout, QWidget
 from ui.app_theme import style_elevated_bg_hex, style_foreground_hex, theme_font_point_size
 from ui.lib.qt_alert import qt_alert
 from utils.config import get_application_config
-from utils.logging_setup import get_logger
+from mb.utils.logging_setup import get_logger
 from utils.notification_manager import notification_manager
 
 logger = get_logger("ui.controllers.notification_controller")

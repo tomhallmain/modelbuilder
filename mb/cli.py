@@ -12,7 +12,7 @@ import logging
 
 from mb import __version__
 from mb.pipeline_config import get_pipeline_config, reload_pipeline_config
-from utils.logging_setup import setup_logging
+from mb.utils.logging_setup import setup_logging
 
 # Import data processing modules
 from mb.data.gather import ImageGatherer
