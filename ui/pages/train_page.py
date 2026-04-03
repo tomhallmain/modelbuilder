@@ -39,6 +39,7 @@ class TrainPage(QWidget):
 
     def __init__(self) -> None:
         super().__init__()
+        self.setObjectName("train_page")
         root = QVBoxLayout(self)
         root.setSpacing(10)
 
@@ -52,8 +53,11 @@ class TrainPage(QWidget):
         self.framework = QComboBox()
         self.framework.addItems(["pytorch", "keras"])
         self.architecture = QLineEdit("resnet34")
+        self.architecture.setObjectName("train_architecture_edit")
         self.data_dir = QLineEdit("data")
+        self.data_dir.setObjectName("train_data_dir_edit")
         self.output_dir = QLineEdit("data/models")
+        self.output_dir.setObjectName("train_output_dir_edit")
         self.resume_from = QLineEdit()
         self.run_id = QLineEdit()
         self.skip_snapshot = QCheckBox("Skip unified snapshot update")
@@ -105,13 +109,16 @@ class TrainPage(QWidget):
 
         actions = QHBoxLayout()
         self.btn_validate = QPushButton("Validate Training Config")
+        self.btn_validate.setObjectName("train_validate_btn")
         self.btn_start = QPushButton("Start Training")
+        self.btn_start.setObjectName("train_start_btn")
         actions.addWidget(self.btn_validate)
         actions.addWidget(self.btn_start)
         actions.addStretch(1)
         root.addLayout(actions)
 
         self.output = QTextEdit()
+        self.output.setObjectName("train_output_log")
         self.output.setReadOnly(True)
         self.output.setPlaceholderText("Training validation and execution messages will appear here.")
         root.addWidget(self.output, 1)

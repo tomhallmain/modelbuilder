@@ -15,18 +15,31 @@ This document turns **[IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)** section
 ## Tooling conventions
 
 - **Runner**: `pytest` (already used under `tests/`).
-- **Layout** (recommended as tests are added):
+- **Layout** (recommended; align filenames with this tree when reorganizing):
 
   ```
   tests/
-    conftest.py              # shared fixtures, temp dirs, optional torch skip
-    unit/                    # fast, no heavy ML deps where possible
-    integration/             # data pipeline pieces, temp filesystem
-    e2e/                     # full pipeline; marked slow + requires_torch
-  tests/fixtures/
-    e2e_image_classification/
-      raw/                   # or generated in fixture via Pillow
+    conftest.py                 # shared fixtures, test-cache env, collection order
+    fixtures/                   # synthetic_dataset.py, shared builders
+    unit/                       # fast, import-light (CLI, run_args, cancellation, config, …)
+    integration/                # filesystem: DatasetCreator, ImageConverter, gather, dedup, upscale
+    framework/                  # optional ModelTrainer smoke (torch / TF markers)
+    e2e/                        # full mb pipeline; slow + requires_torch / onnx as needed
+    ui/                         # pytest-qt headless GUI
   ```
+
+  **What goes where (after you move files):**
+
+  | Typical module | Target folder |
+  |----------------|---------------|
+  | `test_mb_*.py`, `test_training_*.py`, `test_pipeline_config.py`, `test_task_context.py`, `test_app_info_cache_test_mode.py` | `tests/unit/` |
+  | `test_synthetic_dataset_factory.py` (fixture builder smoke) | `tests/unit/` (or next to `fixtures/` if you prefer) |
+  | `tests/integration/test_*` (dataset, convert, gather, dedup, upscale) | `tests/integration/` |
+  | `tests/framework/test_*` | `tests/framework/` |
+  | `tests/e2e/test_*` | `tests/e2e/` |
+  | `tests/ui/test_*`, `qt_helpers.py` | `tests/ui/` |
+
+  Pytest discovers `test_*.py` under any of these directories; no `pytest.ini` path change is required.
 
 - **Markers** (define in `pytest.ini` or `pyproject.toml` when you add it):
 
@@ -111,6 +124,8 @@ Under `tests/integration/`, each test uses `tmp_path`:
 - **`ImageConverter`**: a few synthetic PNGs → expected outputs.
 - **`DatasetCreator`**: minimal raw tree → `train`/`test` split counts.
 - **Optional**: `ImageGatherer` with tiny copy-only scenario (if fast enough).
+- **`ImageDeduplicator`**: identical JPEGs under `raw_data/coherent/` → one removed; asserts stats and remaining file count.
+- **`ImageUpscaler`**: small image under `small_images_review/coherent/` → output under `upscaled_small_images/` with min edge ≥ target.
 
 Use **real filesystem** operations; avoid network.
 
@@ -164,6 +179,7 @@ Document in `README` or `requirements-dev.txt` (when added):
 ## GUI tests (headless PySide6)
 
 - **Location:** ``tests/ui/`` — uses **pytest-qt** and ``QT_QPA_PLATFORM=offscreen`` (set in ``tests/ui/conftest.py`` before Qt imports) so runs do not require a display.
+- **Coverage:** main window + nav stack (``main_nav_stack`` object name), Train page validation / GUI state round-trip without training, workspace picker with mocked ``QFileDialog``, About dialog text.
 - **Markers:** ``ui`` (short tests), ``ui_e2e`` + ``slow`` (one full navigation + About flow).
 - **Isolation:** ``isolated_qsettings`` patches ``ui.workspace.default_settings`` to an INI file under ``tmp_path`` so tests do not read/write the normal app registry.
 - **Run:** ``pip install -r requirements.txt`` (includes ``pytest-qt``), then e.g. ``python -m pytest tests/ui/ -m ui``. Deselect slow UI E2E: ``-m "ui and not ui_e2e"`` or ``-m "not slow"``.
@@ -171,5 +187,5 @@ Document in `README` or `requirements-dev.txt` (when added):
 
 ---
 
-**Document version:** 1.1  
+**Document version:** 1.2  
 **Last updated:** 2026-04-02

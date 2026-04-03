@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import pytest
 from PySide6.QtCore import QTimer
-from PySide6.QtWidgets import QApplication, QMessageBox
+from PySide6.QtWidgets import QApplication, QMessageBox, QStackedWidget
 
 from mb import __version__ as MB_VERSION
 from ui.main_window import MainWindow
@@ -20,6 +20,13 @@ from tests.ui.qt_helpers import main_nav_stacked_widget
 @pytest.mark.ui
 def test_main_window_opens_and_title(qtbot, main_window: MainWindow) -> None:
     assert "Model Builder" in main_window.windowTitle()
+
+
+@pytest.mark.ui
+def test_main_nav_stack_object_name_matches_helper(qtbot, main_window: MainWindow) -> None:
+    w = main_window.findChild(QStackedWidget, "main_nav_stack")
+    assert w is not None
+    assert w is main_nav_stacked_widget(main_window)
 
 
 @pytest.mark.ui

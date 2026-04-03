@@ -11,7 +11,10 @@ if TYPE_CHECKING:
 
 
 def main_nav_stacked_widget(main_window: MainWindow) -> QStackedWidget:
-    """The main window's nav :class:`QStackedWidget` (layout column 1, after the sidebar)."""
+    """The main window's nav :class:`QStackedWidget` (object name ``main_nav_stack`` or layout column 1)."""
+    named = main_window.findChild(QStackedWidget, "main_nav_stack")
+    if named is not None:
+        return named
     central = main_window.centralWidget()
     assert central is not None
     lay = central.layout()

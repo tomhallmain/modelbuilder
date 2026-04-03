@@ -161,6 +161,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(self._nav, 0)
 
         self._stack = QStackedWidget()
+        self._stack.setObjectName("main_nav_stack")
         for _label, page_cls in self.NAV_ITEMS:
             page = page_cls()
             self._page_widgets.append(page)
