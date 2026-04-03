@@ -23,7 +23,6 @@ from mb.data.dataset import DatasetCreator
 
 # Import training modules
 from mb.training.run_args import TrainingRunArgs, load_training_run_args_json
-from mb.training.trainer import ModelTrainer
 from mb.models.types import ModelType
 
 logger = logging.getLogger(__name__)
@@ -548,6 +547,8 @@ def handle_data_create_dataset(args):
 def handle_train(args):
     """Handle 'mb train' command."""
     try:
+        from mb.training.trainer import ModelTrainer
+
         # Pipeline YAML (--config) for model/data/training/paths defaults
         reload_pipeline_config(getattr(args, "config", None))
         pipeline = get_pipeline_config()

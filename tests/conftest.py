@@ -7,16 +7,20 @@ from typing import List
 
 import pytest
 
+from PIL import Image
+
 from tests.fixtures.synthetic_dataset import build_synthetic_raw_data_dir
+
 
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]) -> None:
     """
     Stabilize order (pytest discovery order is not guaranteed):
 
     1. ``test_synthetic_dataset_factory`` — smoke-test the shared builder first
-    2. ``tests/integration/`` — dataset step before E2E
-    3. Other unit tests (e.g. cancellation, run args)
-    4. ``tests/e2e/`` — full pipeline last
+    2. ``tests/integration/`` — data pipeline steps
+    3. ``tests/framework/`` — optional framework smoke (torch/tf)
+    4. Other unit tests (e.g. CLI, cancellation, run args)
+    5. ``tests/e2e/`` — full pipeline last
     """
 
     def _phase(nodeid: str) -> int:
@@ -25,9 +29,11 @@ def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item
             return 0
         if "/integration/" in n:
             return 1
+        if "/framework/" in n:
+            return 2
         if "/e2e/" in n:
-            return 3
-        return 2
+            return 4
+        return 3
 
     items[:] = sorted(items, key=lambda it: (_phase(it.nodeid), it.nodeid))
 
@@ -55,3 +61,23 @@ def synthetic_raw_data_dir_custom_total(tmp_path: Path, request: pytest.FixtureR
     root = tmp_path / "raw_data"
     build_synthetic_raw_data_dir(root, total_images=int(total), seed=42)
     return root
+
+
+@pytest.fixture
+def two_class_classification_data_dir(tmp_path: Path) -> Path:
+    """
+    Minimal ImageFolder layout (two classes) for :class:`~mb.training.trainer.ModelTrainer` smoke tests.
+    """
+    data = tmp_path / "data"
+    for split, per_class in (("train", 4), ("test", 2)):
+        for ci, cls in enumerate(("class_a", "class_b")):
+            d = data / split / cls
+            d.mkdir(parents=True, exist_ok=True)
+            for i in range(per_class):
+                path = d / f"img_{i:02d}.jpg"
+                Image.new(
+                    "RGB",
+                    (64, 64),
+                    (10 + i * 8, 30 + ci * 15, 90),
+                ).save(path, quality=92)
+    return data

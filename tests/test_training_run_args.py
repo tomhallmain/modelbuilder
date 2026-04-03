@@ -61,6 +61,35 @@ class TestTrainingRunArgsJson(unittest.TestCase):
         finally:
             path.unlink(missing_ok=True)
 
+    def test_json_dumps_loads_roundtrip(self) -> None:
+        args = TrainingRunArgs(
+            framework="pytorch",
+            architecture="resnet18",
+            data_dir=Path("a/b"),
+            output_dir=Path("c/d"),
+            resume_from=Path("w/ckpt.pth"),
+            run_id="run-1",
+            update_snapshot=False,
+            cli_hyperparams={"batch_size": 4},
+        )
+        blob = json.dumps(args.to_json_dict())
+        back = TrainingRunArgs.from_json_dict(json.loads(blob))
+        self.assertEqual(back, args)
+
+    def test_resume_from_empty_string_becomes_none(self) -> None:
+        d = {
+            "framework": "pytorch",
+            "architecture": "x",
+            "data_dir": "d",
+            "output_dir": "o",
+            "resume_from": "",
+            "run_id": None,
+            "update_snapshot": True,
+            "cli_hyperparams": {},
+        }
+        args = TrainingRunArgs.from_json_dict(d)
+        self.assertIsNone(args.resume_from)
+
 
 if __name__ == "__main__":
     unittest.main()

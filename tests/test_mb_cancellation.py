@@ -17,6 +17,12 @@ class TestMbCancellation(unittest.TestCase):
             check_cancel_event(ev)
         self.assertTrue(issubclass(TrainingCancelled, OperationCancelled))
 
+    def test_check_cancel_event_after_clear_does_not_raise(self) -> None:
+        ev = threading.Event()
+        ev.set()
+        ev.clear()
+        check_cancel_event(ev)
+
 
 if __name__ == "__main__":
     unittest.main()

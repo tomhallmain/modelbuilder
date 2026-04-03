@@ -16,7 +16,7 @@ from pathlib import Path
 
 import pytest
 
-from mb.data.dataset import DatasetCreator
+from mb.data.dataset import CLASS_NAMES, DatasetCreator
 from mb.cli import main
 
 from tests.test_utils import default_pipeline_config_path, prepare_synthetic_raw_with_snapshot
@@ -45,6 +45,11 @@ def test_image_classification_train_pytorch_and_export_onnx(tmp_path: Path) -> N
         test_images_per_class=10,
     )
     assert creator.run() is True
+
+    assert (data_dir / "train").is_dir() and (data_dir / "test").is_dir()
+    for name in CLASS_NAMES:
+        assert (data_dir / "train" / name).is_dir()
+        assert (data_dir / "test" / name).is_dir()
 
     cfg = default_pipeline_config_path()
     assert cfg.is_file(), f"missing pipeline config: {cfg}"

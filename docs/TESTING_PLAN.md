@@ -121,7 +121,7 @@ Use **real filesystem** operations; avoid network.
 - **`mb.cli.create_parser()`** or **`main([...])`**: unknown command → non-zero; `--version`; `train --help` contains expected flags.
 - **`handle_train` with `--train-args-json`**: temp JSON file + minimal dirs (may need `requires_torch`).
 
-Subprocess: one test `subprocess.run(["mb", "--help"], ...)` only if `mb` is on PATH in CI (often use `python -m mb.cli` instead).
+Subprocess: ``tests/test_mb_cli.py`` runs ``python -m mb.cli --help`` with ``PYTHONPATH`` set to the repo root (no ``mb`` on PATH required).
 
 ---
 
@@ -129,6 +129,8 @@ Subprocess: one test `subprocess.run(["mb", "--help"], ...)` only if `mb` is on 
 
 - **PyTorch**: smoke test `ModelTrainer.train` with `TrainingRunArgs` pointing at **fixture `data_dir`** with 2 classes, **1 epoch**, CPU — marked `slow` + `requires_torch`.
 - **Keras**: same pattern behind `requires_tf`; skip in default CI if TF is heavy.
+
+**Implemented:** ``tests/framework/test_training_smoke.py`` (fixture ``two_class_classification_data_dir`` in ``tests/conftest.py``). PyTorch test monkeypatches ``torch.cuda.is_available`` to false to force CPU.
 
 ---
 
