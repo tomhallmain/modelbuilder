@@ -10,6 +10,8 @@ from typing import Optional
 
 from PySide6.QtCore import QSettings
 
+from utils.config import get_user_pipeline_config_path
+
 
 @dataclass
 class Workspace:
@@ -33,9 +35,13 @@ class Workspace:
 
 def effective_pipeline_config_path(ws: Workspace) -> Optional[Path]:
     """
-    Pipeline YAML for ``reload_pipeline_config``: ``configs/pipeline.yaml`` under the
-    workspace root, else the explicit menu config file, else legacy ``default.yaml``.
-    Matches :meth:`MainWindow._effective_pipeline_config_path`.
+    Pipeline YAML for ``reload_pipeline_config``, in priority order:
+
+    - ``<workspace>/configs/pipeline.yaml`` when present
+    - explicit workspace ``config_path`` (legacy single-file workflow)
+    - ``<workspace>/configs/default.yaml`` when present
+    - ``pipeline.yaml`` next to ``application.yaml`` in app data (see
+      :func:`utils.config.get_user_pipeline_config_path`)
     """
     if ws.root:
         pipe = ws.root / "configs" / "pipeline.yaml"
@@ -47,7 +53,31 @@ def effective_pipeline_config_path(ws: Workspace) -> Optional[Path]:
         legacy = ws.root / "configs" / "default.yaml"
         if legacy.is_file():
             return legacy
+    user = get_user_pipeline_config_path()
+    if user.is_file():
+        return user
     return None
+
+
+def resolve_pipeline_save_path(_ws: "Workspace") -> Path:
+    """
+    Target file for persisting pipeline YAML from the GUI.
+
+    Uses the active loaded file when it is a real user/workspace path; when the
+    in-memory config came only from packaged defaults, writes next to
+    ``application.yaml`` in app data (see :func:`~utils.config.get_user_pipeline_config_path`).
+    """
+    from mb.pipeline_config import DEFAULT_PIPELINE_YAML, get_pipeline_config
+
+    ap = get_pipeline_config().active_path
+    if ap is not None:
+        try:
+            if ap.resolve() == DEFAULT_PIPELINE_YAML.resolve():
+                return get_user_pipeline_config_path()
+        except OSError:
+            pass
+        return ap
+    return get_user_pipeline_config_path()
 
 
 def default_settings() -> QSettings:

@@ -106,7 +106,7 @@ class HomePage(QWidget):
             _("- Training: in-process or detached (CLI: {cmd})").format(cmd="mb train")
         )
         self._bullet_convert.setText(_("- Model conversion and dataset / model inspection (Info)"))
-        self._bullet_config.setText(_("- Application shell settings (Config)"))
+        self._bullet_config.setText(_("- App shell (App) and ML defaults (Pipeline)"))
         self._quick.setTitle(_("Quick actions"))
         self._btn_data.setText(_("Open Data Page"))
         self._btn_train.setText(_("Open Train Page"))

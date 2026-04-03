@@ -293,6 +293,11 @@ def get_user_application_config_path() -> Path:
     return get_log_directory().parent / "application.yaml"
 
 
+def get_user_pipeline_config_path() -> Path:
+    """Writable ``pipeline.yaml`` next to :func:`get_user_application_config_path` (same app-data folder)."""
+    return get_user_application_config_path().parent / "pipeline.yaml"
+
+
 def default_application_config_dict() -> Dict[str, Any]:
     """
     Built-in ``gui`` / ``app`` defaults for YAML export (no file load, no :meth:`ApplicationConfig._post_load`).

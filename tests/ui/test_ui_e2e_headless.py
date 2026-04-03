@@ -44,7 +44,7 @@ _ONNX = "install ONNX for conversion: pip install onnx (see requirements-ml.txt)
 
 _NAV_TRAIN = 2
 _NAV_CONVERT = 3
-_NAV_INFO = 5
+_NAV_INFO = 6
 
 
 def _sync_nav_and_stack(main_window: MainWindow, row: int) -> None:

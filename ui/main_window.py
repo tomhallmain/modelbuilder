@@ -30,7 +30,15 @@ from ui.main_thread_bridge import MainThreadBridge
 from ui.controllers.notification_controller import NotificationController
 from ui.lib.fast_directory_picker_qt import get_existing_directory, get_open_file_name
 from ui.lib.qt_alert import qt_alert
-from ui.pages import ConfigPage, ConvertPage, DataPage, HomePage, InfoPage, TrainPage
+from ui.pages import (
+    ConfigPage,
+    ConvertPage,
+    DataPage,
+    HomePage,
+    InfoPage,
+    PipelineConfigPage,
+    TrainPage,
+)
 from ui.workspace import Workspace, default_settings, effective_pipeline_config_path
 from mb.pipeline_config import reload_pipeline_config
 
@@ -52,7 +60,8 @@ class MainWindow(QMainWindow):
         (DataPage, "Data"),
         (TrainPage, "Train"),
         (ConvertPage, "Convert"),
-        (ConfigPage, "Config"),
+        (ConfigPage, "App"),
+        (PipelineConfigPage, "Pipeline"),
         (InfoPage, "Info"),
     ]
 

@@ -112,7 +112,7 @@ class ConfigPage(QWidget):
         self._apply_line_edit_text_contrast()
 
     def retranslate_ui(self) -> None:
-        self._page_title.setText(_("Config"))
+        self._page_title.setText(_("App"))
         self._page_desc.setText(
             _(
                 "Application shell settings (<code>gui</code>, <code>app</code>). "

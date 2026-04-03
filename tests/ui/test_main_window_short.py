@@ -13,7 +13,15 @@ from PySide6.QtWidgets import QApplication, QMessageBox, QStackedWidget
 from mb import __version__ as MB_VERSION
 from mb.utils.translations import _
 from ui.main_window import MainWindow
-from ui.pages import ConfigPage, ConvertPage, DataPage, HomePage, InfoPage, TrainPage
+from ui.pages import (
+    ConfigPage,
+    ConvertPage,
+    DataPage,
+    HomePage,
+    InfoPage,
+    PipelineConfigPage,
+    TrainPage,
+)
 
 from tests.ui.qt_helpers import main_nav_stacked_widget
 
@@ -53,7 +61,15 @@ def test_navigation_switches_stacked_pages(qtbot, main_window: MainWindow) -> No
 @pytest.mark.ui
 def test_page_widget_types_match_nav(qtbot, main_window: MainWindow) -> None:
     stack = main_nav_stacked_widget(main_window)
-    expected = (HomePage, DataPage, TrainPage, ConvertPage, ConfigPage, InfoPage)
+    expected = (
+        HomePage,
+        DataPage,
+        TrainPage,
+        ConvertPage,
+        ConfigPage,
+        PipelineConfigPage,
+        InfoPage,
+    )
     for i, cls in enumerate(expected):
         scroll = stack.widget(i)
         inner = scroll.widget()

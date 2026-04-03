@@ -28,6 +28,7 @@ _MB_ROOT = Path(__file__).resolve().parent
 DEFAULT_PIPELINE_YAML = _MB_ROOT / "config" / "default_pipeline.yaml"
 
 _PIPELINE_KEYS = frozenset({"model", "data", "training", "paths"})
+PIPELINE_ROOT_KEYS = _PIPELINE_KEYS
 
 _global_pipeline: Optional["PipelineConfig"] = None
 
@@ -254,3 +255,39 @@ def gather_pipeline_defaults() -> Dict[str, Any]:
 def reset_pipeline_config() -> None:
     global _global_pipeline
     _global_pipeline = None
+
+
+def default_pipeline_yaml_dict() -> Dict[str, Any]:
+    """Contents of the shipped ``default_pipeline.yaml`` (for GUI reset / export)."""
+    with open(DEFAULT_PIPELINE_YAML, encoding="utf-8") as f:
+        raw = yaml.safe_load(f) or {}
+    return raw if isinstance(raw, dict) else {}
+
+
+def save_pipeline_yaml(path: Path, pipeline_config: Dict[str, Any]) -> None:
+    """
+    Persist ``model`` / ``data`` / ``training`` / ``paths``.
+
+    If *path* already exists and contains other top-level YAML keys (e.g. legacy
+    combined ``gui`` + pipeline), only those four keys are updated.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    subset = {k: pipeline_config[k] for k in _PIPELINE_KEYS if k in pipeline_config}
+    if path.is_file():
+        try:
+            with open(path, encoding="utf-8") as f:
+                existing = yaml.safe_load(f) or {}
+        except Exception:
+            logger.exception("Could not read existing pipeline file %s", path)
+            existing = {}
+        if isinstance(existing, dict):
+            merged = dict(existing)
+            merged.update(subset)
+            out = merged
+        else:
+            out = subset
+    else:
+        out = subset
+    with open(path, "w", encoding="utf-8") as f:
+        yaml.dump(out, f, default_flow_style=False, sort_keys=False)
+    logger.info("Saved pipeline configuration to %s", path)
