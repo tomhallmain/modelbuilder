@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import ClassVar, Type
 
 from PySide6.QtCore import QSize, QThreadPool, QUrl
-from PySide6.QtGui import QAction, QDesktopServices
+from PySide6.QtGui import QAction, QDesktopServices, QKeySequence
 from PySide6.QtWidgets import (
     QApplication,
     QFileDialog,
@@ -240,15 +240,24 @@ class MainWindow(QMainWindow):
                 fn()
 
     def _build_menu(self) -> None:
+        """
+        Menu labels are plain gettext strings. Keyboard access uses
+        :class:`QKeySequence` on actions (not ``&`` markers in the title).
+
+        Qt traditionally encodes *mnemonics* by placing ``&`` before the
+        underlined letter (e.g. ``E&xit`` → Alt+X). That is compact but opaque in
+        source; explicit shortcuts keep behavior obvious and still translate
+        well (no ``&`` relocation per locale).
+        """
         self.menuBar().clear()
-        file_menu = self.menuBar().addMenu(_("&File"))
-        act_open = QAction(_("Set &workspace folder…"), self)
+        file_menu = self.menuBar().addMenu(_("File"))
+        act_open = QAction(_("Set workspace folder…"), self)
         act_open.triggered.connect(self._choose_workspace)
         file_menu.addAction(act_open)
-        act_cfg = QAction(_("Set &config file…"), self)
+        act_cfg = QAction(_("Set config file…"), self)
         act_cfg.triggered.connect(self._choose_config)
         file_menu.addAction(act_cfg)
-        act_app_yaml = QAction(_("Open &application settings (YAML)…"), self)
+        act_app_yaml = QAction(_("Open application settings (YAML)…"), self)
         act_app_yaml.triggered.connect(self._open_application_settings_yaml)
         act_app_yaml.setToolTip(
             _(
@@ -258,12 +267,13 @@ class MainWindow(QMainWindow):
         )
         file_menu.addAction(act_app_yaml)
         file_menu.addSeparator()
-        act_exit = QAction(_("E&xit"), self)
+        act_exit = QAction(_("Exit"), self)
+        act_exit.setShortcut(QKeySequence.StandardKey.Quit)
         act_exit.triggered.connect(self.close)
         file_menu.addAction(act_exit)
 
-        help_menu = self.menuBar().addMenu(_("&Help"))
-        act_about = QAction(_("&About Model Builder"), self)
+        help_menu = self.menuBar().addMenu(_("Help"))
+        act_about = QAction(_("About Model Builder"), self)
         act_about.triggered.connect(self._show_about)
         help_menu.addAction(act_about)
 

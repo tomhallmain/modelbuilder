@@ -2,9 +2,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
-"POT-Creation-Date: 2026-04-03 11:04-0400\n"
-"PO-Revision-Date: 2026-04-03 11:04-0400\n"
-"Last-Translator: Translator Name <translator@example.com>\n"
+"POT-Creation-Date: 2026-04-03 13:23-0400\n"
+"PO-Revision-Date: 2026-04-03 13:23-0400\n"
+"Last-Translator: Thomas Hall <tomhall.main@gmail.com>\n"
 "Language-Team: en Team <<EMAIL>>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -424,7 +424,7 @@ msgstr "PyTorch -> ONNX conversion requires --architecture and --num-classes"
 msgid "Conversion completed successfully: {path}"
 msgstr "Conversion completed successfully: {path}"
 
-#: mb/cli.py:762 ui/pages/convert_page.py:291
+#: mb/cli.py:762 ui/pages/convert_page.py:329
 msgid "Conversion failed"
 msgstr "Conversion failed"
 
@@ -448,7 +448,7 @@ msgstr "No data subcommand specified"
 msgid "No info subcommand specified"
 msgstr "No info subcommand specified"
 
-#: mb/cli.py:840 ui/pages/data_page.py:401 ui/pages/data_page.py:482
+#: mb/cli.py:840 ui/pages/data_page.py:476 ui/pages/data_page.py:557
 msgid "Unknown command: {cmd}"
 msgstr "Unknown command: {cmd}"
 
@@ -558,23 +558,23 @@ msgstr "fail"
 msgid "Model Builder"
 msgstr "Model Builder"
 
-#: ui/main_window.py:229
-msgid "&File"
-msgstr "&File"
+#: ui/main_window.py:253
+msgid "File"
+msgstr "File"
 
-#: ui/main_window.py:230
-msgid "Set &workspace folder…"
-msgstr "Set &workspace folder…"
+#: ui/main_window.py:254
+msgid "Set workspace folder…"
+msgstr "Set workspace folder…"
 
-#: ui/main_window.py:233
-msgid "Set &config file…"
-msgstr "Set &config file…"
+#: ui/main_window.py:257
+msgid "Set config file…"
+msgstr "Set config file…"
 
-#: ui/main_window.py:236
-msgid "Open &application settings (YAML)…"
-msgstr "Open &application settings (YAML)…"
+#: ui/main_window.py:260
+msgid "Open application settings (YAML)…"
+msgstr "Open application settings (YAML)…"
 
-#: ui/main_window.py:240
+#: ui/main_window.py:264
 msgid ""
 "Desktop shell options (toasts, cache interval, …); see "
 "mb/config/application.example.yaml. Reload the app or use Set config file "
@@ -584,35 +584,31 @@ msgstr ""
 "mb/config/application.example.yaml. Reload the app or use Set config file "
 "for pipeline YAML."
 
-#: ui/main_window.py:246
-msgid "E&xit"
-msgstr "E&xit"
+#: ui/main_window.py:270
+msgid "Exit"
+msgstr "Exit"
 
-#: ui/main_window.py:250
-msgid "&Help"
-msgstr "&Help"
+#: ui/main_window.py:275
+msgid "Help"
+msgstr "Help"
 
-#: ui/main_window.py:251
-msgid "&About Model Builder"
-msgstr "&About Model Builder"
-
-#: ui/main_window.py:263
+#: ui/main_window.py:288
 msgid " | Config: {path}"
 msgstr " | Config: {path}"
 
-#: ui/main_window.py:267
+#: ui/main_window.py:292
 msgid "Workspace: {root}{cfg}"
 msgstr "Workspace: {root}{cfg}"
 
-#: ui/main_window.py:268
+#: ui/main_window.py:293
 msgid "No workspace folder set — use File → Set workspace folder"
 msgstr "No workspace folder set — use File → Set workspace folder"
 
-#: ui/main_window.py:279
+#: ui/main_window.py:304
 msgid "Application settings"
 msgstr "Application settings"
 
-#: ui/main_window.py:280
+#: ui/main_window.py:305
 msgid ""
 "File not found:\n"
 "{path}"
@@ -620,27 +616,27 @@ msgstr ""
 "File not found:\n"
 "{path}"
 
-#: ui/main_window.py:289
+#: ui/main_window.py:314
 msgid "Workspace root folder"
 msgstr "Workspace root folder"
 
-#: ui/main_window.py:306
+#: ui/main_window.py:331
 msgid "Optional YAML config"
 msgstr "Optional YAML config"
 
-#: ui/main_window.py:308
+#: ui/main_window.py:333
 msgid "YAML (*.yaml *.yml);;All files (*.*)"
 msgstr "YAML (*.yaml *.yml);;All files (*.*)"
 
-#: ui/main_window.py:321
+#: ui/main_window.py:276 ui/main_window.py:346
 msgid "About Model Builder"
 msgstr "About Model Builder"
 
-#: ui/main_window.py:333
+#: ui/main_window.py:358
 msgid "Background task"
 msgstr "Background task"
 
-#: ui/main_window.py:335
+#: ui/main_window.py:360
 msgid ""
 "A background task is still running. Closing now may leave partial outputs "
 "(checkpoints, datasets, copies). Exit anyway?"
@@ -780,13 +776,13 @@ msgstr "Open log folder"
 msgid "Starting…"
 msgstr "Starting…"
 
-#: ui/pages/config_page.py:55 ui/pages/config_page.py:311
-#: ui/pages/config_page.py:323 ui/pages/config_page.py:334
-#: ui/pages/config_page.py:346 ui/pages/config_page.py:358
+#: ui/pages/config_page.py:115 ui/pages/config_page.py:378
+#: ui/pages/config_page.py:390 ui/pages/config_page.py:401
+#: ui/pages/config_page.py:413 ui/pages/config_page.py:425
 msgid "Config"
 msgstr "Config"
 
-#: ui/pages/config_page.py:65
+#: ui/pages/config_page.py:118
 msgid ""
 "Application shell settings (<code>gui</code>, <code>app</code>). Save writes"
 " to your active config file, or to the user data folder when the packaged "
@@ -796,19 +792,19 @@ msgstr ""
 " to your active config file, or to the user data folder when the packaged "
 "example is the only source."
 
-#: ui/pages/config_page.py:85
+#: ui/pages/config_page.py:80 ui/pages/config_page.py:159
 msgid "Reload from disk"
 msgstr "Reload from disk"
 
-#: ui/pages/config_page.py:87
+#: ui/pages/config_page.py:82 ui/pages/config_page.py:160
 msgid "Save"
 msgstr "Save"
 
-#: ui/pages/config_page.py:90
+#: ui/pages/config_page.py:85 ui/pages/config_page.py:161
 msgid "Set Default…"
 msgstr "Set Default…"
 
-#: ui/pages/config_page.py:94
+#: ui/pages/config_page.py:164
 msgid ""
 "Replace your user application.yaml (next to the log folder) with built-in "
 "defaults. Does not change workspace-specific YAML."
@@ -816,7 +812,7 @@ msgstr ""
 "Replace your user application.yaml (next to the log folder) with built-in "
 "defaults. Does not change workspace-specific YAML."
 
-#: ui/pages/config_page.py:125
+#: ui/pages/config_page.py:123
 msgid "gui"
 msgstr "gui"
 
@@ -824,99 +820,99 @@ msgstr "gui"
 msgid "empty — use OS locale"
 msgstr "empty — use OS locale"
 
-#: ui/pages/config_page.py:136
+#: ui/pages/config_page.py:128 ui/pages/config_page.py:186
 msgid "Locale"
 msgstr "Locale"
 
-#: ui/pages/config_page.py:140
+#: ui/pages/config_page.py:129 ui/pages/config_page.py:190
 msgid "Foreground color"
 msgstr "Foreground color"
 
-#: ui/pages/config_page.py:144
+#: ui/pages/config_page.py:130 ui/pages/config_page.py:194
 msgid "Background color"
 msgstr "Background color"
 
-#: ui/pages/config_page.py:148
+#: ui/pages/config_page.py:131 ui/pages/config_page.py:198
 msgid "Toast color (warning)"
 msgstr "Toast color (warning)"
 
-#: ui/pages/config_page.py:152
+#: ui/pages/config_page.py:132 ui/pages/config_page.py:202
 msgid "Toast color (success)"
 msgstr "Toast color (success)"
 
-#: ui/pages/config_page.py:156
+#: ui/pages/config_page.py:133 ui/pages/config_page.py:206
 msgid "Accent (primary)"
 msgstr "Accent (primary)"
 
-#: ui/pages/config_page.py:160
+#: ui/pages/config_page.py:134 ui/pages/config_page.py:210
 msgid "Accent (secondary)"
 msgstr "Accent (secondary)"
 
-#: ui/pages/config_page.py:162
+#: ui/pages/config_page.py:155 ui/pages/config_page.py:212
 msgid "Show toasts"
 msgstr "Show toasts"
 
-#: ui/pages/config_page.py:166
+#: ui/pages/config_page.py:153 ui/pages/config_page.py:216
 msgid "e.g. 1200x960"
 msgstr "e.g. 1200x960"
 
-#: ui/pages/config_page.py:167
+#: ui/pages/config_page.py:136 ui/pages/config_page.py:217
 msgid "Default main window size"
 msgstr "Default main window size"
 
-#: ui/pages/config_page.py:171
+#: ui/pages/config_page.py:137 ui/pages/config_page.py:221
 msgid "Toast duration (seconds)"
 msgstr "Toast duration (seconds)"
 
-#: ui/pages/config_page.py:175
+#: ui/pages/config_page.py:138 ui/pages/config_page.py:225
 msgid "Title notify duration (seconds)"
 msgstr "Title notify duration (seconds)"
 
-#: ui/pages/config_page.py:179
+#: ui/pages/config_page.py:139 ui/pages/config_page.py:229
 msgid "Font size"
 msgstr "Font size"
 
-#: ui/pages/config_page.py:184
+#: ui/pages/config_page.py:154 ui/pages/config_page.py:234
 msgid " s"
 msgstr " s"
 
-#: ui/pages/config_page.py:185
+#: ui/pages/config_page.py:140 ui/pages/config_page.py:235
 msgid "GUI cache store interval"
 msgstr "GUI cache store interval"
 
-#: ui/pages/config_page.py:190
+#: ui/pages/config_page.py:124
 msgid "app"
 msgstr "app"
 
-#: ui/pages/config_page.py:199
+#: ui/pages/config_page.py:156 ui/pages/config_page.py:251
 msgid "Debug logging"
 msgstr "Debug logging"
 
-#: ui/pages/config_page.py:202
+#: ui/pages/config_page.py:157 ui/pages/config_page.py:254
 msgid "Debug logging (verbose)"
 msgstr "Debug logging (verbose)"
 
-#: ui/pages/config_page.py:208
+#: ui/pages/config_page.py:148 ui/pages/config_page.py:260
 msgid "Log level"
 msgstr "Log level"
 
-#: ui/pages/config_page.py:210
+#: ui/pages/config_page.py:158 ui/pages/config_page.py:262
 msgid "Print settings to log on load"
 msgstr "Print settings to log on load"
 
-#: ui/pages/config_page.py:300
+#: ui/pages/config_page.py:367
 msgid "Reading: {path}"
 msgstr "Reading: {path}"
 
-#: ui/pages/config_page.py:302
+#: ui/pages/config_page.py:369
 msgid "Reading: (built-in defaults — no file on disk)"
 msgstr "Reading: (built-in defaults — no file on disk)"
 
-#: ui/pages/config_page.py:312
+#: ui/pages/config_page.py:379
 msgid "Default main window size must look like WIDTHxHEIGHT (e.g. 1200x960)."
 msgstr "Default main window size must look like WIDTHxHEIGHT (e.g. 1200x960)."
 
-#: ui/pages/config_page.py:323
+#: ui/pages/config_page.py:390
 msgid ""
 "Could not write:\n"
 "{path}\n"
@@ -928,7 +924,7 @@ msgstr ""
 "\n"
 "{err}"
 
-#: ui/pages/config_page.py:334
+#: ui/pages/config_page.py:401
 msgid ""
 "Saved to:\n"
 "{path}"
@@ -936,7 +932,7 @@ msgstr ""
 "Saved to:\n"
 "{path}"
 
-#: ui/pages/config_page.py:347
+#: ui/pages/config_page.py:414
 msgid ""
 "Could not write defaults to:\n"
 "{path}\n"
@@ -948,7 +944,7 @@ msgstr ""
 "\n"
 "{err}"
 
-#: ui/pages/config_page.py:358
+#: ui/pages/config_page.py:425
 msgid ""
 "Reset user config to defaults:\n"
 "{path}"
@@ -956,138 +952,142 @@ msgstr ""
 "Reset user config to defaults:\n"
 "{path}"
 
-#: ui/pages/convert_page.py:41
+#: ui/pages/convert_page.py:99
 msgid "Prepare conversion jobs for ONNX and SafeTensors targets."
 msgstr "Prepare conversion jobs for ONNX and SafeTensors targets."
 
-#: ui/pages/convert_page.py:54
+#: ui/pages/convert_page.py:59 ui/pages/convert_page.py:112
 msgid "Required only for PyTorch -> ONNX"
 msgstr "Required only for PyTorch -> ONNX"
 
-#: ui/pages/convert_page.py:59
+#: ui/pages/convert_page.py:64 ui/pages/convert_page.py:103
 msgid "Input model"
 msgstr "Input model"
 
-#: ui/pages/convert_page.py:60
+#: ui/pages/convert_page.py:65 ui/pages/convert_page.py:104
 msgid "Output model"
 msgstr "Output model"
 
-#: ui/pages/convert_page.py:61
+#: ui/pages/convert_page.py:66 ui/pages/convert_page.py:105
 msgid "Source framework"
 msgstr "Source framework"
 
-#: ui/pages/convert_page.py:62
+#: ui/pages/convert_page.py:67 ui/pages/convert_page.py:106
 msgid "Target format"
 msgstr "Target format"
 
-#: ui/pages/convert_page.py:63 ui/pages/train_page.py:76
+#: ui/pages/convert_page.py:68 ui/pages/convert_page.py:107
+#: ui/pages/train_page.py:78 ui/pages/train_page.py:160
 msgid "Architecture"
 msgstr "Architecture"
 
-#: ui/pages/convert_page.py:64
+#: ui/pages/convert_page.py:69 ui/pages/convert_page.py:108
 msgid "Num classes"
 msgstr "Num classes"
 
-#: ui/pages/convert_page.py:65 ui/pages/train_page.py:115
+#: ui/pages/convert_page.py:70 ui/pages/convert_page.py:109
+#: ui/pages/train_page.py:119 ui/pages/train_page.py:183
 msgid "Image size"
 msgstr "Image size"
 
-#: ui/pages/convert_page.py:68
+#: ui/pages/convert_page.py:113
 msgid "Note: architecture/num_classes are needed for PyTorch -> ONNX."
 msgstr "Note: architecture/num_classes are needed for PyTorch -> ONNX."
 
-#: ui/pages/convert_page.py:73
+#: ui/pages/convert_page.py:78 ui/pages/convert_page.py:114
 msgid "Validate Conversion"
 msgstr "Validate Conversion"
 
-#: ui/pages/convert_page.py:74
+#: ui/pages/convert_page.py:79 ui/pages/convert_page.py:115
 msgid "Run Conversion"
 msgstr "Run Conversion"
 
-#: ui/pages/convert_page.py:83
+#: ui/pages/convert_page.py:88 ui/pages/convert_page.py:117
 msgid "Conversion validation and execution messages will appear here."
 msgstr "Conversion validation and execution messages will appear here."
 
-#: ui/pages/convert_page.py:134 ui/pages/data_page.py:285
-#: ui/pages/info_page.py:116 ui/pages/train_page.py:220
+#: ui/pages/convert_page.py:124 ui/pages/convert_page.py:172
+#: ui/pages/data_page.py:149 ui/pages/data_page.py:360
+#: ui/pages/info_page.py:68 ui/pages/info_page.py:142
+#: ui/pages/train_page.py:203 ui/pages/train_page.py:286
 msgid "Browse..."
 msgstr "Browse..."
 
-#: ui/pages/convert_page.py:145 ui/pages/data_page.py:296
-#: ui/pages/info_page.py:127 ui/pages/train_page.py:249
+#: ui/pages/convert_page.py:183 ui/pages/data_page.py:371
+#: ui/pages/info_page.py:153 ui/pages/train_page.py:315
 msgid "Select directory"
 msgstr "Select directory"
 
-#: ui/pages/convert_page.py:154
+#: ui/pages/convert_page.py:192
 msgid "Select output file"
 msgstr "Select output file"
 
-#: ui/pages/convert_page.py:156
+#: ui/pages/convert_page.py:194
 msgid "Model files (*.onnx *.safetensors);;All files (*.*)"
 msgstr "Model files (*.onnx *.safetensors);;All files (*.*)"
 
-#: ui/pages/convert_page.py:164 ui/pages/info_page.py:136
+#: ui/pages/convert_page.py:202 ui/pages/info_page.py:162
 msgid "Select model file"
 msgstr "Select model file"
 
-#: ui/pages/convert_page.py:166 ui/pages/info_page.py:138
+#: ui/pages/convert_page.py:204 ui/pages/info_page.py:164
 msgid ""
 "Model files (*.pth *.pt *.h5 *.keras *.onnx *.safetensors);;All files (*.*)"
 msgstr ""
 "Model files (*.pth *.pt *.h5 *.keras *.onnx *.safetensors);;All files (*.*)"
 
-#: ui/pages/convert_page.py:184
+#: ui/pages/convert_page.py:222
 msgid "Input model file does not exist."
 msgstr "Input model file does not exist."
 
-#: ui/pages/convert_page.py:186
+#: ui/pages/convert_page.py:224
 msgid "Output model parent directory does not exist."
 msgstr "Output model parent directory does not exist."
 
-#: ui/pages/convert_page.py:197
+#: ui/pages/convert_page.py:235
 msgid "PyTorch -> ONNX requires architecture and num classes."
 msgstr "PyTorch -> ONNX requires architecture and num classes."
 
-#: ui/pages/convert_page.py:222
+#: ui/pages/convert_page.py:260
 msgid "[ok] conversion inputs valid (source={src})"
 msgstr "[ok] conversion inputs valid (source={src})"
 
-#: ui/pages/convert_page.py:223 ui/pages/info_page.py:168
+#: ui/pages/convert_page.py:261 ui/pages/info_page.py:194
 msgid "unknown"
 msgstr "unknown"
 
-#: ui/pages/convert_page.py:229 ui/pages/train_page.py:343
+#: ui/pages/convert_page.py:267 ui/pages/train_page.py:409
 msgid "[invalid] {err}"
 msgstr "[invalid] {err}"
 
-#: ui/pages/convert_page.py:247
+#: ui/pages/convert_page.py:285
 msgid "Convert model"
 msgstr "Convert model"
 
-#: ui/pages/convert_page.py:264
+#: ui/pages/convert_page.py:302
 msgid "[stopped] Conversion cancelled before completion."
 msgstr "[stopped] Conversion cancelled before completion."
 
-#: ui/pages/convert_page.py:275
+#: ui/pages/convert_page.py:313
 msgid "[done] Conversion succeeded."
 msgstr "[done] Conversion succeeded."
 
-#: ui/pages/convert_page.py:278
+#: ui/pages/convert_page.py:316
 msgid "[failed] Conversion failed."
 msgstr "[failed] Conversion failed."
 
-#: ui/pages/convert_page.py:282 ui/pages/train_page.py:383
-#: ui/pages/train_page.py:459
+#: ui/pages/convert_page.py:320 ui/pages/train_page.py:449
+#: ui/pages/train_page.py:525
 msgid "[error] {err}"
 msgstr "[error] {err}"
 
-#: ui/pages/convert_page.py:292
+#: ui/pages/convert_page.py:330
 msgid ""
 "Model conversion reported an error. See Details for the underlying message."
 msgstr ""
 "Model conversion reported an error. See Details for the underlying message."
 
-#: ui/pages/data_page.py:54
+#: ui/pages/data_page.py:86
 msgid ""
 "Prepare datasets using gather, convert, deduplicate, upscale, and split "
 "flows."
@@ -1095,149 +1095,152 @@ msgstr ""
 "Prepare datasets using gather, convert, deduplicate, upscale, and split "
 "flows."
 
-#: ui/pages/data_page.py:59
+#: ui/pages/data_page.py:88
 msgid "Gather"
 msgstr "Gather"
 
-#: ui/pages/data_page.py:60
+#: ui/pages/data_page.py:89
 msgid "Convert"
 msgstr "Convert"
 
-#: ui/pages/data_page.py:61
+#: ui/pages/data_page.py:90
 msgid "Deduplicate"
 msgstr "Deduplicate"
 
-#: ui/pages/data_page.py:62
+#: ui/pages/data_page.py:91
 msgid "Upscale"
 msgstr "Upscale"
 
-#: ui/pages/data_page.py:63
+#: ui/pages/data_page.py:92
 msgid "Create Dataset"
 msgstr "Create Dataset"
 
-#: ui/pages/data_page.py:67
+#: ui/pages/data_page.py:93
 msgid "Validate Inputs"
 msgstr "Validate Inputs"
 
-#: ui/pages/data_page.py:68
+#: ui/pages/data_page.py:94
 msgid "Run Data Command"
 msgstr "Run Data Command"
 
-#: ui/pages/data_page.py:76
+#: ui/pages/data_page.py:95
 msgid "Validation and run results will appear here."
 msgstr "Validation and run results will appear here."
 
-#: ui/pages/data_page.py:194
+#: ui/pages/data_page.py:99 ui/pages/data_page.py:265
 msgid "Source dir"
 msgstr "Source dir"
 
-#: ui/pages/data_page.py:195
+#: ui/pages/data_page.py:100 ui/pages/data_page.py:266
 msgid "Subdirs (space-separated)"
 msgstr "Subdirs (space-separated)"
 
-#: ui/pages/data_page.py:196
+#: ui/pages/data_page.py:101 ui/pages/data_page.py:267
 msgid "Target count"
 msgstr "Target count"
 
-#: ui/pages/data_page.py:197
+#: ui/pages/data_page.py:102 ui/pages/data_page.py:268
 msgid "Target dir"
 msgstr "Target dir"
 
-#: ui/pages/data_page.py:198
+#: ui/pages/data_page.py:103 ui/pages/data_page.py:269
 msgid "Rejected dir"
 msgstr "Rejected dir"
 
-#: ui/pages/data_page.py:199
+#: ui/pages/data_page.py:104 ui/pages/data_page.py:270
 msgid "Subdir weights"
 msgstr "Subdir weights"
 
-#: ui/pages/data_page.py:200 ui/pages/data_page.py:213
-#: ui/pages/data_page.py:226 ui/pages/data_page.py:239
-#: ui/pages/data_page.py:268
+#: ui/pages/data_page.py:105 ui/pages/data_page.py:110
+#: ui/pages/data_page.py:112 ui/pages/data_page.py:115
+#: ui/pages/data_page.py:120 ui/pages/data_page.py:271
+#: ui/pages/data_page.py:285 ui/pages/data_page.py:299
+#: ui/pages/data_page.py:313 ui/pages/data_page.py:343
 msgid "Raw data dir"
 msgstr "Raw data dir"
 
-#: ui/pages/data_page.py:214
+#: ui/pages/data_page.py:110 ui/pages/data_page.py:286
 msgid "Format (jpeg/jpg)"
 msgstr "Format (jpeg/jpg)"
 
-#: ui/pages/data_page.py:241
+#: ui/pages/data_page.py:115 ui/pages/data_page.py:315
 msgid "Review dir (optional)"
 msgstr "Review dir (optional)"
 
-#: ui/pages/data_page.py:264
+#: ui/pages/data_page.py:130 ui/pages/data_page.py:339
 msgid "None"
 msgstr "None"
 
-#: ui/pages/data_page.py:265
+#: ui/pages/data_page.py:131 ui/pages/data_page.py:340
 msgid "Balance train set to smallest class"
 msgstr "Balance train set to smallest class"
 
-#: ui/pages/data_page.py:266
+#: ui/pages/data_page.py:132 ui/pages/data_page.py:341
 msgid "Allow external/removable storage"
 msgstr "Allow external/removable storage"
 
-#: ui/pages/data_page.py:269
+#: ui/pages/data_page.py:121 ui/pages/data_page.py:344
 msgid "Output data dir"
 msgstr "Output data dir"
 
-#: ui/pages/data_page.py:270
+#: ui/pages/data_page.py:122 ui/pages/data_page.py:345
 msgid "Test images per class"
 msgstr "Test images per class"
 
-#: ui/pages/data_page.py:271
+#: ui/pages/data_page.py:123 ui/pages/data_page.py:346
 msgid "Seed (optional)"
 msgstr "Seed (optional)"
 
-#: ui/pages/data_page.py:272 ui/pages/train_page.py:80
+#: ui/pages/data_page.py:124 ui/pages/data_page.py:347
+#: ui/pages/train_page.py:82 ui/pages/train_page.py:164
 msgid "Run ID (optional)"
 msgstr "Run ID (optional)"
 
-#: ui/pages/data_page.py:273
+#: ui/pages/data_page.py:125 ui/pages/data_page.py:348
 msgid "Max train per class"
 msgstr "Max train per class"
 
-#: ui/pages/data_page.py:305
+#: ui/pages/data_page.py:380
 msgid "Select file"
 msgstr "Select file"
 
-#: ui/pages/data_page.py:307
+#: ui/pages/data_page.py:382
 msgid "All files (*.*)"
 msgstr "All files (*.*)"
 
-#: ui/pages/data_page.py:339
+#: ui/pages/data_page.py:414
 msgid "[ok] {cmd}: inputs look valid"
 msgstr "[ok] {cmd}: inputs look valid"
 
-#: ui/pages/data_page.py:343
+#: ui/pages/data_page.py:418
 msgid "[invalid] {cmd}: {err}"
 msgstr "[invalid] {cmd}: {err}"
 
-#: ui/pages/data_page.py:349
+#: ui/pages/data_page.py:424
 msgid "Source dir does not exist."
 msgstr "Source dir does not exist."
 
-#: ui/pages/data_page.py:352
+#: ui/pages/data_page.py:427
 msgid "Provide at least one subdirectory."
 msgstr "Provide at least one subdirectory."
 
-#: ui/pages/data_page.py:358
+#: ui/pages/data_page.py:433
 msgid "Subdir weights must be in subdir:weight format."
 msgstr "Subdir weights must be in subdir:weight format."
 
-#: ui/pages/data_page.py:373
+#: ui/pages/data_page.py:448
 msgid "Format must be jpeg or jpg."
 msgstr "Format must be jpeg or jpg."
 
-#: ui/pages/data_page.py:390
+#: ui/pages/data_page.py:465
 msgid "Raw data dir does not exist."
 msgstr "Raw data dir does not exist."
 
-#: ui/pages/data_page.py:413
+#: ui/pages/data_page.py:488
 msgid "External storage"
 msgstr "External storage"
 
-#: ui/pages/data_page.py:415
+#: ui/pages/data_page.py:490
 msgid ""
 "The target data directory is on external or removable storage, and \"Allow "
 "external storage\" is not checked. Enable it on the Create Dataset tab or "
@@ -1247,27 +1250,27 @@ msgstr ""
 "external storage\" is not checked. Enable it on the Create Dataset tab or "
 "choose a different data directory."
 
-#: ui/pages/data_page.py:425
+#: ui/pages/data_page.py:500
 msgid "Confirm"
 msgstr "Confirm"
 
-#: ui/pages/data_page.py:426
+#: ui/pages/data_page.py:501
 msgid "Source and target are on the same drive. Continue dataset creation?"
 msgstr "Source and target are on the same drive. Continue dataset creation?"
 
-#: ui/pages/data_page.py:445
+#: ui/pages/data_page.py:520
 msgid "Data: {cmd}"
 msgstr "Data: {cmd}"
 
-#: ui/pages/data_page.py:488
+#: ui/pages/data_page.py:563
 msgid "[done] Data command completed successfully."
 msgstr "[done] Data command completed successfully."
 
-#: ui/pages/data_page.py:491
+#: ui/pages/data_page.py:566
 msgid "[failed] Data command reported failure."
 msgstr "[failed] Data command reported failure."
 
-#: ui/pages/data_page.py:503
+#: ui/pages/data_page.py:578
 msgid ""
 "[stopped] Data command cancelled — partial copies or snapshot updates may "
 "exist; check folders before re-running."
@@ -1275,17 +1278,17 @@ msgstr ""
 "[stopped] Data command cancelled — partial copies or snapshot updates may "
 "exist; check folders before re-running."
 
-#: ui/pages/data_page.py:525
+#: ui/pages/data_page.py:600
 msgid "Data command failed"
 msgstr "Data command failed"
 
-#: ui/pages/data_page.py:526
+#: ui/pages/data_page.py:601
 msgid ""
 "A data pipeline step reported an error. See Details for the full message."
 msgstr ""
 "A data pipeline step reported an error. See Details for the full message."
 
-#: ui/pages/home_page.py:36
+#: ui/pages/home_page.py:87
 msgid ""
 "Model Builder desktop shell for data prep, training, conversion, and info "
 "tools."
@@ -1293,143 +1296,144 @@ msgstr ""
 "Model Builder desktop shell for data prep, training, conversion, and info "
 "tools."
 
-#: ui/pages/home_page.py:42
+#: ui/pages/home_page.py:90
 msgid "Current scope"
 msgstr "Current scope"
 
-#: ui/pages/home_page.py:45
+#: ui/pages/home_page.py:91
 msgid "- Data pipeline: gather, convert, dedupe, upscale, create dataset"
 msgstr "- Data pipeline: gather, convert, dedupe, upscale, create dataset"
 
-#: ui/pages/home_page.py:48
+#: ui/pages/home_page.py:93
 msgid "- Training: in-process or detached (CLI: {cmd})"
 msgstr "- Training: in-process or detached (CLI: {cmd})"
 
-#: ui/pages/home_page.py:51
+#: ui/pages/home_page.py:95
 msgid "- Model conversion and dataset / model inspection (Info)"
 msgstr "- Model conversion and dataset / model inspection (Info)"
 
-#: ui/pages/home_page.py:54
+#: ui/pages/home_page.py:96
 msgid "- Application shell settings (Config)"
 msgstr "- Application shell settings (Config)"
 
-#: ui/pages/home_page.py:58
+#: ui/pages/home_page.py:97
 msgid "Quick actions"
 msgstr "Quick actions"
 
-#: ui/pages/home_page.py:61
+#: ui/pages/home_page.py:98
 msgid "Open Data Page"
 msgstr "Open Data Page"
 
-#: ui/pages/home_page.py:62
+#: ui/pages/home_page.py:99
 msgid "Open Train Page"
 msgstr "Open Train Page"
 
-#: ui/pages/home_page.py:63
+#: ui/pages/home_page.py:100
 msgid "Open Convert Page"
 msgstr "Open Convert Page"
 
-#: ui/pages/home_page.py:71
+#: ui/pages/home_page.py:101
 msgid "Recent run history"
 msgstr "Recent run history"
 
-#: ui/pages/home_page.py:76
+#: ui/pages/home_page.py:102
 msgid "Loading…"
 msgstr "Loading…"
 
-#: ui/pages/info_page.py:36
+#: ui/pages/info_page.py:54
 msgid "Inspect model metadata and dataset structure/statistics."
 msgstr "Inspect model metadata and dataset structure/statistics."
 
-#: ui/pages/info_page.py:39
+#: ui/pages/info_page.py:55
 msgid "Model"
 msgstr "Model"
 
-#: ui/pages/info_page.py:40
+#: ui/pages/info_page.py:56
 msgid "Dataset"
 msgstr "Dataset"
 
-#: ui/pages/info_page.py:73
+#: ui/pages/info_page.py:57 ui/pages/info_page.py:98
 msgid "Model path"
 msgstr "Model path"
 
-#: ui/pages/info_page.py:77
+#: ui/pages/info_page.py:59 ui/pages/info_page.py:102
 msgid "Inspect Model"
 msgstr "Inspect Model"
 
-#: ui/pages/info_page.py:84
+#: ui/pages/info_page.py:61 ui/pages/info_page.py:109
 msgid "Model info output will appear here."
 msgstr "Model info output will appear here."
 
-#: ui/pages/info_page.py:95 ui/pages/train_page.py:77
+#: ui/pages/info_page.py:58 ui/pages/info_page.py:121
+#: ui/pages/train_page.py:79 ui/pages/train_page.py:161
 msgid "Data dir"
 msgstr "Data dir"
 
-#: ui/pages/info_page.py:99
+#: ui/pages/info_page.py:60 ui/pages/info_page.py:125
 msgid "Inspect Dataset"
 msgstr "Inspect Dataset"
 
-#: ui/pages/info_page.py:106
+#: ui/pages/info_page.py:62 ui/pages/info_page.py:132
 msgid "Dataset info output will appear here."
 msgstr "Dataset info output will appear here."
 
-#: ui/pages/info_page.py:149
+#: ui/pages/info_page.py:175
 msgid "Model path required"
 msgstr "Model path required"
 
-#: ui/pages/info_page.py:150
+#: ui/pages/info_page.py:176
 msgid "Please provide a model path."
 msgstr "Please provide a model path."
 
-#: ui/pages/info_page.py:158
+#: ui/pages/info_page.py:184
 msgid "Missing file"
 msgstr "Missing file"
 
-#: ui/pages/info_page.py:159
+#: ui/pages/info_page.py:185
 msgid "Model path not found: {path}"
 msgstr "Model path not found: {path}"
 
-#: ui/pages/info_page.py:166
+#: ui/pages/info_page.py:192
 msgid "Path: {path}"
 msgstr "Path: {path}"
 
-#: ui/pages/info_page.py:167
+#: ui/pages/info_page.py:193
 msgid "Size: {n:,} bytes"
 msgstr "Size: {n:,} bytes"
 
-#: ui/pages/info_page.py:168
+#: ui/pages/info_page.py:194
 msgid "Detected framework/type: {fw}"
 msgstr "Detected framework/type: {fw}"
 
-#: ui/pages/info_page.py:180
+#: ui/pages/info_page.py:206
 msgid "Registered architectures:"
 msgstr "Registered architectures:"
 
-#: ui/pages/info_page.py:185
+#: ui/pages/info_page.py:211
 msgid "(none)"
 msgstr "(none)"
 
-#: ui/pages/info_page.py:196
+#: ui/pages/info_page.py:222
 msgid "Missing directory"
 msgstr "Missing directory"
 
-#: ui/pages/info_page.py:197
+#: ui/pages/info_page.py:223
 msgid "Data directory not found: {path}"
 msgstr "Data directory not found: {path}"
 
-#: ui/pages/info_page.py:202
+#: ui/pages/info_page.py:228
 msgid "Data dir: {path}"
 msgstr "Data dir: {path}"
 
-#: ui/pages/info_page.py:207
+#: ui/pages/info_page.py:233
 msgid "  missing"
 msgstr "  missing"
 
-#: ui/pages/info_page.py:216
+#: ui/pages/info_page.py:242
 msgid "  total: {n}"
 msgstr "  total: {n}"
 
-#: ui/pages/train_page.py:52
+#: ui/pages/train_page.py:150
 msgid ""
 "Configure framework, architecture, paths, and hyperparameters (training CLI:"
 " {cmd})."
@@ -1437,135 +1441,135 @@ msgstr ""
 "Configure framework, architecture, paths, and hyperparameters (training CLI:"
 " {cmd})."
 
-#: ui/pages/train_page.py:58
+#: ui/pages/train_page.py:154
 msgid "Core configuration"
 msgstr "Core configuration"
 
-#: ui/pages/train_page.py:72
+#: ui/pages/train_page.py:74 ui/pages/train_page.py:169
 msgid "Skip unified snapshot update"
 msgstr "Skip unified snapshot update"
 
-#: ui/pages/train_page.py:74
+#: ui/pages/train_page.py:76 ui/pages/train_page.py:158
 msgid "Model type"
 msgstr "Model type"
 
-#: ui/pages/train_page.py:75
+#: ui/pages/train_page.py:77 ui/pages/train_page.py:159
 msgid "Framework"
 msgstr "Framework"
 
-#: ui/pages/train_page.py:78
+#: ui/pages/train_page.py:80 ui/pages/train_page.py:162
 msgid "Output dir"
 msgstr "Output dir"
 
-#: ui/pages/train_page.py:79
+#: ui/pages/train_page.py:81 ui/pages/train_page.py:163
 msgid "Resume checkpoint"
 msgstr "Resume checkpoint"
 
-#: ui/pages/train_page.py:83
+#: ui/pages/train_page.py:85 ui/pages/train_page.py:171
 msgid ""
 "Run training in a separate process (survives closing this app; see log file)"
 msgstr ""
 "Run training in a separate process (survives closing this app; see log file)"
 
-#: ui/pages/train_page.py:88
+#: ui/pages/train_page.py:173
 msgid "Hyperparameters"
 msgstr "Hyperparameters"
 
-#: ui/pages/train_page.py:101
+#: ui/pages/train_page.py:105 ui/pages/train_page.py:187
 msgid "Auto"
 msgstr "Auto"
 
-#: ui/pages/train_page.py:107
+#: ui/pages/train_page.py:111 ui/pages/train_page.py:188
 msgid "Config default"
 msgstr "Config default"
 
-#: ui/pages/train_page.py:109
+#: ui/pages/train_page.py:113 ui/pages/train_page.py:177
 msgid "Frozen epochs"
 msgstr "Frozen epochs"
 
-#: ui/pages/train_page.py:110
+#: ui/pages/train_page.py:114 ui/pages/train_page.py:178
 msgid "Unfrozen epochs"
 msgstr "Unfrozen epochs"
 
-#: ui/pages/train_page.py:111
+#: ui/pages/train_page.py:115 ui/pages/train_page.py:179
 msgid "Frozen LR"
 msgstr "Frozen LR"
 
-#: ui/pages/train_page.py:112
+#: ui/pages/train_page.py:116 ui/pages/train_page.py:180
 msgid "Unfrozen LR max"
 msgstr "Unfrozen LR max"
 
-#: ui/pages/train_page.py:113
+#: ui/pages/train_page.py:117 ui/pages/train_page.py:181
 msgid "Unfrozen LR min"
 msgstr "Unfrozen LR min"
 
-#: ui/pages/train_page.py:114
+#: ui/pages/train_page.py:118 ui/pages/train_page.py:182
 msgid "Batch size"
 msgstr "Batch size"
 
-#: ui/pages/train_page.py:116
+#: ui/pages/train_page.py:120 ui/pages/train_page.py:184
 msgid "Num workers"
 msgstr "Num workers"
 
-#: ui/pages/train_page.py:120
+#: ui/pages/train_page.py:124 ui/pages/train_page.py:189
 msgid "Validate Training Config"
 msgstr "Validate Training Config"
 
-#: ui/pages/train_page.py:122
+#: ui/pages/train_page.py:126 ui/pages/train_page.py:190
 msgid "Start Training"
 msgstr "Start Training"
 
-#: ui/pages/train_page.py:133
+#: ui/pages/train_page.py:137 ui/pages/train_page.py:192
 msgid "Training validation and execution messages will appear here."
 msgstr "Training validation and execution messages will appear here."
 
-#: ui/pages/train_page.py:239
+#: ui/pages/train_page.py:305
 msgid "Select checkpoint file"
 msgstr "Select checkpoint file"
 
-#: ui/pages/train_page.py:241
+#: ui/pages/train_page.py:307
 msgid ""
 "Model/checkpoint files (*.pth *.pt *.h5 *.keras *.ckpt);;All files (*.*)"
 msgstr ""
 "Model/checkpoint files (*.pth *.pt *.h5 *.keras *.ckpt);;All files (*.*)"
 
-#: ui/pages/train_page.py:278
+#: ui/pages/train_page.py:344
 msgid "[info] {fw} architectures: {names}"
 msgstr "[info] {fw} architectures: {names}"
 
-#: ui/pages/train_page.py:283
+#: ui/pages/train_page.py:349
 msgid "Enter architecture manually"
 msgstr "Enter architecture manually"
 
-#: ui/pages/train_page.py:285
+#: ui/pages/train_page.py:351
 msgid "[warn] Could not load architecture list for {fw}: {err}"
 msgstr "[warn] Could not load architecture list for {fw}: {err}"
 
-#: ui/pages/train_page.py:302
+#: ui/pages/train_page.py:368
 msgid "Architecture is required."
 msgstr "Architecture is required."
 
-#: ui/pages/train_page.py:304
+#: ui/pages/train_page.py:370
 msgid "Data directory does not exist."
 msgstr "Data directory does not exist."
 
-#: ui/pages/train_page.py:308
+#: ui/pages/train_page.py:374
 msgid "Resume checkpoint path does not exist."
 msgstr "Resume checkpoint path does not exist."
 
-#: ui/pages/train_page.py:339
+#: ui/pages/train_page.py:405
 msgid "[ok] training inputs look valid"
 msgstr "[ok] training inputs look valid"
 
-#: ui/pages/train_page.py:361
+#: ui/pages/train_page.py:427
 msgid "[detached] PID {pid} — log: {log} — args JSON: {args}"
 msgstr "[detached] PID {pid} — log: {log} — args JSON: {args}"
 
-#: ui/pages/train_page.py:373
+#: ui/pages/train_page.py:439
 msgid "Training started (separate process)"
 msgstr "Training started (separate process)"
 
-#: ui/pages/train_page.py:375
+#: ui/pages/train_page.py:441
 msgid ""
 "Training is running outside this window. Closing the app does not stop it.\n"
 "\n"
@@ -1589,27 +1593,27 @@ msgstr ""
 "\n"
 "Stop the process from Task Manager or your OS if you need to abort."
 
-#: ui/pages/train_page.py:392
+#: ui/pages/train_page.py:458
 msgid "Could not start detached training"
 msgstr "Could not start detached training"
 
-#: ui/pages/train_page.py:393
+#: ui/pages/train_page.py:459
 msgid "Failed to launch the training subprocess. See Details for the error."
 msgstr "Failed to launch the training subprocess. See Details for the error."
 
-#: ui/pages/train_page.py:412
+#: ui/pages/train_page.py:478
 msgid "Training"
 msgstr "Training"
 
-#: ui/pages/train_page.py:426
+#: ui/pages/train_page.py:492
 msgid "Architecture '{arch}' not supported for {fw}. Supported: {sup}"
 msgstr "Architecture '{arch}' not supported for {fw}. Supported: {sup}"
 
-#: ui/pages/train_page.py:437
+#: ui/pages/train_page.py:503
 msgid "[done] Training complete. Model saved: {path}"
 msgstr "[done] Training complete. Model saved: {path}"
 
-#: ui/pages/train_page.py:448
+#: ui/pages/train_page.py:514
 msgid ""
 "[stopped] Training cancelled — partial checkpoints may exist; check the "
 "output folder before re-running."
@@ -1617,11 +1621,11 @@ msgstr ""
 "[stopped] Training cancelled — partial checkpoints may exist; check the "
 "output folder before re-running."
 
-#: ui/pages/train_page.py:468
+#: ui/pages/train_page.py:534
 msgid "Training failed"
 msgstr "Training failed"
 
-#: ui/pages/train_page.py:469
+#: ui/pages/train_page.py:535
 msgid ""
 "Training stopped with an error. See Details for the message from the "
 "trainer."
@@ -1632,3 +1636,7 @@ msgstr ""
 #: utils/notification_manager.py:22
 msgid " etc."
 msgstr " etc."
+
+#: ui/pages/config_page.py:152 ui/pages/config_page.py:183
+msgid "System default (follow OS)"
+msgstr "System default (follow OS)"
