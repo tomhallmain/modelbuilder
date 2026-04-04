@@ -33,6 +33,7 @@ from mb.pipeline_config import (
     save_pipeline_yaml,
 )
 from mb.models.types import ModelType
+from ui.lib.directory_line_edit_row import make_directory_line_edit_row
 from ui.lib.form_layout_i18n import apply_qform_label_column
 from ui.lib.qt_alert import qt_alert
 from mb.utils.translations import _
@@ -251,10 +252,16 @@ class PipelineConfigPage(QWidget):
         form.setLabelAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
 
         self._d_raw = QLineEdit()
-        form.addRow(_("raw_data_dir"), self._d_raw)
+        form.addRow(
+            _("raw_data_dir"),
+            make_directory_line_edit_row(w, self._d_raw, dialog_title=_("Select raw data directory")),
+        )
 
         self._d_out = QLineEdit()
-        form.addRow(_("data_dir"), self._d_out)
+        form.addRow(
+            _("data_dir"),
+            make_directory_line_edit_row(w, self._d_out, dialog_title=_("Select dataset directory")),
+        )
 
         self._d_test_pc = QSpinBox()
         self._d_test_pc.setRange(0, 10_000_000)
@@ -298,13 +305,28 @@ class PipelineConfigPage(QWidget):
         gform.addRow(_("default_target_count"), self._g_target_n)
 
         self._g_target_dir = QLineEdit()
-        gform.addRow(_("default_target_dir"), self._g_target_dir)
+        gform.addRow(
+            _("default_target_dir"),
+            make_directory_line_edit_row(
+                w, self._g_target_dir, dialog_title=_("Select default gather target directory")
+            ),
+        )
 
         self._g_rej = QLineEdit()
-        gform.addRow(_("default_rejected_dir"), self._g_rej)
+        gform.addRow(
+            _("default_rejected_dir"),
+            make_directory_line_edit_row(
+                w, self._g_rej, dialog_title=_("Select default rejected directory")
+            ),
+        )
 
         self._g_raw = QLineEdit()
-        gform.addRow(_("default_raw_data_dir"), self._g_raw)
+        gform.addRow(
+            _("default_raw_data_dir"),
+            make_directory_line_edit_row(
+                w, self._g_raw, dialog_title=_("Select default raw data directory")
+            ),
+        )
 
         lay.addWidget(gbox)
         lay.addStretch(1)
@@ -364,13 +386,22 @@ class PipelineConfigPage(QWidget):
         form.setLabelAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
 
         self._p_models = QLineEdit()
-        form.addRow(_("models_dir"), self._p_models)
+        form.addRow(
+            _("models_dir"),
+            make_directory_line_edit_row(w, self._p_models, dialog_title=_("Select models directory")),
+        )
 
         self._p_logs = QLineEdit()
-        form.addRow(_("logs_dir"), self._p_logs)
+        form.addRow(
+            _("logs_dir"),
+            make_directory_line_edit_row(w, self._p_logs, dialog_title=_("Select logs directory")),
+        )
 
         self._p_timing = QLineEdit()
-        form.addRow(_("timing_dir"), self._p_timing)
+        form.addRow(
+            _("timing_dir"),
+            make_directory_line_edit_row(w, self._p_timing, dialog_title=_("Select timing data directory")),
+        )
 
         lay.addWidget(box)
         lay.addStretch(1)
