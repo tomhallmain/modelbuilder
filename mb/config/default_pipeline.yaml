@@ -8,9 +8,11 @@ model:
 
 data:
   raw_data_dir: raw_data
+  # Train/test dataset root (train/, test/) after create-dataset; separate from raw_data_dir.
   data_dir: data
   test_per_class: 1000
   image_size: 224
+  # null = omit from training merge so the model type’s default batch size applies
   batch_size: null
   image_types:
     - .jpg
@@ -32,14 +34,14 @@ data:
     - .flv
   # null = discover subdirs of raw_data_dir; optional explicit class folder names
   class_names: null
-  # null = any immediate subdir of raw_data can be a class folder; else require raw_data/<class>/<name>/
+  # null = any class folder layout under raw data; else require raw_data/<class>/<this_subdir>/…
   class_qualifying_subdir: null
-  # mb data gather / ImageGatherer defaults (gather → convert → create-dataset)
+  # mb data gather / ImageGatherer defaults (gather → convert → create-dataset).
+  # default_target_dir / default_rejected_dir are under data.raw_data_dir unless absolute.
   gather:
     default_target_count: 100000
-    default_target_dir: raw_data/coherent
-    default_rejected_dir: raw_data/rejected
-    default_raw_data_dir: raw_data
+    default_target_dir: coherent
+    default_rejected_dir: rejected
 
 training:
   frozen_epochs: 5

@@ -28,6 +28,8 @@ from PySide6.QtWidgets import (
 from mb.pipeline_config import (
     PIPELINE_ROOT_KEYS,
     default_pipeline_yaml_dict,
+    gather_subpath_for_display,
+    gather_subpath_for_storage,
     get_pipeline_config,
     reload_pipeline_config,
     save_pipeline_yaml,
@@ -36,6 +38,7 @@ from mb.models.types import ModelType
 from ui.lib.directory_line_edit_row import make_directory_line_edit_row
 from ui.lib.form_layout_i18n import apply_qform_label_column
 from ui.lib.qt_alert import qt_alert
+from ui.lib.tooltip_qt import create_tooltip
 from mb.utils.translations import _
 from ui.workspace import resolve_pipeline_save_path
 
@@ -125,7 +128,8 @@ class PipelineConfigPage(QWidget):
         root.addLayout(row)
 
         self.retranslate_ui()
-        self._refresh_from_disk()
+        # MainWindow already called reload_pipeline_config with the same path; avoid a second load.
+        self._refresh_from_disk(force=False)
 
     def collect_gui_state(self) -> dict:
         return {}
@@ -155,53 +159,52 @@ class PipelineConfigPage(QWidget):
         self._tabs.setTabText(2, _("Training"))
         self._tabs.setTabText(3, _("Paths"))
         self._tabs.setTabText(4, _("Advanced (YAML)"))
-        self._model_group.setTitle(_("model"))
-        self._data_group.setTitle(_("data"))
-        self._gather_group.setTitle(_("data.gather"))
-        self._training_group.setTitle(_("training"))
-        self._paths_group.setTitle(_("paths"))
+        self._model_group.setTitle(_("Model"))
+        self._data_group.setTitle(_("Data"))
+        self._gather_group.setTitle(_("Gather defaults"))
+        self._training_group.setTitle(_("Training"))
+        self._paths_group.setTitle(_("Paths"))
         apply_qform_label_column(
             self._model_form,
-            [_("default_type"), _("default_framework"), _("default_architecture")],
+            [_("Default model type"), _("Default framework"), _("Default architecture")],
         )
         apply_qform_label_column(
             self._data_form,
             [
-                _("raw_data_dir"),
-                _("data_dir"),
-                _("test_per_class"),
-                _("image_size"),
-                _("batch_size (empty = null)"),
-                _("image_types (one extension per line)"),
-                _("video_types (one extension per line)"),
-                _("class_names (empty = auto-discover)"),
-                _("class_qualifying_subdir (empty = any)"),
+                _("Raw data directory"),
+                _("Dataset output directory"),
+                _("Test images per class"),
+                _("Image size (pixels)"),
+                _("Training batch size"),
+                _("Image file extensions (one per line)"),
+                _("Video file extensions (one per line)"),
+                _("Class folder names (empty = auto-discover)"),
+                _("Class qualifying subfolder"),
             ],
         )
         apply_qform_label_column(
             self._gather_form,
             [
-                _("default_target_count"),
-                _("default_target_dir"),
-                _("default_rejected_dir"),
-                _("default_raw_data_dir"),
+                _("Default gather target count"),
+                _("Gather target subfolder"),
+                _("Rejected subfolder"),
             ],
         )
         apply_qform_label_column(
             self._training_form,
             [
-                _("frozen_epochs"),
-                _("unfrozen_epochs"),
-                _("frozen_lr"),
-                _("unfrozen_lr_max"),
-                _("unfrozen_lr_min"),
-                _("num_workers"),
+                _("Frozen epochs"),
+                _("Unfrozen epochs"),
+                _("Frozen learning rate"),
+                _("Unfrozen LR (max)"),
+                _("Unfrozen LR (min)"),
+                _("DataLoader workers"),
                 "",
             ],
         )
         apply_qform_label_column(
             self._paths_form,
-            [_("models_dir"), _("logs_dir"), _("timing_dir")],
+            [_("Models directory"), _("Logs directory"), _("Timing data directory")],
         )
         self._yaml_hint.setText(
             _(
@@ -216,7 +219,66 @@ class PipelineConfigPage(QWidget):
         self._btn_default.setToolTip(
             _("Replace your user pipeline.yaml (app data) with the package default_pipeline.yaml.")
         )
-        self._store_ck.setText(_("store_checkpoints"))
+        self._store_ck.setText(_("Save training checkpoints"))
+        self._apply_pipeline_field_tooltips()
+
+    def _apply_pipeline_field_tooltips(self) -> None:
+        """Hover text for pipeline form fields (see :mod:`ui.lib.tooltip_qt`)."""
+
+        def ensure(widget: QWidget, attr: str, text: str) -> None:
+            tip = getattr(self, attr, None)
+            if tip is None:
+                setattr(self, attr, create_tooltip(widget, text))
+            else:
+                tip.set_text(text)
+
+        ensure(
+            self._m_type,
+            "_tip_m_type",
+            _("Task type selected when you start a new model project."),
+        )
+        ensure(
+            self._m_framework,
+            "_tip_m_framework",
+            _("Deep learning framework for new runs (e.g. pytorch)."),
+        )
+        ensure(
+            self._m_arch,
+            "_tip_m_arch",
+            _("Default backbone architecture name for new training runs."),
+        )
+        ensure(
+            self._d_raw,
+            "_tip_d_raw",
+            _(
+                "Root folder for raw images: one subfolder per class after gather/convert. "
+                "Relative paths are resolved from the app working directory or project root."
+            ),
+        )
+        ensure(
+            self._d_out,
+            "_tip_d_out",
+            _(
+                "Output of create-dataset: this folder holds train/ and test/ used for training and snapshots. "
+                "Keep it on a fast internal disk when raw data lives on external storage."
+            ),
+        )
+        ensure(
+            self._g_target_dir,
+            "_tip_g_target",
+            _(
+                "Subfolder under raw data for accepted gather output (e.g. coherent). "
+                "Relative to Raw data directory unless you enter an absolute path."
+            ),
+        )
+        ensure(
+            self._g_rej,
+            "_tip_g_rej",
+            _(
+                "Subfolder under raw data for files rejected during gather (e.g. rejected). "
+                "Relative to Raw data directory unless you enter an absolute path."
+            ),
+        )
 
     def _build_model_tab(self) -> QWidget:
         w = QWidget()
@@ -230,13 +292,13 @@ class PipelineConfigPage(QWidget):
         self._m_type = QComboBox()
         for mt in ModelType:
             self._m_type.addItem(mt.value.replace("_", " "), mt.value)
-        form.addRow(_("default_type"), self._m_type)
+        form.addRow(_("Default model type"), self._m_type)
 
         self._m_framework = QLineEdit()
-        form.addRow(_("default_framework"), self._m_framework)
+        form.addRow(_("Default framework"), self._m_framework)
 
         self._m_arch = QLineEdit()
-        form.addRow(_("default_architecture"), self._m_arch)
+        form.addRow(_("Default architecture"), self._m_arch)
 
         lay.addWidget(box)
         lay.addStretch(1)
@@ -253,44 +315,46 @@ class PipelineConfigPage(QWidget):
 
         self._d_raw = QLineEdit()
         form.addRow(
-            _("raw_data_dir"),
+            _("Raw data directory"),
             make_directory_line_edit_row(w, self._d_raw, dialog_title=_("Select raw data directory")),
         )
 
         self._d_out = QLineEdit()
         form.addRow(
-            _("data_dir"),
+            _("Dataset output directory"),
             make_directory_line_edit_row(w, self._d_out, dialog_title=_("Select dataset directory")),
         )
 
         self._d_test_pc = QSpinBox()
         self._d_test_pc.setRange(0, 10_000_000)
-        form.addRow(_("test_per_class"), self._d_test_pc)
+        form.addRow(_("Test images per class"), self._d_test_pc)
 
         self._d_im_size = QSpinBox()
         self._d_im_size.setRange(1, 4096)
-        form.addRow(_("image_size"), self._d_im_size)
+        form.addRow(_("Image size (pixels)"), self._d_im_size)
 
         self._d_batch = QLineEdit()
-        self._d_batch.setPlaceholderText(_("empty → null"))
-        form.addRow(_("batch_size (empty = null)"), self._d_batch)
+        self._d_batch.setPlaceholderText(
+            _("Leave empty for the model-type default batch size (omitted from saved YAML).")
+        )
+        form.addRow(_("Training batch size"), self._d_batch)
 
         self._d_img_types = QPlainTextEdit()
         self._d_img_types.setFixedHeight(100)
-        form.addRow(_("image_types (one extension per line)"), self._d_img_types)
+        form.addRow(_("Image file extensions (one per line)"), self._d_img_types)
 
         self._d_vid_types = QPlainTextEdit()
         self._d_vid_types.setFixedHeight(80)
-        form.addRow(_("video_types (one extension per line)"), self._d_vid_types)
+        form.addRow(_("Video file extensions (one per line)"), self._d_vid_types)
 
         self._d_class_names = QPlainTextEdit()
         self._d_class_names.setFixedHeight(72)
         self._d_class_names.setPlaceholderText(_("One class folder name per line; empty = discover"))
-        form.addRow(_("class_names (empty = auto-discover)"), self._d_class_names)
+        form.addRow(_("Class folder names (empty = auto-discover)"), self._d_class_names)
 
         self._d_qual = QLineEdit()
-        self._d_qual.setPlaceholderText(_("empty → null"))
-        form.addRow(_("class_qualifying_subdir (empty = any)"), self._d_qual)
+        self._d_qual.setPlaceholderText(_("empty = any"))
+        form.addRow(_("Class qualifying subfolder"), self._d_qual)
 
         lay.addWidget(box)
 
@@ -302,29 +366,27 @@ class PipelineConfigPage(QWidget):
 
         self._g_target_n = QSpinBox()
         self._g_target_n.setRange(1, 100_000_000)
-        gform.addRow(_("default_target_count"), self._g_target_n)
+        gform.addRow(_("Default gather target count"), self._g_target_n)
 
         self._g_target_dir = QLineEdit()
+        self._g_target_dir.setPlaceholderText(
+            _("Relative to raw data directory (e.g. coherent); absolute path optional")
+        )
         gform.addRow(
-            _("default_target_dir"),
+            _("Gather target subfolder"),
             make_directory_line_edit_row(
                 w, self._g_target_dir, dialog_title=_("Select default gather target directory")
             ),
         )
 
         self._g_rej = QLineEdit()
+        self._g_rej.setPlaceholderText(
+            _("Relative to raw data directory (e.g. rejected); absolute path optional")
+        )
         gform.addRow(
-            _("default_rejected_dir"),
+            _("Rejected subfolder"),
             make_directory_line_edit_row(
                 w, self._g_rej, dialog_title=_("Select default rejected directory")
-            ),
-        )
-
-        self._g_raw = QLineEdit()
-        gform.addRow(
-            _("default_raw_data_dir"),
-            make_directory_line_edit_row(
-                w, self._g_raw, dialog_title=_("Select default raw data directory")
             ),
         )
 
@@ -343,31 +405,31 @@ class PipelineConfigPage(QWidget):
 
         self._t_frozen_e = QSpinBox()
         self._t_frozen_e.setRange(0, 1_000_000)
-        form.addRow(_("frozen_epochs"), self._t_frozen_e)
+        form.addRow(_("Frozen epochs"), self._t_frozen_e)
 
         self._t_unfrozen_e = QSpinBox()
         self._t_unfrozen_e.setRange(0, 1_000_000)
-        form.addRow(_("unfrozen_epochs"), self._t_unfrozen_e)
+        form.addRow(_("Unfrozen epochs"), self._t_unfrozen_e)
 
         self._t_frozen_lr = QDoubleSpinBox()
         self._t_frozen_lr.setRange(0.0, 1.0)
         self._t_frozen_lr.setDecimals(8)
         self._t_frozen_lr.setSingleStep(0.0001)
-        form.addRow(_("frozen_lr"), self._t_frozen_lr)
+        form.addRow(_("Frozen learning rate"), self._t_frozen_lr)
 
         self._t_umax = QDoubleSpinBox()
         self._t_umax.setRange(0.0, 1.0)
         self._t_umax.setDecimals(8)
-        form.addRow(_("unfrozen_lr_max"), self._t_umax)
+        form.addRow(_("Unfrozen LR (max)"), self._t_umax)
 
         self._t_umin = QDoubleSpinBox()
         self._t_umin.setRange(0.0, 1.0)
         self._t_umin.setDecimals(8)
-        form.addRow(_("unfrozen_lr_min"), self._t_umin)
+        form.addRow(_("Unfrozen LR (min)"), self._t_umin)
 
         self._t_workers = QSpinBox()
         self._t_workers.setRange(0, 256)
-        form.addRow(_("num_workers"), self._t_workers)
+        form.addRow(_("DataLoader workers"), self._t_workers)
 
         self._store_ck = QCheckBox()
         form.addRow("", self._store_ck)
@@ -387,19 +449,19 @@ class PipelineConfigPage(QWidget):
 
         self._p_models = QLineEdit()
         form.addRow(
-            _("models_dir"),
+            _("Models directory"),
             make_directory_line_edit_row(w, self._p_models, dialog_title=_("Select models directory")),
         )
 
         self._p_logs = QLineEdit()
         form.addRow(
-            _("logs_dir"),
+            _("Logs directory"),
             make_directory_line_edit_row(w, self._p_logs, dialog_title=_("Select logs directory")),
         )
 
         self._p_timing = QLineEdit()
         form.addRow(
-            _("timing_dir"),
+            _("Timing data directory"),
             make_directory_line_edit_row(w, self._p_timing, dialog_title=_("Select timing data directory")),
         )
 
@@ -433,11 +495,15 @@ class PipelineConfigPage(QWidget):
         cq = self._d_qual.text().strip()
         class_qual = None if cq == "" else cq
 
+        raw_for_gather = self._d_raw.text().strip() or "raw_data"
         gather = {
             "default_target_count": int(self._g_target_n.value()),
-            "default_target_dir": self._g_target_dir.text().strip() or "raw_data/coherent",
-            "default_rejected_dir": self._g_rej.text().strip() or "raw_data/rejected",
-            "default_raw_data_dir": self._g_raw.text().strip() or "raw_data",
+            "default_target_dir": gather_subpath_for_storage(
+                raw_for_gather, self._g_target_dir.text(), "coherent"
+            ),
+            "default_rejected_dir": gather_subpath_for_storage(
+                raw_for_gather, self._g_rej.text(), "rejected"
+            ),
         }
 
         data: dict[str, Any] = {
@@ -485,7 +551,8 @@ class PipelineConfigPage(QWidget):
         self._m_arch.setText(str(m.get("default_architecture") or "resnet34"))
 
         d = cfg.get("data") or {}
-        self._d_raw.setText(str(d.get("raw_data_dir") or ""))
+        raw_d = str(d.get("raw_data_dir") or "")
+        self._d_raw.setText(raw_d)
         self._d_out.setText(str(d.get("data_dir") or ""))
         self._d_test_pc.setValue(int(d.get("test_per_class") or 0))
         self._d_im_size.setValue(int(d.get("image_size") or 224))
@@ -499,9 +566,12 @@ class PipelineConfigPage(QWidget):
 
         g = d.get("gather") or {}
         self._g_target_n.setValue(int(g.get("default_target_count") or 100000))
-        self._g_target_dir.setText(str(g.get("default_target_dir") or ""))
-        self._g_rej.setText(str(g.get("default_rejected_dir") or ""))
-        self._g_raw.setText(str(g.get("default_raw_data_dir") or ""))
+        self._g_target_dir.setText(
+            gather_subpath_for_display(raw_d, str(g.get("default_target_dir") or ""))
+        )
+        self._g_rej.setText(
+            gather_subpath_for_display(raw_d, str(g.get("default_rejected_dir") or ""))
+        )
 
         t = cfg.get("training") or {}
         self._t_frozen_e.setValue(int(t.get("frozen_epochs") or 0))
@@ -525,14 +595,20 @@ class PipelineConfigPage(QWidget):
             text = ""
         self._yaml_edit.setPlainText(text)
 
-    def _refresh_from_disk(self) -> None:
+    def _refresh_from_disk(self, *, force: bool = True) -> None:
+        """
+        Reload pipeline YAML into the global config and refresh this form.
+
+        *force* should be False on first page open when :class:`~ui.main_window.MainWindow`
+        has just loaded the same path — otherwise the pipeline file is read twice on startup.
+        """
         from utils.config import get_user_pipeline_config_path
 
         mw = self._main_window()
         if mw is not None:
-            reload_pipeline_config(mw._effective_pipeline_config_path(), force=True)
+            reload_pipeline_config(mw._effective_pipeline_config_path(), force=force)
         else:
-            reload_pipeline_config(None, force=True)
+            reload_pipeline_config(None, force=force)
 
         pc = get_pipeline_config()
         path = pc.active_path

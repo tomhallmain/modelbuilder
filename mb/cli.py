@@ -145,7 +145,7 @@ def create_parser() -> argparse.ArgumentParser:
         "--raw-data-dir",
         type=Path,
         default=_gather_def["raw_data_dir"],
-        help=_("Root directory for raw data (default: data.gather.default_raw_data_dir)"),
+        help=_("Root directory for raw data (default: data.raw_data_dir in pipeline config)"),
     )
     gather_parser.add_argument(
         "--model-type",

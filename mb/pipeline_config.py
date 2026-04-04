@@ -33,6 +33,56 @@ PIPELINE_ROOT_KEYS = _PIPELINE_KEYS
 _global_pipeline: Optional["PipelineConfig"] = None
 
 
+def resolve_gather_path_under_raw(raw_data_dir_str: str, configured: str, fallback: str) -> Path:
+    """
+    Resolve ``data.gather.default_target_dir`` / ``default_rejected_dir`` to a :class:`~pathlib.Path`.
+
+    Absolute *configured* values are returned unchanged. Otherwise the path is taken as
+    relative to ``data.raw_data_dir`` (not the process cwd). Legacy YAML often stored
+    ``raw_data/coherent``; when the first path segment matches ``raw_data_dir``'s
+    basename, that segment is not duplicated under the raw root.
+    """
+    raw = Path((raw_data_dir_str or "").strip() or "raw_data")
+    s = (configured or "").strip() or fallback
+    p = Path(s.replace("\\", "/"))
+    if p.is_absolute():
+        return p
+    parts = p.parts
+    if len(parts) >= 2 and parts[0] == raw.name:
+        return raw.joinpath(*parts[1:])
+    return raw / p
+
+
+def gather_subpath_for_display(raw_data_dir: str, stored: str) -> str:
+    """Shorten legacy ``<raw_basename>/…`` values for pipeline UI display."""
+    s = (stored or "").strip()
+    if not s:
+        return ""
+    p = Path(s.replace("\\", "/"))
+    if p.is_absolute():
+        return s
+    raw_name = Path((raw_data_dir or "raw_data").strip() or "raw_data").name
+    parts = p.parts
+    if len(parts) >= 2 and parts[0] == raw_name:
+        return str(Path(*parts[1:]).as_posix())
+    return str(p.as_posix())
+
+
+def gather_subpath_for_storage(raw_data_dir: str, user_input: str, fallback: str) -> str:
+    """Normalize gather path fields for YAML: relative segments under ``raw_data_dir``, no duplicated prefix."""
+    raw_name = Path((raw_data_dir or "raw_data").strip() or "raw_data").name
+    s = (user_input or "").strip()
+    if not s:
+        return fallback
+    p = Path(s.replace("\\", "/"))
+    if p.is_absolute():
+        return p.as_posix()
+    parts = p.parts
+    if len(parts) >= 2 and parts[0] == raw_name:
+        return str(Path(*parts[1:]).as_posix())
+    return str(p.as_posix())
+
+
 class PipelineConfig:
     """YAML-backed pipeline defaults merged over built-in defaults."""
 
@@ -55,6 +105,7 @@ class PipelineConfig:
             },
             "data": {
                 "raw_data_dir": "raw_data",
+                # Train/test split root after create-dataset (train/, test/); not the same as raw_data_dir.
                 "data_dir": "data",
                 "test_per_class": 1000,
                 "image_size": 224,
@@ -77,11 +128,11 @@ class PipelineConfig:
                 # null = do not require a nested folder; else e.g. "IMAGES" — class dirs must contain it.
                 "class_qualifying_subdir": None,
                 # Defaults for mb data gather / ImageGatherer (see gather_pipeline_defaults).
+                # Raw root is data.raw_data_dir only (no duplicate under gather).
                 "gather": {
                     "default_target_count": 100000,
-                    "default_target_dir": "raw_data/coherent",
-                    "default_rejected_dir": "raw_data/rejected",
-                    "default_raw_data_dir": "raw_data",
+                    "default_target_dir": "coherent",
+                    "default_rejected_dir": "rejected",
                 },
             },
             "training": {
@@ -241,14 +292,35 @@ def gather_pipeline_defaults() -> Dict[str, Any]:
     """
     Defaults for :mod:`mb.data.gather` (``mb data gather``, Data page gather tab).
 
-    Paths are relative to the process working directory unless overridden in YAML.
+    Relative gather target/rejected paths are resolved under ``data.raw_data_dir``
+    (see :func:`resolve_gather_path_under_raw`), not the process cwd. Legacy YAML may
+    still define ``data.gather.default_raw_data_dir``; it is used only if present
+    and ``data.raw_data_dir`` is missing or empty after merge.
     """
-    g = get_pipeline_config().get("data.gather") or {}
+    pc = get_pipeline_config()
+    d = pc.get("data") or {}
+    g = d.get("gather") or {}
+    raw = d.get("raw_data_dir")
+    if raw is None or (isinstance(raw, str) and not str(raw).strip()):
+        raw = g.get("default_raw_data_dir") or "raw_data"
+    else:
+        raw = str(raw).strip()
+    raw_str = str(raw)
+
+    def _gather_cfg_str(key: str, default: str) -> str:
+        v = g.get(key, default)
+        if v is None:
+            return default
+        s = str(v).strip()
+        return s if s else default
+
+    tgt_s = _gather_cfg_str("default_target_dir", "coherent")
+    rej_s = _gather_cfg_str("default_rejected_dir", "rejected")
     return {
         "target_count": int(g.get("default_target_count", 100000)),
-        "target_dir": Path(str(g.get("default_target_dir", "raw_data/coherent"))),
-        "rejected_dir": Path(str(g.get("default_rejected_dir", "raw_data/rejected"))),
-        "raw_data_dir": Path(str(g.get("default_raw_data_dir", "raw_data"))),
+        "target_dir": resolve_gather_path_under_raw(raw_str, tgt_s, "coherent"),
+        "rejected_dir": resolve_gather_path_under_raw(raw_str, rej_s, "rejected"),
+        "raw_data_dir": Path(raw_str),
     }
 
 
