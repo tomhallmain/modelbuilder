@@ -120,6 +120,81 @@ def create_efficientnet(
         )
 
 
+def create_mobilenet(
+    architecture: Union[ArchitectureType, str],
+    num_classes: int,
+    pretrained: bool = True,
+    **kwargs,
+) -> nn.Module:
+    """Create MobileNet V2 / V3 (``torchvision.models``)."""
+    arch_s = _architecture_str(architecture)
+    mobilenet_models = {
+        ArchitectureType.MOBILENET_V2.value: models.mobilenet_v2,
+        ArchitectureType.MOBILENET_V3_LARGE.value: models.mobilenet_v3_large,
+        ArchitectureType.MOBILENET_V3_SMALL.value: models.mobilenet_v3_small,
+    }
+    if arch_s not in mobilenet_models:
+        raise ValueError(
+            f"Unknown MobileNet architecture: {arch_s}. Supported: {list(mobilenet_models.keys())}"
+        )
+    model = mobilenet_models[arch_s](pretrained=pretrained, **kwargs)
+    if arch_s == ArchitectureType.MOBILENET_V2.value:
+        in_f = model.classifier[1].in_features
+        model.classifier[1] = nn.Linear(in_f, num_classes)
+    else:
+        in_f = model.classifier[3].in_features
+        model.classifier[3] = nn.Linear(in_f, num_classes)
+    logger.info(f"Created {arch_s} with {num_classes} classes (pretrained={pretrained})")
+    return model
+
+
+def create_densenet(
+    architecture: Union[ArchitectureType, str],
+    num_classes: int,
+    pretrained: bool = True,
+    **kwargs,
+) -> nn.Module:
+    """Create DenseNet (``torchvision.models``)."""
+    arch_s = _architecture_str(architecture)
+    densenet_models = {
+        ArchitectureType.DENSENET121.value: models.densenet121,
+        ArchitectureType.DENSENET169.value: models.densenet169,
+        ArchitectureType.DENSENET201.value: models.densenet201,
+    }
+    if arch_s not in densenet_models:
+        raise ValueError(
+            f"Unknown DenseNet architecture: {arch_s}. Supported: {list(densenet_models.keys())}"
+        )
+    model = densenet_models[arch_s](pretrained=pretrained, **kwargs)
+    in_f = model.classifier.in_features
+    model.classifier = nn.Linear(in_f, num_classes)
+    logger.info(f"Created {arch_s} with {num_classes} classes (pretrained={pretrained})")
+    return model
+
+
+def create_vgg(
+    architecture: Union[ArchitectureType, str],
+    num_classes: int,
+    pretrained: bool = True,
+    **kwargs,
+) -> nn.Module:
+    """Create VGG (``torchvision.models``)."""
+    arch_s = _architecture_str(architecture)
+    vgg_models = {
+        ArchitectureType.VGG16.value: models.vgg16,
+        ArchitectureType.VGG19.value: models.vgg19,
+    }
+    if arch_s not in vgg_models:
+        raise ValueError(
+            f"Unknown VGG architecture: {arch_s}. Supported: {list(vgg_models.keys())}"
+        )
+    model = vgg_models[arch_s](pretrained=pretrained, **kwargs)
+    in_f = model.classifier[6].in_features
+    model.classifier[6] = nn.Linear(in_f, num_classes)
+    logger.info(f"Created {arch_s} with {num_classes} classes (pretrained={pretrained})")
+    return model
+
+
 # Register architectures
 def _make_resnet_factory(arch_name):
     """Create a factory function for a ResNet architecture."""
@@ -143,3 +218,35 @@ try:
     register_architecture(_FW, ArchitectureType.EFFICIENTNET_B3, _make_efficientnet_factory(ArchitectureType.EFFICIENTNET_B3.value))
 except Exception as e:
     logger.debug(f"Could not register EfficientNet architectures: {e}")
+
+
+def _make_mobilenet_factory(arch_name: str):
+    return lambda num_classes, pretrained=True, **kwargs: create_mobilenet(
+        arch_name, num_classes, pretrained, **kwargs
+    )
+
+
+def _make_densenet_factory(arch_name: str):
+    return lambda num_classes, pretrained=True, **kwargs: create_densenet(
+        arch_name, num_classes, pretrained, **kwargs
+    )
+
+
+def _make_vgg_factory(arch_name: str):
+    return lambda num_classes, pretrained=True, **kwargs: create_vgg(arch_name, num_classes, pretrained, **kwargs)
+
+
+for _arch in (
+    ArchitectureType.MOBILENET_V2,
+    ArchitectureType.MOBILENET_V3_LARGE,
+    ArchitectureType.MOBILENET_V3_SMALL,
+):
+    register_architecture(_FW, _arch, _make_mobilenet_factory(_arch.value))
+for _arch in (
+    ArchitectureType.DENSENET121,
+    ArchitectureType.DENSENET169,
+    ArchitectureType.DENSENET201,
+):
+    register_architecture(_FW, _arch, _make_densenet_factory(_arch.value))
+for _arch in (ArchitectureType.VGG16, ArchitectureType.VGG19):
+    register_architecture(_FW, _arch, _make_vgg_factory(_arch.value))

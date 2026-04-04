@@ -83,9 +83,10 @@ class ArchitectureType(str, Enum):
     Canonical architecture ids registered in :mod:`mb.models.frameworks`.
 
     Values match registry keys passed as :class:`ArchitectureType` to
-    :func:`mb.models.frameworks.registry.register_architecture` (lowercase). Not every
-    framework implements every member; use the registry or trainer helpers to list
-    supported names per framework.
+    :func:`mb.models.frameworks.registry.register_architecture` (lowercase). Families
+    include ResNet, EfficientNet, MobileNet, DenseNet, and VGG where implemented per
+    framework. Not every framework implements every member; use the registry or trainer
+    helpers to list supported names per framework.
     """
 
     RESNET18 = "resnet18"
@@ -97,6 +98,17 @@ class ArchitectureType(str, Enum):
     EFFICIENTNET_B1 = "efficientnet_b1"
     EFFICIENTNET_B2 = "efficientnet_b2"
     EFFICIENTNET_B3 = "efficientnet_b3"
+    # MobileNet (``torchvision.models`` / ``keras.applications``)
+    MOBILENET_V2 = "mobilenet_v2"
+    MOBILENET_V3_LARGE = "mobilenet_v3_large"
+    MOBILENET_V3_SMALL = "mobilenet_v3_small"
+    # DenseNet
+    DENSENET121 = "densenet121"
+    DENSENET169 = "densenet169"
+    DENSENET201 = "densenet201"
+    # VGG
+    VGG16 = "vgg16"
+    VGG19 = "vgg19"
 
     @classmethod
     def get_default(cls) -> ArchitectureType:

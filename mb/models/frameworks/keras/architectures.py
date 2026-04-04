@@ -146,6 +146,107 @@ def create_efficientnet(
     return model
 
 
+def _keras_gap_classifier(base_model, num_classes: int):
+    """GlobalAveragePooling2D + small MLP head (same pattern as :func:`create_resnet`)."""
+    x = keras.layers.GlobalAveragePooling2D()(base_model.output)
+    x = keras.layers.Dense(512, activation="relu")(x)
+    x = keras.layers.Dropout(0.5)(x)
+    predictions = keras.layers.Dense(num_classes, activation="softmax")(x)
+    return keras.Model(inputs=base_model.input, outputs=predictions)
+
+
+def create_mobilenet(
+    architecture: Union[ArchitectureType, str],
+    num_classes: int,
+    pretrained: bool = True,
+    **kwargs
+):
+    """Create MobileNet V2 / V3 via ``keras.applications``."""
+    if not TF_AVAILABLE:
+        raise ImportError("TensorFlow is required for Keras models")
+    arch_s = _architecture_str(architecture)
+    mobilenet_models = {
+        ArchitectureType.MOBILENET_V2.value: applications.MobileNetV2,
+        ArchitectureType.MOBILENET_V3_LARGE.value: applications.MobileNetV3Large,
+        ArchitectureType.MOBILENET_V3_SMALL.value: applications.MobileNetV3Small,
+    }
+    if arch_s not in mobilenet_models:
+        raise ValueError(
+            f"Unknown MobileNet architecture: {arch_s}. Supported: {list(mobilenet_models.keys())}"
+        )
+    model_fn = mobilenet_models[arch_s]
+    base_model = model_fn(
+        weights="imagenet" if pretrained else None,
+        include_top=False,
+        input_shape=(224, 224, 3),
+        **kwargs,
+    )
+    model = _keras_gap_classifier(base_model, num_classes)
+    logger.info(f"Created {arch_s} with {num_classes} classes (pretrained={pretrained})")
+    return model
+
+
+def create_densenet(
+    architecture: Union[ArchitectureType, str],
+    num_classes: int,
+    pretrained: bool = True,
+    **kwargs
+):
+    """Create DenseNet via ``keras.applications``."""
+    if not TF_AVAILABLE:
+        raise ImportError("TensorFlow is required for Keras models")
+    arch_s = _architecture_str(architecture)
+    densenet_models = {
+        ArchitectureType.DENSENET121.value: applications.DenseNet121,
+        ArchitectureType.DENSENET169.value: applications.DenseNet169,
+        ArchitectureType.DENSENET201.value: applications.DenseNet201,
+    }
+    if arch_s not in densenet_models:
+        raise ValueError(
+            f"Unknown DenseNet architecture: {arch_s}. Supported: {list(densenet_models.keys())}"
+        )
+    model_fn = densenet_models[arch_s]
+    base_model = model_fn(
+        weights="imagenet" if pretrained else None,
+        include_top=False,
+        input_shape=(224, 224, 3),
+        **kwargs,
+    )
+    model = _keras_gap_classifier(base_model, num_classes)
+    logger.info(f"Created {arch_s} with {num_classes} classes (pretrained={pretrained})")
+    return model
+
+
+def create_vgg(
+    architecture: Union[ArchitectureType, str],
+    num_classes: int,
+    pretrained: bool = True,
+    **kwargs
+):
+    """Create VGG via ``keras.applications``."""
+    if not TF_AVAILABLE:
+        raise ImportError("TensorFlow is required for Keras models")
+    arch_s = _architecture_str(architecture)
+    vgg_models = {
+        ArchitectureType.VGG16.value: applications.VGG16,
+        ArchitectureType.VGG19.value: applications.VGG19,
+    }
+    if arch_s not in vgg_models:
+        raise ValueError(
+            f"Unknown VGG architecture: {arch_s}. Supported: {list(vgg_models.keys())}"
+        )
+    model_fn = vgg_models[arch_s]
+    base_model = model_fn(
+        weights="imagenet" if pretrained else None,
+        include_top=False,
+        input_shape=(224, 224, 3),
+        **kwargs,
+    )
+    model = _keras_gap_classifier(base_model, num_classes)
+    logger.info(f"Created {arch_s} with {num_classes} classes (pretrained={pretrained})")
+    return model
+
+
 # Register architectures (only if TensorFlow is available)
 if TF_AVAILABLE:
     from mb.models.frameworks.registry import register_architecture
@@ -173,3 +274,33 @@ if TF_AVAILABLE:
         register_architecture(_FW, ArchitectureType.EFFICIENTNET_B3, _make_efficientnet_factory(ArchitectureType.EFFICIENTNET_B3.value))
     except Exception as e:
         logger.debug(f"Could not register EfficientNet architectures: {e}")
+
+    def _make_mobilenet_factory(arch_name: str):
+        return lambda num_classes, pretrained=True, **kw: create_mobilenet(
+            arch_name, num_classes, pretrained, **kw
+        )
+
+    def _make_densenet_factory(arch_name: str):
+        return lambda num_classes, pretrained=True, **kw: create_densenet(
+            arch_name, num_classes, pretrained, **kw
+        )
+
+    def _make_vgg_factory(arch_name: str):
+        return lambda num_classes, pretrained=True, **kw: create_vgg(
+            arch_name, num_classes, pretrained, **kw
+        )
+
+    for _arch in (
+        ArchitectureType.MOBILENET_V2,
+        ArchitectureType.MOBILENET_V3_LARGE,
+        ArchitectureType.MOBILENET_V3_SMALL,
+    ):
+        register_architecture(_FW, _arch, _make_mobilenet_factory(_arch.value))
+    for _arch in (
+        ArchitectureType.DENSENET121,
+        ArchitectureType.DENSENET169,
+        ArchitectureType.DENSENET201,
+    ):
+        register_architecture(_FW, _arch, _make_densenet_factory(_arch.value))
+    for _arch in (ArchitectureType.VGG16, ArchitectureType.VGG19):
+        register_architecture(_FW, _arch, _make_vgg_factory(_arch.value))
