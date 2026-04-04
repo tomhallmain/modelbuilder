@@ -8,6 +8,7 @@ import pytest
 from PySide6.QtCore import Qt
 
 from mb.data.class_layout import SYNTHETIC_DEFAULT_CLASS_NAMES
+from mb.models.types import ModelBuildStepCommand
 from ui.pages.data_page import DataPage
 
 
@@ -50,6 +51,40 @@ def test_data_page_validate_enables_run_on_gather_tab(qtbot, synthetic_raw_data_
     page.gather_subdirs.setText(SYNTHETIC_DEFAULT_CLASS_NAMES[0])
     qtbot.mouseClick(page.btn_validate, Qt.MouseButton.LeftButton)
     assert page.btn_run.isEnabled()
+
+
+@pytest.mark.ui
+def test_data_page_space_precheck_updates_status_and_log(
+    qtbot, english_gui_locale, tmp_path: Path
+) -> None:
+    """Convert / create-dataset space heuristics update the status line and output (headless)."""
+    raw = tmp_path / "raw_space"
+    raw.mkdir()
+    out = tmp_path / "data_out"
+    out.mkdir()
+    page = DataPage()
+    qtbot.addWidget(page)
+
+    ok_c = page._space_precheck_ui(
+        ModelBuildStepCommand.CONVERT,
+        {"raw_data_dir": raw, "skip_space_check": False},
+    )
+    assert ok_c is True
+    status_c = page._space_estimate_status.text()
+    assert "Latest space check" in status_c
+    assert "Convert" in status_c
+    assert "[space]" in page.output.toPlainText()
+
+    page.output.clear()
+    ok_d = page._space_precheck_ui(
+        ModelBuildStepCommand.CREATE_DATASET,
+        {"raw_data_dir": raw, "data_dir": out, "skip_space_check": False},
+    )
+    assert ok_d is True
+    status_d = page._space_estimate_status.text()
+    assert "Latest space check" in status_d
+    assert "Create-dataset" in status_d or "dataset" in status_d.lower()
+    assert "[space]" in page.output.toPlainText()
 
 
 @pytest.mark.ui
