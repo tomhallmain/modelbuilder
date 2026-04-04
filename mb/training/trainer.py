@@ -81,7 +81,9 @@ class ModelTrainer:
                 match the framework this :class:`ModelTrainer` was constructed with).
             cancel_event: When set, framework training loops stop cooperatively between
                 training/validation batches (and at epoch starts in Keras)
-            progress_cb: Optional callback ``(message, percent_or_none)`` for GUI progress
+            progress_cb: Optional callback ``(message, percent_or_none)`` for GUI progress.
+                *percent* is an overall job fraction in ``[0, 1]`` when known (setup, training,
+                and evaluation use heuristic bands; the training loop refines the middle band).
 
         Returns:
             Path to saved model
@@ -100,12 +102,22 @@ class ModelTrainer:
         update_snapshot = args.update_snapshot
         cli_hyperparams = args.cli_hyperparams
 
-        def _progress(msg: str, pct: Optional[float] = None) -> None:
+        def _emit(msg: str, pct: Optional[float]) -> None:
             if progress_cb is not None:
                 progress_cb(msg, pct)
 
+        # Overall [0, 1] job fraction for the GUI (heuristic: most time is in the framework
+        # training loop; setup, snapshot load, and post-train eval are smaller bands).
+        p_after_validate = 0.04
+        p_after_model = 0.09
+        p_after_data = 0.16
+        if update_snapshot:
+            p_after_snapshot = 0.20
+        else:
+            p_after_snapshot = p_after_data
+
         # Validate data structure
-        _progress("Validating data…", None)
+        _emit("Validating data…", p_after_validate)
         if not self.model_type_handler.validate_data(data_dir):
             raise ValueError(f"Invalid data structure for {self.model_type.value}")
         
@@ -139,7 +151,7 @@ class ModelTrainer:
             logger.info(f"  {key}: {value}")
         
         # Create model
-        _progress("Creating model…", None)
+        _emit("Creating model…", p_after_model)
         logger.info(f"Creating {architecture} model...")
         model = self.framework_trainer.create_model(
             architecture=architecture,
@@ -151,7 +163,7 @@ class ModelTrainer:
         train_dir = data_dir / "train"
         val_dir = data_dir / "test"
         
-        _progress("Loading data…", None)
+        _emit("Loading data…", p_after_data)
         logger.info("Creating data loaders...")
         train_loader, val_loader = self.framework_trainer.create_data_loaders(
             train_dir=train_dir,
@@ -164,7 +176,7 @@ class ModelTrainer:
         # Update unified snapshot if requested
         unified_snapshot = None
         if update_snapshot:
-            _progress("Loading snapshot…", None)
+            _emit("Loading snapshot…", p_after_snapshot)
             logger.info("Loading unified snapshot...")
             search_paths = [data_dir, data_dir.parent]
             unified_snapshot = find_unified_snapshot(search_paths, run_id=run_id, logger=logger)
@@ -182,9 +194,20 @@ class ModelTrainer:
             else:
                 logger.warning("No unified snapshot found. Training will proceed without snapshot update.")
                 logger.warning("Run data conversion and dataset creation first to create a snapshot.")
-        
-        # Train model
-        _progress("Training…", None)
+
+        train_lo = p_after_snapshot
+        train_hi = 0.88
+        eval_end = 0.96
+
+        def _training_progress(msg: str, pct: Optional[float]) -> None:
+            if pct is None:
+                _emit(msg, None)
+            else:
+                overall = train_lo + (train_hi - train_lo) * float(pct)
+                _emit(msg, overall)
+
+        # Train model (framework reports 0..1 within the training loop only)
+        _emit("Training…", train_lo)
         logger.info("Starting training...")
         trained_model = self.framework_trainer.train(
             model=model,
@@ -194,13 +217,14 @@ class ModelTrainer:
             output_dir=output_dir,
             resume_from_checkpoint=resume_from_checkpoint,
             cancel_event=cancel_event,
-            progress_cb=_progress,
+            progress_cb=_training_progress,
         )
-        
-        # Evaluate model
-        _progress("Evaluating…", None)
+
+        # Evaluate model (can be noticeable on large val sets — no per-batch hook here yet)
+        _emit("Evaluating…", train_hi)
         logger.info("Evaluating model...")
         metrics = self.framework_trainer.evaluate(trained_model, val_loader)
+        _emit("Evaluating…", eval_end)
         logger.info("Evaluation metrics:")
         for metric_name, metric_value in metrics.items():
             logger.info(f"  {metric_name}: {metric_value:.4f}")

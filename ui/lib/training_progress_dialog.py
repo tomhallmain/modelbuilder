@@ -36,6 +36,10 @@ def _format_eta_label(seconds: float | None) -> str:
     )
 
 
+def _format_elapsed_label(seconds: float) -> str:
+    return _("Elapsed: {t}").format(t=format_eta_seconds(float(seconds)))
+
+
 class TrainingProgressDialog(QDialog):
     """Training progress with determinate bar (when available) and ETA estimate."""
 
@@ -58,7 +62,7 @@ class TrainingProgressDialog(QDialog):
         root.addWidget(self._bar)
 
         self._eta = QLabel(_format_eta_label(None))
-        self._eta.setStyleSheet("color: palette(mid);")
+        # Match normal dialog text (do not use palette(mid) — unreadable on dark themes).
         self._eta.setWordWrap(True)
         root.addWidget(self._eta)
 
@@ -72,6 +76,7 @@ class TrainingProgressDialog(QDialog):
         root.addLayout(btn_row)
 
         self._t_eta_start: float | None = None
+        self._t_open = time.monotonic()
 
     def set_cancel_handler(self, on_cancel: object) -> None:
         if self._cancel_btn is not None:
@@ -81,14 +86,16 @@ class TrainingProgressDialog(QDialog):
         self._status.setText(message)
         if indeterminate:
             self._bar.setRange(0, 0)
-            self._eta.setText(_format_eta_label(None))
+            elapsed = time.monotonic() - self._t_open
+            self._eta.setText(_format_elapsed_label(elapsed) + " · " + _("ETA unknown"))
             self._t_eta_start = None
             return
 
         self._bar.setRange(0, 100)
         if not isinstance(percent, (int, float)):
             self._bar.setRange(0, 0)
-            self._eta.setText(_format_eta_label(None))
+            elapsed = time.monotonic() - self._t_open
+            self._eta.setText(_format_elapsed_label(elapsed) + " · " + _("ETA unknown"))
             return
 
         p = float(percent)
@@ -128,8 +135,9 @@ def attach_training_progress_dialog(
     """
     Show a training progress dialog with ETA, wired to *handle*'s signals.
 
-    *percent* from the worker should be 0.0–1.0 (or 0–100); indeterminate phases
-    use ``percent is None`` via :meth:`ui.task_context.LongTaskContext.progress`.
+    *percent* from the worker should be 0.0–1.0 overall job progress when known; the
+    trainer emits coarse fractions during setup/eval. Indeterminate ``percent is None``
+    (e.g. initial task runner message) shows elapsed time only.
     """
     dlg = TrainingProgressDialog(parent, title, cancellable=cancellable)
 
