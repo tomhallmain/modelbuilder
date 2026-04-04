@@ -5,7 +5,10 @@ Build train/test splits under ``data_dir`` from raw class folders (ImageFolder-s
 :class:`DatasetCreator` resolves class names from pipeline YAML and/or discovery
 (see :mod:`mb.data.class_layout`), copies validated files with hash-based names,
 optionally balances classes, and forms a per-class test split. PIL validates images
-and enforces size bounds for the image pipeline.
+and enforces on-disk byte bounds plus geometry checks vs pipeline ``data.image_size``:
+minimum shorter edge (:func:`min_edge_pixels_for_pipeline`), minimum total pixel count
+(:func:`min_area_pixels_for_pipeline`), and a maximum aspect ratio
+(:data:`MAX_ASPECT_RATIO`).
 
 **CLI:** ``mb data create-dataset``; ``python -m mb.data.dataset`` delegates via
 :func:`mb.cli.run_data_subcommand_cli`. Pipeline: gather → convert → this step;
@@ -57,6 +60,45 @@ DEFAULT_TEST_PER_CLASS = 1000  # Default test-split size per class (CLI / librar
 MIN_FILE_SIZE = 6 * 1024  # 6KB minimum
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB maximum
 
+# Dimension gates vs pipeline ``data.image_size`` (training resizes to ``image_size`` square).
+# Total pixels should be a meaningful fraction of that target; extreme aspect ratios distort badly.
+MIN_AREA_FRACTION_OF_IMAGE_SIZE_SQUARED = 0.18
+MAX_ASPECT_RATIO = 10.0
+
+
+def _normalize_pipeline_image_size(image_size: int) -> int:
+    try:
+        n = int(image_size)
+    except (TypeError, ValueError):
+        n = 224
+    if n < 1:
+        n = 224
+    return n
+
+
+def min_edge_pixels_for_pipeline(image_size: int) -> int:
+    """
+    Minimum allowed shorter edge (pixels) for training images.
+
+    Uses ``max(32, image_size // 4)`` so the threshold scales with pipeline
+    ``data.image_size`` (e.g. 224 → 56 px) while keeping a sane floor for tiny
+    ``image_size`` values.
+    """
+    n = _normalize_pipeline_image_size(image_size)
+    return max(32, n // 4)
+
+
+def min_area_pixels_for_pipeline(image_size: int) -> int:
+    """
+    Minimum ``width * height`` (pixels²) allowed before review.
+
+    Uses :data:`MIN_AREA_FRACTION_OF_IMAGE_SIZE_SQUARED` times ``image_size``², with a
+    small floor so tiny ``image_size`` values stay usable in tests.
+    """
+    s = _normalize_pipeline_image_size(image_size)
+    return max(32 * 32, int(MIN_AREA_FRACTION_OF_IMAGE_SIZE_SQUARED * s * s))
+
+
 class DatasetCreator:
     """Handles the creation of training and test datasets."""
     
@@ -98,6 +140,7 @@ class DatasetCreator:
             'files_copied': defaultdict(int),
             'files_removed_corrupted': defaultdict(int),
             'files_moved_size': defaultdict(int),
+            'files_moved_dimensions': defaultdict(int),
             'test_files_moved': defaultdict(int),
             'final_train_counts': defaultdict(int),
             'final_test_counts': defaultdict(int)
@@ -254,57 +297,126 @@ class DatasetCreator:
             self.stats['files_removed_corrupted'][class_name] = removed_count
             logger.info(f"Completed validation for {class_name}: {len(image_files)} checked, {removed_count} corrupted images removed")
     
+    def _pipeline_image_size(self) -> int:
+        raw = get_pipeline_config().get("data.image_size")
+        try:
+            n = int(raw) if raw is not None else 224
+        except (TypeError, ValueError):
+            n = 224
+        return _normalize_pipeline_image_size(n)
+
+    def _dimension_review_reason(self, image_size: int, w: int, h: int) -> Optional[str]:
+        """If the image should go to review for geometry, return a human-readable reason."""
+        min_edge = min_edge_pixels_for_pipeline(image_size)
+        min_area = min_area_pixels_for_pipeline(image_size)
+        shorter = min(w, h)
+        longer = max(w, h)
+        if shorter < 1 or longer < 1:
+            return f"invalid dimensions ({w}x{h} px)"
+        if shorter < min_edge:
+            return (
+                f"shorter edge too small ({w}x{h} px; min {min_edge} px for image_size={image_size})"
+            )
+        area = w * h
+        if area < min_area:
+            return (
+                f"not enough pixels ({w}x{h} = {area} px²; min {min_area} px², "
+                f"{MIN_AREA_FRACTION_OF_IMAGE_SIZE_SQUARED:.0%} of image_size² for image_size={image_size})"
+            )
+        if longer / shorter > MAX_ASPECT_RATIO:
+            ar = longer / shorter
+            return (
+                f"aspect ratio too extreme ({w}x{h} px; {ar:.2f}:1 exceeds max {MAX_ASPECT_RATIO}:1)"
+            )
+        return None
+
+    def _move_train_image_to_review(self, class_name: str, image_file: Path, reason: str) -> None:
+        logger.warning(
+            "Image %s in class '%s' is %s, moving to review directory",
+            image_file.name,
+            class_name,
+            reason,
+        )
+        final_path = f"train/{class_name}/{image_file.name}"
+        if self.unified_snapshot:
+            self.unified_snapshot.remove_dataset_image(final_path)
+
+        relative_path = image_file.relative_to(self.train_dir)
+        target_path = self.review_dir / relative_path
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+
+        counter = 1
+        original_target = target_path
+        while target_path.exists():
+            stem = original_target.stem
+            suffix = original_target.suffix
+            target_path = original_target.parent / f"{stem}_{counter}{suffix}"
+            counter += 1
+
+        shutil.move(str(image_file), str(target_path))
+        logger.debug("Moved invalid image: %s (%s) -> %s", image_file.name, reason, target_path)
+
     def remove_invalid_sized_images(self) -> None:
-        """Move images with invalid file sizes to review directory."""
-        logger.info("Checking images for invalid file sizes...")
-        
+        """Move images with invalid on-disk size or failed geometry checks to review."""
+        image_size = self._pipeline_image_size()
+        min_edge = min_edge_pixels_for_pipeline(image_size)
+        min_area = min_area_pixels_for_pipeline(image_size)
+        logger.info(
+            "Checking images for invalid file sizes and dimensions "
+            "(image_size=%s: min shorter edge >= %s px, min area >= %s px², max aspect <= %s:1)...",
+            image_size,
+            min_edge,
+            min_area,
+            MAX_ASPECT_RATIO,
+        )
+
         for class_name in self._class_names:
             train_class_dir = self.train_dir / class_name
             if not train_class_dir.exists():
                 continue
-                
+
             image_files = list(train_class_dir.glob("*.jpg"))
-            moved_count = 0
-            
+            moved_bytes = 0
+            moved_dims = 0
+
             for image_file in image_files:
                 file_size = image_file.stat().st_size
-                
+
                 if file_size < MIN_FILE_SIZE or file_size > MAX_FILE_SIZE:
-                    # Determine reason for moving
                     if file_size < MIN_FILE_SIZE:
                         reason = f"too small ({file_size} bytes < {MIN_FILE_SIZE} bytes)"
                     else:
                         reason = f"too large ({file_size} bytes > {MAX_FILE_SIZE} bytes)"
-                    
-                    logger.warning(f"Image {image_file.name} in class '{class_name}' is {reason}, moving to review directory")
-                    
-                    # Remove from snapshot first (as if removed, user can review and decide)
-                    final_path = f"train/{class_name}/{image_file.name}"
-                    if self.unified_snapshot:
-                        self.unified_snapshot.remove_dataset_image(final_path)
-                    
-                    # Create target path preserving relative structure
-                    relative_path = image_file.relative_to(self.train_dir)
-                    target_path = self.review_dir / relative_path
-                    target_path.parent.mkdir(parents=True, exist_ok=True)
-                    
-                    # Handle filename conflicts
-                    counter = 1
-                    original_target = target_path
-                    while target_path.exists():
-                        stem = original_target.stem
-                        suffix = original_target.suffix
-                        target_path = original_target.parent / f"{stem}_{counter}{suffix}"
-                        counter += 1
-                    
-                    # Move file to review directory
-                    shutil.move(str(image_file), str(target_path))
-                    moved_count += 1
-                    logger.debug(f"Moved invalid-sized image: {image_file.name} ({reason}) -> {target_path}")
-            
-            self.stats['files_moved_size'][class_name] = moved_count
-            if moved_count > 0:
-                logger.info(f"Moved {moved_count} invalid-sized images from class '{class_name}' to review directory")
+                    self._move_train_image_to_review(class_name, image_file, reason)
+                    moved_bytes += 1
+                    continue
+
+                try:
+                    with Image.open(image_file) as img:
+                        w, h = img.size
+                except (UnidentifiedImageError, OSError, ValueError) as e:
+                    self._move_train_image_to_review(
+                        class_name,
+                        image_file,
+                        f"could not read dimensions ({e})",
+                    )
+                    moved_dims += 1
+                    continue
+
+                dim_reason = self._dimension_review_reason(image_size, w, h)
+                if dim_reason is not None:
+                    self._move_train_image_to_review(class_name, image_file, dim_reason)
+                    moved_dims += 1
+
+            self.stats['files_moved_size'][class_name] = moved_bytes
+            self.stats['files_moved_dimensions'][class_name] = moved_dims
+            if moved_bytes > 0 or moved_dims > 0:
+                logger.info(
+                    "Moved from class '%s': %s invalid file size, %s invalid dimensions → review",
+                    class_name,
+                    moved_bytes,
+                    moved_dims,
+                )
             else:
                 logger.info(f"No invalid-sized images found in class '{class_name}'")
     
@@ -481,7 +593,11 @@ class DatasetCreator:
             copied = self.stats['files_copied'][class_name]
             corrupted = self.stats['files_removed_corrupted'][class_name]
             invalid_size = self.stats['files_moved_size'][class_name]
-            logger.info(f"  {class_name}: {copied} copied, {corrupted} corrupted removed, {invalid_size} invalid size moved to review")
+            invalid_dims = self.stats['files_moved_dimensions'][class_name]
+            logger.info(
+                f"  {class_name}: {copied} copied, {corrupted} corrupted removed, "
+                f"{invalid_size} invalid file size + {invalid_dims} invalid dimensions moved to review"
+            )
         
         logger.info("\nTEST SET CREATION:")
         for class_name in self._class_names:
