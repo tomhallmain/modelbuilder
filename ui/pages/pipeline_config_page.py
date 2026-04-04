@@ -34,7 +34,7 @@ from mb.pipeline_config import (
     reload_pipeline_config,
     save_pipeline_yaml,
 )
-from mb.models.types import ModelType
+from mb.models.types import ArchitectureType, FrameworkType, ModelType
 from ui.lib.directory_line_edit_row import make_directory_line_edit_row
 from ui.lib.form_layout_i18n import apply_qform_label_column
 from ui.lib.qt_alert import qt_alert
@@ -522,8 +522,10 @@ class PipelineConfigPage(QWidget):
         return {
             "model": {
                 "default_type": str(mt) if mt else "image_classification",
-                "default_framework": self._m_framework.text().strip() or "pytorch",
-                "default_architecture": self._m_arch.text().strip() or "resnet34",
+                "default_framework": self._m_framework.text().strip()
+                or FrameworkType.get_default().value,
+                "default_architecture": self._m_arch.text().strip()
+                or ArchitectureType.get_default().value,
             },
             "data": data,
             "training": {
@@ -547,8 +549,12 @@ class PipelineConfigPage(QWidget):
         dtype = m.get("default_type") or "image_classification"
         idx = self._m_type.findData(str(dtype))
         self._m_type.setCurrentIndex(idx if idx >= 0 else 0)
-        self._m_framework.setText(str(m.get("default_framework") or "pytorch"))
-        self._m_arch.setText(str(m.get("default_architecture") or "resnet34"))
+        self._m_framework.setText(
+            str(m.get("default_framework") or FrameworkType.get_default().value)
+        )
+        self._m_arch.setText(
+            str(m.get("default_architecture") or ArchitectureType.get_default().value)
+        )
 
         d = cfg.get("data") or {}
         raw_d = str(d.get("raw_data_dir") or "")

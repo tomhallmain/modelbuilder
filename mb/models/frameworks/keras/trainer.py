@@ -7,7 +7,7 @@ This module implements the FrameworkTrainer interface for Keras/TensorFlow.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Callable, Dict, Tuple, Optional
+from typing import Any, Callable, Dict, Optional, Tuple, Union
 import json
 import logging
 import os
@@ -34,7 +34,8 @@ from mb.training.gui_progress import (
 )
 from mb.models.frameworks.keras.data_loader import create_data_generators
 from mb.models.frameworks.keras.architectures import create_resnet, create_efficientnet
-from mb.models.frameworks.registry import get_architecture
+from mb.models.frameworks.registry import get_architecture, list_architectures
+from mb.models.types import ArchitectureType, FrameworkType
 
 logger = logging.getLogger(__name__)
 
@@ -49,22 +50,19 @@ class KerasTrainer(FrameworkTrainer):
     
     def __init__(self):
         """Initialize the Keras trainer."""
+        super().__init__(FrameworkType.KERAS)
         if not TF_AVAILABLE:
             raise ImportError("TensorFlow is required for Keras trainer")
         logger.info("Keras trainer initialized")
     
-    def get_framework_name(self) -> str:
-        """Return the framework name."""
-        return "keras"
-    
     def get_supported_architectures(self) -> list:
         """Get list of supported architectures."""
-        from mb.models.frameworks.registry import list_architectures
-        return list_architectures('keras').get('keras', [])
+        fw = FrameworkType.KERAS
+        return list_architectures(fw).get(fw.value, [])
     
     def create_model(
         self,
-        architecture: str,
+        architecture: Union[ArchitectureType, str],
         num_classes: int,
         pretrained: bool = True,
         **kwargs
@@ -84,21 +82,22 @@ class KerasTrainer(FrameworkTrainer):
         if not TF_AVAILABLE:
             raise ImportError("TensorFlow is required for Keras models")
         
+        arch_s = architecture.value if isinstance(architecture, ArchitectureType) else str(architecture)
         # Try to get from registry first
-        factory = get_architecture('keras', architecture)
-        
+        factory = get_architecture(FrameworkType.KERAS, architecture)
+
         if factory:
             model = factory(num_classes=num_classes, pretrained=pretrained, **kwargs)
         else:
             # Fallback to direct creation
-            if architecture.startswith('resnet') or architecture.startswith('ResNet'):
-                model = create_resnet(architecture, num_classes, pretrained, **kwargs)
-            elif architecture.startswith('efficientnet') or architecture.startswith('EfficientNet'):
-                model = create_efficientnet(architecture, num_classes, pretrained, **kwargs)
+            if arch_s.lower().startswith('resnet'):
+                model = create_resnet(arch_s, num_classes, pretrained, **kwargs)
+            elif arch_s.lower().startswith('efficientnet'):
+                model = create_efficientnet(arch_s, num_classes, pretrained, **kwargs)
             else:
-                raise ValueError(f"Unknown architecture: {architecture}")
+                raise ValueError(f"Unknown architecture: {arch_s}")
         
-        logger.info(f"Created {architecture} model with {num_classes} classes")
+        logger.info(f"Created {arch_s} model with {num_classes} classes")
         
         return model
     

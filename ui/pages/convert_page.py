@@ -25,6 +25,20 @@ from ui.lib.fast_directory_picker_qt import (
     get_save_file_name,
 )
 from ui.lib.qt_alert import qt_operation_error
+from mb.models.types import ConversionTargetFormat, FrameworkType
+
+# ``mb convert`` UI: omit --framework (detect from file). Not a :class:`FrameworkType` member.
+_CONVERSION_SOURCE_FRAMEWORK_AUTO = "auto-detect"
+
+
+def _conversion_source_framework_combo_labels() -> list[str]:
+    """Combo entries: auto-detect plus each :class:`FrameworkType` value (definition order)."""
+    return [_CONVERSION_SOURCE_FRAMEWORK_AUTO] + [m.value for m in FrameworkType]
+
+
+def _conversion_target_combo_labels() -> list[str]:
+    """Combo entries from :class:`ConversionTargetFormat` (definition order)."""
+    return [m.value for m in ConversionTargetFormat]
 from mb.utils.constants import ModelBuilderTaskType
 from mb.utils.recent_run_history import append_recent_run
 from mb.utils.translations import _
@@ -54,9 +68,9 @@ class ConvertPage(QWidget):
         self.input_model = QLineEdit()
         self.output_model = QLineEdit()
         self.framework = QComboBox()
-        self.framework.addItems(["auto-detect", "pytorch", "keras"])
+        self.framework.addItems(_conversion_source_framework_combo_labels())
         self.target = QComboBox()
-        self.target.addItems(["onnx", "safetensors"])
+        self.target.addItems(_conversion_target_combo_labels())
         self.architecture = QLineEdit()
         self.num_classes = QSpinBox()
         self.num_classes.setRange(0, 1_000_000)
@@ -225,13 +239,13 @@ class ConvertPage(QWidget):
             raise ValueError(_("Output model parent directory does not exist."))
 
         framework = self.framework.currentText()
-        source_framework = None if framework == "auto-detect" else framework
+        source_framework = None if framework == _CONVERSION_SOURCE_FRAMEWORK_AUTO else framework
         target = self.target.currentText()
         architecture = self.architecture.text().strip() or None
         num_classes = int(self.num_classes.value()) if self.num_classes.value() > 0 else None
 
         detected = source_framework or detect_model_framework(input_path)
-        if detected == "pytorch" and target == "onnx":
+        if detected == FrameworkType.PYTORCH.value and target == ConversionTargetFormat.ONNX.value:
             if architecture is None or num_classes is None:
                 raise ValueError(_("PyTorch -> ONNX requires architecture and num classes."))
 

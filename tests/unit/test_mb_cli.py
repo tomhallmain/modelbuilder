@@ -13,6 +13,7 @@ from unittest.mock import patch
 import pytest
 
 from mb.cli import create_parser, main
+from mb.models.types import ArchitectureType, FrameworkType
 from mb.training.run_args import TrainingRunArgs
 
 from tests.test_utils import default_pipeline_config_path, repo_root
@@ -125,8 +126,8 @@ def test_train_train_args_json_invokes_trainer_with_stub_trainer(
 
     json_path = tmp_path / "run.json"
     args = TrainingRunArgs(
-        framework="pytorch",
-        architecture="resnet18",
+        framework=FrameworkType.PYTORCH,
+        architecture=ArchitectureType.RESNET18,
         data_dir=data_dir,
         output_dir=out_dir,
         resume_from=None,
@@ -143,7 +144,7 @@ def test_train_train_args_json_invokes_trainer_with_stub_trainer(
             calls.append(("init", kwargs))
 
         def get_supported_architectures(self) -> list[str]:
-            return ["resnet18"]
+            return [ArchitectureType.RESNET18.value]
 
         def train(self, run_args: TrainingRunArgs) -> Path:
             calls.append(("train", run_args))
@@ -164,4 +165,4 @@ def test_train_train_args_json_invokes_trainer_with_stub_trainer(
     assert len(calls) == 2
     assert calls[0][0] == "init"
     assert calls[1][0] == "train"
-    assert calls[1][1].architecture == "resnet18"
+    assert calls[1][1].architecture == ArchitectureType.RESNET18

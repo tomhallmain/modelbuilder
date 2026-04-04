@@ -6,6 +6,7 @@ import pytest
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QPushButton
 
+from mb.models.types import ArchitectureType
 from ui.pages.train_page import TrainPage
 
 
@@ -28,7 +29,7 @@ def test_train_page_validate_enables_start_when_layout_valid(
     qtbot.addWidget(page)
     page.data_dir.setText(str(two_class_classification_data_dir))
     page.output_dir.setText(str(tmp_path / "models"))
-    page.architecture.setText("resnet18")
+    page.architecture.setText(ArchitectureType.RESNET18.value)
     qtbot.mouseClick(page.btn_validate, Qt.MouseButton.LeftButton)
     assert page.btn_start.isEnabled()
     assert "look valid" in page.output.toPlainText().lower()
@@ -41,7 +42,7 @@ def test_train_page_validate_disables_start_when_data_dir_missing(
     page = TrainPage()
     qtbot.addWidget(page)
     page.data_dir.setText(str(tmp_path / "nonexistent_data"))
-    page.architecture.setText("resnet18")
+    page.architecture.setText(ArchitectureType.RESNET18.value)
     qtbot.mouseClick(page.btn_validate, Qt.MouseButton.LeftButton)
     assert not page.btn_start.isEnabled()
     assert "invalid" in page.output.toPlainText().lower()
@@ -52,12 +53,12 @@ def test_train_page_collect_and_restore_gui_state_roundtrip(qtbot, tmp_path) -> 
     page = TrainPage()
     qtbot.addWidget(page)
     page.data_dir.setText(str(tmp_path / "d"))
-    page.architecture.setText("efficientnet_b0")
+    page.architecture.setText(ArchitectureType.EFFICIENTNET_B0.value)
     page.frozen_epochs.setValue(2)
     blob = page.collect_gui_state()
     page2 = TrainPage()
     qtbot.addWidget(page2)
     page2.restore_gui_state(blob)
     assert page2.data_dir.text() == str(tmp_path / "d")
-    assert page2.architecture.text() == "efficientnet_b0"
+    assert page2.architecture.text() == ArchitectureType.EFFICIENTNET_B0.value
     assert page2.frozen_epochs.value() == 2

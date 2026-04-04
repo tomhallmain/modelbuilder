@@ -5,14 +5,15 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from mb.models.types import ArchitectureType, FrameworkType
 from mb.training.run_args import TrainingRunArgs, load_training_run_args_json
 
 
 class TestTrainingRunArgsJson(unittest.TestCase):
     def test_roundtrip_to_from_dict(self) -> None:
         args = TrainingRunArgs(
-            framework="pytorch",
-            architecture="resnet34",
+            framework=FrameworkType.PYTORCH,
+            architecture=ArchitectureType.RESNET34,
             data_dir=Path("data"),
             output_dir=Path("out/models"),
             resume_from=Path("ckpt.pth"),
@@ -26,8 +27,8 @@ class TestTrainingRunArgsJson(unittest.TestCase):
 
     def test_roundtrip_none_resume(self) -> None:
         args = TrainingRunArgs(
-            framework="keras",
-            architecture="resnet50",
+            framework=FrameworkType.KERAS,
+            architecture=ArchitectureType.RESNET50,
             data_dir=Path("d"),
             output_dir=Path("o"),
             resume_from=None,
@@ -40,8 +41,8 @@ class TestTrainingRunArgsJson(unittest.TestCase):
 
     def test_load_training_run_args_json_file(self) -> None:
         raw = {
-            "framework": "pytorch",
-            "architecture": "resnet34",
+            "framework": FrameworkType.PYTORCH.value,
+            "architecture": ArchitectureType.RESNET34.value,
             "data_dir": "x/trainset",
             "output_dir": "y/models",
             "resume_from": None,
@@ -56,15 +57,15 @@ class TestTrainingRunArgsJson(unittest.TestCase):
             path = Path(f.name)
         try:
             loaded = load_training_run_args_json(path)
-            self.assertEqual(loaded.framework, "pytorch")
+            self.assertEqual(loaded.framework, FrameworkType.PYTORCH)
             self.assertEqual(loaded.data_dir, Path("x/trainset"))
         finally:
             path.unlink(missing_ok=True)
 
     def test_json_dumps_loads_roundtrip(self) -> None:
         args = TrainingRunArgs(
-            framework="pytorch",
-            architecture="resnet18",
+            framework=FrameworkType.PYTORCH,
+            architecture=ArchitectureType.RESNET18,
             data_dir=Path("a/b"),
             output_dir=Path("c/d"),
             resume_from=Path("w/ckpt.pth"),
@@ -78,8 +79,8 @@ class TestTrainingRunArgsJson(unittest.TestCase):
 
     def test_resume_from_empty_string_becomes_none(self) -> None:
         d = {
-            "framework": "pytorch",
-            "architecture": "x",
+            "framework": FrameworkType.PYTORCH.value,
+            "architecture": ArchitectureType.RESNET18.value,
             "data_dir": "d",
             "output_dir": "o",
             "resume_from": "",

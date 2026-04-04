@@ -31,6 +31,7 @@ from PySide6.QtWidgets import QApplication, QMessageBox
 from mb import __version__ as MB_VERSION
 from mb.data.class_layout import SYNTHETIC_DEFAULT_CLASS_NAMES
 from mb.data.dataset import DatasetCreator
+from mb.models.types import ArchitectureType, FrameworkType
 from ui.main_window import MainWindow
 from ui.pages.convert_page import ConvertPage
 from ui.pages.info_page import InfoPage
@@ -164,8 +165,8 @@ def test_headless_ui_train_pytorch_and_convert_onnx(
     _sync_nav_and_stack(main_window, _NAV_TRAIN)
 
     assert not train_page.train_subprocess.isChecked()
-    train_page.framework.setCurrentText("pytorch")
-    train_page.architecture.setText("resnet18")
+    train_page.framework.setCurrentText(FrameworkType.PYTORCH.value)
+    train_page.architecture.setText(ArchitectureType.RESNET18.value)
     train_page.data_dir.setText(str(data_dir))
     train_page.output_dir.setText(str(models_dir))
     train_page.skip_snapshot.setChecked(True)
@@ -204,7 +205,7 @@ def test_headless_ui_train_pytorch_and_convert_onnx(
     convert_page.target.setCurrentIndex(0)  # onnx
     convert_page.input_model.setText(str(expected_pth))
     convert_page.output_model.setText(str(onnx_path))
-    convert_page.architecture.setText("resnet18")
+    convert_page.architecture.setText(ArchitectureType.RESNET18.value)
     convert_page.num_classes.setValue(3)
     convert_page.image_size.setValue(224)
     qtbot.mouseClick(convert_page.btn_validate, Qt.MouseButton.LeftButton)

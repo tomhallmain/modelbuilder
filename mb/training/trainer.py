@@ -10,7 +10,7 @@ import logging
 import threading
 
 from mb.models.base import FrameworkTrainer
-from mb.models.types import ModelType, get_model_type_handler
+from mb.models.types import FrameworkType, ModelType, get_model_type_handler
 from mb.models.frameworks.pytorch.trainer import PyTorchTrainer
 from mb.models.frameworks.keras.trainer import KerasTrainer
 from mb.training.hyperparams import get_training_hyperparams
@@ -37,7 +37,7 @@ class ModelTrainer:
     
     def __init__(
         self,
-        framework: str,
+        framework: FrameworkType,
         model_type: ModelType = ModelType.IMAGE_CLASSIFICATION,
         pipeline_config: Optional[Any] = None,
     ):
@@ -45,26 +45,30 @@ class ModelTrainer:
         Initialize the model trainer.
         
         Args:
-            framework: Framework name ('pytorch' or 'keras')
+            framework: Training framework
             model_type: Model type enum
             pipeline_config: Optional :class:`~mb.pipeline_config.PipelineConfig`
         """
-        self.framework_name = framework.lower()
+        self.framework = framework
         self.model_type = model_type
         self.pipeline_config = pipeline_config
-        
+
         # Get framework trainer
-        if self.framework_name == 'pytorch':
+        if framework == FrameworkType.PYTORCH:
             self.framework_trainer: FrameworkTrainer = PyTorchTrainer()
-        elif self.framework_name == 'keras':
+        elif framework == FrameworkType.KERAS:
             self.framework_trainer = KerasTrainer()
         else:
-            raise ValueError(f"Unsupported framework: {framework}")
-        
+            raise ValueError(f"Unsupported framework: {framework!r}")
+
         # Get model type handler
         self.model_type_handler = get_model_type_handler(model_type)
-        
-        logger.info(f"Initialized ModelTrainer: framework={framework}, model_type={model_type.value}")
+
+        logger.info(
+            "Initialized ModelTrainer: framework=%s, model_type=%s",
+            framework.value,
+            model_type.value,
+        )
     
     def train(
         self,
@@ -88,10 +92,10 @@ class ModelTrainer:
         Returns:
             Path to saved model
         """
-        if args.framework.lower() != self.framework_name:
+        if args.framework != self.framework:
             raise ValueError(
                 f"TrainingRunArgs.framework ({args.framework!r}) does not match "
-                f"this trainer ({self.framework_name!r})"
+                f"this trainer ({self.framework!r})"
             )
 
         data_dir = args.data_dir
@@ -152,7 +156,7 @@ class ModelTrainer:
         
         # Create model
         _emit("Creating model…", p_after_model)
-        logger.info(f"Creating {architecture} model...")
+        logger.info(f"Creating {architecture.value} model...")
         model = self.framework_trainer.create_model(
             architecture=architecture,
             num_classes=num_classes,
@@ -246,16 +250,16 @@ class ModelTrainer:
         
         # Save final model
         output_dir.mkdir(parents=True, exist_ok=True)
-        model_name = f"{architecture}_model"
-        
-        if self.framework_name == 'pytorch':
+        model_name = f"{architecture.value}_model"
+
+        if self.framework == FrameworkType.PYTORCH:
             model_path = output_dir / f"{model_name}.pth"
             self.framework_trainer.save_model(trained_model, model_path, format="native")
-        elif self.framework_name == 'keras':
+        elif self.framework == FrameworkType.KERAS:
             model_path = output_dir / f"{model_name}.h5"
             self.framework_trainer.save_model(trained_model, model_path, format="h5")
         else:
-            raise ValueError(f"Unknown framework: {self.framework_name}")
+            raise ValueError(f"Unknown framework: {self.framework!r}")
         
         logger.info(f"Model saved to: {model_path}")
         

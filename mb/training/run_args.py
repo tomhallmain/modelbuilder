@@ -12,13 +12,15 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict
 
+from mb.models.types import ArchitectureType, FrameworkType
+
 
 @dataclass(frozen=True)
 class TrainingRunArgs:
     """Immutable parameters for :meth:`~mb.training.trainer.ModelTrainer.train`."""
 
-    framework: str
-    architecture: str
+    framework: FrameworkType
+    architecture: ArchitectureType
     data_dir: Path
     output_dir: Path
     resume_from: Path | None
@@ -29,8 +31,8 @@ class TrainingRunArgs:
     def to_json_dict(self) -> Dict[str, Any]:
         """Serialize to a JSON-friendly dict (paths as strings)."""
         return {
-            "framework": self.framework,
-            "architecture": self.architecture,
+            "framework": self.framework.value,
+            "architecture": self.architecture.value,
             "data_dir": str(self.data_dir),
             "output_dir": str(self.output_dir),
             "resume_from": str(self.resume_from) if self.resume_from is not None else None,
@@ -42,10 +44,16 @@ class TrainingRunArgs:
     @classmethod
     def from_json_dict(cls, d: Dict[str, Any]) -> TrainingRunArgs:
         """Deserialize from :meth:`to_json_dict` output."""
+        fw = FrameworkType.try_from(d.get("framework"))
+        if fw is None:
+            raise ValueError(f"Unsupported framework: {d.get('framework')!r}")
+        arch = ArchitectureType.try_from(d.get("architecture"))
+        if arch is None:
+            raise ValueError(f"Unsupported architecture: {d.get('architecture')!r}")
         rf = d.get("resume_from")
         return cls(
-            framework=str(d["framework"]),
-            architecture=str(d["architecture"]),
+            framework=fw,
+            architecture=arch,
             data_dir=Path(d["data_dir"]),
             output_dir=Path(d["output_dir"]),
             resume_from=Path(rf) if rf else None,

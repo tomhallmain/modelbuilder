@@ -23,7 +23,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from mb.models.types import ModelType
+from mb.models.types import ArchitectureType, FrameworkType, ModelType
 from mb.pipeline_config import get_pipeline_config
 from mb.training.run_args import TrainingRunArgs
 from ui.lib.fast_directory_picker_qt import get_existing_directory, get_open_file_name
@@ -63,8 +63,8 @@ class TrainPage(QWidget):
         self.model_type = QComboBox()
         self.model_type.addItems(["image_classification"])
         self.framework = QComboBox()
-        self.framework.addItems(["pytorch", "keras"])
-        self.architecture = QLineEdit("resnet34")
+        self.framework.addItems(FrameworkType.registered_values())
+        self.architecture = QLineEdit(ArchitectureType.get_default().value)
         self.architecture.setObjectName("train_architecture_edit")
         self.data_dir = QLineEdit("data")
         self.data_dir.setObjectName("train_data_dir_edit")
@@ -328,11 +328,18 @@ class TrainPage(QWidget):
 
     def _refresh_architecture_hint(self) -> None:
         framework = self.framework.currentText()
+        fw = FrameworkType.try_from(framework)
+        if fw is None:
+            self.architecture.setPlaceholderText(_("Enter architecture manually"))
+            self._append(
+                _("[warn] Unsupported framework for architecture list: {fw}").format(fw=framework)
+            )
+            return
         try:
             from mb.training.trainer import ModelTrainer
 
             trainer = ModelTrainer(
-                framework=framework,
+                framework=fw,
                 model_type=ModelType.IMAGE_CLASSIFICATION,
                 pipeline_config=get_pipeline_config(),
             )
@@ -341,7 +348,7 @@ class TrainPage(QWidget):
                 self.architecture.setPlaceholderText(", ".join(architectures[:8]))
                 self._append(
                     _("[info] {fw} architectures: {names}").format(
-                        fw=framework, names=", ".join(architectures)
+                        fw=fw.value, names=", ".join(architectures)
                     )
                 )
         except Exception as exc:
@@ -362,9 +369,17 @@ class TrainPage(QWidget):
     def _collect_inputs(self) -> TrainingRunArgs:
         data_dir = Path(self.data_dir.text().strip() or "data")
         output_dir = Path(self.output_dir.text().strip() or "data/models")
-        architecture = self.architecture.text().strip()
-        if not architecture:
+        fw = FrameworkType.try_from(self.framework.currentText())
+        if fw is None:
+            raise ValueError(
+                _("Unsupported framework: {fw}").format(fw=self.framework.currentText())
+            )
+        arch_raw = self.architecture.text().strip()
+        if not arch_raw:
             raise ValueError(_("Architecture is required."))
+        arch = ArchitectureType.try_from(arch_raw)
+        if arch is None:
+            raise ValueError(_("Unknown architecture: {a}").format(a=arch_raw))
         if not data_dir.exists():
             raise ValueError(_("Data directory does not exist."))
         resume_raw = self.resume_from.text().strip()
@@ -386,8 +401,8 @@ class TrainPage(QWidget):
             cli_hyperparams["num_workers"] = int(self.num_workers.value())
 
         return TrainingRunArgs(
-            framework=self.framework.currentText(),
-            architecture=architecture,
+            framework=fw,
+            architecture=arch,
             data_dir=data_dir,
             output_dir=output_dir,
             resume_from=resume_path,
@@ -409,7 +424,7 @@ class TrainPage(QWidget):
 
     def _start_training(self) -> None:
         args = self._collect_inputs()
-        summary_base = f"{args.framework}/{args.architecture}"
+        summary_base = f"{args.framework.value}/{args.architecture.value}"
         if self.train_subprocess.isChecked():
             self._append(f"[run] mb train — detached subprocess ({summary_base})")
             self._set_busy(True)
@@ -486,11 +501,15 @@ class TrainPage(QWidget):
             pipeline_config=get_pipeline_config(),
         )
         supported = trainer.get_supported_architectures()
-        if args.architecture not in supported:
+        if args.architecture.value not in supported:
             raise ValueError(
                 _(
                     "Architecture '{arch}' not supported for {fw}. Supported: {sup}"
-                ).format(arch=args.architecture, fw=args.framework, sup=supported)
+                ).format(
+                    arch=args.architecture.value,
+                    fw=args.framework.value,
+                    sup=supported,
+                )
             )
         model_path = trainer.train(
             args,

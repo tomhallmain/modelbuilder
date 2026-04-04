@@ -10,7 +10,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.optim.lr_scheduler import OneCycleLR, CosineAnnealingLR
 from pathlib import Path
-from typing import Any, Callable, Dict, Optional, Tuple
+from typing import Any, Callable, Dict, Optional, Tuple, Union
 import json
 import logging
 import threading
@@ -21,7 +21,8 @@ from mb.models.base import FrameworkTrainer
 from mb.training.gui_progress import subepoch_progress_emit
 from mb.models.frameworks.pytorch.data_loader import create_data_loaders
 from mb.models.frameworks.pytorch.architectures import create_resnet, create_efficientnet
-from mb.models.frameworks.registry import get_architecture
+from mb.models.frameworks.registry import get_architecture, list_architectures
+from mb.models.types import ArchitectureType, FrameworkType
 
 logger = logging.getLogger(__name__)
 
@@ -41,24 +42,21 @@ class PyTorchTrainer(FrameworkTrainer):
         Args:
             device: Device to use ('cuda', 'cpu', or None for auto-detect)
         """
+        super().__init__(FrameworkType.PYTORCH)
         if device is None:
             device = 'cuda' if torch.cuda.is_available() else 'cpu'
         
         self.device = torch.device(device)
         logger.info(f"PyTorch trainer initialized on device: {self.device}")
     
-    def get_framework_name(self) -> str:
-        """Return the framework name."""
-        return "pytorch"
-    
     def get_supported_architectures(self) -> list:
         """Get list of supported architectures."""
-        from mb.models.frameworks.registry import list_architectures
-        return list_architectures('pytorch').get('pytorch', [])
+        fw = FrameworkType.PYTORCH
+        return list_architectures(fw).get(fw.value, [])
     
     def create_model(
         self,
-        architecture: str,
+        architecture: Union[ArchitectureType, str],
         num_classes: int,
         pretrained: bool = True,
         **kwargs
@@ -75,22 +73,23 @@ class PyTorchTrainer(FrameworkTrainer):
         Returns:
             PyTorch model instance
         """
+        arch_s = architecture.value if isinstance(architecture, ArchitectureType) else str(architecture)
         # Try to get from registry first
-        factory = get_architecture('pytorch', architecture)
-        
+        factory = get_architecture(FrameworkType.PYTORCH, architecture)
+
         if factory:
             model = factory(num_classes=num_classes, pretrained=pretrained, **kwargs)
         else:
             # Fallback to direct creation
-            if architecture.startswith('resnet'):
-                model = create_resnet(architecture, num_classes, pretrained, **kwargs)
-            elif architecture.startswith('efficientnet'):
-                model = create_efficientnet(architecture, num_classes, pretrained, **kwargs)
+            if arch_s.startswith('resnet'):
+                model = create_resnet(arch_s, num_classes, pretrained, **kwargs)
+            elif arch_s.startswith('efficientnet'):
+                model = create_efficientnet(arch_s, num_classes, pretrained, **kwargs)
             else:
-                raise ValueError(f"Unknown architecture: {architecture}")
-        
+                raise ValueError(f"Unknown architecture: {arch_s}")
+
         model = model.to(self.device)
-        logger.info(f"Created {architecture} model with {num_classes} classes")
+        logger.info(f"Created {arch_s} model with {num_classes} classes")
         
         return model
     

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from enum import Enum
 
+from mb.models.types import ModelBuildStepCommand
 from mb.utils.translations import _
 
 
@@ -31,28 +32,9 @@ _MODEL_BUILDER_TASK_NAV_ROW: dict[ModelBuilderTaskType, int] = {
 }
 
 
-class DataPipelineSubcommand(str, Enum):
-    """
-    ``mb data <subcommand>`` values (CLI and Data page tabs).
-
-    Stored on recent-run history rows when :attr:`ModelBuilderTaskType` is ``DATA``.
-    """
-
-    GATHER = "gather"
-    CONVERT = "convert"
-    DEDUPLICATE = "deduplicate"
-    UPSCALE = "upscale"
-    CREATE_DATASET = "create-dataset"
-
-    @classmethod
-    def try_from(cls, raw: object) -> DataPipelineSubcommand | None:
-        if raw is None:
-            return None
-        s = str(raw).strip().lower()
-        try:
-            return cls(s)
-        except ValueError:
-            return None
+# Backwards-compatible name: same as :class:`~mb.models.types.ModelBuildStepCommand`
+# (includes ``estimate-space`` for CLI; Data page uses :meth:`~mb.models.types.ModelBuildStepCommand.data_page_tab_values`).
+DataPipelineSubcommand = ModelBuildStepCommand
 
 
 class AppInfo:

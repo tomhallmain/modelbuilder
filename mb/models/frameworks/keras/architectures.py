@@ -5,8 +5,15 @@ This module registers Keras model architectures with the global registry.
 """
 
 import logging
+from typing import Union
+
+from mb.models.types import ArchitectureType
 
 logger = logging.getLogger(__name__)
+
+
+def _architecture_str(architecture: Union[ArchitectureType, str]) -> str:
+    return architecture.value if isinstance(architecture, ArchitectureType) else str(architecture).strip().lower()
 
 try:
     from tensorflow import keras
@@ -18,47 +25,41 @@ except ImportError:
 
 
 def create_resnet(
-    architecture: str,
+    architecture: Union[ArchitectureType, str],
     num_classes: int,
     pretrained: bool = True,
     **kwargs
 ):
     """
     Create a ResNet model using Keras.
-    
+
     Args:
-        architecture: Architecture name (e.g., 'ResNet50', 'ResNet101')
+        architecture: Canonical id (e.g. :class:`~mb.models.types.ArchitectureType.RESNET50`) or string
         num_classes: Number of output classes
         pretrained: Whether to use pretrained weights (ImageNet)
         **kwargs: Additional arguments
-        
+
     Returns:
         Keras model instance
     """
     if not TF_AVAILABLE:
         raise ImportError("TensorFlow is required for Keras models")
-    
-    # Map architecture names to Keras applications
+
+    arch_s = _architecture_str(architecture)
+    # Map canonical lowercase names to Keras applications
     resnet_models = {
-        'resnet50': applications.ResNet50,
-        'resnet101': applications.ResNet101,
-        'resnet152': applications.ResNet152,
+        ArchitectureType.RESNET50.value: applications.ResNet50,
+        ArchitectureType.RESNET101.value: applications.ResNet101,
+        ArchitectureType.RESNET152.value: applications.ResNet152,
     }
-    
-    # Also support capitalized versions
-    resnet_models.update({
-        'ResNet50': applications.ResNet50,
-        'ResNet101': applications.ResNet101,
-        'ResNet152': applications.ResNet152,
-    })
-    
-    if architecture not in resnet_models:
+
+    if arch_s not in resnet_models:
         raise ValueError(
-            f"Unknown ResNet architecture: {architecture}. "
-            f"Supported: {list(set(k.lower() for k in resnet_models.keys()))}"
+            f"Unknown ResNet architecture: {arch_s}. "
+            f"Supported: {list(resnet_models.keys())}"
         )
-    
-    model_fn = resnet_models[architecture]
+
+    model_fn = resnet_models[arch_s]
     
     # Create base model
     base_model = model_fn(
@@ -76,56 +77,53 @@ def create_resnet(
     
     model = keras.Model(inputs=base_model.input, outputs=predictions)
     
-    logger.info(f"Created {architecture} with {num_classes} classes (pretrained={pretrained})")
-    
+    logger.info(f"Created {arch_s} with {num_classes} classes (pretrained={pretrained})")
+
     return model
 
 
 def create_efficientnet(
-    architecture: str,
+    architecture: Union[ArchitectureType, str],
     num_classes: int,
     pretrained: bool = True,
     **kwargs
 ):
     """
     Create an EfficientNet model using Keras.
-    
+
     Args:
-        architecture: Architecture name (e.g., 'EfficientNetB0', 'EfficientNetB1')
+        architecture: Canonical id or string (e.g. ``efficientnet_b0``)
         num_classes: Number of output classes
         pretrained: Whether to use pretrained weights (ImageNet)
         **kwargs: Additional arguments
-        
+
     Returns:
         Keras model instance
     """
     if not TF_AVAILABLE:
         raise ImportError("TensorFlow is required for Keras models")
-    
+
+    arch_s = _architecture_str(architecture)
+
     try:
         from tensorflow.keras.applications import efficientnet
     except ImportError:
         raise ImportError("EfficientNet requires TensorFlow >= 2.3.0")
-    
-    # Map architecture names
+
     efficientnet_models = {
-        'efficientnet_b0': efficientnet.EfficientNetB0,
-        'efficientnet_b1': efficientnet.EfficientNetB1,
-        'efficientnet_b2': efficientnet.EfficientNetB2,
-        'efficientnet_b3': efficientnet.EfficientNetB3,
-        'EfficientNetB0': efficientnet.EfficientNetB0,
-        'EfficientNetB1': efficientnet.EfficientNetB1,
-        'EfficientNetB2': efficientnet.EfficientNetB2,
-        'EfficientNetB3': efficientnet.EfficientNetB3,
+        ArchitectureType.EFFICIENTNET_B0.value: efficientnet.EfficientNetB0,
+        ArchitectureType.EFFICIENTNET_B1.value: efficientnet.EfficientNetB1,
+        ArchitectureType.EFFICIENTNET_B2.value: efficientnet.EfficientNetB2,
+        ArchitectureType.EFFICIENTNET_B3.value: efficientnet.EfficientNetB3,
     }
-    
-    if architecture not in efficientnet_models:
+
+    if arch_s not in efficientnet_models:
         raise ValueError(
-            f"Unknown EfficientNet architecture: {architecture}. "
-            f"Supported: {list(set(k.lower() for k in efficientnet_models.keys()))}"
+            f"Unknown EfficientNet architecture: {arch_s}. "
+            f"Supported: {list(efficientnet_models.keys())}"
         )
-    
-    model_fn = efficientnet_models[architecture]
+
+    model_fn = efficientnet_models[arch_s]
     
     # Create base model
     base_model = model_fn(
@@ -143,30 +141,35 @@ def create_efficientnet(
     
     model = keras.Model(inputs=base_model.input, outputs=predictions)
     
-    logger.info(f"Created {architecture} with {num_classes} classes (pretrained={pretrained})")
-    
+    logger.info(f"Created {arch_s} with {num_classes} classes (pretrained={pretrained})")
+
     return model
 
 
 # Register architectures (only if TensorFlow is available)
 if TF_AVAILABLE:
     from mb.models.frameworks.registry import register_architecture
-    
+    from mb.models.types import FrameworkType
+
+    _FW = FrameworkType.KERAS
+
     def _make_resnet_factory(arch_name):
         """Create a factory function for a ResNet architecture."""
         return lambda num_classes, pretrained=True, **kwargs: create_resnet(arch_name, num_classes, pretrained, **kwargs)
-    
+
     def _make_efficientnet_factory(arch_name):
         """Create a factory function for an EfficientNet architecture."""
         return lambda num_classes, pretrained=True, **kwargs: create_efficientnet(arch_name, num_classes, pretrained, **kwargs)
-    
-    register_architecture('keras', 'resnet50', _make_resnet_factory('resnet50'))
-    register_architecture('keras', 'resnet101', _make_resnet_factory('resnet101'))
-    register_architecture('keras', 'resnet152', _make_resnet_factory('resnet152'))
-    
+
+    register_architecture(_FW, ArchitectureType.RESNET50, _make_resnet_factory(ArchitectureType.RESNET50.value))
+    register_architecture(_FW, ArchitectureType.RESNET101, _make_resnet_factory(ArchitectureType.RESNET101.value))
+    register_architecture(_FW, ArchitectureType.RESNET152, _make_resnet_factory(ArchitectureType.RESNET152.value))
+
     # Try to register EfficientNet
     try:
-        register_architecture('keras', 'efficientnet_b0', _make_efficientnet_factory('efficientnet_b0'))
-        register_architecture('keras', 'efficientnet_b1', _make_efficientnet_factory('efficientnet_b1'))
+        register_architecture(_FW, ArchitectureType.EFFICIENTNET_B0, _make_efficientnet_factory(ArchitectureType.EFFICIENTNET_B0.value))
+        register_architecture(_FW, ArchitectureType.EFFICIENTNET_B1, _make_efficientnet_factory(ArchitectureType.EFFICIENTNET_B1.value))
+        register_architecture(_FW, ArchitectureType.EFFICIENTNET_B2, _make_efficientnet_factory(ArchitectureType.EFFICIENTNET_B2.value))
+        register_architecture(_FW, ArchitectureType.EFFICIENTNET_B3, _make_efficientnet_factory(ArchitectureType.EFFICIENTNET_B3.value))
     except Exception as e:
         logger.debug(f"Could not register EfficientNet architectures: {e}")

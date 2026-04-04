@@ -26,7 +26,7 @@ from mb.data.dataset import DatasetCreator
 from mb.data.deduplicate import ImageDeduplicator
 from mb.data.gather import ImageGatherer
 from mb.data.upscale import ImageUpscaler
-from mb.models.types import ModelType
+from mb.models.types import ModelBuildStepCommand, ModelType
 from mb.pipeline_config import (
     data_class_layout_defaults,
     gather_pipeline_defaults,
@@ -521,8 +521,12 @@ class DataPage(QWidget):
         self.btn_run.setEnabled(not busy and self._can_run())
         self.tabs.setEnabled(not busy)
 
-    def _current_command(self) -> str:
-        return ["gather", "convert", "deduplicate", "upscale", "create-dataset"][self.tabs.currentIndex()]
+    def _current_command(self) -> ModelBuildStepCommand:
+        tabs = ModelBuildStepCommand.data_page_tab_values()
+        i = self.tabs.currentIndex()
+        if 0 <= i < len(tabs):
+            return tabs[i]
+        return tabs[0]
 
     def _can_run(self) -> bool:
         command = self._current_command()
@@ -538,14 +542,14 @@ class DataPage(QWidget):
             self._collect_inputs(command)
             self.btn_run.setEnabled(True)
             self.btn_run.setToolTip("")
-            self._append(_("[ok] {cmd}: inputs look valid").format(cmd=command))
+            self._append(_("[ok] {cmd}: inputs look valid").format(cmd=command.value))
         except ValueError as exc:
             self.btn_run.setEnabled(False)
             self.btn_run.setToolTip(str(exc))
-            self._append(_("[invalid] {cmd}: {err}").format(cmd=command, err=exc))
+            self._append(_("[invalid] {cmd}: {err}").format(cmd=command.value, err=exc))
 
-    def _collect_inputs(self, command: str) -> dict:
-        if command == "gather":
+    def _collect_inputs(self, command: ModelBuildStepCommand) -> dict:
+        if command == ModelBuildStepCommand.GATHER:
             gd = gather_pipeline_defaults()
             source_dir = Path(self.gather_source.text().strip())
             if not source_dir.exists():
@@ -576,7 +580,7 @@ class DataPage(QWidget):
                     self.gather_raw_data_dir.text().strip() or str(gd["raw_data_dir"])
                 ),
             }
-        if command == "convert":
+        if command == ModelBuildStepCommand.CONVERT:
             fmt = self.convert_format.text().strip().lower() or "jpeg"
             if fmt not in {"jpeg", "jpg"}:
                 raise ValueError(_("Format must be jpeg or jpg."))
@@ -585,15 +589,15 @@ class DataPage(QWidget):
                 "format": fmt,
                 "skip_space_check": bool(self.convert_skip_space.isChecked()),
             }
-        if command == "deduplicate":
+        if command == ModelBuildStepCommand.DEDUPLICATE:
             return {"raw_data_dir": Path(self.dedup_raw_data_dir.text().strip() or "raw_data")}
-        if command == "upscale":
+        if command == ModelBuildStepCommand.UPSCALE:
             review_raw = self.upscale_review_dir.text().strip()
             return {
                 "raw_data_dir": Path(self.upscale_raw_data_dir.text().strip() or "raw_data"),
                 "review_dir": Path(review_raw) if review_raw else None,
             }
-        if command == "create-dataset":
+        if command == ModelBuildStepCommand.CREATE_DATASET:
             raw_data_dir = Path(self.dataset_raw_data_dir.text().strip() or "raw_data")
             data_dir = Path(self.dataset_data_dir.text().strip() or "data")
             if not raw_data_dir.exists():
@@ -609,17 +613,17 @@ class DataPage(QWidget):
                 "allow_external_storage": bool(self.dataset_allow_external.isChecked()),
                 "skip_space_check": bool(self.dataset_skip_space.isChecked()),
             }
-        raise ValueError(_("Unknown command: {cmd}").format(cmd=command))
+        raise ValueError(_("Unknown command: {cmd}").format(cmd=command.value))
 
     def _snapshot_path_after_successful_data_run(self) -> str | None:
         """Best-effort path to the newest ``snapshot_*.json`` after convert or create-dataset."""
-        cmd = getattr(self, "_pending_command", "")
+        cmd = getattr(self, "_pending_command", None)
         payload = getattr(self, "_pending_payload", None) or {}
-        if cmd == "convert":
+        if cmd == ModelBuildStepCommand.CONVERT:
             raw = payload.get("raw_data_dir")
             p = find_latest_unified_snapshot_path([raw]) if raw else None
             return str(p.resolve()) if p else None
-        if cmd == "create-dataset":
+        if cmd == ModelBuildStepCommand.CREATE_DATASET:
             data_dir = payload.get("data_dir")
             raw = payload.get("raw_data_dir")
             paths = [x for x in (data_dir, raw) if x]
@@ -627,7 +631,7 @@ class DataPage(QWidget):
             return str(p.resolve()) if p else None
         return None
 
-    def _space_precheck_ui(self, command: str, payload: dict) -> bool:
+    def _space_precheck_ui(self, command: ModelBuildStepCommand, payload: dict) -> bool:
         """
         Run heuristic disk estimate before convert / create-dataset; append to log.
         Returns False if the user cancels a low-space warning.
@@ -636,7 +640,7 @@ class DataPage(QWidget):
         pipe = w._effective_pipeline_config_path() if hasattr(w, "_effective_pipeline_config_path") else None
         reload_pipeline_config(pipe, force=True)
         mt = ModelType.from_pipeline_value(get_pipeline_config().get("model.default_type"))
-        if command == "convert":
+        if command == ModelBuildStepCommand.CONVERT:
             r = run_convert_estimate(payload["raw_data_dir"], mt)
             self._last_space_estimate_msg = r.message
             self._space_estimate_status.setText(_("Latest space check") + ": " + r.message)
@@ -652,7 +656,7 @@ class DataPage(QWidget):
                 payload["skip_space_check"] = True
                 return True
             return False
-        if command == "create-dataset":
+        if command == ModelBuildStepCommand.CREATE_DATASET:
             r = run_create_dataset_estimate(payload["raw_data_dir"], payload["data_dir"])
             self._last_space_estimate_msg = r.message
             self._space_estimate_status.setText(_("Latest space check") + ": " + r.message)
@@ -674,11 +678,11 @@ class DataPage(QWidget):
         command = self._current_command()
         payload = self._collect_inputs(command)
 
-        if command in ("convert", "create-dataset"):
+        if command in (ModelBuildStepCommand.CONVERT, ModelBuildStepCommand.CREATE_DATASET):
             if not self._space_precheck_ui(command, payload):
                 return
 
-        if command == "create-dataset":
+        if command == ModelBuildStepCommand.CREATE_DATASET:
             if check_target_external_storage(
                 logger, payload["data_dir"], override=payload["allow_external_storage"]
             ):
@@ -702,8 +706,8 @@ class DataPage(QWidget):
                 ):
                     return
 
-        self._append(f"[run] mb data {command}")
-        self._pending_run_summary = f"mb data {command}"
+        self._append(f"[run] mb data {command.value}")
+        self._pending_run_summary = f"mb data {command.value}"
         self._pending_command = command
         self._pending_payload = payload
         self._pending_data_subcommand = DataPipelineSubcommand.try_from(command)
@@ -718,11 +722,11 @@ class DataPage(QWidget):
             pass_context=True,
             on_cancelled=self._on_run_cancelled,
         )
-        attach_progress_dialog(self, _("Data: {cmd}").format(cmd=command), handle, cancellable=True)
+        attach_progress_dialog(self, _("Data: {cmd}").format(cmd=command.value), handle, cancellable=True)
 
-    def _execute_data_command(self, ctx: LongTaskContext, command: str, payload: dict) -> bool:
+    def _execute_data_command(self, ctx: LongTaskContext, command: ModelBuildStepCommand, payload: dict) -> bool:
         ce = ctx.cancel_event
-        if command == "gather":
+        if command == ModelBuildStepCommand.GATHER:
             layout = data_class_layout_defaults()
             mt = ModelType.from_pipeline_value(get_pipeline_config().get("model.default_type"))
             gatherer = ImageGatherer(
@@ -737,7 +741,7 @@ class DataPage(QWidget):
             )
             gatherer.raw_data_dir = payload["raw_data_dir"]
             return bool(gatherer.run(cancel_event=ce))
-        if command == "convert":
+        if command == ModelBuildStepCommand.CONVERT:
             mt = ModelType.from_pipeline_value(get_pipeline_config().get("model.default_type"))
             converter = ImageConverter(raw_data_dir=payload["raw_data_dir"], model_type=mt)
             return bool(
@@ -746,14 +750,14 @@ class DataPage(QWidget):
                     skip_space_check=payload.get("skip_space_check", False),
                 )
             )
-        if command == "deduplicate":
+        if command == ModelBuildStepCommand.DEDUPLICATE:
             deduplicator = ImageDeduplicator(raw_data_dir=payload["raw_data_dir"])
             return bool(deduplicator.run(cancel_event=ce))
-        if command == "upscale":
+        if command == ModelBuildStepCommand.UPSCALE:
             review_dir = payload["review_dir"] or (payload["raw_data_dir"] / "small_images_review")
             upscaler = ImageUpscaler(review_dir=review_dir)
             return bool(upscaler.run(cancel_event=ce))
-        if command == "create-dataset":
+        if command == ModelBuildStepCommand.CREATE_DATASET:
             if payload["seed"] is not None:
                 random.seed(payload["seed"])
             creator = DatasetCreator(
@@ -766,7 +770,7 @@ class DataPage(QWidget):
                 skip_space_check=payload.get("skip_space_check", False),
             )
             return bool(creator.run(cancel_event=ce))
-        raise ValueError(_("Unknown command: {cmd}").format(cmd=command))
+        raise ValueError(_("Unknown command: {cmd}").format(cmd=command.value))
 
     def _on_run_success(self, success: bool) -> None:
         summary = getattr(self, "_pending_run_summary", "mb data")

@@ -7,6 +7,7 @@ import textwrap
 import unittest
 from pathlib import Path
 
+from mb.models.types import ArchitectureType, FrameworkType
 from mb.pipeline_config import (
     PipelineConfig,
     gather_pipeline_defaults,
@@ -25,7 +26,7 @@ class TestPipelineConfigLoad(unittest.TestCase):
                 textwrap.dedent(
                     """
                     model:
-                      default_architecture: tiny_net
+                      default_architecture: resnet50
                     training:
                       frozen_epochs: 2
                     """
@@ -36,7 +37,7 @@ class TestPipelineConfigLoad(unittest.TestCase):
             self.assertEqual(cfg.active_path, yml)
             for key in ("model", "data", "training", "paths"):
                 self.assertIn(key, cfg.to_dict())
-            self.assertEqual(cfg.get("model.default_architecture"), "tiny_net")
+            self.assertEqual(cfg.get("model.default_architecture"), ArchitectureType.RESNET50.value)
             self.assertEqual(cfg.get("training.frozen_epochs"), 2)
             self.assertIsNotNone(cfg.get("data.raw_data_dir"))
             self.assertIsNotNone(cfg.get("paths.models_dir"))
@@ -50,7 +51,7 @@ class TestPipelineConfigLoad(unittest.TestCase):
             )
             cfg = PipelineConfig(yml)
             self.assertNotIn("extra_stuff", cfg.to_dict())
-            self.assertEqual(cfg.get("model.default_framework"), "pytorch")
+            self.assertEqual(cfg.get("model.default_framework"), FrameworkType.PYTORCH.value)
 
     def test_gather_raw_data_uses_data_raw_data_dir(self) -> None:
         reload_pipeline_config(None, force=True)

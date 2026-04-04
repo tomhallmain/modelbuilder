@@ -20,6 +20,7 @@ from typing import Any, Dict, List, Optional
 
 import yaml
 
+from mb.models.types import ArchitectureType, FrameworkType
 from mb.utils.logging_setup import get_logger
 
 logger = get_logger("mb.pipeline_config")
@@ -100,8 +101,8 @@ class PipelineConfig:
         return {
             "model": {
                 "default_type": "image_classification",
-                "default_framework": "pytorch",
-                "default_architecture": "resnet34",
+                "default_framework": FrameworkType.get_default().value,
+                "default_architecture": ArchitectureType.get_default().value,
             },
             "data": {
                 "raw_data_dir": "raw_data",

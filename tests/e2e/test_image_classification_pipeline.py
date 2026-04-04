@@ -23,6 +23,7 @@ import pytest
 from mb.data.class_layout import SYNTHETIC_DEFAULT_CLASS_NAMES
 from mb.data.dataset import DatasetCreator
 from mb.cli import main
+from mb.models.types import ArchitectureType, ConversionTargetFormat, FrameworkType
 
 from tests.test_utils import default_pipeline_config_path, prepare_synthetic_raw_with_snapshot
 
@@ -64,9 +65,9 @@ def test_image_classification_train_pytorch_and_export_onnx(tmp_path: Path) -> N
         str(cfg),
         "train",
         "--framework",
-        "pytorch",
+        FrameworkType.PYTORCH.value,
         "--architecture",
-        "resnet18",
+        ArchitectureType.RESNET18.value,
         "--data-dir",
         str(data_dir),
         "--output-dir",
@@ -95,11 +96,11 @@ def test_image_classification_train_pytorch_and_export_onnx(tmp_path: Path) -> N
         "--output",
         str(onnx_path),
         "--framework",
-        "pytorch",
+        FrameworkType.PYTORCH.value,
         "--target",
-        "onnx",
+        ConversionTargetFormat.ONNX.value,
         "--architecture",
-        "resnet18",
+        ArchitectureType.RESNET18.value,
         "--num-classes",
         "3",
         "--image-size",

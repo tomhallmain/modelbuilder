@@ -8,6 +8,7 @@ import pytest
 from PySide6.QtCore import Qt
 
 from ui.pages.convert_page import ConvertPage
+from mb.models.types import ArchitectureType
 
 
 @pytest.mark.ui
@@ -23,7 +24,7 @@ def test_convert_page_validate_enables_convert_when_inputs_valid(
     page.target.setCurrentIndex(0)
     page.input_model.setText(str(input_pth))
     page.output_model.setText(str(output_onnx))
-    page.architecture.setText("resnet18")
+    page.architecture.setText(ArchitectureType.RESNET18.value)
     page.num_classes.setValue(3)
     page.image_size.setValue(224)
     qtbot.mouseClick(page.btn_validate, Qt.MouseButton.LeftButton)
@@ -41,7 +42,7 @@ def test_convert_page_validate_disables_convert_when_input_missing(
     page.target.setCurrentIndex(0)
     page.input_model.setText(str(tmp_path / "nope.pth"))
     page.output_model.setText(str(tmp_path / "out.onnx"))
-    page.architecture.setText("resnet18")
+    page.architecture.setText(ArchitectureType.RESNET18.value)
     page.num_classes.setValue(3)
     qtbot.mouseClick(page.btn_validate, Qt.MouseButton.LeftButton)
     assert not page.btn_convert.isEnabled()
@@ -56,7 +57,7 @@ def test_convert_page_collect_and_restore_gui_state_roundtrip(qtbot, tmp_path: P
     page.output_model.setText(str(tmp_path / "b.onnx"))
     page.framework.setCurrentIndex(2)
     page.target.setCurrentIndex(1)
-    page.architecture.setText("efficientnet_b0")
+    page.architecture.setText(ArchitectureType.EFFICIENTNET_B0.value)
     page.num_classes.setValue(5)
     page.image_size.setValue(299)
     blob = page.collect_gui_state()
@@ -67,6 +68,6 @@ def test_convert_page_collect_and_restore_gui_state_roundtrip(qtbot, tmp_path: P
     assert page2.output_model.text() == str(tmp_path / "b.onnx")
     assert page2.framework.currentIndex() == 2
     assert page2.target.currentIndex() == 1
-    assert page2.architecture.text() == "efficientnet_b0"
+    assert page2.architecture.text() == ArchitectureType.EFFICIENTNET_B0.value
     assert page2.num_classes.value() == 5
     assert page2.image_size.value() == 299

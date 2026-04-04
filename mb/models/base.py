@@ -7,21 +7,35 @@ implementations must follow.
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, Tuple, Optional
+from typing import Any, Dict, Optional, Tuple, Union
+
+from mb.models.types import ArchitectureType, FrameworkType
 
 
 class FrameworkTrainer(ABC):
     """
     Abstract base class for framework-specific trainers.
-    
-    This class defines the interface that all framework implementations
-    (PyTorch, Keras, etc.) must follow.
+
+    Subclasses must call ``super().__init__(framework)`` with their fixed
+    :class:`~mb.models.types.FrameworkType`.
     """
-    
+
+    def __init__(self, framework: FrameworkType) -> None:
+        self._framework = framework
+
+    @property
+    def framework(self) -> FrameworkType:
+        """Framework this trainer implementation uses."""
+        return self._framework
+
+    def get_framework_name(self) -> str:
+        """Return the framework id string (same as :attr:`framework` ``.value``)."""
+        return self.framework.value
+
     @abstractmethod
     def create_model(
         self,
-        architecture: str,
+        architecture: Union[ArchitectureType, str],
         num_classes: int,
         pretrained: bool = True,
         **kwargs
@@ -30,7 +44,7 @@ class FrameworkTrainer(ABC):
         Create a model instance.
         
         Args:
-            architecture: Architecture name (e.g., 'resnet34')
+            architecture: Canonical architecture id or string from config/CLI
             num_classes: Number of output classes
             pretrained: Whether to use pretrained weights
             **kwargs: Additional architecture-specific arguments
@@ -159,15 +173,5 @@ class FrameworkTrainer(ABC):
         
         Returns:
             List of architecture names
-        """
-        pass
-    
-    @abstractmethod
-    def get_framework_name(self) -> str:
-        """
-        Get the name of this framework.
-        
-        Returns:
-            Framework name (e.g., 'pytorch', 'keras')
         """
         pass

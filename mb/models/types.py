@@ -10,7 +10,152 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, FrozenSet, Optional
+
+# --- CLI / pipeline step enums (used by ``mb data``, Data page, training metadata) ---
+
+
+class ModelBuildStepCommand(str, Enum):
+    """
+    ``mb data <subcommand>`` values (CLI, :func:`~mb.cli.run_data_subcommand_cli`).
+
+    The Data page uses the first five; ``estimate-space`` is CLI-only.
+    """
+
+    GATHER = "gather"
+    CONVERT = "convert"
+    DEDUPLICATE = "deduplicate"
+    UPSCALE = "upscale"
+    CREATE_DATASET = "create-dataset"
+    ESTIMATE_SPACE = "estimate-space"
+
+    @classmethod
+    def try_from(cls, raw: object) -> ModelBuildStepCommand | None:
+        if raw is None:
+            return None
+        s = str(raw).strip().lower()
+        try:
+            return cls(s)
+        except ValueError:
+            return None
+
+    @classmethod
+    def data_page_tab_values(cls) -> tuple[ModelBuildStepCommand, ...]:
+        """Tab order on :class:`~ui.pages.data_page.DataPage` (no ``estimate-space``)."""
+        return (
+            cls.GATHER,
+            cls.CONVERT,
+            cls.DEDUPLICATE,
+            cls.UPSCALE,
+            cls.CREATE_DATASET,
+        )
+
+
+class FrameworkType(str, Enum):
+    """Training / export framework (``mb train``, ``mb convert``, registry keys)."""
+
+    PYTORCH = "pytorch"
+    KERAS = "keras"
+
+    @classmethod
+    def get_default(cls) -> FrameworkType:
+        """Default pipeline framework (matches packaged :file:`mb/config/default_pipeline.yaml`)."""
+        return cls.PYTORCH
+
+    @classmethod
+    def registered_values(cls) -> FrozenSet[str]:
+        """Set of all enum values (for validation against static registrations)."""
+        return frozenset(m.value for m in cls)
+
+    @classmethod
+    def try_from(cls, raw: object) -> FrameworkType | None:
+        if raw is None:
+            return None
+        s = str(raw).strip().lower()
+        try:
+            return cls(s)
+        except ValueError:
+            return None
+
+
+class ArchitectureType(str, Enum):
+    """
+    Canonical architecture ids registered in :mod:`mb.models.frameworks`.
+
+    Values match registry keys passed as :class:`ArchitectureType` to
+    :func:`mb.models.frameworks.registry.register_architecture` (lowercase). Not every
+    framework implements every member; use the registry or trainer helpers to list
+    supported names per framework.
+    """
+
+    RESNET18 = "resnet18"
+    RESNET34 = "resnet34"
+    RESNET50 = "resnet50"
+    RESNET101 = "resnet101"
+    RESNET152 = "resnet152"
+    EFFICIENTNET_B0 = "efficientnet_b0"
+    EFFICIENTNET_B1 = "efficientnet_b1"
+    EFFICIENTNET_B2 = "efficientnet_b2"
+    EFFICIENTNET_B3 = "efficientnet_b3"
+
+    @classmethod
+    def get_default(cls) -> ArchitectureType:
+        """Default pipeline architecture (matches packaged :file:`mb/config/default_pipeline.yaml`)."""
+        return cls.RESNET34
+
+    @classmethod
+    def registered_values(cls) -> FrozenSet[str]:
+        """Set of all enum values (for validation against static registrations)."""
+        return frozenset(m.value for m in cls)
+
+    @classmethod
+    def try_from(cls, raw: object) -> ArchitectureType | None:
+        if raw is None:
+            return None
+        s = str(raw).strip().lower()
+        try:
+            return cls(s)
+        except ValueError:
+            return None
+
+
+class InfoSubcommand(str, Enum):
+    """``mb info <subcommand>`` (model vs dataset)."""
+
+    MODEL = "model"
+    DATASET = "dataset"
+
+    @classmethod
+    def try_from(cls, raw: object) -> InfoSubcommand | None:
+        if raw is None:
+            return None
+        s = str(raw).strip().lower()
+        try:
+            return cls(s)
+        except ValueError:
+            return None
+
+
+class ConversionTargetFormat(str, Enum):
+    """``mb convert --target`` output format."""
+
+    ONNX = "onnx"
+    SAFETENSORS = "safetensors"
+
+    @classmethod
+    def registered_values(cls) -> FrozenSet[str]:
+        """Set of all enum values (CLI ``--target`` choices)."""
+        return frozenset(m.value for m in cls)
+
+    @classmethod
+    def try_from(cls, raw: object) -> ConversionTargetFormat | None:
+        if raw is None:
+            return None
+        s = str(raw).strip().lower()
+        try:
+            return cls(s)
+        except ValueError:
+            return None
 
 
 class ModelType(str, Enum):

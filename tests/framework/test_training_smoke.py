@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from mb.models.types import ModelType
+from mb.models.types import ArchitectureType, FrameworkType, ModelType
 from mb.pipeline_config import PipelineConfig
 from mb.training.run_args import TrainingRunArgs
 from mb.training.trainer import ModelTrainer
@@ -32,13 +32,13 @@ def test_model_trainer_pytorch_one_epoch_cpu_smoke(
     out_dir = tmp_path / "models"
     pipeline = PipelineConfig(config_path=None)
     trainer = ModelTrainer(
-        framework="pytorch",
+        framework=FrameworkType.PYTORCH,
         model_type=ModelType.IMAGE_CLASSIFICATION,
         pipeline_config=pipeline,
     )
     run_args = TrainingRunArgs(
-        framework="pytorch",
-        architecture="resnet18",
+        framework=FrameworkType.PYTORCH,
+        architecture=ArchitectureType.RESNET18,
         data_dir=two_class_classification_data_dir,
         output_dir=out_dir,
         resume_from=None,
@@ -69,13 +69,13 @@ def test_model_trainer_keras_one_epoch_smoke(
     out_dir = tmp_path / "models"
     pipeline = PipelineConfig(config_path=None)
     trainer = ModelTrainer(
-        framework="keras",
+        framework=FrameworkType.KERAS,
         model_type=ModelType.IMAGE_CLASSIFICATION,
         pipeline_config=pipeline,
     )
     run_args = TrainingRunArgs(
-        framework="keras",
-        architecture="resnet50",
+        framework=FrameworkType.KERAS,
+        architecture=ArchitectureType.RESNET50,
         data_dir=two_class_classification_data_dir,
         output_dir=out_dir,
         resume_from=None,

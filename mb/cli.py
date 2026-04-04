@@ -30,7 +30,14 @@ from mb.info_inspect import dataset_info_text, model_info_text
 
 # Import training modules
 from mb.training.run_args import TrainingRunArgs, load_training_run_args_json
-from mb.models.types import ModelType
+from mb.models.types import (
+    ArchitectureType,
+    ConversionTargetFormat,
+    FrameworkType,
+    InfoSubcommand,
+    ModelBuildStepCommand,
+    ModelType,
+)
 
 # CLI ``--model-type`` for gather/convert (all declared pipeline types).
 _MODEL_TYPE_CLI_CHOICES = [m.value for m in ModelType]
@@ -356,7 +363,7 @@ def create_parser() -> argparse.ArgumentParser:
     )
     train_parser.add_argument(
         "--framework",
-        choices=["pytorch", "keras"],
+        choices=[f.value for f in FrameworkType],
         help=_("Framework to use (default: from config)"),
     )
     train_parser.add_argument(
@@ -460,12 +467,12 @@ def create_parser() -> argparse.ArgumentParser:
     )
     convert_model_parser.add_argument(
         "--framework",
-        choices=["pytorch", "keras"],
+        choices=[f.value for f in FrameworkType],
         help=_("Source framework (auto-detected if not specified)"),
     )
     convert_model_parser.add_argument(
         "--target",
-        choices=["onnx", "safetensors"],
+        choices=[f.value for f in ConversionTargetFormat],
         required=True,
         help=_("Target format (onnx or safetensors)"),
     )
@@ -727,10 +734,6 @@ def handle_train(args):
 
         if getattr(args, "train_args_json", None):
             run_args = load_training_run_args_json(args.train_args_json)
-            framework = run_args.framework.lower()
-            if framework not in ("pytorch", "keras"):
-                logger.error(_("Unsupported framework in JSON: {fw}").format(fw=framework))
-                return 1
             mt_cfg = ModelType.from_pipeline_value(pipeline.get("model.default_type"))
             if mt_cfg != ModelType.IMAGE_CLASSIFICATION:
                 logger.error(_("Unsupported model type from config: {t}").format(t=mt_cfg.value))
@@ -743,20 +746,22 @@ def handle_train(args):
             output_dir = run_args.output_dir
             output_dir.mkdir(parents=True, exist_ok=True)
             trainer = ModelTrainer(
-                framework=framework,
+                framework=run_args.framework,
                 model_type=model_type,
                 pipeline_config=pipeline,
             )
             supported_archs = trainer.get_supported_architectures()
-            if run_args.architecture not in supported_archs:
+            if run_args.architecture.value not in supported_archs:
                 logger.error(
                     _("Architecture '{arch}' not supported for framework '{fw}'").format(
-                        arch=run_args.architecture, fw=framework
+                        arch=run_args.architecture.value, fw=run_args.framework.value
                     )
                 )
                 logger.info(f"Supported architectures: {supported_archs}")
                 return 1
-            logger.info(f"Starting training from JSON ({framework}/{run_args.architecture})")
+            logger.info(
+                f"Starting training from JSON ({run_args.framework.value}/{run_args.architecture.value})"
+            )
             model_path = trainer.train(run_args)
             logger.info(
                 _("Training completed successfully. Model saved to: {path}").format(path=model_path)
@@ -764,20 +769,24 @@ def handle_train(args):
             return 0
         
         # Determine framework
-        framework = args.framework or pipeline.get('model.default_framework', 'pytorch')
-        if framework not in ['pytorch', 'keras']:
-            logger.error(_("Unsupported framework: {fw}").format(fw=framework))
+        framework_raw = args.framework or pipeline.get("model.default_framework", FrameworkType.get_default().value)
+        fw = FrameworkType.try_from(framework_raw)
+        if fw is None:
+            logger.error(_("Unsupported framework: {fw}").format(fw=framework_raw))
             return 1
-        
         # Determine model type
         mt = ModelType.from_pipeline_value(args.model_type or pipeline.get("model.default_type"))
         if mt != ModelType.IMAGE_CLASSIFICATION:
             logger.error(_("Unsupported model type: {t}").format(t=mt.value))
             return 1
         model_type = mt
-        
+
         # Determine architecture
-        architecture = args.architecture or pipeline.get('model.default_architecture', 'resnet34')
+        arch_raw = args.architecture or pipeline.get("model.default_architecture", ArchitectureType.get_default().value)
+        arch = ArchitectureType.try_from(arch_raw)
+        if arch is None:
+            logger.error(_("Unsupported architecture: {arch}").format(arch=arch_raw))
+            return 1
         
         # Determine data directory
         data_dir = args.data_dir or Path(pipeline.get('data.data_dir', 'data'))
@@ -810,27 +819,27 @@ def handle_train(args):
         
         # Create trainer
         trainer = ModelTrainer(
-            framework=framework,
+            framework=fw,
             model_type=model_type,
             pipeline_config=pipeline,
         )
-        
+
         # Check if architecture is supported
         supported_archs = trainer.get_supported_architectures()
-        if architecture not in supported_archs:
+        if arch.value not in supported_archs:
             logger.error(
                 _("Architecture '{arch}' not supported for framework '{fw}'").format(
-                    arch=architecture, fw=framework
+                    arch=arch.value, fw=fw.value
                 )
             )
             logger.info(f"Supported architectures: {supported_archs}")
             return 1
-        
+
         # Train model
-        logger.info(f"Starting training with {framework}/{architecture}")
+        logger.info(f"Starting training with {fw.value}/{arch.value}")
         run_args = TrainingRunArgs(
-            framework=framework,
-            architecture=architecture,
+            framework=fw,
+            architecture=arch,
             data_dir=data_dir,
             output_dir=output_dir,
             resume_from=args.resume_from,
@@ -869,7 +878,7 @@ def handle_convert(args):
                 logger.error(_("Could not detect source framework. Please specify --framework"))
                 return 1
         
-        if source_framework == 'pytorch' and args.target == 'onnx':
+        if source_framework == FrameworkType.PYTORCH.value and args.target == ConversionTargetFormat.ONNX.value:
             if args.architecture is None or args.num_classes is None:
                 logger.error(
                     _("PyTorch -> ONNX conversion requires --architecture and --num-classes")
@@ -955,21 +964,24 @@ def main(args: Optional[list] = None) -> int:
     
     try:
         if parsed_args.command == "data":
-            if parsed_args.data_command == "gather":
-                return handle_data_gather(parsed_args)
-            elif parsed_args.data_command == "convert":
-                return handle_data_convert(parsed_args)
-            elif parsed_args.data_command == "deduplicate":
-                return handle_data_deduplicate(parsed_args)
-            elif parsed_args.data_command == "upscale":
-                return handle_data_upscale(parsed_args)
-            elif parsed_args.data_command == "create-dataset":
-                return handle_data_create_dataset(parsed_args)
-            elif parsed_args.data_command == "estimate-space":
-                return handle_data_estimate_space(parsed_args)
-            else:
+            raw_cmd = parsed_args.data_command
+            if not raw_cmd:
                 logger.error(_("No data subcommand specified"))
                 return 1
+            try:
+                step = ModelBuildStepCommand(raw_cmd)
+            except ValueError:
+                logger.error(_("Unknown data subcommand: {cmd}").format(cmd=raw_cmd))
+                return 1
+            _data_handlers = {
+                ModelBuildStepCommand.GATHER: handle_data_gather,
+                ModelBuildStepCommand.CONVERT: handle_data_convert,
+                ModelBuildStepCommand.DEDUPLICATE: handle_data_deduplicate,
+                ModelBuildStepCommand.UPSCALE: handle_data_upscale,
+                ModelBuildStepCommand.CREATE_DATASET: handle_data_create_dataset,
+                ModelBuildStepCommand.ESTIMATE_SPACE: handle_data_estimate_space,
+            }
+            return _data_handlers[step](parsed_args)
         
         elif parsed_args.command == "train":
             return handle_train(parsed_args)
@@ -978,13 +990,18 @@ def main(args: Optional[list] = None) -> int:
             return handle_convert(parsed_args)
         
         elif parsed_args.command == "info":
-            if parsed_args.info_command == "model":
-                return handle_info_model(parsed_args)
-            elif parsed_args.info_command == "dataset":
-                return handle_info_dataset(parsed_args)
-            else:
+            raw_info = parsed_args.info_command
+            if not raw_info:
                 logger.error(_("No info subcommand specified"))
                 return 1
+            try:
+                info_sub = InfoSubcommand(raw_info)
+            except ValueError:
+                logger.error(_("Unknown info subcommand: {cmd}").format(cmd=raw_info))
+                return 1
+            if info_sub == InfoSubcommand.MODEL:
+                return handle_info_model(parsed_args)
+            return handle_info_dataset(parsed_args)
         
         else:
             logger.error(_("Unknown command: {cmd}").format(cmd=parsed_args.command))
@@ -1002,8 +1019,9 @@ def run_data_subcommand_cli(subcommand: str, argv: Optional[List[str]] = None) -
     """
     Run ``mb data <subcommand>`` for ``python -m mb.data.<module>`` entry points.
 
-    *subcommand* is one of: ``gather``, ``convert``, ``deduplicate``, ``upscale``,
-    ``create-dataset``, ``estimate-space``. *argv* defaults to ``sys.argv[1:]``.
+    *subcommand* is a :class:`~mb.models.types.ModelBuildStepCommand` value string
+    (``gather``, ``convert``, ``deduplicate``, ``upscale``, ``create-dataset``,
+    ``estimate-space``). *argv* defaults to ``sys.argv[1:]``.
     """
     if argv is None:
         argv = sys.argv[1:]
