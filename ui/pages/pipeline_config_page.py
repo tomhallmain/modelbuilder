@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 import yaml
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
     QCheckBox,
@@ -129,7 +129,10 @@ class PipelineConfigPage(QWidget):
 
         self.retranslate_ui()
         # MainWindow already called reload_pipeline_config with the same path; avoid a second load.
-        self._refresh_from_disk(force=False)
+        # Defer until after this page is parented under MainWindow: during __init__ self.window()
+        # is still None, so _refresh_from_disk would call reload_pipeline_config(None) and replace
+        # the user pipeline with packaged defaults.
+        QTimer.singleShot(0, self._startup_pipeline_refresh)
 
     def collect_gui_state(self) -> dict:
         return {}
@@ -600,6 +603,9 @@ class PipelineConfigPage(QWidget):
         except Exception:
             text = ""
         self._yaml_edit.setPlainText(text)
+
+    def _startup_pipeline_refresh(self) -> None:
+        self._refresh_from_disk(force=False)
 
     def _refresh_from_disk(self, *, force: bool = True) -> None:
         """
