@@ -673,6 +673,9 @@ class DataPage(QWidget):
         """
         if command not in (ModelBuildStepCommand.CONVERT, ModelBuildStepCommand.CREATE_DATASET):
             return True
+        if payload.get("skip_space_check"):
+            self._apply_space_estimate_to_ui(_("Skipped (free-space estimate not run)."))
+            return True
         r = self._run_space_estimate(command, payload)
         self._apply_space_estimate_to_ui(r.message)
         if r.ok or payload.get("skip_space_check"):
@@ -694,24 +697,28 @@ class DataPage(QWidget):
         """
         if command not in (ModelBuildStepCommand.CONVERT, ModelBuildStepCommand.CREATE_DATASET):
             return True
-        r = self._run_space_estimate(command, payload)
-        self._gui_bridge.invoke(lambda: self._apply_space_estimate_to_ui(r.message))
-        skip = bool(payload.get("skip_space_check"))
-        if not r.ok and not skip:
+        if payload.get("skip_space_check"):
+            self._gui_bridge.invoke(
+                lambda: self._apply_space_estimate_to_ui(_("Skipped (free-space estimate not run)."))
+            )
+        else:
+            r = self._run_space_estimate(command, payload)
+            self._gui_bridge.invoke(lambda: self._apply_space_estimate_to_ui(r.message))
+            if not r.ok:
 
-            def _ask_low_space() -> bool:
-                return bool(
-                    qt_alert(
-                        self,
-                        _("Insufficient disk space (estimate)"),
-                        _("{msg}\n\nContinue anyway?").format(msg=r.message),
-                        kind="askyesno",
+                def _ask_low_space() -> bool:
+                    return bool(
+                        qt_alert(
+                            self,
+                            _("Insufficient disk space (estimate)"),
+                            _("{msg}\n\nContinue anyway?").format(msg=r.message),
+                            kind="askyesno",
+                        )
                     )
-                )
 
-            if not self._gui_bridge.invoke(_ask_low_space):
-                return False
-            payload["skip_space_check"] = True
+                if not self._gui_bridge.invoke(_ask_low_space):
+                    return False
+                payload["skip_space_check"] = True
 
         if command == ModelBuildStepCommand.CREATE_DATASET:
 
@@ -784,7 +791,8 @@ class DataPage(QWidget):
     ) -> bool:
         ce = ctx.cancel_event
         if command in (ModelBuildStepCommand.CONVERT, ModelBuildStepCommand.CREATE_DATASET):
-            ctx.progress(_("Checking free space…"))
+            if not payload.get("skip_space_check"):
+                ctx.progress(_("Checking free space…"))
             if not self._worker_precheck_convert_or_dataset(command, payload):
                 return False
             if command == ModelBuildStepCommand.CONVERT:

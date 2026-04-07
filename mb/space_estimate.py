@@ -171,7 +171,7 @@ def estimate_convert_additional_bytes(paths: List[Path], model_type: ModelType) 
     Returns:
         (estimated_bytes, file_count, sum of raw source file sizes for stats)
     """
-    logger.info(f"Estimating convert additional bytes for: {paths}")
+    logger.info(f"Estimating convert additional bytes for path list of length: {len(paths)}")
     total_source = 0
     additional = 0
     n = 0
@@ -501,6 +501,58 @@ def run_create_dataset_estimate(
     return rep
 
 
+def skipped_convert_space_report(raw_data_dir: Path) -> SpaceEstimateReport:
+    """Lightweight placeholder when *skip_space_check* avoids the full heuristic scan."""
+    raw_data_dir = Path(raw_data_dir)
+    try:
+        free = int(shutil.disk_usage(raw_data_dir).free)
+    except OSError:
+        free = 0
+    now = datetime.now(timezone.utc).isoformat()
+    msg = (
+        "Convert: space estimate skipped (--skip-space-check). "
+        f"Free on target volume: {format_bytes(free)}."
+    )
+    return SpaceEstimateReport(
+        operation="convert",
+        fingerprint="",
+        estimated_need_bytes=0,
+        free_bytes=free,
+        target_path=str(raw_data_dir.resolve()),
+        ok=True,
+        file_count=0,
+        source_total_bytes=0,
+        message=msg,
+        computed_at=now,
+    )
+
+
+def skipped_create_dataset_space_report(_raw_data_dir: Path, data_dir: Path) -> SpaceEstimateReport:
+    """Lightweight placeholder when *skip_space_check* avoids the full heuristic scan."""
+    data_dir = Path(data_dir)
+    try:
+        free = int(shutil.disk_usage(data_dir).free)
+    except OSError:
+        free = 0
+    now = datetime.now(timezone.utc).isoformat()
+    msg = (
+        "Create-dataset: space estimate skipped (--skip-space-check). "
+        f"Free on output volume: {format_bytes(free)}."
+    )
+    return SpaceEstimateReport(
+        operation="create_dataset",
+        fingerprint="",
+        estimated_need_bytes=0,
+        free_bytes=free,
+        target_path=str(data_dir.resolve()),
+        ok=True,
+        file_count=0,
+        source_total_bytes=0,
+        message=msg,
+        computed_at=now,
+    )
+
+
 def check_convert_allowed(
     raw_data_dir: Path,
     model_type: ModelType,
@@ -511,12 +563,15 @@ def check_convert_allowed(
     """
     Run convert space estimate; return (allowed, report).
 
-    If *skip_space_check* is True, always returns allowed=True (still computes report for logging).
+    If *skip_space_check* is True, skips the heuristic scan and returns a minimal report
+    (still merges into snapshot; records that the estimate was skipped).
     """
+    if skip_space_check:
+        report = skipped_convert_space_report(raw_data_dir)
+        logger.info(report.message)
+        return True, report
     report = run_convert_estimate(raw_data_dir, model_type, snapshot=snapshot)
     logger.info(report.message)
-    if skip_space_check:
-        return True, report
     return report.ok, report
 
 
@@ -527,8 +582,15 @@ def check_create_dataset_allowed(
     snapshot: Optional[UnifiedSnapshot] = None,
     skip_space_check: bool = False,
 ) -> Tuple[bool, SpaceEstimateReport]:
+    """
+    Run create-dataset space estimate; return (allowed, report).
+
+    If *skip_space_check* is True, skips the heuristic scan and returns a minimal report.
+    """
+    if skip_space_check:
+        report = skipped_create_dataset_space_report(raw_data_dir, data_dir)
+        logger.info(report.message)
+        return True, report
     report = run_create_dataset_estimate(raw_data_dir, data_dir, snapshot=snapshot)
     logger.info(report.message)
-    if skip_space_check:
-        return True, report
     return report.ok, report
