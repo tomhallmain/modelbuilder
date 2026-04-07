@@ -148,7 +148,6 @@ class PipelineConfig:
             "paths": {
                 "models_dir": "data/models",
                 "logs_dir": "logs",
-                "timing_dir": "timing_data",
             },
         }
 

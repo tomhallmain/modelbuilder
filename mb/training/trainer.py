@@ -8,6 +8,8 @@ from pathlib import Path
 from typing import Any, Callable, Optional
 import logging
 import threading
+import time
+from datetime import datetime, timezone
 
 from mb.models.base import FrameworkTrainer
 from mb.models.types import FrameworkType, ModelType, get_model_type_handler
@@ -213,6 +215,7 @@ class ModelTrainer:
         # Train model (framework reports 0..1 within the training loop only)
         _emit("Training…", train_lo)
         logger.info("Starting training...")
+        t_train0 = time.perf_counter()
         trained_model = self.framework_trainer.train(
             model=model,
             train_loader=train_loader,
@@ -223,11 +226,13 @@ class ModelTrainer:
             cancel_event=cancel_event,
             progress_cb=_training_progress,
         )
+        t_train1 = time.perf_counter()
 
         # Evaluate model (can be noticeable on large val sets — no per-batch hook here yet)
         _emit("Evaluating…", train_hi)
         logger.info("Evaluating model...")
         metrics = self.framework_trainer.evaluate(trained_model, val_loader)
+        t_eval1 = time.perf_counter()
         _emit("Evaluating…", eval_end)
         logger.info("Evaluation metrics:")
         for metric_name, metric_value in metrics.items():
@@ -235,6 +240,20 @@ class ModelTrainer:
         
         # Update snapshot with training data
         if unified_snapshot and update_snapshot:
+            train_s = max(0.0, t_train1 - t_train0)
+            eval_s = max(0.0, t_eval1 - t_train1)
+            unified_snapshot.training_timing = {
+                "version": 1,
+                "recorded_at": datetime.now(timezone.utc).isoformat(),
+                "framework": self.framework.value,
+                "architecture": architecture.value,
+                "model_type": self.model_type.value,
+                "seconds": {
+                    "train": round(train_s, 4),
+                    "evaluate": round(eval_s, 4),
+                    "total": round(train_s + eval_s, 4),
+                },
+            }
             logger.info("Updating unified snapshot with training data...")
             update_training_snapshot(data_dir, unified_snapshot)
             

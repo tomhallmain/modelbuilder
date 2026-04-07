@@ -75,6 +75,14 @@ def test_unified_snapshot_save_load_roundtrip(tmp_path: Path) -> None:
         "dataset": None,
         "training": None,
     }
+    snap.training_timing = {
+        "version": 1,
+        "recorded_at": "2026-01-01T00:00:00+00:00",
+        "framework": "pytorch",
+        "architecture": "resnet18",
+        "model_type": "image_classification",
+        "seconds": {"train": 1.0, "evaluate": 0.5, "total": 1.5},
+    }
     out = tmp_path / "snap.json"
     assert snap.save(out)
     loaded = UnifiedSnapshot.load(out)
@@ -83,6 +91,9 @@ def test_unified_snapshot_save_load_roundtrip(tmp_path: Path) -> None:
     assert loaded.raw_data_directory == str(raw)
     assert "deadbeef" in loaded.images
     assert loaded.images["deadbeef"]["original"]["basename"] == "a.jpg"
+    assert loaded.training_timing is not None
+    assert loaded.training_timing["seconds"]["total"] == 1.5
+    assert loaded.to_dict().get("training_timing", {}).get("framework") == "pytorch"
 
 
 def test_find_latest_unified_snapshot_path_prefers_newest_mtime(tmp_path: Path) -> None:

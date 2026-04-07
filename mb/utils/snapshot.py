@@ -195,6 +195,10 @@ class UnifiedSnapshot:
     
     Structure: One record per original image, with all pipeline stages nested within.
     This makes analysis easier as no joins are needed.
+
+    Optional top-level ``training_timing`` holds wall-clock seconds for the last
+    :class:`~mb.training.trainer.ModelTrainer` run that updated this snapshot (when
+    ``update_snapshot`` is enabled).
     """
     
     def __init__(self, run_id: str, raw_data_dir: str, data_dir: Optional[str] = None):
@@ -209,7 +213,9 @@ class UnifiedSnapshot:
         self.images: Dict[str, Dict] = {}  # {original_hash: image_record}
         # Optional: disk space estimates (fingerprints + bytes) from :mod:`mb.space_estimate`
         self.space_estimates: Optional[Dict[str, Any]] = None
-    
+        # Optional: wall-clock training summary (set by :class:`~mb.training.trainer.ModelTrainer`)
+        self.training_timing: Optional[Dict[str, Any]] = None
+
     def add_pre_conversion_image(self, image_path: Path, base_dir: Path) -> bool:
         """Add an image to pre-conversion stage (creates new record)."""
         try:
@@ -467,6 +473,8 @@ class UnifiedSnapshot:
         }
         if self.space_estimates is not None:
             out['space_estimates'] = self.space_estimates
+        if self.training_timing is not None:
+            out['training_timing'] = self.training_timing
         return out
     
     def save(self, output_path: Path) -> bool:
@@ -506,6 +514,8 @@ class UnifiedSnapshot:
 
             se = data.get('space_estimates')
             snapshot.space_estimates = se if isinstance(se, dict) else None
+            tt = data.get('training_timing')
+            snapshot.training_timing = tt if isinstance(tt, dict) else None
 
             return snapshot
         except Exception:

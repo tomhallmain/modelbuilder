@@ -462,12 +462,6 @@ class PipelineConfigPage(QWidget):
             make_directory_line_edit_row(w, self._p_logs, dialog_title=_("Select logs directory")),
         )
 
-        self._p_timing = QLineEdit()
-        form.addRow(
-            _("Timing data directory"),
-            make_directory_line_edit_row(w, self._p_timing, dialog_title=_("Select timing data directory")),
-        )
-
         lay.addWidget(box)
         lay.addStretch(1)
         return w
@@ -543,7 +537,6 @@ class PipelineConfigPage(QWidget):
             "paths": {
                 "models_dir": self._p_models.text().strip() or "data/models",
                 "logs_dir": self._p_logs.text().strip() or "logs",
-                "timing_dir": self._p_timing.text().strip() or "timing_data",
             },
         }
 
@@ -594,7 +587,6 @@ class PipelineConfigPage(QWidget):
         p = cfg.get("paths") or {}
         self._p_models.setText(str(p.get("models_dir") or ""))
         self._p_logs.setText(str(p.get("logs_dir") or ""))
-        self._p_timing.setText(str(p.get("timing_dir") or ""))
 
     def _sync_yaml_editor(self, cfg: dict[str, Any]) -> None:
         sub = {k: cfg[k] for k in PIPELINE_ROOT_KEYS if k in cfg}
