@@ -11,6 +11,9 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
+from mb.utils.logging_setup import get_logger
+
+logger = get_logger(__name__)
 
 
 def _posix_rel(p: Optional[str]) -> Optional[str]:
@@ -490,6 +493,7 @@ class UnifiedSnapshot:
     @classmethod
     def load(cls, snapshot_path: Path) -> Optional['UnifiedSnapshot']:
         """Load unified snapshot from JSON file."""
+        logger.info(f"Loading unified snapshot from: {snapshot_path}")
         if not snapshot_path.exists():
             return None
         
@@ -527,6 +531,7 @@ def find_latest_unified_snapshot_path(search_paths: List[Path]) -> Optional[Path
     Return the path to the **newest** ``snapshot_*.json`` (by file mtime) under any of
     *search_paths*, or ``None`` if none exist.
     """
+    logger.info("Finding latest unified snapshot path…")
     candidates: List[Path] = []
     for d in search_paths:
         try:

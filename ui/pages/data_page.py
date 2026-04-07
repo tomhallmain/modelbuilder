@@ -145,8 +145,8 @@ class DataPage(QWidget):
         else:
             self._space_estimate_status.setText(
                 _(
-                    "No space estimate yet. It appears here when you run Convert or Create Dataset "
-                    "(before the command starts)."
+                    "No space estimate yet. It updates after the disk-space check finishes "
+                    "(first phase of Convert or Create Dataset)."
                 )
             )
         apply_qform_label_column(
@@ -773,19 +773,24 @@ class DataPage(QWidget):
         attach_progress_dialog(self, _("Data: {cmd}").format(cmd=command.value), handle, cancellable=True)
 
     def _execute_data_command(self, ctx: LongTaskContext, command: ModelBuildStepCommand, payload: dict) -> bool:
-        ce = ctx.cancel_event
         log_names = _DATA_COMMAND_LOGGERS.get(command, ())
         if log_names:
             with tee_logger_to_qt(self._data_log_bridge, *log_names):
-                return self._execute_data_command_impl(ce, command, payload)
-        return self._execute_data_command_impl(ce, command, payload)
+                return self._execute_data_command_impl(ctx, command, payload)
+        return self._execute_data_command_impl(ctx, command, payload)
 
     def _execute_data_command_impl(
-        self, ce: threading.Event, command: ModelBuildStepCommand, payload: dict
+        self, ctx: LongTaskContext, command: ModelBuildStepCommand, payload: dict
     ) -> bool:
+        ce = ctx.cancel_event
         if command in (ModelBuildStepCommand.CONVERT, ModelBuildStepCommand.CREATE_DATASET):
+            ctx.progress(_("Checking free space…"))
             if not self._worker_precheck_convert_or_dataset(command, payload):
                 return False
+            if command == ModelBuildStepCommand.CONVERT:
+                ctx.progress(_("Converting…"))
+            else:
+                ctx.progress(_("Creating dataset…"))
 
         if command == ModelBuildStepCommand.GATHER:
             layout = data_class_layout_defaults()

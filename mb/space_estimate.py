@@ -76,13 +76,16 @@ class SpaceEstimateReport:
 
 def _disk_free_bytes(path: Path) -> int:
     try:
+        logger.info(f"Checking disk free space for: {path}")
         return int(shutil.disk_usage(path).free)
-    except OSError:
+    except OSError as e:
+        logger.error(f"Error checking disk free space for: {path}: {e}")
         return 0
 
 
 def _fingerprint_files(paths: List[Path], base: Path) -> str:
     """Stable hash from relative path, size, and mtime (ns)."""
+    logger.info(f"Fingerprinting files: {paths} (base: {base})")
     h = hashlib.sha256()
     rows: List[Tuple[str, int, int]] = []
     for p in sorted(paths, key=lambda x: str(x).lower()):
@@ -140,6 +143,7 @@ def _find_convert_paths_for_class(class_dir: Path, suffixes: List[str]) -> List[
 
 def collect_convert_source_paths(raw_data_dir: Path, model_type: ModelType) -> List[Path]:
     """All media paths that convert would process (per class discovery)."""
+    logger.info(f"Collecting convert source paths for: {raw_data_dir}")
     raw_data_dir = Path(raw_data_dir)
     pc = get_pipeline_config()
     qual = normalize_qualifying_subdir(pc.get("data.class_qualifying_subdir"))
@@ -167,6 +171,7 @@ def estimate_convert_additional_bytes(paths: List[Path], model_type: ModelType) 
     Returns:
         (estimated_bytes, file_count, sum of raw source file sizes for stats)
     """
+    logger.info(f"Estimating convert additional bytes for: {paths}")
     total_source = 0
     additional = 0
     n = 0
@@ -194,6 +199,7 @@ def estimate_convert(
     raw_data_dir: Path,
     model_type: ModelType,
 ) -> SpaceEstimateReport:
+    logger.info(f"Estimating convert space for: {raw_data_dir}")
     paths = collect_convert_source_paths(raw_data_dir, model_type)
     need, n, src_sum = estimate_convert_additional_bytes(paths, model_type)
     fp = _fingerprint_files(paths, Path(raw_data_dir))
@@ -292,6 +298,7 @@ def load_space_cache(raw_data_dir: Path) -> Optional[Dict[str, Any]]:
         return None
     try:
         with open(p, encoding="utf-8") as f:
+            logger.info(f"Loading space cache from: {p}")
             return json.load(f)
     except Exception:
         return None
@@ -310,6 +317,7 @@ def save_space_cache(raw_data_dir: Path, cache: Dict[str, Any]) -> None:
 def snapshot_has_valid_convert_estimate(
     snapshot: Optional[UnifiedSnapshot], fingerprint: str
 ) -> bool:
+    logger.info(f"Checking if snapshot has valid convert estimate for fingerprint")
     if not snapshot or not getattr(snapshot, "space_estimates", None):
         return False
     se = snapshot.space_estimates
@@ -324,6 +332,7 @@ def snapshot_has_valid_dataset_estimate(
     fingerprint: str,
     data_dir: Path,
 ) -> bool:
+    logger.info(f"Checking if snapshot has valid dataset estimate for fingerprint (data_dir: {data_dir})")
     if not snapshot or not getattr(snapshot, "space_estimates", None):
         return False
     se = snapshot.space_estimates
@@ -345,6 +354,7 @@ def run_convert_estimate(
     snapshot: Optional[UnifiedSnapshot] = None,
 ) -> SpaceEstimateReport:
     """Compute convert estimate; reuse snapshot/cache fingerprint match when possible."""
+    logger.info("Scanning raw sources for convert space estimate…")
     raw_data_dir = Path(raw_data_dir)
     if snapshot is None:
         snap_path = find_latest_unified_snapshot_path([raw_data_dir])
@@ -358,6 +368,7 @@ def run_convert_estimate(
         n = int(cache["convert"].get("file_count", len(paths)))
         src_sum = int(cache["convert"].get("source_total_bytes", 0))
     elif snapshot_has_valid_convert_estimate(snapshot, fp):
+        logger.info(f"Using cached convert estimate for fingerprint: {fp}")
         c = snapshot.space_estimates["convert"]
         need = int(c["estimated_need_bytes"])
         n = int(c.get("file_count", len(paths)))
@@ -373,6 +384,7 @@ def run_convert_estimate(
     )
     if not ok:
         msg += f" Short by ~{format_bytes(need - free)}."
+    logger.info(f"Convert space estimate: {msg}")
     rep = SpaceEstimateReport(
         operation="convert",
         fingerprint=fp,
@@ -416,6 +428,7 @@ def run_create_dataset_estimate(
     *,
     snapshot: Optional[UnifiedSnapshot] = None,
 ) -> SpaceEstimateReport:
+    logger.info("Scanning JPEGs for create-dataset space estimate…")
     raw_data_dir = Path(raw_data_dir)
     paths = collect_dataset_jpeg_paths(raw_data_dir)
     fp = _fingerprint_files(paths, Path(raw_data_dir))
