@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import logging
 import random
+import threading
 from pathlib import Path
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QCheckBox,
     QFormLayout,
@@ -40,14 +42,27 @@ from mb.utils.constants import DataPipelineSubcommand, ModelBuilderTaskType
 from mb.utils.recent_run_history import append_recent_run
 from mb.utils.snapshot import find_latest_unified_snapshot_path
 from mb.utils.translations import _
+from ui.lib.qt_log_bridge import QtLogBridge, tee_logger_to_qt
 from ui.lib.fast_directory_picker_qt import get_existing_directory, get_open_file_name
 from ui.lib.form_layout_i18n import apply_qform_label_column
 from ui.lib.task_progress import attach_progress_dialog
 from ui.lib.tooltip_qt import ToolTip, create_tooltip
+from ui.main_thread_bridge import MainThreadBridge
 from ui.task_context import LongTaskContext
 from ui.task_runner import start_task
 
 logger = logging.getLogger(__name__)
+
+# Loggers for ``mb data`` steps (see ``setup_logging(script_name=...)`` in each module). Also
+# ``modelbuilder.mb.space_estimate`` (see :func:`mb.utils.logging_setup.get_logger`) for disk
+# heuristics during convert / create-dataset — same logger as console/file when running the GUI.
+_DATA_COMMAND_LOGGERS: dict[ModelBuildStepCommand, tuple[str, ...]] = {
+    ModelBuildStepCommand.GATHER: ("modelbuilder.mb.gather",),
+    ModelBuildStepCommand.CONVERT: ("modelbuilder.mb.convert", "modelbuilder.mb.space_estimate"),
+    ModelBuildStepCommand.DEDUPLICATE: ("modelbuilder.mb.deduplicate_images",),
+    ModelBuildStepCommand.UPSCALE: ("modelbuilder.mb.upscale_small_images",),
+    ModelBuildStepCommand.CREATE_DATASET: ("modelbuilder.mb.create_datasets", "modelbuilder.mb.space_estimate"),
+}
 
 
 class DataPage(QWidget):
@@ -92,6 +107,13 @@ class DataPage(QWidget):
         self.output = QTextEdit()
         self.output.setReadOnly(True)
         root.addWidget(self.output, 1)
+
+        # Marshals dialogs / label updates from QThreadPool workers onto the GUI thread (see
+        # :meth:`_worker_precheck_convert_or_dataset` — heavy space estimates no longer run on the main thread).
+        self._gui_bridge = MainThreadBridge(self)
+
+        self._data_log_bridge = QtLogBridge(self)
+        self._data_log_bridge.line.connect(self._append, Qt.ConnectionType.QueuedConnection)
 
         self.btn_validate.clicked.connect(self._validate_inputs)
         self.btn_run.clicked.connect(self._run_current_command)
@@ -631,80 +653,106 @@ class DataPage(QWidget):
             return str(p.resolve()) if p else None
         return None
 
-    def _space_precheck_ui(self, command: ModelBuildStepCommand, payload: dict) -> bool:
-        """
-        Run heuristic disk estimate before convert / create-dataset; append to log.
-        Returns False if the user cancels a low-space warning.
-        """
-        w = self.window()
-        pipe = w._effective_pipeline_config_path() if hasattr(w, "_effective_pipeline_config_path") else None
-        reload_pipeline_config(pipe, force=True)
+    def _apply_space_estimate_to_ui(self, message: str) -> None:
+        self._last_space_estimate_msg = message
+        self._space_estimate_status.setText(_("Latest space check") + ": " + message)
+        self._append(f"[space] {message}")
+
+    def _run_space_estimate(self, command: ModelBuildStepCommand, payload: dict):
+        """Disk-heavy; call from worker thread or from tests on the GUI thread."""
+        reload_pipeline_config(payload.get("pipeline_config_path"), force=True)
         mt = ModelType.from_pipeline_value(get_pipeline_config().get("model.default_type"))
         if command == ModelBuildStepCommand.CONVERT:
-            r = run_convert_estimate(payload["raw_data_dir"], mt)
-            self._last_space_estimate_msg = r.message
-            self._space_estimate_status.setText(_("Latest space check") + ": " + r.message)
-            self._append(f"[space] {r.message}")
-            if r.ok or payload.get("skip_space_check"):
-                return True
-            if qt_alert(
-                self,
-                _("Insufficient disk space (estimate)"),
-                _("{msg}\n\nContinue anyway?").format(msg=r.message),
-                kind="askyesno",
-            ):
-                payload["skip_space_check"] = True
-                return True
-            return False
+            return run_convert_estimate(payload["raw_data_dir"], mt)
+        return run_create_dataset_estimate(payload["raw_data_dir"], payload["data_dir"])
+
+    def _space_precheck_ui(self, command: ModelBuildStepCommand, payload: dict) -> bool:
+        """
+        Run heuristic disk estimate (main-thread / tests). For the Run button, precheck runs
+        in the worker via :meth:`_worker_precheck_convert_or_dataset` so the UI stays responsive.
+        """
+        if command not in (ModelBuildStepCommand.CONVERT, ModelBuildStepCommand.CREATE_DATASET):
+            return True
+        r = self._run_space_estimate(command, payload)
+        self._apply_space_estimate_to_ui(r.message)
+        if r.ok or payload.get("skip_space_check"):
+            return True
+        if qt_alert(
+            self,
+            _("Insufficient disk space (estimate)"),
+            _("{msg}\n\nContinue anyway?").format(msg=r.message),
+            kind="askyesno",
+        ):
+            payload["skip_space_check"] = True
+            return True
+        return False
+
+    def _worker_precheck_convert_or_dataset(self, command: ModelBuildStepCommand, payload: dict) -> bool:
+        """
+        Space estimate + optional dialogs for convert / create-dataset, from QThreadPool worker.
+        Heavy work runs here; UI updates and ``qt_alert`` use :attr:`_gui_bridge`.
+        """
+        if command not in (ModelBuildStepCommand.CONVERT, ModelBuildStepCommand.CREATE_DATASET):
+            return True
+        r = self._run_space_estimate(command, payload)
+        self._gui_bridge.invoke(lambda: self._apply_space_estimate_to_ui(r.message))
+        skip = bool(payload.get("skip_space_check"))
+        if not r.ok and not skip:
+
+            def _ask_low_space() -> bool:
+                return bool(
+                    qt_alert(
+                        self,
+                        _("Insufficient disk space (estimate)"),
+                        _("{msg}\n\nContinue anyway?").format(msg=r.message),
+                        kind="askyesno",
+                    )
+                )
+
+            if not self._gui_bridge.invoke(_ask_low_space):
+                return False
+            payload["skip_space_check"] = True
+
         if command == ModelBuildStepCommand.CREATE_DATASET:
-            r = run_create_dataset_estimate(payload["raw_data_dir"], payload["data_dir"])
-            self._last_space_estimate_msg = r.message
-            self._space_estimate_status.setText(_("Latest space check") + ": " + r.message)
-            self._append(f"[space] {r.message}")
-            if r.ok or payload.get("skip_space_check"):
+
+            def _create_dataset_guards() -> bool:
+                if check_target_external_storage(
+                    logger, payload["data_dir"], override=payload["allow_external_storage"]
+                ):
+                    qt_alert(
+                        self,
+                        _("External storage"),
+                        _(
+                            'The target data directory is on external or removable storage, and '
+                            '"Allow external storage" is not checked. Enable it on the Create Dataset tab '
+                            "or choose a different data directory."
+                        ),
+                        kind="warning",
+                    )
+                    return False
+                if check_same_drive(payload["raw_data_dir"], payload["data_dir"]):
+                    if not qt_alert(
+                        self,
+                        _("Confirm"),
+                        _("Source and target are on the same drive. Continue dataset creation?"),
+                        kind="askyesno",
+                    ):
+                        return False
                 return True
-            if qt_alert(
-                self,
-                _("Insufficient disk space (estimate)"),
-                _("{msg}\n\nContinue anyway?").format(msg=r.message),
-                kind="askyesno",
-            ):
-                payload["skip_space_check"] = True
-                return True
-            return False
+
+            return bool(self._gui_bridge.invoke(_create_dataset_guards))
+
         return True
 
     def _run_current_command(self) -> None:
         command = self._current_command()
         payload = self._collect_inputs(command)
-
-        if command in (ModelBuildStepCommand.CONVERT, ModelBuildStepCommand.CREATE_DATASET):
-            if not self._space_precheck_ui(command, payload):
-                return
-
-        if command == ModelBuildStepCommand.CREATE_DATASET:
-            if check_target_external_storage(
-                logger, payload["data_dir"], override=payload["allow_external_storage"]
-            ):
-                qt_alert(
-                    self,
-                    _("External storage"),
-                    _(
-                        'The target data directory is on external or removable storage, and '
-                        '"Allow external storage" is not checked. Enable it on the Create Dataset tab '
-                        "or choose a different data directory."
-                    ),
-                    kind="warning",
-                )
-                return
-            if check_same_drive(payload["raw_data_dir"], payload["data_dir"]):
-                if not qt_alert(
-                    self,
-                    _("Confirm"),
-                    _("Source and target are on the same drive. Continue dataset creation?"),
-                    kind="askyesno",
-                ):
-                    return
+        w = self.window()
+        payload["pipeline_config_path"] = (
+            w._effective_pipeline_config_path()
+            if w is not None and hasattr(w, "_effective_pipeline_config_path")
+            else None
+        )
 
         self._append(f"[run] mb data {command.value}")
         self._pending_run_summary = f"mb data {command.value}"
@@ -726,6 +774,19 @@ class DataPage(QWidget):
 
     def _execute_data_command(self, ctx: LongTaskContext, command: ModelBuildStepCommand, payload: dict) -> bool:
         ce = ctx.cancel_event
+        log_names = _DATA_COMMAND_LOGGERS.get(command, ())
+        if log_names:
+            with tee_logger_to_qt(self._data_log_bridge, *log_names):
+                return self._execute_data_command_impl(ce, command, payload)
+        return self._execute_data_command_impl(ce, command, payload)
+
+    def _execute_data_command_impl(
+        self, ce: threading.Event, command: ModelBuildStepCommand, payload: dict
+    ) -> bool:
+        if command in (ModelBuildStepCommand.CONVERT, ModelBuildStepCommand.CREATE_DATASET):
+            if not self._worker_precheck_convert_or_dataset(command, payload):
+                return False
+
         if command == ModelBuildStepCommand.GATHER:
             layout = data_class_layout_defaults()
             mt = ModelType.from_pipeline_value(get_pipeline_config().get("model.default_type"))

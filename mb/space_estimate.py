@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import logging
 from dataclasses import dataclass, asdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -28,9 +27,10 @@ from mb.data.file_types import configured_media_suffixes, configured_video_suffi
 from mb.data.media_utils import classify_convert_source
 from mb.models.types import ModelType, VisualMediaSourceType
 from mb.pipeline_config import get_pipeline_config
+from mb.utils.logging_setup import get_logger
 from mb.utils.snapshot import UnifiedSnapshot, find_latest_unified_snapshot_path
 
-logger = logging.getLogger(__name__)
+logger = get_logger("mb.space_estimate")
 
 # Heuristic overhead on top of summed source sizes (new JPEGs beside originals).
 _CONVERT_SIZE_FACTOR = 1.12

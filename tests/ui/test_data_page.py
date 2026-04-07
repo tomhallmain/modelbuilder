@@ -67,7 +67,7 @@ def test_data_page_space_precheck_updates_status_and_log(
 
     ok_c = page._space_precheck_ui(
         ModelBuildStepCommand.CONVERT,
-        {"raw_data_dir": raw, "skip_space_check": False},
+        {"raw_data_dir": raw, "skip_space_check": False, "pipeline_config_path": None},
     )
     assert ok_c is True
     status_c = page._space_estimate_status.text()
@@ -78,7 +78,12 @@ def test_data_page_space_precheck_updates_status_and_log(
     page.output.clear()
     ok_d = page._space_precheck_ui(
         ModelBuildStepCommand.CREATE_DATASET,
-        {"raw_data_dir": raw, "data_dir": out, "skip_space_check": False},
+        {
+            "raw_data_dir": raw,
+            "data_dir": out,
+            "skip_space_check": False,
+            "pipeline_config_path": None,
+        },
     )
     assert ok_d is True
     status_d = page._space_estimate_status.text()
