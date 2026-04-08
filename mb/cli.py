@@ -205,6 +205,15 @@ def create_parser() -> argparse.ArgumentParser:
             "(heuristic estimate; not recommended)."
         ),
     )
+    convert_parser.add_argument(
+        "--run-id",
+        type=str,
+        default=None,
+        help=_(
+            "Unified snapshot run ID to update (snapshot_<run_id>.json under raw data). "
+            "Omit to start a new snapshot with a new run ID."
+        ),
+    )
 
     # mb data deduplicate
     dedup_parser = data_subparsers.add_parser(
@@ -623,7 +632,10 @@ def handle_data_convert(args):
             getattr(args, "model_type", None) or get_pipeline_config().get("model.default_type")
         )
         converter = ImageConverter(raw_data_dir=args.raw_data_dir, model_type=mt)
-        success = converter.run(skip_space_check=getattr(args, "skip_space_check", False))
+        success = converter.run(
+            skip_space_check=getattr(args, "skip_space_check", False),
+            run_id=getattr(args, "run_id", None),
+        )
         return 0 if success else 1
     except Exception as e:
         logger.error(f"Error in data convert: {e}", exc_info=True)

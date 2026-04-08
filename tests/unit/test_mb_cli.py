@@ -76,7 +76,9 @@ def test_data_convert_help_lists_raw_data_dir(capsys: pytest.CaptureFixture[str]
     with pytest.raises(SystemExit) as exc:
         main(["data", "convert", "--help"])
     assert exc.value.code == 0
-    assert "--raw-data-dir" in capsys.readouterr().out
+    out = capsys.readouterr().out
+    assert "--raw-data-dir" in out
+    assert "--run-id" in out
 
 
 def test_convert_command_help_lists_target_choices(capsys: pytest.CaptureFixture[str]) -> None:

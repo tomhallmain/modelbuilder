@@ -29,7 +29,11 @@ except ImportError:
 from mb.utils.logging_setup import log_completion_info, log_startup_info, setup_logging
 from mb.cancellation import check_cancel_event
 from mb.utils.snapshot import (
-    UnifiedSnapshot, generate_run_id, save_unified_snapshot, preload_gather_cache
+    UnifiedSnapshot,
+    find_unified_snapshot,
+    generate_run_id,
+    preload_gather_cache,
+    save_unified_snapshot,
 )
 from mb.data.class_layout import (
     CONVERTED_MEDIA_SUBDIR,
@@ -89,6 +93,7 @@ class ImageConverter:
         # Unified snapshot (will be created or loaded)
         self.unified_snapshot: Optional[UnifiedSnapshot] = None
         self.run_id: Optional[str] = None
+        self._requested_run_id: Optional[str] = None
         self._rng: random.Random = random.Random()
 
     def _scan_suffixes(self) -> List[str]:
@@ -457,14 +462,21 @@ class ImageConverter:
         cancel_event: Optional[threading.Event] = None,
         *,
         skip_space_check: bool = False,
+        run_id: Optional[str] = None,
     ) -> bool:
-        """Main execution method. *cancel_event* is checked between classes and during file loops."""
+        """Main execution method. *cancel_event* is checked between classes and during file loops.
+
+        If *run_id* is set, loads ``snapshot_<run_id>.json`` under ``raw_data_dir`` and updates
+        that unified snapshot in place. If omitted, generates a new run ID and snapshot file.
+        """
         self._cancel_event = cancel_event
         self._skip_space_check = skip_space_check
+        self._requested_run_id = (str(run_id).strip() or None) if run_id is not None else None
         try:
             return self._run_impl()
         finally:
             self._cancel_event = None
+            self._requested_run_id = None
 
     def _run_impl(self) -> bool:
         log_startup_info(logger, "Image to JPEG conversion process")
@@ -476,10 +488,31 @@ class ImageConverter:
         if not self.validate_configuration():
             return False
 
+        resume_rid = getattr(self, "_requested_run_id", None)
+        snapshot_for_check: Optional[UnifiedSnapshot] = None
+        if resume_rid:
+            loaded = find_unified_snapshot(
+                [self.raw_data_dir], run_id=resume_rid, logger=logger
+            )
+            if loaded is None:
+                logger.error(
+                    "No unified snapshot found for run_id %r under %s "
+                    "(expected snapshot_%s.json).",
+                    resume_rid,
+                    self.raw_data_dir,
+                    resume_rid,
+                )
+                return False
+            snapshot_for_check = loaded
+            logger.info(
+                "Loaded unified snapshot for run_id %s — will update the same snapshot file",
+                loaded.run_id,
+            )
+
         allowed, space_report = check_convert_allowed(
             self.raw_data_dir,
             self.model_type,
-            snapshot=None,
+            snapshot=snapshot_for_check,
             skip_space_check=getattr(self, "_skip_space_check", False),
         )
         if not allowed:
@@ -489,16 +522,17 @@ class ImageConverter:
             )
             return False
         self._last_space_report = space_report
-        
-        # Create new unified snapshot with new run ID
-        # This is the first step in the pipeline, so always create a new snapshot
-        # Snapshot is stored at raw_data level, not per-class
-        self.run_id = generate_run_id()
-        logger.info(f"Creating new unified snapshot with run_id: {self.run_id}")
-        self.unified_snapshot = UnifiedSnapshot(
-            run_id=self.run_id,
-            raw_data_dir=str(self.raw_data_dir)
-        )
+
+        if resume_rid:
+            self.unified_snapshot = snapshot_for_check
+            self.run_id = self.unified_snapshot.run_id
+        else:
+            self.run_id = generate_run_id()
+            logger.info(f"Creating new unified snapshot with run_id: {self.run_id}")
+            self.unified_snapshot = UnifiedSnapshot(
+                run_id=self.run_id,
+                raw_data_dir=str(self.raw_data_dir),
+            )
         merge_convert_estimate_into_snapshot(self.unified_snapshot, self._last_space_report)
 
         # Preload gather cache for faster hash lookups

@@ -163,7 +163,7 @@ class DataPage(QWidget):
         )
         apply_qform_label_column(
             self._convert_form,
-            [_("Raw data dir"), _("Format (jpeg/jpg)"), ""],
+            [_("Raw data dir"), _("Format (jpeg/jpg)"), _("Run ID (optional)"), ""],
         )
         apply_qform_label_column(self._dedup_form, [_("Raw data dir")])
         apply_qform_label_column(
@@ -230,6 +230,7 @@ class DataPage(QWidget):
             "convert": {
                 "raw_data_dir": self.convert_raw_data_dir.text(),
                 "format": self.convert_format.text(),
+                "run_id": self.convert_run_id.text(),
                 "skip_space": bool(self.convert_skip_space.isChecked()),
             },
             "dedup": {"raw_data_dir": self.dedup_raw_data_dir.text()},
@@ -275,6 +276,7 @@ class DataPage(QWidget):
             if isinstance(c, dict):
                 self.convert_raw_data_dir.setText(str(c.get("raw_data_dir", "")))
                 self.convert_format.setText(str(c.get("format", "jpeg")))
+                self.convert_run_id.setText(str(c.get("run_id", "")))
                 self.convert_skip_space.setChecked(bool(c.get("skip_space", False)))
 
             d = state.get("dedup") or {}
@@ -346,8 +348,10 @@ class DataPage(QWidget):
         self._convert_form = form
         self.convert_raw_data_dir = QLineEdit("raw_data")
         self.convert_format = QLineEdit("jpeg")
+        self.convert_run_id = QLineEdit()
         form.addRow(_("Raw data dir"), self._path_row(self.convert_raw_data_dir, select_dir=True))
         form.addRow(_("Format (jpeg/jpg)"), self.convert_format)
+        form.addRow(_("Run ID (optional)"), self.convert_run_id)
         self.convert_skip_space = QCheckBox(
             _("Skip free-space check (not recommended; use if you accept the risk)")
         )
@@ -609,6 +613,7 @@ class DataPage(QWidget):
             return {
                 "raw_data_dir": Path(self.convert_raw_data_dir.text().strip() or "raw_data"),
                 "format": fmt,
+                "run_id": self.convert_run_id.text().strip() or None,
                 "skip_space_check": bool(self.convert_skip_space.isChecked()),
             }
         if command == ModelBuildStepCommand.DEDUPLICATE:
@@ -825,6 +830,7 @@ class DataPage(QWidget):
                 converter.run(
                     cancel_event=ce,
                     skip_space_check=payload.get("skip_space_check", False),
+                    run_id=payload.get("run_id"),
                 )
             )
         if command == ModelBuildStepCommand.DEDUPLICATE:
