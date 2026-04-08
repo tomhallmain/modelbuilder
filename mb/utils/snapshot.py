@@ -539,10 +539,23 @@ def find_latest_unified_snapshot_path(search_paths: List[Path]) -> Optional[Path
         except TypeError:
             continue
         if p.is_dir():
-            candidates.extend(p.glob("snapshot_*.json"))
+            try:
+                candidates.extend(p.glob("snapshot_*.json"))
+            except OSError:
+                continue
     if not candidates:
         return None
-    return max(candidates, key=lambda x: x.stat().st_mtime)
+
+    def _mtime_key(path: Path) -> float:
+        try:
+            return path.stat().st_mtime
+        except OSError:
+            return -1.0
+
+    try:
+        return max(candidates, key=_mtime_key)
+    except ValueError:
+        return None
 
 
 def format_latest_unified_snapshot_summary(search_paths: List[Path]) -> str:

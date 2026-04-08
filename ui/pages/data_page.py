@@ -641,16 +641,19 @@ class DataPage(QWidget):
         """Best-effort path to the newest ``snapshot_*.json`` after convert or create-dataset."""
         cmd = getattr(self, "_pending_command", None)
         payload = getattr(self, "_pending_payload", None) or {}
-        if cmd == ModelBuildStepCommand.CONVERT:
-            raw = payload.get("raw_data_dir")
-            p = find_latest_unified_snapshot_path([raw]) if raw else None
-            return str(p.resolve()) if p else None
-        if cmd == ModelBuildStepCommand.CREATE_DATASET:
-            data_dir = payload.get("data_dir")
-            raw = payload.get("raw_data_dir")
-            paths = [x for x in (data_dir, raw) if x]
-            p = find_latest_unified_snapshot_path(paths) if paths else None
-            return str(p.resolve()) if p else None
+        try:
+            if cmd == ModelBuildStepCommand.CONVERT:
+                raw = payload.get("raw_data_dir")
+                p = find_latest_unified_snapshot_path([raw]) if raw else None
+                return str(p.resolve()) if p else None
+            if cmd == ModelBuildStepCommand.CREATE_DATASET:
+                data_dir = payload.get("data_dir")
+                raw = payload.get("raw_data_dir")
+                paths = [x for x in (data_dir, raw) if x]
+                p = find_latest_unified_snapshot_path(paths) if paths else None
+                return str(p.resolve()) if p else None
+        except OSError as exc:
+            logger.warning("Could not resolve latest snapshot path: %s", exc)
         return None
 
     def _apply_space_estimate_to_ui(self, message: str) -> None:

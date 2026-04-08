@@ -51,8 +51,20 @@ def attach_progress_dialog(
                 v = int(p * 100) if p <= 1.0 else int(p)
                 dlg.setValue(min(100, max(0, v)))
 
+    # TaskRunnable emits *success* (or *error* / *cancelled*) and then always emits *done*
+    # from ``finally``. Closing on both would call :meth:`QProgressDialog.reset` twice on the
+    # happy path, which can destabilize or crash Qt on Windows (modal teardown + second reset).
+    closed = False
+
     def close_dlg(*_args: object) -> None:
-        dlg.reset()
+        nonlocal closed
+        if closed:
+            return
+        closed = True
+        try:
+            dlg.reset()
+        except Exception:
+            pass
 
     ct = Qt.ConnectionType.QueuedConnection
     handle.signals.progress.connect(on_progress, ct)
