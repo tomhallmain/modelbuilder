@@ -137,7 +137,7 @@ def setup_logging(
     script_name: Optional[str] = None,
 ) -> logging.Logger:
     """
-    Configure logging for a CLI script or subcommand.
+    Configure logging for a CLI command or subcommand.
 
     ``log_file`` is accepted for API compatibility; file output always uses the
     shared daily log under ``%APPDATA%/ModelBuilder/logs`` (Windows) or
@@ -145,7 +145,7 @@ def setup_logging(
     """
     if script_name is None:
         script_name = Path(sys.argv[0]).stem if sys.argv else "mb"
-    _ = log_file  # reserved for future per-script log paths
+    _ = log_file  # reserved for future per-job log paths
     safe = _sanitize_cli_logger_suffix(script_name)
     logger = get_logger(f"mb.{safe}")
     logger.setLevel(log_level)
@@ -162,12 +162,12 @@ def _first_log_file_path(logger: logging.Logger) -> str:
     return "Not configured"
 
 
-def log_startup_info(logger: logging.Logger, script_description: Optional[str] = None) -> None:
+def log_startup_info(logger: logging.Logger, job_description: Optional[str] = None) -> None:
     logger.info("=" * 80)
-    logger.info("SCRIPT STARTUP")
+    logger.info("JOB STARTUP")
     logger.info("=" * 80)
-    if script_description:
-        logger.info(f"Script: {script_description}")
+    if job_description:
+        logger.info(f"Job: {job_description}")
     logger.info(f"Python version: {sys.version}")
     logger.info(f"Working directory: {Path.cwd()}")
     logger.info(f"Log file: {_first_log_file_path(logger)}")
@@ -179,12 +179,12 @@ def log_completion_info(
     message: Optional[str] = None,
 ) -> None:
     logger.info("=" * 80)
-    logger.info("SCRIPT COMPLETION")
+    logger.info("JOB COMPLETION")
     logger.info("=" * 80)
     if success:
-        logger.info("Script completed successfully")
+        logger.info("Job completed successfully")
     else:
-        logger.error("Script completed with errors")
+        logger.error("Job completed with errors")
     if message:
         logger.info(f"Message: {message}")
 

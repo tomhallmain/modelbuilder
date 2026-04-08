@@ -632,6 +632,5 @@ def save_unified_snapshot(snapshot: UnifiedSnapshot, output_dir: Path, logger=No
     if snapshot.save(snapshot_path):
         if logger:
             logger.info(f"Unified snapshot saved to: {snapshot_path}")
-            logger.info(f"Run ID: {snapshot.run_id}")
         return snapshot_path
     return None

@@ -437,12 +437,13 @@ class ImageConverter:
         
         if self.stats['errors']:
             logger.info("\nERRORS ENCOUNTERED:")
+            max_detail = 100
             for error_type, errors in self.stats['errors'].items():
                 logger.info(f"  {error_type}: {len(errors)} errors")
-                for error in errors[:5]:  # Show first 5 errors
+                for error in errors[:max_detail]:
                     logger.info(f"    - {error}")
-                if len(errors) > 5:
-                    logger.info(f"    ... and {len(errors) - 5} more")
+                if len(errors) > max_detail:
+                    logger.info(f"    ... and {len(errors) - max_detail} more")
         
         total_processed = (
             self.stats["files_converted"]
@@ -490,7 +491,7 @@ class ImageConverter:
         self._last_space_report = space_report
         
         # Create new unified snapshot with new run ID
-        # This is the first script in the pipeline, so always create a new snapshot
+        # This is the first step in the pipeline, so always create a new snapshot
         # Snapshot is stored at raw_data level, not per-class
         self.run_id = generate_run_id()
         logger.info(f"Creating new unified snapshot with run_id: {self.run_id}")
@@ -561,8 +562,10 @@ class ImageConverter:
         
         # Save unified snapshot at raw_data level (single file for all classes)
         snapshot_path = save_unified_snapshot(self.unified_snapshot, self.raw_data_dir, logger)
-        logger.info(f"IMPORTANT: Run ID for this pipeline: {self.run_id}")
-        logger.info(f"Subsequent scripts should use this run ID to update the same snapshot file")
+        logger.info(f"Run ID for this pipeline: {self.run_id}")
+        logger.info(
+            "Subsequent jobs should use this run ID to update the same snapshot file"
+        )
         
         # Print summary
         self.print_summary()
