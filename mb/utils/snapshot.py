@@ -591,9 +591,10 @@ class UnifiedSnapshot:
             return False
     
     @classmethod
-    def load(cls, snapshot_path: Path) -> Optional['UnifiedSnapshot']:
+    def load(cls, snapshot_path: Path, *, silent: bool = False) -> Optional['UnifiedSnapshot']:
         """Load unified snapshot from JSON file."""
-        logger.info(f"Loading unified snapshot from: {snapshot_path}")
+        if not silent:
+            logger.info(f"Loading unified snapshot from: {snapshot_path}")
         if not snapshot_path.exists():
             return None
         
@@ -713,7 +714,7 @@ def find_unified_snapshot(search_paths: List[Path], run_id: Optional[str] = None
             # Look for specific run ID
             snapshot_path = search_path / f"snapshot_{run_id}.json"
             if snapshot_path.exists():
-                snapshot = UnifiedSnapshot.load(snapshot_path)
+                snapshot = UnifiedSnapshot.load(snapshot_path, silent=True)
                 if snapshot:
                     if logger:
                         logger.info(f"Loaded unified snapshot with run_id {run_id} from: {snapshot_path}")
@@ -724,7 +725,7 @@ def find_unified_snapshot(search_paths: List[Path], run_id: Optional[str] = None
             if snapshot_files:
                 # Try to load the most recent one
                 for snapshot_path in reversed(snapshot_files):
-                    snapshot = UnifiedSnapshot.load(snapshot_path)
+                    snapshot = UnifiedSnapshot.load(snapshot_path, silent=True)
                     if snapshot:
                         if logger:
                             logger.info(f"Loaded unified snapshot with run_id {snapshot.run_id} from: {snapshot_path}")
@@ -732,6 +733,26 @@ def find_unified_snapshot(search_paths: List[Path], run_id: Optional[str] = None
     
     if logger:
         logger.info("No unified snapshot found")
+    return None
+
+
+def find_loadable_unified_snapshot_path_for_run_id(
+    search_paths: List[Path], run_id: str
+) -> Optional[Path]:
+    """
+    Return the path to the first ``snapshot_<run_id>.json`` under *search_paths* (in order)
+    that :meth:`UnifiedSnapshot.load` accepts, or ``None`` if none found.
+
+    Used by the Data page to mirror :func:`find_unified_snapshot` without logging on failure.
+    """
+    for search_path in search_paths:
+        if not search_path.exists():
+            continue
+        candidate = search_path / f"snapshot_{run_id}.json"
+        if not candidate.is_file():
+            continue
+        if UnifiedSnapshot.load(candidate, silent=True) is not None:
+            return candidate
     return None
 
 

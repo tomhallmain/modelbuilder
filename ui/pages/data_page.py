@@ -24,7 +24,7 @@ from PySide6.QtWidgets import (
 )
 
 from mb.data.convert import ImageConverter
-from mb.data.dataset import DatasetCreator
+from mb.data.dataset import DatasetCreator, unified_snapshot_search_paths_for_dataset
 from mb.data.deduplicate import ImageDeduplicator
 from mb.data.gather import ImageGatherer
 from mb.data.upscale import ImageUpscaler
@@ -40,7 +40,10 @@ from mb.utils.storage import check_same_drive, check_target_external_storage
 from ui.lib.qt_alert import qt_alert, qt_operation_error
 from mb.utils.constants import DataPipelineSubcommand, ModelBuilderTaskType
 from mb.utils.recent_run_history import append_recent_run
-from mb.utils.snapshot import find_latest_unified_snapshot_path
+from mb.utils.snapshot import (
+    find_latest_unified_snapshot_path,
+    find_loadable_unified_snapshot_path_for_run_id,
+)
 from mb.utils.translations import _
 from ui.lib.qt_log_bridge import QtLogBridge, tee_logger_to_qt
 from ui.lib.fast_directory_picker_qt import get_existing_directory, get_open_file_name
@@ -119,6 +122,15 @@ class DataPage(QWidget):
         self.btn_run.clicked.connect(self._run_current_command)
         self.tabs.currentChanged.connect(self._validate_inputs)
 
+        for w in (
+            self.convert_raw_data_dir,
+            self.convert_run_id,
+            self.dataset_raw_data_dir,
+            self.dataset_data_dir,
+            self.dataset_run_id,
+        ):
+            w.textChanged.connect(self._sync_data_tab_run_without_log)
+
         self.retranslate_ui(refresh_output=False)
 
     def retranslate_ui(self, *, refresh_output: bool = True) -> None:
@@ -189,6 +201,7 @@ class DataPage(QWidget):
         self._apply_pipeline_tab_tooltips()
         self._apply_pipeline_group_tooltips()
         self._apply_intro_tooltip()
+        self._refresh_run_id_field_tooltips()
         for edit in (
             self.gather_source,
             self.gather_target_dir,
@@ -542,6 +555,52 @@ class DataPage(QWidget):
     def _append(self, msg: str) -> None:
         self.output.append(msg)
 
+    def _refresh_run_id_field_tooltips(self) -> None:
+        """Explain expected snapshot filename and search paths from current form values."""
+        raw_c = Path(self.convert_raw_data_dir.text().strip() or "raw_data")
+        self.convert_run_id.setToolTip(
+            _(
+                "Optional. Leave empty to start a new conversion run and write a new snapshot file.\n\n"
+                "If set, the job resumes that run: a unified snapshot file must exist and load correctly, named:\n"
+                "  snapshot_<run_id>.json\n"
+                "placed directly under the raw data directory:\n"
+                "  {raw}\n"
+                "Example: snapshot_20260408_abc123.json"
+            ).format(raw=raw_c)
+        )
+        raw_d = Path(self.dataset_raw_data_dir.text().strip() or "raw_data")
+        data_d = Path(self.dataset_data_dir.text().strip() or "data")
+        if raw_d.exists():
+            paths = unified_snapshot_search_paths_for_dataset(raw_d, data_d)
+            path_lines = "\n".join(f"  {i + 1}. {p}" for i, p in enumerate(paths))
+        else:
+            path_lines = _(
+                "  (Raw data directory must exist to list class folders; until then, "
+                "search still includes the raw dir, its parent, and the output data dir.)"
+            )
+        self.dataset_run_id.setToolTip(
+            _(
+                "Optional. Leave empty to use the latest unified snapshot found along the search order below.\n\n"
+                "If set, the file must exist, load correctly, and be named:\n"
+                "  snapshot_<run_id>.json\n"
+                "The job searches these directories in order (first match wins):\n"
+                "{paths}\n"
+                "Output data directory (for context): {data_dir}"
+            ).format(paths=path_lines, data_dir=data_d)
+        )
+
+    def _sync_data_tab_run_without_log(self) -> None:
+        """Update Run ID tooltips and Run button state without appending to the output log."""
+        self._refresh_run_id_field_tooltips()
+        command = self._current_command()
+        try:
+            self._collect_inputs(command)
+            self.btn_run.setEnabled(True)
+            self.btn_run.setToolTip("")
+        except ValueError as exc:
+            self.btn_run.setEnabled(False)
+            self.btn_run.setToolTip(str(exc))
+
     def _set_busy(self, busy: bool) -> None:
         self.btn_validate.setEnabled(not busy)
         self.btn_run.setEnabled(not busy and self._can_run())
@@ -563,6 +622,7 @@ class DataPage(QWidget):
             return False
 
     def _validate_inputs(self) -> None:
+        self._refresh_run_id_field_tooltips()
         command = self._current_command()
         try:
             self._collect_inputs(command)
@@ -610,10 +670,25 @@ class DataPage(QWidget):
             fmt = self.convert_format.text().strip().lower() or "jpeg"
             if fmt not in {"jpeg", "jpg"}:
                 raise ValueError(_("Format must be jpeg or jpg."))
+            raw_data_dir = Path(self.convert_raw_data_dir.text().strip() or "raw_data")
+            run_id = self.convert_run_id.text().strip() or None
+            if run_id:
+                if not raw_data_dir.exists():
+                    raise ValueError(
+                        _("Raw data directory must exist when a Run ID is set (snapshot is loaded from there).")
+                    )
+                if find_loadable_unified_snapshot_path_for_run_id([raw_data_dir], run_id) is None:
+                    raise ValueError(
+                        _("No loadable unified snapshot for Run ID {rid!r}. Expected {name} under:\n  {dir}").format(
+                            rid=run_id,
+                            name=f"snapshot_{run_id}.json",
+                            dir=raw_data_dir,
+                        )
+                    )
             return {
-                "raw_data_dir": Path(self.convert_raw_data_dir.text().strip() or "raw_data"),
+                "raw_data_dir": raw_data_dir,
                 "format": fmt,
-                "run_id": self.convert_run_id.text().strip() or None,
+                "run_id": run_id,
                 "skip_space_check": bool(self.convert_skip_space.isChecked()),
             }
         if command == ModelBuildStepCommand.DEDUPLICATE:
@@ -629,12 +704,22 @@ class DataPage(QWidget):
             data_dir = Path(self.dataset_data_dir.text().strip() or "data")
             if not raw_data_dir.exists():
                 raise ValueError(_("Raw data dir does not exist."))
+            run_id = self.dataset_run_id.text().strip() or None
+            if run_id:
+                search_paths = unified_snapshot_search_paths_for_dataset(raw_data_dir, data_dir)
+                if find_loadable_unified_snapshot_path_for_run_id(search_paths, run_id) is None:
+                    raise ValueError(
+                        _(
+                            "No loadable unified snapshot for Run ID {rid!r} in the search paths "
+                            "(see the Run ID field tooltip for locations checked)."
+                        ).format(rid=run_id)
+                    )
             return {
                 "raw_data_dir": raw_data_dir,
                 "data_dir": data_dir,
                 "test_per_class": int(self.dataset_test_per_class.value()),
                 "seed": int(self.dataset_seed.value()) if self.dataset_seed.value() > 0 else None,
-                "run_id": self.dataset_run_id.text().strip() or None,
+                "run_id": run_id,
                 "balance_train": bool(self.dataset_balance_train.isChecked()),
                 "max_train_per_class": int(self.dataset_max_train.value()) if self.dataset_max_train.value() > 0 else None,
                 "allow_external_storage": bool(self.dataset_allow_external.isChecked()),

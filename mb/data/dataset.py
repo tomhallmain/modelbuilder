@@ -102,6 +102,32 @@ def min_area_pixels_for_pipeline(image_size: int) -> int:
     return max(32 * 32, int(MIN_AREA_FRACTION_OF_IMAGE_SIZE_SQUARED * s * s))
 
 
+def unified_snapshot_search_paths_for_dataset(raw_data_dir: Path, data_dir: Path) -> List[Path]:
+    """
+    Same directory ordering as :meth:`DatasetCreator._run_impl` when calling
+    :func:`~mb.utils.snapshot.find_unified_snapshot` with a specific ``run_id``.
+    """
+    pc = get_pipeline_config()
+    qual = normalize_qualifying_subdir(pc.get("data.class_qualifying_subdir"))
+    ex = pc.get("data.class_names")
+    explicit_list = ex if isinstance(ex, list) else None
+    try:
+        class_names = discover_class_names(
+            raw_data_dir,
+            explicit=explicit_list,
+            class_qualifying_subdir=qual,
+        )
+    except Exception:
+        class_names = []
+
+    raw_data_dir = Path(raw_data_dir)
+    data_dir = Path(data_dir)
+    search_paths: List[Path] = [raw_data_dir, raw_data_dir.parent, data_dir]
+    for class_name in class_names:
+        search_paths.append(raw_data_dir / class_name)
+    return search_paths
+
+
 class DatasetCreator:
     """Handles the creation of training and test datasets."""
     
