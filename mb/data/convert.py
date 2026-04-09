@@ -31,6 +31,7 @@ from mb.utils.logging_setup import log_completion_info, log_startup_info, setup_
 from mb.cancellation import check_cancel_event
 from mb.utils.snapshot import (
     UnifiedSnapshot,
+    calculate_file_hash,
     find_unified_snapshot,
     flatten_convert_stats_errors,
     generate_run_id,
@@ -305,6 +306,47 @@ class ImageConverter:
             logger.error(f"Unexpected error copying {source_path}: {e}")
             self.stats['errors']['unexpected'].append((str(source_path), str(e)))
             return False
+
+    def _sync_post_conversion_still(
+        self, class_dir: Path, source_path: Path, target_path: Path
+    ) -> None:
+        """Update snapshot ``converted`` for a still image so dataset/train can match by path/MD5."""
+        if not self.unified_snapshot:
+            return
+        original_hash = calculate_file_hash(
+            source_path,
+            algorithm="md5",
+            raw_data_dir=self.raw_data_dir,
+            logger=logger,
+        )
+        if not original_hash:
+            return
+        conv_md5 = calculate_file_hash(
+            target_path,
+            algorithm="md5",
+            raw_data_dir=self.raw_data_dir,
+            logger=logger,
+        )
+        conv_sha = calculate_file_hash(
+            target_path,
+            algorithm="sha256",
+            raw_data_dir=self.raw_data_dir,
+            logger=logger,
+        )
+        if not conv_md5 or not conv_sha:
+            return
+        try:
+            rel = str(target_path.relative_to(self.raw_data_dir))
+        except ValueError:
+            rel = str(target_path)
+        self.unified_snapshot.add_post_conversion_image(
+            class_name=class_dir.name,
+            converted_path=rel,
+            converted_basename=target_path.name,
+            converted_md5=conv_md5,
+            converted_sha256=conv_sha,
+            original_info={"original_hash": original_hash},
+        )
     
     def process_files(self, image_files: List[Path], class_dir: Path) -> None:
         """
@@ -338,6 +380,7 @@ class ImageConverter:
                     logger.debug(
                         f"Skipping {source_path.name} - already exists in {CONVERTED_MEDIA_SUBDIR}/: {target_path.name}"
                     )
+                    self._sync_post_conversion_still(class_dir, source_path, target_path)
                     self.stats['files_skipped'] += 1
                     continue
             except (OSError, FileNotFoundError):
@@ -348,6 +391,7 @@ class ImageConverter:
                 # Already JPEG - just copy
                 if self.copy_jpeg_file(source_path, target_path):
                     self.stats['files_copied'] += 1
+                    self._sync_post_conversion_still(class_dir, source_path, target_path)
                     logger.debug(f"Copied JPEG: {source_path.name} -> {target_path.name}")
                 else:
                     self.stats['files_skipped'] += 1
@@ -355,6 +399,7 @@ class ImageConverter:
                 # Need to convert to JPEG
                 if self.convert_to_jpeg(source_path, target_path):
                     self.stats['files_converted'] += 1
+                    self._sync_post_conversion_still(class_dir, source_path, target_path)
                     logger.debug(f"Converted: {source_path.name} ({source_path.suffix}) -> {target_path.name}")
                 else:
                     self.stats['files_skipped'] += 1
