@@ -223,8 +223,10 @@ def calculate_file_hash(file_path: Path, algorithm: str = 'md5', raw_data_dir: O
         if _gather_cache is None:
             preload_gather_cache(raw_data_dir)
         
-        # Try to use unified snapshot to get hash directly (avoids recalculation).
-        # Dataset creation copies bytes without changing content, so converted MD5 matches train/test files.
+        # Map a **train/test** file (under ``data_dir``) back to the snapshot row via ``dataset.path``.
+        # :mod:`mb.data.dataset` hashes ``CONVERTED`` inputs without *relative_path*; it stores MD5
+        # in ``add_dataset_image``. Training snapshot passes *relative_path* here so we can return
+        # ``converted.md5`` without re-reading bytes (same as create-dataset's computed MD5).
         if unified_snapshot and relative_path:
             # Look up the image record by dataset path
             rp = _posix_rel(relative_path)
