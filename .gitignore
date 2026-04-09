@@ -1,5 +1,6 @@
 .cursorignore
 raw_data/*
+timing_data/
 configs/*
 __pycache__/
 *.swp

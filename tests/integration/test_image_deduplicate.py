@@ -15,19 +15,40 @@ def _write_jpg(path: Path, size: tuple[int, int], rgb: tuple[int, int, int]) -> 
     Image.new("RGB", size, rgb).save(path, quality=92)
 
 
-def test_image_deduplicator_removes_identical_files_in_class_folder(tmp_path: Path) -> None:
-    """Two byte-identical JPEGs in ``coherent/`` → one removed.
+def test_image_deduplicator_removes_identical_files_in_converted_folder(tmp_path: Path) -> None:
+    """Two byte-identical JPEGs in ``coherent/CONVERTED`` → one removed.
 
-    Step 0 keeps images in ``coherent`` only when **min(width, height) ≥ 250**; smaller
+    Step 0 keeps images in ``CONVERTED`` only when **min(width, height) ≥ 250**; smaller
     images are moved to ``small_images_review`` before duplicate scans run.
     """
     raw = tmp_path / "raw_data"
-    coherent = raw / "coherent"
-    _write_jpg(coherent / "first.jpg", (300, 300), (10, 80, 160))
-    shutil.copy2(coherent / "first.jpg", coherent / "duplicate.jpg")
+    converted = raw / "coherent" / "CONVERTED"
+    _write_jpg(converted / "first.jpg", (300, 300), (10, 80, 160))
+    shutil.copy2(converted / "first.jpg", converted / "duplicate.jpg")
 
     dedup = ImageDeduplicator(raw_data_dir=raw)
     assert dedup.run() is True
     assert dedup.stats["duplicates_removed"] >= 1
-    remaining = list(coherent.glob("*.jpg"))
+    remaining = list(converted.glob("*.jpg"))
     assert len(remaining) == 1
+
+
+def test_image_deduplicator_ignores_duplicates_outside_converted(tmp_path: Path) -> None:
+    """Duplicates outside ``CONVERTED`` are out of scope and must remain untouched."""
+    raw = tmp_path / "raw_data"
+    class_dir = raw / "coherent"
+    converted = class_dir / "CONVERTED"
+    images = class_dir / "IMAGES"
+
+    # Ensure deduplicate has in-scope input so the run does real work.
+    _write_jpg(converted / "anchor.jpg", (300, 300), (1, 2, 3))
+
+    # Out-of-scope duplicates in IMAGES should never be removed by deduplicate.
+    _write_jpg(images / "dup_a.jpg", (300, 300), (10, 80, 160))
+    shutil.copy2(images / "dup_a.jpg", images / "dup_b.jpg")
+
+    dedup = ImageDeduplicator(raw_data_dir=raw)
+    assert dedup.run() is True
+
+    assert (images / "dup_a.jpg").exists()
+    assert (images / "dup_b.jpg").exists()

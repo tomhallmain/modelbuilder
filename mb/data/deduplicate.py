@@ -28,7 +28,11 @@ except ImportError:
 # Import centralized logging configuration
 from mb.utils.logging_setup import log_completion_info, log_startup_info, setup_logging
 from mb.cancellation import check_cancel_event
-from mb.data.class_layout import discover_raw_data_bucket_names, layout_dict_for_discovery
+from mb.data.class_layout import (
+    CONVERTED_MEDIA_SUBDIR,
+    discover_raw_data_bucket_names,
+    layout_dict_for_discovery,
+)
 from mb.data.file_types import configured_media_suffixes
 
 # Configure logging
@@ -396,7 +400,7 @@ class ImageDeduplicator:
         return removed_count, moved_count
     
     def perform_deduplication(self) -> None:
-        """Perform comprehensive deduplication across class/staging directories under raw data."""
+        """Perform deduplication only within class ``CONVERTED`` directories under raw data."""
         check_cancel_event(getattr(self, "_cancel_event", None))
         logger.info("=" * 60)
         logger.info("STARTING DEDUPLICATION PROCESS")
@@ -408,25 +412,30 @@ class ImageDeduplicator:
             explicit=layout["explicit"],
             class_qualifying_subdir=layout["class_qualifying_subdir"],
         )
-        directories_to_check = [self.raw_data_dir / n for n in bucket_names]
+        converted_directories: List[Path] = []
+        skipped_without_converted: List[Path] = []
+        for bucket_name in bucket_names:
+            class_dir = self.raw_data_dir / bucket_name
+            converted_dir = class_dir / CONVERTED_MEDIA_SUBDIR
+            if converted_dir.is_dir():
+                converted_directories.append(converted_dir)
+            else:
+                skipped_without_converted.append(class_dir)
 
-        # Explicitly exclude rejected and review paths if present (defense in depth)
-        rejected_dir = self.raw_data_dir / "rejected"
-        review_dir = self.raw_data_dir / "small_images_review"
-        excluded_dirs = {rejected_dir, review_dir}
-        existing_directories = [d for d in directories_to_check if d.exists() and d not in excluded_dirs]
-        
-        # Log excluded directories for clarity
-        if rejected_dir.exists():
-            logger.info(f"Excluding rejected directory from processing: {rejected_dir}")
-        if review_dir.exists():
-            logger.info(f"Excluding review directory from processing: {review_dir}")
-        
-        if not existing_directories:
-            logger.warning("No directories found for deduplication")
+        if skipped_without_converted:
+            logger.info(
+                "Skipping %d class directories without %s",
+                len(skipped_without_converted),
+                CONVERTED_MEDIA_SUBDIR,
+            )
+            for skipped in skipped_without_converted:
+                logger.debug("Skipped (missing CONVERTED): %s", skipped)
+
+        if not converted_directories:
+            logger.warning("No CONVERTED directories found for deduplication")
             return
-        
-        logger.info(f"Processing directories: {[d.name for d in existing_directories]}")
+
+        logger.info("Processing CONVERTED directories: %s", [str(d) for d in converted_directories])
         
         # Step 0: Process small images
         # - Remove images with any dimension < 80px
@@ -434,7 +443,7 @@ class ImageDeduplicator:
         logger.info("\nStep 0: Processing small images...")
         logger.info("  - Removing images with any dimension < 80px")
         logger.info("  - Moving images with dimensions between 80px and 250px to review directory")
-        for directory in existing_directories:
+        for directory in converted_directories:
             check_cancel_event(getattr(self, "_cancel_event", None))
             removed_count, moved_count = self.process_small_images_from_directory(directory)
             self.stats['small_images_removed'] += removed_count
@@ -442,7 +451,7 @@ class ImageDeduplicator:
         
         # Step 1: Remove duplicates within each directory
         logger.info("\nStep 1: Removing duplicates within each directory...")
-        for directory in existing_directories:
+        for directory in converted_directories:
             check_cancel_event(getattr(self, "_cancel_event", None))
             removed_count = self.remove_duplicates_from_directory(directory)
             self.stats['duplicates_removed'] += removed_count
@@ -450,7 +459,7 @@ class ImageDeduplicator:
         # Step 2: Find duplicates across all directories
         logger.info("\nStep 2: Finding duplicates across all directories...")
         check_cancel_event(getattr(self, "_cancel_event", None))
-        all_duplicates = self.find_duplicates_across_directories(existing_directories)
+        all_duplicates = self.find_duplicates_across_directories(converted_directories)
         self.stats['duplicates_found'] = len(all_duplicates)
         
         if all_duplicates:

@@ -401,6 +401,18 @@ class DataPage(QWidget):
         self.dedup_raw_data_dir = QLineEdit("raw_data")
         form.addRow(_("Raw data dir"), self._path_row(self.dedup_raw_data_dir, select_dir=True))
         v.addWidget(self._dedup_group)
+
+        self._dedup_scope_note = QLabel(
+            _(
+                "Scope note: Deduplicate only processes files inside each class folder's "
+                "CONVERTED directory (raw_data/<class>/CONVERTED). Other folders, including "
+                "IMAGES and root-level utility directories, are not scanned."
+            )
+        )
+        self._dedup_scope_note.setWordWrap(True)
+        self._dedup_scope_note.setObjectName("dedup_scope_note")
+        v.addWidget(self._dedup_scope_note)
+
         v.addStretch(1)
         return tab
 
@@ -474,7 +486,8 @@ class DataPage(QWidget):
                 "Point Raw data dir at the same tree on an internal or external drive; outputs stay beside sources."
             ),
             _(
-                "Remove duplicates and quarantine very small images (by pixel size) to small_images_review/ under the raw root."
+                "Remove duplicates and quarantine very small images from class CONVERTED/ folders only "
+                "(raw_data/<class>/CONVERTED); other folders are ignored."
             ),
             _(
                 "Upscale images previously moved to the small-image review area (after deduplicate). "
@@ -509,8 +522,9 @@ class DataPage(QWidget):
                 "Very large images are downscaled (max edge 4000px)."
             ),
             _(
-                "Deduplicate removes duplicate images and handles tiny dimensions: removes very small images and "
-                "moves borderline-small ones to small_images_review/ for manual review before upscale."
+                "Deduplicate scans only class CONVERTED/ folders, removes duplicate images, and handles tiny "
+                "dimensions: removes very small images and moves borderline-small ones to small_images_review/ "
+                "for manual review before upscale."
             ),
             _(
                 "Upscale processes the review tree produced by deduplicate for undersized images you choose to keep."
