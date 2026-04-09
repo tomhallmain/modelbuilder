@@ -17,6 +17,7 @@ from mb.utils.snapshot import (
     find_latest_unified_snapshot_path,
     find_loadable_unified_snapshot_path_for_run_id,
     find_unified_snapshot,
+    run_id_from_latest_unified_snapshot,
     flatten_convert_stats_errors,
     generate_run_id,
     preload_gather_cache,
@@ -63,6 +64,21 @@ def test_preload_gather_cache_with_file_uses_cache_for_md5(tmp_path: Path) -> No
 
     assert preload_gather_cache(raw) is True
     assert calculate_file_hash(fake, algorithm="md5", raw_data_dir=raw) == known_md5
+
+
+def test_run_id_from_latest_unified_snapshot(tmp_path: Path) -> None:
+    raw = tmp_path / "raw_data"
+    raw.mkdir()
+    snap = UnifiedSnapshot(run_id="rid_newer", raw_data_dir=str(raw))
+    older = raw / "snapshot_rid_older.json"
+    newer = raw / "snapshot_rid_newer.json"
+    assert snap.save(older)
+    assert snap.save(newer)
+    import os
+
+    os.utime(older, (100, 100))
+    os.utime(newer, (200, 200))
+    assert run_id_from_latest_unified_snapshot([raw], quiet=True) == "rid_newer"
 
 
 def test_find_loadable_unified_snapshot_path_for_run_id(tmp_path: Path) -> None:

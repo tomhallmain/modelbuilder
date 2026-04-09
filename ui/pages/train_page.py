@@ -27,10 +27,10 @@ from mb.models.types import ArchitectureType, FrameworkType, ModelType
 from mb.pipeline_config import get_pipeline_config
 from mb.training.run_args import TrainingRunArgs
 from ui.lib.fast_directory_picker_qt import get_existing_directory, get_open_file_name
-from ui.lib.qt_alert import qt_operation_error
+from ui.lib.qt_alert import qt_alert, qt_operation_error
 from mb.utils.constants import ModelBuilderTaskType
 from mb.utils.recent_run_history import append_recent_run
-from mb.utils.snapshot import find_latest_unified_snapshot_path
+from mb.utils.snapshot import find_latest_unified_snapshot_path, run_id_from_latest_unified_snapshot
 from mb.utils.translations import _
 from ui.lib.training_progress_dialog import attach_training_progress_dialog
 from ui.spawn_mb_train import spawn_mb_train_subprocess
@@ -72,6 +72,9 @@ class TrainPage(QWidget):
         self.output_dir.setObjectName("train_output_dir_edit")
         self.resume_from = QLineEdit()
         self.run_id = QLineEdit()
+        train_run_id_row, self.btn_run_id_latest = self._run_id_row(
+            self.run_id, self._on_train_use_latest_run_id
+        )
         self.skip_snapshot = QCheckBox(_("Skip unified snapshot update"))
 
         core_form.addRow(_("Model type"), self.model_type)
@@ -80,7 +83,7 @@ class TrainPage(QWidget):
         core_form.addRow(_("Data dir"), self._path_row(self.data_dir, select_file=False))
         core_form.addRow(_("Output dir"), self._path_row(self.output_dir, select_file=False))
         core_form.addRow(_("Resume checkpoint"), self._path_row(self.resume_from, select_file=True))
-        core_form.addRow(_("Run ID (optional)"), self.run_id)
+        core_form.addRow(_("Run ID (optional)"), train_run_id_row)
         core_form.addRow("", self.skip_snapshot)
         self.train_subprocess = QCheckBox(
             _("Run training in a separate process (survives closing this app; see log file)")
@@ -192,6 +195,13 @@ class TrainPage(QWidget):
         self.output.setPlaceholderText(
             _("Training validation and execution messages will appear here.")
         )
+        self.btn_run_id_latest.setText(_("Latest"))
+        self.btn_run_id_latest.setToolTip(
+            _(
+                "Set Run ID from the newest snapshot_*.json under the data directory "
+                "(by file modification time)."
+            )
+        )
         for edit, sel_file in (
             (self.data_dir, False),
             (self.output_dir, False),
@@ -289,6 +299,32 @@ class TrainPage(QWidget):
         h.addWidget(edit, 1)
         h.addWidget(browse, 0)
         return row
+
+    def _run_id_row(self, edit: QLineEdit, use_latest_slot) -> tuple[QWidget, QPushButton]:
+        row = QWidget()
+        h = QHBoxLayout(row)
+        h.setContentsMargins(0, 0, 0, 0)
+        h.setSpacing(6)
+        latest = QPushButton()
+        latest.setObjectName("run_id_latest_button")
+        latest.clicked.connect(use_latest_slot)
+        h.addWidget(edit, 1)
+        h.addWidget(latest, 0)
+        return row, latest
+
+    def _on_train_use_latest_run_id(self) -> None:
+        data_dir = Path(self.data_dir.text().strip() or "data")
+        rid = run_id_from_latest_unified_snapshot([data_dir], quiet=True)
+        if not rid:
+            qt_alert(
+                self,
+                _("No snapshot found"),
+                _("No snapshot_*.json files were found under:\n{path}").format(path=data_dir),
+                kind="warning",
+            )
+            return
+        self.run_id.setText(rid)
+        self._validate_inputs()
 
     def _lr_spin(self, value: float) -> QDoubleSpinBox:
         spin = QDoubleSpinBox()

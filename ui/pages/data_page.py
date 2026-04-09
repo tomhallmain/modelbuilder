@@ -43,6 +43,7 @@ from mb.utils.recent_run_history import append_recent_run
 from mb.utils.snapshot import (
     find_latest_unified_snapshot_path,
     find_loadable_unified_snapshot_path_for_run_id,
+    run_id_from_latest_unified_snapshot,
 )
 from mb.utils.translations import _
 from ui.lib.qt_log_bridge import QtLogBridge, tee_logger_to_qt
@@ -202,6 +203,20 @@ class DataPage(QWidget):
         self._apply_pipeline_group_tooltips()
         self._apply_intro_tooltip()
         self._refresh_run_id_field_tooltips()
+        self.btn_convert_run_id_latest.setText(_("Latest"))
+        self.btn_dataset_run_id_latest.setText(_("Latest"))
+        self.btn_convert_run_id_latest.setToolTip(
+            _(
+                "Set Run ID from the newest snapshot_*.json file under the raw data directory "
+                "(by file modification time)."
+            )
+        )
+        self.btn_dataset_run_id_latest.setToolTip(
+            _(
+                "Set Run ID from the newest snapshot_*.json found across the same search paths "
+                "as manual Run ID entry (raw dir, its parent, output data dir, and class folders)."
+            )
+        )
         for edit in (
             self.gather_source,
             self.gather_target_dir,
@@ -362,9 +377,12 @@ class DataPage(QWidget):
         self.convert_raw_data_dir = QLineEdit("raw_data")
         self.convert_format = QLineEdit("jpeg")
         self.convert_run_id = QLineEdit()
+        convert_run_id_row, self.btn_convert_run_id_latest = self._run_id_row(
+            self.convert_run_id, self._on_convert_use_latest_run_id
+        )
         form.addRow(_("Raw data dir"), self._path_row(self.convert_raw_data_dir, select_dir=True))
         form.addRow(_("Format (jpeg/jpg)"), self.convert_format)
-        form.addRow(_("Run ID (optional)"), self.convert_run_id)
+        form.addRow(_("Run ID (optional)"), convert_run_id_row)
         self.convert_skip_space = QCheckBox(
             _("Skip free-space check (not recommended; use if you accept the risk)")
         )
@@ -419,6 +437,9 @@ class DataPage(QWidget):
         self.dataset_seed = QSpinBox()
         self.dataset_seed.setRange(0, 2_147_483_647)
         self.dataset_run_id = QLineEdit()
+        dataset_run_id_row, self.btn_dataset_run_id_latest = self._run_id_row(
+            self.dataset_run_id, self._on_dataset_use_latest_run_id
+        )
         self.dataset_max_train = QSpinBox()
         self.dataset_max_train.setRange(0, 1_000_000)
         self.dataset_max_train.setSpecialValueText(_("None"))
@@ -429,7 +450,7 @@ class DataPage(QWidget):
         form.addRow(_("Output data dir"), self._path_row(self.dataset_data_dir, select_dir=True))
         form.addRow(_("Test items per class"), self.dataset_test_per_class)
         form.addRow(_("Seed (optional)"), self.dataset_seed)
-        form.addRow(_("Run ID (optional)"), self.dataset_run_id)
+        form.addRow(_("Run ID (optional)"), dataset_run_id_row)
         form.addRow(_("Max train per class"), self.dataset_max_train)
         form.addRow("", self.dataset_balance_train)
         form.addRow("", self.dataset_allow_external)
@@ -520,6 +541,18 @@ class DataPage(QWidget):
         else:
             self._intro_tooltip.set_text(detail)
 
+    def _run_id_row(self, edit: QLineEdit, use_latest_slot) -> tuple[QWidget, QPushButton]:
+        row = QWidget()
+        h = QHBoxLayout(row)
+        h.setContentsMargins(0, 0, 0, 0)
+        h.setSpacing(6)
+        latest = QPushButton()
+        latest.setObjectName("run_id_latest_button")
+        latest.clicked.connect(use_latest_slot)
+        h.addWidget(edit, 1)
+        h.addWidget(latest, 0)
+        return row, latest
+
     def _path_row(self, edit: QLineEdit, select_dir: bool = True) -> QWidget:
         row = QWidget()
         h = QHBoxLayout(row)
@@ -551,6 +584,36 @@ class DataPage(QWidget):
             if value:
                 edit.setText(value)
         self._validate_inputs()
+
+    def _on_convert_use_latest_run_id(self) -> None:
+        raw = Path(self.convert_raw_data_dir.text().strip() or "raw_data")
+        rid = run_id_from_latest_unified_snapshot([raw], quiet=True)
+        if not rid:
+            qt_alert(
+                self,
+                _("No snapshot found"),
+                _("No snapshot_*.json files were found under:\n{path}").format(path=raw),
+                kind="warning",
+            )
+            return
+        self.convert_run_id.setText(rid)
+        self._sync_data_tab_run_without_log()
+
+    def _on_dataset_use_latest_run_id(self) -> None:
+        raw_d = Path(self.dataset_raw_data_dir.text().strip() or "raw_data")
+        data_d = Path(self.dataset_data_dir.text().strip() or "data")
+        paths = unified_snapshot_search_paths_for_dataset(raw_d, data_d)
+        rid = run_id_from_latest_unified_snapshot(paths, quiet=True)
+        if not rid:
+            qt_alert(
+                self,
+                _("No snapshot found"),
+                _("No snapshot_*.json files were found in the search paths for the current directories."),
+                kind="warning",
+            )
+            return
+        self.dataset_run_id.setText(rid)
+        self._sync_data_tab_run_without_log()
 
     def _append(self, msg: str) -> None:
         self.output.append(msg)

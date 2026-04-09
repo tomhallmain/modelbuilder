@@ -633,12 +633,15 @@ class UnifiedSnapshot:
             return None
 
 
-def find_latest_unified_snapshot_path(search_paths: List[Path]) -> Optional[Path]:
+def find_latest_unified_snapshot_path(
+    search_paths: List[Path], *, quiet: bool = False
+) -> Optional[Path]:
     """
     Return the path to the **newest** ``snapshot_*.json`` (by file mtime) under any of
     *search_paths*, or ``None`` if none exist.
     """
-    logger.info("Finding latest unified snapshot path…")
+    if not quiet:
+        logger.info("Finding latest unified snapshot path…")
     candidates: List[Path] = []
     for d in search_paths:
         try:
@@ -663,6 +666,29 @@ def find_latest_unified_snapshot_path(search_paths: List[Path]) -> Optional[Path
         return max(candidates, key=_mtime_key)
     except ValueError:
         return None
+
+
+def run_id_from_latest_unified_snapshot(
+    search_paths: List[Path], *, quiet: bool = False
+) -> Optional[str]:
+    """
+    Return a ``run_id`` for the newest ``snapshot_*.json`` by mtime among *search_paths*
+    (same rule as :func:`find_latest_unified_snapshot_path`).
+
+    Prefers :class:`UnifiedSnapshot` JSON content; if that fails, uses the filename
+    stem after the ``snapshot_`` prefix.
+    """
+    path = find_latest_unified_snapshot_path(search_paths, quiet=quiet)
+    if path is None:
+        return None
+    snap = UnifiedSnapshot.load(path, silent=True)
+    if snap is not None:
+        return snap.run_id
+    stem = path.stem
+    prefix = "snapshot_"
+    if stem.startswith(prefix) and len(stem) > len(prefix):
+        return stem[len(prefix) :]
+    return None
 
 
 def format_latest_unified_snapshot_summary(search_paths: List[Path]) -> str:
