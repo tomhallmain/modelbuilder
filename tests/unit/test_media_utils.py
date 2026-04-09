@@ -9,6 +9,7 @@ from PIL import Image
 
 from mb.data.class_layout import CONVERTED_MEDIA_SUBDIR, VISUAL_MEDIA_REVIEW_SUBDIR
 from mb.data.convert import ImageConverter
+from mb.utils.utils import convert_output_jpeg_filename
 from mb.models.types import ModelType, VisualMediaSourceType
 from mb.data.media_utils import (
     classify_convert_source,
@@ -77,8 +78,13 @@ def test_image_converter_animated_gif_writes_converted_and_review(tmp_path: Path
     c = ImageConverter(raw_data_dir=raw, model_type=ModelType.IMAGE_CLASSIFICATION)
     assert c.run() is True
 
-    jpg = cls_dir / CONVERTED_MEDIA_SUBDIR / "anim.jpg"
-    rev = cls_dir / VISUAL_MEDIA_REVIEW_SUBDIR / "anim.jpg"
+    conv = cls_dir / CONVERTED_MEDIA_SUBDIR
+    rev = cls_dir / VISUAL_MEDIA_REVIEW_SUBDIR
+    expected = convert_output_jpeg_filename(
+        gif_path, output_dir=conv, also_under_dirs=(rev,)
+    )
+    jpg = conv / expected
+    rev = rev / expected
     assert jpg.is_file() and jpg.stat().st_size > 0
     assert rev.is_file() and rev.stat().st_size > 0
     assert c.stats["files_visual_extracted"] == 1

@@ -9,8 +9,8 @@ inputs, and writes outputs while maintaining a unified snapshot for the pipeline
 :func:`mb.cli.run_data_subcommand_cli`.
 """
 
-import sys
 import shutil
+import sys
 import random
 import threading
 from datetime import datetime, timezone
@@ -58,6 +58,7 @@ from mb.data.media_utils import (
 from mb.pipeline_config import get_pipeline_config
 from mb.models.types import ModelBuildStepCommand, ModelType, VisualMediaSourceType
 from mb.space_estimate import check_convert_allowed, merge_convert_estimate_into_snapshot
+from mb.utils.utils import convert_output_jpeg_filename
 
 # Configure logging
 logger = setup_logging(script_name="convert")
@@ -326,11 +327,12 @@ class ImageConverter:
             # Determine if file is already JPEG
             is_jpeg = source_path.suffix.lower() in normalized_jpeg_suffixes()
             
-            # Create target filename - always use .jpg extension
-            target_filename = f"{source_path.stem}.jpg"
+            target_filename = convert_output_jpeg_filename(
+                source_path, output_dir=output_dir
+            )
             target_path = output_dir / target_filename
-            
-            # Check if file already exists under CONVERTED (skip if already converted)
+
+            # Skip if this source's output already exists (same path → same affix)
             try:
                 if target_path.stat().st_size > 0:
                     logger.debug(
@@ -339,17 +341,8 @@ class ImageConverter:
                     self.stats['files_skipped'] += 1
                     continue
             except (OSError, FileNotFoundError):
-                # File doesn't exist, proceed with conversion
                 pass
-            
-            # Handle filename conflicts (for edge cases where filename differs)
-            counter = 1
-            original_target_path = target_path
-            while target_path.exists():
-                stem = original_target_path.stem
-                target_path = output_dir / f"{stem}_{counter}.jpg"
-                counter += 1
-            
+
             # Process the file
             if is_jpeg:
                 # Already JPEG - just copy
@@ -388,13 +381,22 @@ class ImageConverter:
                 check_cancel_event(getattr(self, "_cancel_event", None))
                 logger.info(f"Visual extraction progress: {i}/{len(extract_paths)} for {class_dir.name}")
 
-            target_filename = f"{source_path.stem}.jpg"
+            target_filename = convert_output_jpeg_filename(
+                source_path,
+                output_dir=output_dir,
+                also_under_dirs=(review_dir,),
+            )
             target_path = output_dir / target_filename
-            counter = 1
-            original_target = target_path
-            while target_path.exists():
-                target_path = output_dir / f"{original_target.stem}_{counter}.jpg"
-                counter += 1
+
+            try:
+                if target_path.stat().st_size > 0:
+                    logger.debug(
+                        f"Skipping visual extract for {source_path.name} — output exists: {target_path.name}"
+                    )
+                    self.stats["files_skipped"] += 1
+                    continue
+            except (OSError, FileNotFoundError):
+                pass
 
             ok = False
             if source_path.suffix.lower() in configured_video_suffixes():
@@ -417,9 +419,9 @@ class ImageConverter:
                 self.stats["files_visual_extracted"] += 1
                 review_path = review_dir / target_path.name
                 r_counter = 1
-                orig_review = review_path
+                orig_review_stem = review_path.stem
                 while review_path.exists():
-                    review_path = review_dir / f"{orig_review.stem}_{r_counter}.jpg"
+                    review_path = review_dir / f"{orig_review_stem}_{r_counter}.jpg"
                     r_counter += 1
                 try:
                     shutil.copy2(target_path, review_path)

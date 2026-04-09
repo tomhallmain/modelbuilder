@@ -1,8 +1,133 @@
-"""Small shared helpers used by ``mb.utils`` (e.g. translations)."""
+"""Small shared helpers used by ``mb.utils`` (e.g. translations) and path utilities."""
 
 from __future__ import annotations
 
+import hashlib
 import locale
+import logging
+import sys
+from pathlib import Path
+from typing import List, Optional, Tuple
+
+logger = logging.getLogger(__name__)
+
+# Windows: one filename component normally ≤ 255; legacy full path ≤ 260 without ``\\?\`` prefix.
+_WIN_MAX_COMPONENT = 255
+_WIN_MAX_PATH = 260
+
+
+def _normalize_output_suffix(suffix: str) -> str:
+    """Ensure *suffix* is a non-empty extension with a leading dot (e.g. ``.jpg``)."""
+    s = suffix.strip()
+    if not s:
+        raise ValueError("output_suffix must be non-empty")
+    return s if s.startswith(".") else f".{s}"
+
+
+def _affix_suffix_char_count(output_suffix: str) -> int:
+    """Characters after the stem: ``_`` + 8 hex + *output_suffix*."""
+    return 1 + 8 + len(_normalize_output_suffix(output_suffix))
+
+
+def _resolved_path_str(path: Path) -> str:
+    try:
+        return str(path.resolve())
+    except OSError:
+        return str(path)
+
+
+def _shorten_stem_for_windows_paths(
+    stem: str,
+    affix: str,
+    output_dirs: Tuple[Path, ...],
+    output_suffix: str,
+) -> str:
+    """
+    Trim *stem* so each ``dir / {stem}_{affix}{output_suffix}`` fits under NTFS component and MAX_PATH rules.
+    """
+    ext = _normalize_output_suffix(output_suffix)
+    suffix = f"_{affix}{ext}"
+    max_stem_by_component = _WIN_MAX_COMPONENT - len(suffix)
+    stem_cur = stem[:max_stem_by_component] if len(stem) > max_stem_by_component else stem
+    max_path_chars = _WIN_MAX_PATH - 1  # usable length without ``\\?\``
+
+    def fits(st: str) -> bool:
+        base = f"{st}{suffix}"
+        if len(base) > _WIN_MAX_COMPONENT:
+            return False
+        for d in output_dirs:
+            full = _resolved_path_str(Path(d) / base)
+            if len(full) > max_path_chars:
+                return False
+        return True
+
+    while stem_cur and not fits(stem_cur):
+        stem_cur = stem_cur[:-1]
+    if not fits(stem_cur):
+        logger.warning(
+            "Output path(s) exceed Windows MAX_PATH even with minimal stem; using shortest basename"
+        )
+        stem_cur = ""
+    return stem_cur
+
+
+def convert_output_filename(
+    source_path: Path,
+    *,
+    output_suffix: str = ".jpg",
+    output_dir: Optional[Path] = None,
+    also_under_dirs: Optional[Tuple[Path, ...]] = None,
+) -> str:
+    """
+    Basename for converted media: ``{stem}_{last_8_hex_chars_of_sha256}{output_suffix}``.
+
+    The hash is of the UTF-8 encoding of :meth:`pathlib.Path.resolve` in POSIX form (stable
+    across runs for the same file path).
+
+    *output_suffix* is the target extension, with or without a leading dot (e.g. ``.jpg`` or ``png``).
+
+    The stem is truncated as needed so the final name stays within a single component's
+    limit (255 on Windows NTFS). On Windows, if *output_dir* and optionally *also_under_dirs*
+    are given, the stem is shortened further so each full path stays below the legacy 260
+    character limit (unless long paths are enabled in the environment).
+    """
+    ext = _normalize_output_suffix(output_suffix)
+    p = Path(source_path)
+    try:
+        normalized = p.resolve().as_posix()
+    except OSError:
+        normalized = str(p)
+    digest = hashlib.sha256(normalized.encode("utf-8", errors="replace")).hexdigest()
+    affix = digest[-8:]
+
+    max_stem = _WIN_MAX_COMPONENT - _affix_suffix_char_count(ext)
+    stem = p.stem[:max_stem] if len(p.stem) > max_stem else p.stem
+
+    if sys.platform == "win32":
+        dirs: List[Path] = []
+        if output_dir is not None:
+            dirs.append(Path(output_dir))
+        if also_under_dirs:
+            dirs.extend(Path(x) for x in also_under_dirs)
+        if dirs:
+            stem = _shorten_stem_for_windows_paths(stem, affix, tuple(dirs), ext)
+
+    return f"{stem}_{affix}{ext}"
+
+
+def convert_output_jpeg_filename(
+    source_path: Path,
+    *,
+    output_dir: Optional[Path] = None,
+    also_under_dirs: Optional[Tuple[Path, ...]] = None,
+) -> str:
+    """Basename for JPEG outputs under ``CONVERTED/``; same as :func:`convert_output_filename` with ``.jpg``."""
+    return convert_output_filename(
+        source_path,
+        output_suffix=".jpg",
+        output_dir=output_dir,
+        also_under_dirs=also_under_dirs,
+    )
 
 
 class Utils:
