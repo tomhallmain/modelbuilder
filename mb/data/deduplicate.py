@@ -13,6 +13,7 @@ import sys
 import hashlib
 import shutil
 import io
+import json
 import pickle
 import threading
 import time
@@ -34,6 +35,7 @@ from mb.data.class_layout import (
     layout_dict_for_discovery,
 )
 from mb.data.file_types import configured_media_suffixes
+from mb.utils.snapshot import find_unified_snapshot, save_unified_snapshot
 
 # Configure logging
 logger = setup_logging(script_name="deduplicate_images")
@@ -64,6 +66,7 @@ class ImageDeduplicator:
         self.cache_file = self.raw_data_dir / ".gather_cache.pkl"
         self.file_cache: Dict[str, str] = {}  # {file_path: hash_string} - optimized direct storage
         self.cache_modified = False
+        self.duplicate_groups: List[Dict[str, object]] = []
         self.load_cache()
     
     def load_cache(self) -> None:
@@ -399,13 +402,8 @@ class ImageDeduplicator:
         
         return removed_count, moved_count
     
-    def perform_deduplication(self) -> None:
-        """Perform deduplication only within class ``CONVERTED`` directories under raw data."""
-        check_cancel_event(getattr(self, "_cancel_event", None))
-        logger.info("=" * 60)
-        logger.info("STARTING DEDUPLICATION PROCESS")
-        logger.info("=" * 60)
-
+    def _discover_converted_directories(self) -> List[Path]:
+        """Return class-scoped ``CONVERTED`` directories eligible for deduplication."""
         layout = layout_dict_for_discovery()
         bucket_names = discover_raw_data_bucket_names(
             self.raw_data_dir,
@@ -430,13 +428,75 @@ class ImageDeduplicator:
             )
             for skipped in skipped_without_converted:
                 logger.debug("Skipped (missing CONVERTED): %s", skipped)
+        return converted_directories
+
+    def _serialize_duplicate_groups(self, duplicates: Dict[str, List[Path]]) -> List[Dict[str, object]]:
+        out: List[Dict[str, object]] = []
+        for hash_value in sorted(duplicates.keys()):
+            files = duplicates[hash_value]
+            out.append(
+                {
+                    "hash": hash_value,
+                    "files": sorted(str(p) for p in files),
+                }
+            )
+        return out
+
+    def _update_snapshot_with_duplicates(self, *, run_id: Optional[str]) -> None:
+        """Persist deduplication metadata into unified snapshot when available."""
+        snapshot = find_unified_snapshot([self.raw_data_dir], run_id=run_id, logger=logger)
+        if not snapshot:
+            logger.warning("No unified snapshot found under %s; skipping deduplication snapshot update", self.raw_data_dir)
+            return
+        snapshot.set_deduplication_results(self.duplicate_groups)
+        saved = save_unified_snapshot(snapshot, self.raw_data_dir, logger=logger)
+        if saved is not None:
+            logger.info("Updated snapshot with deduplication results: %s", saved)
+
+    def perform_deduplication(self, *, list_only: bool = False) -> None:
+        """Perform deduplication only within class ``CONVERTED`` directories under raw data."""
+        check_cancel_event(getattr(self, "_cancel_event", None))
+        logger.info("=" * 60)
+        logger.info("STARTING DEDUPLICATION PROCESS")
+        logger.info("=" * 60)
+        converted_directories = self._discover_converted_directories()
 
         if not converted_directories:
             logger.warning("No CONVERTED directories found for deduplication")
+            self.duplicate_groups = []
             return
 
         logger.info("Processing CONVERTED directories: %s", [str(d) for d in converted_directories])
-        
+        if list_only:
+            logger.info(
+                "\nList-only mode: still removes tiny images and duplicates *within* each "
+                "CONVERTED folder; only *cross-class* duplicate groups are kept for review."
+            )
+            logger.info("\nStep 0: Processing small images...")
+            logger.info("  - Removing images with any dimension < 80px")
+            logger.info("  - Moving images with dimensions between 80px and 250px to review directory")
+            for directory in converted_directories:
+                check_cancel_event(getattr(self, "_cancel_event", None))
+                removed_count, moved_count = self.process_small_images_from_directory(directory)
+                self.stats["small_images_removed"] += removed_count
+                self.stats["small_images_moved"] += moved_count
+
+            logger.info("\nStep 1: Removing duplicates within each CONVERTED directory...")
+            for directory in converted_directories:
+                check_cancel_event(getattr(self, "_cancel_event", None))
+                removed_count = self.remove_duplicates_from_directory(directory)
+                self.stats["duplicates_removed"] += removed_count
+
+            logger.info("\nStep 2: Finding duplicates across CONVERTED directories (review-only)...")
+            check_cancel_event(getattr(self, "_cancel_event", None))
+            all_duplicates = self.find_duplicates_across_directories(converted_directories)
+            self.stats["duplicates_found"] = len(all_duplicates)
+            self.duplicate_groups = self._serialize_duplicate_groups(all_duplicates)
+            logger.info("=" * 60)
+            logger.info("DEDUPLICATION LIST-ONLY SCAN COMPLETED")
+            logger.info("=" * 60)
+            return
+
         # Step 0: Process small images
         # - Remove images with any dimension < 80px
         # - Move images with dimensions between 80px and 250px to review directory
@@ -461,6 +521,7 @@ class ImageDeduplicator:
         check_cancel_event(getattr(self, "_cancel_event", None))
         all_duplicates = self.find_duplicates_across_directories(converted_directories)
         self.stats['duplicates_found'] = len(all_duplicates)
+        self.duplicate_groups = self._serialize_duplicate_groups(all_duplicates)
         
         if all_duplicates:
             logger.info(f"Found {len(all_duplicates)} duplicate groups across all directories")
@@ -487,17 +548,27 @@ class ImageDeduplicator:
         logger.info(f"Duplicate groups found across directories: {self.stats['duplicates_found']}")
         logger.info("=" * 60)
     
-    def run(self, cancel_event: Optional[threading.Event] = None) -> bool:
+    def run(
+        self,
+        cancel_event: Optional[threading.Event] = None,
+        *,
+        list_only: bool = False,
+        run_id: Optional[str] = None,
+    ) -> bool:
         """Main execution method. *cancel_event* is checked between major steps."""
         self._cancel_event = cancel_event
         try:
-            return self._run_impl()
+            return self._run_impl(list_only=list_only, run_id=run_id)
         finally:
             self._cancel_event = None
 
-    def _run_impl(self) -> bool:
+    def _run_impl(self, *, list_only: bool = False, run_id: Optional[str] = None) -> bool:
         log_startup_info(logger, "Image deduplication process")
         logger.info(f"Raw data directory: {self.raw_data_dir}")
+        if list_only:
+            logger.info(
+                "Mode: list-only (cross-class duplicates for review; within-CONVERTED duplicates removed)"
+            )
         
         check_cancel_event(self._cancel_event)
         
@@ -507,7 +578,10 @@ class ImageDeduplicator:
             return False
         
         # Perform deduplication
-        self.perform_deduplication()
+        self.perform_deduplication(list_only=list_only)
+
+        # Update snapshot duplicate metadata when a snapshot is available.
+        self._update_snapshot_with_duplicates(run_id=run_id)
         
         # Save cache before finishing
         if self.cache_modified:
@@ -519,10 +593,20 @@ class ImageDeduplicator:
         
         # Log completion
         success = True
-        message = f"Removed {self.stats['small_images_removed']} very small images, moved {self.stats['small_images_moved']} to review, removed {self.stats['duplicates_removed']} duplicate files, found {self.stats['duplicates_found']} duplicate groups"
+        if list_only:
+            message = (
+                f"List-only dedup: removed {self.stats['duplicates_removed']} within-class duplicates, "
+                f"found {self.stats['duplicates_found']} cross-class duplicate groups for review"
+            )
+        else:
+            message = f"Removed {self.stats['small_images_removed']} very small images, moved {self.stats['small_images_moved']} to review, removed {self.stats['duplicates_removed']} duplicate files, found {self.stats['duplicates_found']} duplicate groups"
         log_completion_info(logger, success, message)
         
         return success
+
+    def duplicate_groups_as_json(self) -> str:
+        """Return duplicate groups as pretty JSON for CLI/UI consumption."""
+        return json.dumps(self.duplicate_groups, indent=2)
 
 
 if __name__ == "__main__":

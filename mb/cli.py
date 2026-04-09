@@ -233,6 +233,23 @@ def create_parser() -> argparse.ArgumentParser:
             "Typical layouts include multiple class folders under this root."
         ),
     )
+    dedup_parser.add_argument(
+        "--list-only",
+        action="store_true",
+        help=_(
+            "Scan and print duplicate groups as indented JSON (no removals). "
+            "Useful for manual review workflows."
+        ),
+    )
+    dedup_parser.add_argument(
+        "--run-id",
+        type=str,
+        default=None,
+        help=_(
+            "Optional unified snapshot run ID to update with deduplication metadata. "
+            "If omitted, the latest loadable snapshot under raw data is used when available."
+        ),
+    )
     
     # mb data upscale
     upscale_parser = data_subparsers.add_parser(
@@ -646,7 +663,12 @@ def handle_data_deduplicate(args):
     """Handle 'mb data deduplicate' command."""
     try:
         deduplicator = ImageDeduplicator(raw_data_dir=args.raw_data_dir)
-        success = deduplicator.run()
+        success = deduplicator.run(
+            list_only=bool(getattr(args, "list_only", False)),
+            run_id=getattr(args, "run_id", None),
+        )
+        if success and getattr(args, "list_only", False):
+            print(deduplicator.duplicate_groups_as_json())
         return 0 if success else 1
     except Exception as e:
         logger.error(f"Error in data deduplicate: {e}", exc_info=True)

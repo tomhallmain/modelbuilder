@@ -22,6 +22,7 @@ from mb.utils.snapshot import (
     generate_run_id,
     preload_gather_cache,
     register_step_error,
+    get_potentially_duplicated_items,
     save_unified_snapshot,
     set_step_errors_for_invocation,
 )
@@ -230,3 +231,36 @@ def test_unified_snapshot_to_dict_summary_counts() -> None:
     assert d["summary"]["converted_count"] == 1
     assert d["summary"]["dataset_count"] == 1
     assert d["summary"]["training_count"] == 1
+
+
+def test_set_deduplication_results_and_get_potentially_duplicated_items(tmp_path: Path) -> None:
+    raw = tmp_path / "raw_data"
+    raw.mkdir()
+    snap = UnifiedSnapshot(run_id="rid", raw_data_dir=str(raw))
+    snap.images["h1"] = {
+        "original": {"hash": "h1", "basename": "a.jpg", "path": "x", "format": ".jpg"},
+        "converted": {"path": "coherent/CONVERTED/a.jpg", "basename": "a.jpg", "class": "coherent"},
+        "dataset": None,
+        "training": None,
+    }
+    snap.images["h2"] = {
+        "original": {"hash": "h2", "basename": "b.jpg", "path": "x", "format": ".jpg"},
+        "converted": {"path": "coherent/CONVERTED/b.jpg", "basename": "b.jpg", "class": "coherent"},
+        "dataset": None,
+        "training": None,
+    }
+
+    snap.set_deduplication_results(
+        [
+            {
+                "hash": "md5dup",
+                "files": [
+                    str(raw / "coherent" / "CONVERTED" / "a.jpg"),
+                    str(raw / "coherent" / "CONVERTED" / "b.jpg"),
+                ],
+            }
+        ]
+    )
+    dup_items = get_potentially_duplicated_items(snap)
+    assert len(dup_items) == 2
+    assert all(item["duplicate_group_ids"] for item in dup_items)

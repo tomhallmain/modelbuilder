@@ -42,10 +42,12 @@ from mb.utils.constants import DataPipelineSubcommand, ModelBuilderTaskType
 from mb.utils.recent_run_history import append_recent_run
 from mb.utils.snapshot import (
     find_latest_unified_snapshot_path,
+    get_duplicate_review_context_from_raw_data_dir,
     find_loadable_unified_snapshot_path_for_run_id,
     run_id_from_latest_unified_snapshot,
 )
 from mb.utils.translations import _
+from ui.lib.duplicates_resolver_window import DuplicatesResolverDialog
 from ui.lib.qt_log_bridge import QtLogBridge, tee_logger_to_qt
 from ui.lib.fast_directory_picker_qt import get_existing_directory, get_open_file_name
 from ui.lib.form_layout_i18n import apply_qform_label_column
@@ -118,6 +120,7 @@ class DataPage(QWidget):
 
         self._data_log_bridge = QtLogBridge(self)
         self._data_log_bridge.line.connect(self._append, Qt.ConnectionType.QueuedConnection)
+        self._duplicates_resolver_dialog: DuplicatesResolverDialog | None = None
 
         self.btn_validate.clicked.connect(self._validate_inputs)
         self.btn_run.clicked.connect(self._run_current_command)
@@ -126,6 +129,8 @@ class DataPage(QWidget):
         for w in (
             self.convert_raw_data_dir,
             self.convert_run_id,
+            self.dedup_raw_data_dir,
+            self.dedup_resolver_run_id,
             self.dataset_raw_data_dir,
             self.dataset_data_dir,
             self.dataset_run_id,
@@ -178,7 +183,16 @@ class DataPage(QWidget):
             self._convert_form,
             [_("Raw data dir"), _("Format (jpeg/jpg)"), _("Run ID (optional)"), ""],
         )
-        apply_qform_label_column(self._dedup_form, [_("Raw data dir")])
+        apply_qform_label_column(
+            self._dedup_form,
+            [_("Raw data dir"), "", _("Snapshot Run ID (optional)"), ""],
+        )
+        self.dedup_list_only.setText(
+            _(
+                "Review cross-class duplicates only: same-class CONVERTED duplicates are removed "
+                "automatically; JSON + resolver list cross-class groups after run"
+            )
+        )
         apply_qform_label_column(
             self._upscale_form,
             [_("Raw data dir"), _("Review dir (optional)")],
@@ -204,6 +218,7 @@ class DataPage(QWidget):
         self._apply_intro_tooltip()
         self._refresh_run_id_field_tooltips()
         self.btn_convert_run_id_latest.setText(_("Latest"))
+        self.btn_dedup_resolver_run_id_latest.setText(_("Latest"))
         self.btn_dataset_run_id_latest.setText(_("Latest"))
         self.btn_convert_run_id_latest.setToolTip(
             _(
@@ -217,6 +232,22 @@ class DataPage(QWidget):
                 "as manual Run ID entry (raw dir, its parent, output data dir, and class folders)."
             )
         )
+        self.btn_dedup_resolver_run_id_latest.setToolTip(
+            _(
+                "Set Run ID from the newest snapshot_*.json file under the Deduplicate raw data directory "
+                "(by file modification time)."
+            )
+        )
+        self.btn_dedup_open_resolver_from_snapshot.setText(
+            _("Open duplicate resolver from snapshot…")
+        )
+        self._dedup_resolver_fallback_note.setText(
+            _(
+                "If the resolver did not open after a list-only run (for example after a UI crash), "
+                "use the button above to load duplicate groups from the snapshot on disk."
+            )
+        )
+        self._refresh_dedup_resolver_run_id_tooltip()
         for edit in (
             self.gather_source,
             self.gather_target_dir,
@@ -261,7 +292,11 @@ class DataPage(QWidget):
                 "run_id": self.convert_run_id.text(),
                 "skip_space": bool(self.convert_skip_space.isChecked()),
             },
-            "dedup": {"raw_data_dir": self.dedup_raw_data_dir.text()},
+            "dedup": {
+                "raw_data_dir": self.dedup_raw_data_dir.text(),
+                "list_only": bool(self.dedup_list_only.isChecked()),
+                "resolver_run_id": self.dedup_resolver_run_id.text(),
+            },
             "upscale": {
                 "raw_data_dir": self.upscale_raw_data_dir.text(),
                 "review_dir": self.upscale_review_dir.text(),
@@ -310,6 +345,8 @@ class DataPage(QWidget):
             d = state.get("dedup") or {}
             if isinstance(d, dict):
                 self.dedup_raw_data_dir.setText(str(d.get("raw_data_dir", "")))
+                self.dedup_list_only.setChecked(bool(d.get("list_only", False)))
+                self.dedup_resolver_run_id.setText(str(d.get("resolver_run_id", "")))
 
             u = state.get("upscale") or {}
             if isinstance(u, dict):
@@ -400,7 +437,30 @@ class DataPage(QWidget):
         self._dedup_form = form
         self.dedup_raw_data_dir = QLineEdit("raw_data")
         form.addRow(_("Raw data dir"), self._path_row(self.dedup_raw_data_dir, select_dir=True))
+        self.dedup_list_only = QCheckBox(
+            _(
+                "Review cross-class duplicates only: same-class CONVERTED duplicates are removed "
+                "automatically; JSON + resolver list cross-class groups after run"
+            )
+        )
+        form.addRow("", self.dedup_list_only)
+        self.dedup_resolver_run_id = QLineEdit()
+        dedup_resolver_rid_row, self.btn_dedup_resolver_run_id_latest = self._run_id_row(
+            self.dedup_resolver_run_id,
+            self._on_dedup_resolver_use_latest_run_id,
+        )
+        form.addRow(_("Snapshot Run ID (optional)"), dedup_resolver_rid_row)
+        self.btn_dedup_open_resolver_from_snapshot = QPushButton()
+        self.btn_dedup_open_resolver_from_snapshot.clicked.connect(
+            self._on_open_duplicate_resolver_from_snapshot
+        )
+        form.addRow("", self.btn_dedup_open_resolver_from_snapshot)
         v.addWidget(self._dedup_group)
+
+        self._dedup_resolver_fallback_note = QLabel()
+        self._dedup_resolver_fallback_note.setWordWrap(True)
+        self._dedup_resolver_fallback_note.setObjectName("dedup_resolver_fallback_note")
+        v.addWidget(self._dedup_resolver_fallback_note)
 
         self._dedup_scope_note = QLabel(
             _(
@@ -613,6 +673,20 @@ class DataPage(QWidget):
         self.convert_run_id.setText(rid)
         self._sync_data_tab_run_without_log()
 
+    def _on_dedup_resolver_use_latest_run_id(self) -> None:
+        raw = Path(self.dedup_raw_data_dir.text().strip() or "raw_data")
+        rid = run_id_from_latest_unified_snapshot([raw], quiet=True)
+        if not rid:
+            qt_alert(
+                self,
+                _("No snapshot found"),
+                _("No snapshot_*.json files were found under:\n{path}").format(path=raw),
+                kind="warning",
+            )
+            return
+        self.dedup_resolver_run_id.setText(rid)
+        self._sync_data_tab_run_without_log()
+
     def _on_dataset_use_latest_run_id(self) -> None:
         raw_d = Path(self.dataset_raw_data_dir.text().strip() or "raw_data")
         data_d = Path(self.dataset_data_dir.text().strip() or "data")
@@ -664,6 +738,19 @@ class DataPage(QWidget):
                 "{paths}\n"
                 "Output data directory (for context): {data_dir}"
             ).format(paths=path_lines, data_dir=data_d)
+        )
+        self._refresh_dedup_resolver_run_id_tooltip()
+
+    def _refresh_dedup_resolver_run_id_tooltip(self) -> None:
+        raw = Path(self.dedup_raw_data_dir.text().strip() or "raw_data")
+        self.dedup_resolver_run_id.setToolTip(
+            _(
+                "Optional. Leave empty to load the latest loadable snapshot under:\n"
+                "  {raw}\n\n"
+                "If set, the file must exist and be named:\n"
+                "  snapshot_<run_id>.json\n"
+                "in that directory (used only to open the duplicate resolver from disk, not for 'Run')."
+            ).format(raw=raw)
         )
 
     def _sync_data_tab_run_without_log(self) -> None:
@@ -769,7 +856,10 @@ class DataPage(QWidget):
                 "skip_space_check": bool(self.convert_skip_space.isChecked()),
             }
         if command == ModelBuildStepCommand.DEDUPLICATE:
-            return {"raw_data_dir": Path(self.dedup_raw_data_dir.text().strip() or "raw_data")}
+            return {
+                "raw_data_dir": Path(self.dedup_raw_data_dir.text().strip() or "raw_data"),
+                "list_only": bool(self.dedup_list_only.isChecked()),
+            }
         if command == ModelBuildStepCommand.UPSCALE:
             review_raw = self.upscale_review_dir.text().strip()
             return {
@@ -997,7 +1087,12 @@ class DataPage(QWidget):
             )
         if command == ModelBuildStepCommand.DEDUPLICATE:
             deduplicator = ImageDeduplicator(raw_data_dir=payload["raw_data_dir"])
-            return bool(deduplicator.run(cancel_event=ce))
+            return bool(
+                deduplicator.run(
+                    cancel_event=ce,
+                    list_only=payload.get("list_only", False),
+                )
+            )
         if command == ModelBuildStepCommand.UPSCALE:
             review_dir = payload["review_dir"] or (payload["raw_data_dir"] / "small_images_review")
             upscaler = ImageUpscaler(review_dir=review_dir)
@@ -1025,6 +1120,11 @@ class DataPage(QWidget):
             self._append(_("[done] Data command completed successfully."))
             if snap:
                 self._append(f"[snapshot] {snap}")
+            if (
+                getattr(self, "_pending_command", None) == ModelBuildStepCommand.DEDUPLICATE
+                and bool(getattr(self, "_pending_payload", {}).get("list_only", False))
+            ):
+                self._maybe_open_duplicates_resolver()
             append_recent_run(
                 ModelBuilderTaskType.DATA,
                 summary,
@@ -1071,3 +1171,84 @@ class DataPage(QWidget):
             _("A data pipeline step reported an error. See Details for the full message."),
             detail=message,
         )
+
+    def _present_duplicates_resolver_window(
+        self,
+        items: list,
+        *,
+        confirm: bool,
+        title: str = "",
+        message: str = "",
+    ) -> None:
+        if confirm:
+            if not qt_alert(
+                self,
+                title,
+                message,
+                kind="askyesno",
+            ):
+                return
+        self._duplicates_resolver_dialog = DuplicatesResolverDialog(items, parent=self)
+        self._duplicates_resolver_dialog.show()
+        self._duplicates_resolver_dialog.raise_()
+        self._duplicates_resolver_dialog.activateWindow()
+
+    def _maybe_open_duplicates_resolver(self) -> None:
+        """Offer opening a resolver window after list-only dedup completes."""
+        payload = getattr(self, "_pending_payload", None) or {}
+        raw_data_dir = payload.get("raw_data_dir")
+        if not isinstance(raw_data_dir, Path):
+            return
+        snap, items = get_duplicate_review_context_from_raw_data_dir(
+            raw_data_dir, run_id=None, logger=logger
+        )
+        if snap is None:
+            self._append(_("[dedup] No loadable snapshot found for duplicate resolver."))
+            return
+        if not items:
+            self._append(_("[dedup] No potential duplicates were recorded in the snapshot."))
+            return
+        self._present_duplicates_resolver_window(
+            items,
+            confirm=True,
+            title=_("Duplicates found"),
+            message=_("Open duplicate resolver window now?"),
+        )
+
+    def _on_open_duplicate_resolver_from_snapshot(self) -> None:
+        raw = Path(self.dedup_raw_data_dir.text().strip() or "raw_data")
+        if not raw.exists():
+            qt_alert(
+                self,
+                _("Invalid raw data directory"),
+                _("Raw data directory does not exist:\n{path}").format(path=raw),
+                kind="warning",
+            )
+            return
+        run_id = self.dedup_resolver_run_id.text().strip() or None
+        snap, items = get_duplicate_review_context_from_raw_data_dir(
+            raw, run_id=run_id, logger=logger
+        )
+        if snap is None:
+            qt_alert(
+                self,
+                _("No snapshot"),
+                _(
+                    "No loadable unified snapshot was found under:\n{path}\n\n"
+                    "Expected snapshot_<run_id>.json (leave Run ID empty for the latest file tried in sorted name order)."
+                ).format(path=raw),
+                kind="warning",
+            )
+            return
+        if not items:
+            qt_alert(
+                self,
+                _("Nothing to review"),
+                _(
+                    "A snapshot loaded, but it does not list any cross-class duplicate groups for the resolver. "
+                    "Run Deduplicate with list-only if you have not yet, or pick another Run ID."
+                ),
+                kind="info",
+            )
+            return
+        self._present_duplicates_resolver_window(items, confirm=False)

@@ -316,6 +316,8 @@ class UnifiedSnapshot:
         self.training_timing: Optional[Dict[str, Any]] = None
         # step → invocation ISO timestamp → list of error lines (see :func:`register_step_error`)
         self.step_errors: Dict[str, Dict[str, List[str]]] = {}
+        # Optional deduplication duplicate groups from ``mb data deduplicate`` list/scan.
+        self.deduplication_results: List[Dict[str, Any]] = []
 
     def add_pre_conversion_image(self, image_path: Path, base_dir: Path) -> bool:
         """Add an image to pre-conversion stage (creates new record)."""
@@ -534,6 +536,45 @@ class UnifiedSnapshot:
         
         if found:
             self.last_updated = datetime.now().isoformat()
+
+    def set_deduplication_results(self, groups: Sequence[Dict[str, Any]]) -> None:
+        """Store deduplication groups and mark image records as potentially duplicated."""
+        cleaned_groups: List[Dict[str, Any]] = []
+        path_to_group_ids: Dict[str, List[str]] = {}
+        for idx, group in enumerate(groups, 1):
+            if not isinstance(group, dict):
+                continue
+            group_hash = str(group.get("hash", "")).strip()
+            files_raw = group.get("files")
+            if not isinstance(files_raw, list):
+                continue
+            files = [str(p).strip() for p in files_raw if str(p).strip()]
+            if len(files) < 2:
+                continue
+            group_id = f"dup_group_{idx}"
+            cleaned_groups.append({"group_id": group_id, "hash": group_hash, "files": files})
+            for fp in files:
+                try:
+                    rel = Path(fp).relative_to(Path(self.raw_data_directory)).as_posix()
+                except Exception:
+                    rel = str(fp).replace("\\", "/")
+                path_to_group_ids.setdefault(rel, []).append(group_id)
+
+        self.deduplication_results = cleaned_groups
+        for image_record in self.images.values():
+            converted = image_record.get("converted")
+            if not isinstance(converted, dict):
+                continue
+            converted_path = converted.get("path")
+            if not converted_path:
+                continue
+            key = str(converted_path).replace("\\", "/")
+            group_ids = sorted(set(path_to_group_ids.get(key, [])))
+            image_record["deduplication"] = {
+                "possible_duplicate": bool(group_ids),
+                "duplicate_group_ids": group_ids,
+            }
+        self.last_updated = datetime.now().isoformat()
     
     def to_dict(self) -> Dict:
         """Convert to dictionary."""
@@ -578,6 +619,8 @@ class UnifiedSnapshot:
             out['training_timing'] = self.training_timing
         if self.step_errors:
             out['step_errors'] = self.step_errors
+        if self.deduplication_results:
+            out["deduplication_results"] = self.deduplication_results
         return out
     
     def save(self, output_path: Path) -> bool:
@@ -628,9 +671,62 @@ class UnifiedSnapshot:
             else:
                 snapshot.step_errors = {}
 
+            dr = data.get("deduplication_results")
+            if isinstance(dr, list):
+                snapshot.deduplication_results = dr
+            else:
+                snapshot.deduplication_results = []
+
             return snapshot
         except Exception:
             return None
+
+
+def get_potentially_duplicated_items(snapshot: UnifiedSnapshot) -> List[Dict[str, Any]]:
+    """Flatten snapshot entries that were marked as possible duplicates."""
+    results: List[Dict[str, Any]] = []
+    raw_root = Path(snapshot.raw_data_directory)
+    for original_hash, image_record in snapshot.images.items():
+        dedup = image_record.get("deduplication")
+        converted = image_record.get("converted")
+        if not isinstance(dedup, dict) or not dedup.get("possible_duplicate"):
+            continue
+        if not isinstance(converted, dict):
+            continue
+        rel_path = str(converted.get("path") or "").strip()
+        if not rel_path:
+            continue
+        results.append(
+            {
+                "original_hash": original_hash,
+                "class_name": converted.get("class"),
+                "converted_basename": converted.get("basename"),
+                "converted_path": rel_path,
+                "absolute_converted_path": str(raw_root / Path(rel_path)),
+                "duplicate_group_ids": list(dedup.get("duplicate_group_ids") or []),
+            }
+        )
+    return results
+
+
+def get_duplicate_review_context_from_raw_data_dir(
+    raw_data_dir: Path,
+    *,
+    run_id: Optional[str] = None,
+    logger=None,
+) -> tuple[Optional[UnifiedSnapshot], List[Dict[str, Any]]]:
+    """
+    Load the unified snapshot under *raw_data_dir* and build duplicate-resolver rows.
+
+    Returns ``(None, [])`` when no loadable snapshot exists. When a snapshot exists
+    but nothing was flagged for review, returns ``(snapshot, [])``.
+    """
+    rid = (run_id or "").strip() or None
+    root = Path(raw_data_dir)
+    snap = find_unified_snapshot([root], run_id=rid, logger=logger)
+    if snap is None:
+        return None, []
+    return snap, get_potentially_duplicated_items(snap)
 
 
 def find_latest_unified_snapshot_path(
