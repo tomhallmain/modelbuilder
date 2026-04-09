@@ -7,6 +7,7 @@ from pathlib import Path
 from PIL import Image
 
 from mb.data.class_layout import CONVERTED_MEDIA_SUBDIR
+import mb.data.convert as convert_mod
 from mb.data.convert import ImageConverter
 
 
@@ -57,3 +58,22 @@ def test_image_converter_resume_updates_same_snapshot_file(tmp_path: Path) -> No
     assert len(snaps_after) == 1
     assert snaps_after[0].resolve() == snaps[0].resolve()
     assert snaps_after[0].stat().st_mtime_ns >= mtime_before
+
+
+def test_validate_configuration_uses_wake_aware_isdir_check(
+    tmp_path: Path, monkeypatch
+) -> None:
+    raw = tmp_path / "raw_data"
+    raw.mkdir()
+    seen = {"called": False}
+
+    def _fake_isdir_with_retry(path, max_retries=3, retry_delay=1.0, wake_drive=True):
+        seen["called"] = True
+        assert str(path) == str(raw)
+        return False
+
+    monkeypatch.setattr(convert_mod.Utils, "isdir_with_retry", _fake_isdir_with_retry)
+
+    converter = ImageConverter(raw_data_dir=raw)
+    assert converter.validate_configuration() is False
+    assert seen["called"] is True

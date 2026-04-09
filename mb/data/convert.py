@@ -63,6 +63,7 @@ from mb.utils.utils import (
     assign_still_convert_output_basenames,
     convert_output_jpeg_filename,
     plain_still_jpeg_basename,
+    Utils,
 )
 
 # Configure logging
@@ -127,11 +128,8 @@ class ImageConverter:
 
     def validate_configuration(self) -> bool:
         """Validate the raw data directory."""
-        if not self.raw_data_dir.exists():
-            logger.error(f"Raw data directory does not exist: {self.raw_data_dir}")
-            return False
-            
-        if not self.raw_data_dir.is_dir():
+        # Wake-aware directory check helps avoid false negatives on sleeping external drives.
+        if not Utils.isdir_with_retry(str(self.raw_data_dir)):
             logger.error(f"Raw data path is not a directory: {self.raw_data_dir}")
             return False
             
