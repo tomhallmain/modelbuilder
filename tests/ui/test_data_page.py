@@ -99,8 +99,10 @@ def test_data_page_collect_and_restore_gui_state_roundtrip(qtbot, tmp_path) -> N
     page.tabs.setCurrentIndex(2)
     page.dedup_raw_data_dir.setText(str(tmp_path / "raw"))
     blob = page.collect_gui_state()
+    assert blob.get("pipeline", {}).get("raw_data_dir") == str(tmp_path / "raw")
     page2 = DataPage()
     qtbot.addWidget(page2)
     page2.restore_gui_state(blob)
     assert page2.tabs.currentIndex() == 2
     assert page2.dedup_raw_data_dir.text() == str(tmp_path / "raw")
+    assert page2.convert_raw_data_dir.text() == str(tmp_path / "raw")

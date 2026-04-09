@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import random
 import threading
+from functools import partial
 from pathlib import Path
 
 from PySide6.QtCore import Qt
@@ -121,21 +122,18 @@ class DataPage(QWidget):
         self._data_log_bridge = QtLogBridge(self)
         self._data_log_bridge.line.connect(self._append, Qt.ConnectionType.QueuedConnection)
         self._duplicates_resolver_dialog: DuplicatesResolverDialog | None = None
+        self._syncing_shared_pipeline_fields = False
 
         self.btn_validate.clicked.connect(self._validate_inputs)
         self.btn_run.clicked.connect(self._run_current_command)
         self.tabs.currentChanged.connect(self._validate_inputs)
 
-        for w in (
-            self.convert_raw_data_dir,
-            self.convert_run_id,
-            self.dedup_raw_data_dir,
-            self.dedup_resolver_run_id,
-            self.dataset_raw_data_dir,
-            self.dataset_data_dir,
-            self.dataset_run_id,
-        ):
-            w.textChanged.connect(self._sync_data_tab_run_without_log)
+        self._align_shared_raw_data_dir_to_gather_default()
+        for ed in self._shared_raw_data_dir_edits():
+            ed.textChanged.connect(partial(self._on_shared_raw_data_dir_changed, ed))
+        for ed in self._shared_run_id_edits():
+            ed.textChanged.connect(partial(self._on_shared_run_id_changed, ed))
+        self.dataset_data_dir.textChanged.connect(self._sync_data_tab_run_without_log)
 
         self.retranslate_ui(refresh_output=False)
 
@@ -220,22 +218,16 @@ class DataPage(QWidget):
         self.btn_convert_run_id_latest.setText(_("Latest"))
         self.btn_dedup_resolver_run_id_latest.setText(_("Latest"))
         self.btn_dataset_run_id_latest.setText(_("Latest"))
-        self.btn_convert_run_id_latest.setToolTip(
-            _(
-                "Set Run ID from the newest snapshot_*.json file under the raw data directory "
-                "(by file modification time)."
-            )
+        _tip_latest_under_raw = _(
+            "Set Run ID from the newest snapshot_*.json file under the shared raw data directory "
+            "(by file modification time)."
         )
+        self.btn_convert_run_id_latest.setToolTip(_tip_latest_under_raw)
+        self.btn_dedup_resolver_run_id_latest.setToolTip(_tip_latest_under_raw)
         self.btn_dataset_run_id_latest.setToolTip(
             _(
                 "Set Run ID from the newest snapshot_*.json found across the same search paths "
                 "as manual Run ID entry (raw dir, its parent, output data dir, and class folders)."
-            )
-        )
-        self.btn_dedup_resolver_run_id_latest.setToolTip(
-            _(
-                "Set Run ID from the newest snapshot_*.json file under the Deduplicate raw data directory "
-                "(by file modification time)."
             )
         )
         self.btn_dedup_open_resolver_from_snapshot.setText(
@@ -273,10 +265,115 @@ class DataPage(QWidget):
         self.output.clear()
         self._validate_inputs()
 
+    def _shared_raw_data_dir_edits(self) -> tuple[QLineEdit, ...]:
+        return (
+            self.gather_raw_data_dir,
+            self.convert_raw_data_dir,
+            self.dedup_raw_data_dir,
+            self.upscale_raw_data_dir,
+            self.dataset_raw_data_dir,
+        )
+
+    def _shared_run_id_edits(self) -> tuple[QLineEdit, ...]:
+        return (self.convert_run_id, self.dedup_resolver_run_id, self.dataset_run_id)
+
+    def _align_shared_raw_data_dir_to_gather_default(self) -> None:
+        """After tabs are built, match every raw-data field to Gather’s pipeline default."""
+        text = self.gather_raw_data_dir.text()
+        self._propagate_shared_raw_data_dir_from_text(text, source=None)
+
+    def _propagate_shared_raw_data_dir_from_text(self, text: str, *, source: QLineEdit | None) -> None:
+        if self._syncing_shared_pipeline_fields:
+            return
+        self._syncing_shared_pipeline_fields = True
+        try:
+            for ed in self._shared_raw_data_dir_edits():
+                if ed is source:
+                    continue
+                ed.blockSignals(True)
+                ed.setText(text)
+                ed.blockSignals(False)
+        finally:
+            self._syncing_shared_pipeline_fields = False
+
+    def _propagate_shared_run_id_from_text(self, text: str, *, source: QLineEdit | None) -> None:
+        if self._syncing_shared_pipeline_fields:
+            return
+        self._syncing_shared_pipeline_fields = True
+        try:
+            for ed in self._shared_run_id_edits():
+                if ed is source:
+                    continue
+                ed.blockSignals(True)
+                ed.setText(text)
+                ed.blockSignals(False)
+        finally:
+            self._syncing_shared_pipeline_fields = False
+
+    def _on_shared_raw_data_dir_changed(self, source: QLineEdit, *_args: object) -> None:
+        # QLineEdit.textChanged emits the new string; partial(..., source) forwards it as an extra arg.
+        self._propagate_shared_raw_data_dir_from_text(source.text(), source=source)
+        self._sync_data_tab_run_without_log()
+
+    def _on_shared_run_id_changed(self, source: QLineEdit, *_args: object) -> None:
+        self._propagate_shared_run_id_from_text(source.text(), source=source)
+        self._sync_data_tab_run_without_log()
+
+    def _pipeline_raw_path(self) -> Path:
+        return Path(self.gather_raw_data_dir.text().strip() or "raw_data")
+
+    def _pipeline_shared_dict(self) -> dict[str, str]:
+        return {
+            "raw_data_dir": self.gather_raw_data_dir.text(),
+            "run_id": self.convert_run_id.text(),
+        }
+
+    def _pipeline_shared_for_restore(self, state: dict) -> tuple[str, str]:
+        p = state.get("pipeline")
+        if isinstance(p, dict):
+            return str(p.get("raw_data_dir") or ""), str(p.get("run_id") or "")
+        raw_first = ""
+        for key in ("gather", "convert", "dedup", "upscale", "dataset"):
+            d = state.get(key) or {}
+            if isinstance(d, dict):
+                v = d.get("raw_data_dir")
+                if isinstance(v, str) and v.strip():
+                    raw_first = v.strip()
+                    break
+        run_id = ""
+        c = state.get("convert") or {}
+        if isinstance(c, dict):
+            run_id = str(c.get("run_id", ""))
+        if not run_id.strip():
+            ds = state.get("dataset") or {}
+            if isinstance(ds, dict):
+                run_id = str(ds.get("run_id", ""))
+        if not run_id.strip():
+            d = state.get("dedup") or {}
+            if isinstance(d, dict):
+                run_id = str(d.get("resolver_run_id", ""))
+        return raw_first, run_id
+
+    def _apply_shared_pipeline_text(self, raw_data_dir: str, run_id: str) -> None:
+        self._syncing_shared_pipeline_fields = True
+        try:
+            for ed in self._shared_raw_data_dir_edits():
+                ed.blockSignals(True)
+                ed.setText(raw_data_dir)
+                ed.blockSignals(False)
+            for ed in self._shared_run_id_edits():
+                ed.blockSignals(True)
+                ed.setText(run_id)
+                ed.blockSignals(False)
+        finally:
+            self._syncing_shared_pipeline_fields = False
+
     def collect_gui_state(self) -> dict:
         """Serializable form state; restored by :class:`ui.controllers.cache_controller.CacheController`."""
+        pipe = self._pipeline_shared_dict()
         return {
             "tab": int(self.tabs.currentIndex()),
+            "pipeline": pipe,
             "gather": {
                 "source": self.gather_source.text(),
                 "subdirs": self.gather_subdirs.text(),
@@ -284,29 +381,21 @@ class DataPage(QWidget):
                 "target_dir": self.gather_target_dir.text(),
                 "rejected_dir": self.gather_rejected_dir.text(),
                 "subdir_weights": self.gather_subdir_weights.text(),
-                "raw_data_dir": self.gather_raw_data_dir.text(),
             },
             "convert": {
-                "raw_data_dir": self.convert_raw_data_dir.text(),
                 "format": self.convert_format.text(),
-                "run_id": self.convert_run_id.text(),
                 "skip_space": bool(self.convert_skip_space.isChecked()),
             },
             "dedup": {
-                "raw_data_dir": self.dedup_raw_data_dir.text(),
                 "list_only": bool(self.dedup_list_only.isChecked()),
-                "resolver_run_id": self.dedup_resolver_run_id.text(),
             },
             "upscale": {
-                "raw_data_dir": self.upscale_raw_data_dir.text(),
                 "review_dir": self.upscale_review_dir.text(),
             },
             "dataset": {
-                "raw_data_dir": self.dataset_raw_data_dir.text(),
                 "data_dir": self.dataset_data_dir.text(),
                 "test_per_class": int(self.dataset_test_per_class.value()),
                 "seed": int(self.dataset_seed.value()),
-                "run_id": self.dataset_run_id.text(),
                 "max_train": int(self.dataset_max_train.value()),
                 "balance_train": bool(self.dataset_balance_train.isChecked()),
                 "allow_external": bool(self.dataset_allow_external.isChecked()),
@@ -323,6 +412,9 @@ class DataPage(QWidget):
             if isinstance(tab, int) and 0 <= tab < self.tabs.count():
                 self.tabs.setCurrentIndex(tab)
 
+            raw_g, run_g = self._pipeline_shared_for_restore(state)
+            self._apply_shared_pipeline_text(raw_g, run_g)
+
             g = state.get("gather") or {}
             if isinstance(g, dict):
                 self.gather_source.setText(str(g.get("source", "")))
@@ -333,29 +425,22 @@ class DataPage(QWidget):
                 self.gather_target_dir.setText(str(g.get("target_dir", "")))
                 self.gather_rejected_dir.setText(str(g.get("rejected_dir", "")))
                 self.gather_subdir_weights.setText(str(g.get("subdir_weights", "")))
-                self.gather_raw_data_dir.setText(str(g.get("raw_data_dir", "")))
 
             c = state.get("convert") or {}
             if isinstance(c, dict):
-                self.convert_raw_data_dir.setText(str(c.get("raw_data_dir", "")))
                 self.convert_format.setText(str(c.get("format", "jpeg")))
-                self.convert_run_id.setText(str(c.get("run_id", "")))
                 self.convert_skip_space.setChecked(bool(c.get("skip_space", False)))
 
             d = state.get("dedup") or {}
             if isinstance(d, dict):
-                self.dedup_raw_data_dir.setText(str(d.get("raw_data_dir", "")))
                 self.dedup_list_only.setChecked(bool(d.get("list_only", False)))
-                self.dedup_resolver_run_id.setText(str(d.get("resolver_run_id", "")))
 
             u = state.get("upscale") or {}
             if isinstance(u, dict):
-                self.upscale_raw_data_dir.setText(str(u.get("raw_data_dir", "")))
                 self.upscale_review_dir.setText(str(u.get("review_dir", "")))
 
             ds = state.get("dataset") or {}
             if isinstance(ds, dict):
-                self.dataset_raw_data_dir.setText(str(ds.get("raw_data_dir", "")))
                 self.dataset_data_dir.setText(str(ds.get("data_dir", "")))
                 tpc = ds.get("test_per_class")
                 if isinstance(tpc, int):
@@ -363,7 +448,6 @@ class DataPage(QWidget):
                 sd = ds.get("seed")
                 if isinstance(sd, int):
                     self.dataset_seed.setValue(sd)
-                self.dataset_run_id.setText(str(ds.get("run_id", "")))
                 mt = ds.get("max_train")
                 if isinstance(mt, int):
                     self.dataset_max_train.setValue(mt)
@@ -415,7 +499,7 @@ class DataPage(QWidget):
         self.convert_format = QLineEdit("jpeg")
         self.convert_run_id = QLineEdit()
         convert_run_id_row, self.btn_convert_run_id_latest = self._run_id_row(
-            self.convert_run_id, self._on_convert_use_latest_run_id
+            self.convert_run_id, self._on_latest_run_id_under_shared_raw_dir
         )
         form.addRow(_("Raw data dir"), self._path_row(self.convert_raw_data_dir, select_dir=True))
         form.addRow(_("Format (jpeg/jpg)"), self.convert_format)
@@ -447,7 +531,7 @@ class DataPage(QWidget):
         self.dedup_resolver_run_id = QLineEdit()
         dedup_resolver_rid_row, self.btn_dedup_resolver_run_id_latest = self._run_id_row(
             self.dedup_resolver_run_id,
-            self._on_dedup_resolver_use_latest_run_id,
+            self._on_latest_run_id_under_shared_raw_dir,
         )
         form.addRow(_("Snapshot Run ID (optional)"), dedup_resolver_rid_row)
         self.btn_dedup_open_resolver_from_snapshot = QPushButton()
@@ -659,8 +743,8 @@ class DataPage(QWidget):
                 edit.setText(value)
         self._validate_inputs()
 
-    def _on_convert_use_latest_run_id(self) -> None:
-        raw = Path(self.convert_raw_data_dir.text().strip() or "raw_data")
+    def _on_latest_run_id_under_shared_raw_dir(self) -> None:
+        raw = self._pipeline_raw_path()
         rid = run_id_from_latest_unified_snapshot([raw], quiet=True)
         if not rid:
             qt_alert(
@@ -673,22 +757,8 @@ class DataPage(QWidget):
         self.convert_run_id.setText(rid)
         self._sync_data_tab_run_without_log()
 
-    def _on_dedup_resolver_use_latest_run_id(self) -> None:
-        raw = Path(self.dedup_raw_data_dir.text().strip() or "raw_data")
-        rid = run_id_from_latest_unified_snapshot([raw], quiet=True)
-        if not rid:
-            qt_alert(
-                self,
-                _("No snapshot found"),
-                _("No snapshot_*.json files were found under:\n{path}").format(path=raw),
-                kind="warning",
-            )
-            return
-        self.dedup_resolver_run_id.setText(rid)
-        self._sync_data_tab_run_without_log()
-
     def _on_dataset_use_latest_run_id(self) -> None:
-        raw_d = Path(self.dataset_raw_data_dir.text().strip() or "raw_data")
+        raw_d = self._pipeline_raw_path()
         data_d = Path(self.dataset_data_dir.text().strip() or "data")
         paths = unified_snapshot_search_paths_for_dataset(raw_d, data_d)
         rid = run_id_from_latest_unified_snapshot(paths, quiet=True)
@@ -708,7 +778,7 @@ class DataPage(QWidget):
 
     def _refresh_run_id_field_tooltips(self) -> None:
         """Explain expected snapshot filename and search paths from current form values."""
-        raw_c = Path(self.convert_raw_data_dir.text().strip() or "raw_data")
+        raw_shared = self._pipeline_raw_path()
         self.convert_run_id.setToolTip(
             _(
                 "Optional. Leave empty to start a new conversion run and write a new snapshot file.\n\n"
@@ -717,9 +787,9 @@ class DataPage(QWidget):
                 "placed directly under the raw data directory:\n"
                 "  {raw}\n"
                 "Example: snapshot_20260408_abc123.json"
-            ).format(raw=raw_c)
+            ).format(raw=raw_shared)
         )
-        raw_d = Path(self.dataset_raw_data_dir.text().strip() or "raw_data")
+        raw_d = raw_shared
         data_d = Path(self.dataset_data_dir.text().strip() or "data")
         if raw_d.exists():
             paths = unified_snapshot_search_paths_for_dataset(raw_d, data_d)
@@ -742,14 +812,16 @@ class DataPage(QWidget):
         self._refresh_dedup_resolver_run_id_tooltip()
 
     def _refresh_dedup_resolver_run_id_tooltip(self) -> None:
-        raw = Path(self.dedup_raw_data_dir.text().strip() or "raw_data")
+        raw = self._pipeline_raw_path()
         self.dedup_resolver_run_id.setToolTip(
             _(
-                "Optional. Leave empty to load the latest loadable snapshot under:\n"
+                "Optional. Same Run ID as Convert / Create Dataset (shared across the Data page). "
+                "Leave empty to load the latest loadable snapshot under:\n"
                 "  {raw}\n\n"
                 "If set, the file must exist and be named:\n"
                 "  snapshot_<run_id>.json\n"
-                "in that directory (used only to open the duplicate resolver from disk, not for 'Run')."
+                "in that directory. Used when opening the duplicate resolver from disk; deduplicate "
+                "Run does not require a Run ID."
             ).format(raw=raw)
         )
 
@@ -834,7 +906,7 @@ class DataPage(QWidget):
             fmt = self.convert_format.text().strip().lower() or "jpeg"
             if fmt not in {"jpeg", "jpg"}:
                 raise ValueError(_("Format must be jpeg or jpg."))
-            raw_data_dir = Path(self.convert_raw_data_dir.text().strip() or "raw_data")
+            raw_data_dir = self._pipeline_raw_path()
             run_id = self.convert_run_id.text().strip() or None
             if run_id:
                 if not raw_data_dir.exists():
@@ -857,17 +929,17 @@ class DataPage(QWidget):
             }
         if command == ModelBuildStepCommand.DEDUPLICATE:
             return {
-                "raw_data_dir": Path(self.dedup_raw_data_dir.text().strip() or "raw_data"),
+                "raw_data_dir": self._pipeline_raw_path(),
                 "list_only": bool(self.dedup_list_only.isChecked()),
             }
         if command == ModelBuildStepCommand.UPSCALE:
             review_raw = self.upscale_review_dir.text().strip()
             return {
-                "raw_data_dir": Path(self.upscale_raw_data_dir.text().strip() or "raw_data"),
+                "raw_data_dir": self._pipeline_raw_path(),
                 "review_dir": Path(review_raw) if review_raw else None,
             }
         if command == ModelBuildStepCommand.CREATE_DATASET:
-            raw_data_dir = Path(self.dataset_raw_data_dir.text().strip() or "raw_data")
+            raw_data_dir = self._pipeline_raw_path()
             data_dir = Path(self.dataset_data_dir.text().strip() or "data")
             if not raw_data_dir.exists():
                 raise ValueError(_("Raw data dir does not exist."))
@@ -1216,7 +1288,7 @@ class DataPage(QWidget):
         )
 
     def _on_open_duplicate_resolver_from_snapshot(self) -> None:
-        raw = Path(self.dedup_raw_data_dir.text().strip() or "raw_data")
+        raw = self._pipeline_raw_path()
         if not raw.exists():
             qt_alert(
                 self,
@@ -1225,7 +1297,7 @@ class DataPage(QWidget):
                 kind="warning",
             )
             return
-        run_id = self.dedup_resolver_run_id.text().strip() or None
+        run_id = self.convert_run_id.text().strip() or None
         snap, items = get_duplicate_review_context_from_raw_data_dir(
             raw, run_id=run_id, logger=logger
         )
