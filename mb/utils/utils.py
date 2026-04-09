@@ -6,8 +6,9 @@ import hashlib
 import locale
 import logging
 import sys
+from collections import defaultdict
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -128,6 +129,71 @@ def convert_output_jpeg_filename(
         output_dir=output_dir,
         also_under_dirs=also_under_dirs,
     )
+
+
+_JPEG_SOURCE_SUFFIXES = frozenset({".jpg", ".jpeg", ".jpe"})
+
+
+def plain_still_jpeg_basename(source_stem: str) -> str:
+    """
+    Basename ``{stem}.jpg`` for a still-image convert output, trimmed to fit one NTFS component.
+
+    Used together with :func:`assign_still_convert_output_basenames` so one source per stem group
+    can use this plain name; additional sources with the same stem use :func:`convert_output_jpeg_filename`.
+    """
+    if not source_stem:
+        raise ValueError("plain_still_jpeg_basename requires a non-empty stem")
+    max_plain_stem = _WIN_MAX_COMPONENT - len(".jpg")
+    stem = source_stem[:max_plain_stem] if len(source_stem) > max_plain_stem else source_stem
+    return f"{stem}.jpg"
+
+
+def assign_still_convert_output_basenames(
+    source_paths: Sequence[Path],
+    *,
+    output_dir: Optional[Path] = None,
+    also_under_dirs: Optional[Tuple[Path, ...]] = None,
+) -> Dict[Path, str]:
+    """
+    Map each still-image source path to its ``CONVERTED/`` JPEG basename.
+
+    For each distinct :attr:`~pathlib.PurePath.stem`, **one** file (preferring an existing JPEG
+    source over other extensions, then lexicographic path) is assigned ``{stem}.jpg`` (see
+    :func:`plain_still_jpeg_basename`). Every other source with that stem is assigned
+    :func:`convert_output_jpeg_filename` (path-hash affix) so names stay unique.
+
+    Stems longer than a single component allows, or an empty stem, fall back to hash-only names for
+    every source in that group.
+    """
+    paths = list(source_paths)
+    if not paths:
+        return {}
+    max_plain_stem = _WIN_MAX_COMPONENT - len(".jpg")
+    by_stem: dict[str, list[Path]] = defaultdict(list)
+    for p in paths:
+        by_stem[p.stem].append(p)
+    out: Dict[Path, str] = {}
+    for stem, group in by_stem.items():
+        if not stem or len(stem) > max_plain_stem:
+            for p in group:
+                out[p] = convert_output_jpeg_filename(
+                    p, output_dir=output_dir, also_under_dirs=also_under_dirs
+                )
+            continue
+        ranked = sorted(
+            group,
+            key=lambda p: (
+                0 if p.suffix.lower() in _JPEG_SOURCE_SUFFIXES else 1,
+                str(p),
+            ),
+        )
+        plain_basename = plain_still_jpeg_basename(stem)
+        out[ranked[0]] = plain_basename
+        for p in ranked[1:]:
+            out[p] = convert_output_jpeg_filename(
+                p, output_dir=output_dir, also_under_dirs=also_under_dirs
+            )
+    return out
 
 
 class Utils:

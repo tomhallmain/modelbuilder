@@ -59,7 +59,11 @@ from mb.data.media_utils import (
 from mb.pipeline_config import get_pipeline_config
 from mb.models.types import ModelBuildStepCommand, ModelType, VisualMediaSourceType
 from mb.space_estimate import check_convert_allowed, merge_convert_estimate_into_snapshot
-from mb.utils.utils import convert_output_jpeg_filename
+from mb.utils.utils import (
+    assign_still_convert_output_basenames,
+    convert_output_jpeg_filename,
+    plain_still_jpeg_basename,
+)
 
 # Configure logging
 logger = setup_logging(script_name="convert")
@@ -88,6 +92,7 @@ class ImageConverter:
             'files_converted': 0,
             'files_copied': 0,
             'files_visual_extracted': 0,
+            'files_promoted_to_plain': 0,
             'files_skipped': 0,
             'errors': defaultdict(list),
         }
@@ -347,7 +352,49 @@ class ImageConverter:
             converted_sha256=conv_sha,
             original_info={"original_hash": original_hash},
         )
-    
+
+    @staticmethod
+    def _still_converted_nonempty(path: Path) -> bool:
+        try:
+            return path.is_file() and path.stat().st_size > 0
+        except OSError:
+            return False
+
+    def _resolve_still_skip_or_promote_legacy(
+        self,
+        source_path: Path,
+        target_filename: str,
+        output_dir: Path,
+    ) -> Optional[Tuple[Path, bool]]:
+        """
+        If the assigned output already exists, return ``(path, False)``.
+
+        If the assigned name is the plain ``{stem}.jpg`` and only a prior hash-suffixed file exists
+        (older converter output), rename it to the plain name when possible and return
+        ``(plain_path, True)``.
+        """
+        target_path = output_dir / target_filename
+        if self._still_converted_nonempty(target_path):
+            return (target_path, False)
+        try:
+            expected_plain = plain_still_jpeg_basename(source_path.stem)
+        except ValueError:
+            return None
+        if target_filename != expected_plain:
+            return None
+        legacy_name = convert_output_jpeg_filename(source_path, output_dir=output_dir)
+        if legacy_name == target_filename:
+            return None
+        legacy_path = output_dir / legacy_name
+        if not self._still_converted_nonempty(legacy_path):
+            return None
+        try:
+            output_dir.mkdir(parents=True, exist_ok=True)
+            legacy_path.replace(target_path)
+        except OSError:
+            return (legacy_path, False)
+        return (target_path, True)
+
     def process_files(self, image_files: List[Path], class_dir: Path) -> None:
         """
         Process the image files for a class directory, converting to JPEG or copying if already JPEG.
@@ -360,7 +407,11 @@ class ImageConverter:
         output_dir = class_dir / CONVERTED_MEDIA_SUBDIR
         output_dir.mkdir(parents=True, exist_ok=True)
         logger.info(f"Processing {len(image_files)} files for {class_dir.name} (output: {CONVERTED_MEDIA_SUBDIR}/)")
-        
+
+        basename_by_source = assign_still_convert_output_basenames(
+            image_files, output_dir=output_dir
+        )
+
         for i, source_path in enumerate(image_files, 1):
             if i % 100 == 0:
                 check_cancel_event(getattr(self, "_cancel_event", None))
@@ -369,22 +420,23 @@ class ImageConverter:
             # Determine if file is already JPEG
             is_jpeg = source_path.suffix.lower() in normalized_jpeg_suffixes()
             
-            target_filename = convert_output_jpeg_filename(
-                source_path, output_dir=output_dir
-            )
+            target_filename = basename_by_source[source_path]
             target_path = output_dir / target_filename
 
-            # Skip if this source's output already exists (same path → same affix)
-            try:
-                if target_path.stat().st_size > 0:
-                    logger.debug(
-                        f"Skipping {source_path.name} - already exists in {CONVERTED_MEDIA_SUBDIR}/: {target_path.name}"
-                    )
-                    self._sync_post_conversion_still(class_dir, source_path, target_path)
-                    self.stats['files_skipped'] += 1
-                    continue
-            except (OSError, FileNotFoundError):
-                pass
+            skip_t = self._resolve_still_skip_or_promote_legacy(
+                source_path, target_filename, output_dir
+            )
+            if skip_t is not None:
+                skip_existing, promoted = skip_t
+                logger.debug(
+                    f"Skipping {source_path.name} — output present in {CONVERTED_MEDIA_SUBDIR}/: "
+                    f"{skip_existing.name}"
+                )
+                self._sync_post_conversion_still(class_dir, source_path, skip_existing)
+                self.stats['files_skipped'] += 1
+                if promoted:
+                    self.stats['files_promoted_to_plain'] += 1
+                continue
 
             # Process the file
             if is_jpeg:
@@ -501,10 +553,16 @@ class ImageConverter:
                 if len(errors) > max_detail:
                     logger.info(f"    ... and {len(errors) - max_detail} more")
         
+        if self.stats["files_promoted_to_plain"]:
+            logger.info(
+                "Legacy hash-named JPEGs renamed to plain stem.jpg: "
+                f"{self.stats['files_promoted_to_plain']}"
+            )
         total_processed = (
             self.stats["files_converted"]
             + self.stats["files_copied"]
             + self.stats["files_visual_extracted"]
+            + self.stats["files_promoted_to_plain"]
         )
         logger.info(f"\nTotal files processed: {total_processed}")
     
@@ -668,10 +726,12 @@ class ImageConverter:
             self.stats["files_converted"]
             + self.stats["files_copied"]
             + self.stats["files_visual_extracted"]
+            + self.stats["files_promoted_to_plain"]
         ) > 0
         message = (
             f"Converted {self.stats['files_converted']} files, copied {self.stats['files_copied']} JPEG files, "
-            f"extracted {self.stats['files_visual_extracted']} frame(s) from video/GIF"
+            f"extracted {self.stats['files_visual_extracted']} frame(s) from video/GIF, "
+            f"promoted {self.stats['files_promoted_to_plain']} legacy hash-named JPEG(s) to plain stem.jpg"
         )
         log_completion_info(logger, success, message)
         

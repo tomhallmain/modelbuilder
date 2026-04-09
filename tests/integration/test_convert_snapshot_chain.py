@@ -2,8 +2,8 @@
 
 **Tests that touch convert reruns / ``run_id`` resume**
 
-- :func:`test_convert_records_converted_paths_for_hash_suffixed_outputs` — first convert run; snapshot
-  ``converted`` block for hash-style JPEG names.
+- :func:`test_convert_records_converted_paths_for_plain_stem_outputs` — first convert run; snapshot
+  ``converted`` block for plain ``{stem}.jpg`` when that source is the stem winner.
 - :func:`test_convert_resume_skip_backfills_converted_metadata` — second convert with same ``run_id``,
   mix of skip (existing output) + new source file.
 - :func:`test_convert_second_run_all_skipped_returns_false` — resume with nothing left to do;
@@ -19,12 +19,13 @@
   pipeline then MD5 via ``dataset.path`` (same mechanism as training snapshot updates).
 - :func:`test_calculate_file_hash_returns_converted_md5_via_dataset_path` — synthetic snapshot only
   (no filesystem pipeline).
-- :func:`test_run_two_retries_new_sources_without_duplicating_run_one_outputs` — mimics a prior run
-  with four successes plus one failed JPEG, then a second run with ``run_id`` that fixes the failure
-  and adds new sources; asserts **no duplicate** ``CONVERTED`` basenames and that prior outputs stay
-  stable (idempotency is **filesystem**-based: existing target with size ``> 0`` → skip, snapshot
-  resynced via :func:`ImageConverter._sync_post_conversion_still`). Also notes a possible **extra**
-  snapshot row if the same path's bytes change (failed then fixed file: MD5 key differs).
+- :func:`test_run_two_retries_new_sources_without_duplicating_run_one_outputs` — resume with
+  :func:`~mb.utils.utils.assign_still_convert_output_basenames` (one plain ``{stem}.jpg`` per stem,
+  hash affix for stem collisions).
+- :func:`test_convert_resume_plain_stem_output_idempotent` — second run skips when ``{stem}.jpg``
+  already exists.
+- :func:`test_convert_promotes_legacy_hash_suffixed_file_to_plain_stem` — hash-only output on disk
+  is renamed to plain ``{stem}.jpg`` when that is the assigned target for a sole source.
 """
 
 from __future__ import annotations
@@ -41,7 +42,11 @@ from mb.data.dataset import MIN_FILE_SIZE
 from mb.data.convert import ImageConverter
 from mb.data.dataset import DatasetCreator
 from mb.utils.snapshot import UnifiedSnapshot, calculate_file_hash, find_unified_snapshot
-from mb.utils.utils import convert_output_jpeg_filename
+from mb.utils.utils import (
+    assign_still_convert_output_basenames,
+    convert_output_jpeg_filename,
+    plain_still_jpeg_basename,
+)
 
 
 def _rng_png(path: Path, seed: int = 42) -> None:
@@ -76,7 +81,7 @@ def _converted_jpeg_tree(conv_dir: Path) -> dict[str, str]:
     return {p.name: _sha256_file(p) for p in sorted(conv_dir.glob("*.jpg"))}
 
 
-def test_convert_records_converted_paths_for_hash_suffixed_outputs(tmp_path: Path) -> None:
+def test_convert_records_converted_paths_for_plain_stem_outputs(tmp_path: Path) -> None:
     """Still-image convert must populate ``converted`` so create-dataset can match by path (not stem-only)."""
     raw = tmp_path / "raw_data"
     cdir = raw / "solo"
@@ -94,7 +99,7 @@ def test_convert_records_converted_paths_for_hash_suffixed_outputs(tmp_path: Pat
     rec = blob["images"][0]
     assert rec.get("converted") is not None
     out_dir = cdir / CONVERTED_MEDIA_SUBDIR
-    expected_name = convert_output_jpeg_filename(png, output_dir=out_dir)
+    expected_name = plain_still_jpeg_basename(png.stem)
     assert rec["converted"]["basename"] == expected_name
     rel = rec["converted"]["path"].replace("\\", "/")
     assert rel.endswith(f"solo/{CONVERTED_MEDIA_SUBDIR}/{expected_name}")
@@ -135,9 +140,7 @@ def test_convert_then_dataset_preserves_single_snapshot_record(tmp_path: Path) -
     assert conv.run(skip_space_check=True) is True
     rid = conv.run_id
 
-    out_jpg = cdir / CONVERTED_MEDIA_SUBDIR / convert_output_jpeg_filename(
-        png, output_dir=cdir / CONVERTED_MEDIA_SUBDIR
-    )
+    out_jpg = cdir / CONVERTED_MEDIA_SUBDIR / plain_still_jpeg_basename(png.stem)
     assert out_jpg.stat().st_size >= MIN_FILE_SIZE
 
     data_dir = tmp_path / "data"
@@ -232,10 +235,10 @@ def test_run_two_retries_new_sources_without_duplicating_run_one_outputs(tmp_pat
     ``a.jpg``, ``b.jpg``, ``c.png``, ``d.webp``; ``e.jpg`` was invalid (copy fails); ``a.png`` was not
     present yet (stands in for a source that had no output / pending retry).
 
-    Run 2 uses the same ``run_id``. For each prior success, the canonical output name is
-    :func:`~mb.utils.utils.convert_output_jpeg_filename` — deterministic from the source path — so
-    **existing files cause a skip**, not a second hashed filename. Snapshot rows are rebuilt from
-    the pre-pass plus per-file skips/copies; we do **not** gate skips on snapshot alone.
+    Run 2 uses the same ``run_id``. Per-class basenames come from
+    :func:`~mb.utils.utils.assign_still_convert_output_basenames`: one plain ``{stem}.jpg`` per stem
+    (JPEG sources preferred), hash-affixed names for additional same-stem sources. Skip/promote logic
+    in ``ImageConverter.process_files`` avoids rewriting existing outputs.
 
     Before run 2 we take ``_converted_jpeg_tree`` (sorted basenames to SHA-256 of file bytes).
     After run 2 we require that tree to equal ``{**tree_before_run2, new_a_png: …, new_e: …}`` so the
@@ -284,8 +287,17 @@ def test_run_two_retries_new_sources_without_duplicating_run_one_outputs(tmp_pat
         assert tree_after_run2[name] == digest
     added_names = set(tree_after_run2) - set(tree_before_run2)
     assert len(added_names) == 2
-    exp_a_png = convert_output_jpeg_filename(cls_dir / "a.png", output_dir=conv_dir)
-    exp_e = convert_output_jpeg_filename(cls_dir / "e.jpg", output_dir=conv_dir)
+    peers_r2 = [
+        cls_dir / "a.jpg",
+        cls_dir / "b.jpg",
+        cls_dir / "c.png",
+        cls_dir / "d.webp",
+        cls_dir / "a.png",
+        cls_dir / "e.jpg",
+    ]
+    m2 = assign_still_convert_output_basenames(peers_r2, output_dir=conv_dir)
+    exp_a_png = m2[cls_dir / "a.png"]
+    exp_e = m2[cls_dir / "e.jpg"]
     assert added_names == {exp_a_png, exp_e}
     # Full tree after run 2 is exactly run-1 bytes plus two new files (explicit merge).
     assert tree_after_run2 == {
@@ -296,7 +308,7 @@ def test_run_two_retries_new_sources_without_duplicating_run_one_outputs(tmp_pat
     # Each source maps to exactly one deterministic basename — no second file for the same source.
     for stem in ("a.jpg", "b.jpg", "c.png", "d.webp", "a.png"):
         p = cls_dir / stem
-        expected = convert_output_jpeg_filename(p, output_dir=conv_dir)
+        expected = m2[p]
         assert expected in after_two
         assert (conv_dir / expected).stat().st_size > 0
     assert exp_e in after_two
@@ -311,6 +323,47 @@ def test_run_two_retries_new_sources_without_duplicating_run_one_outputs(tmp_pat
     # ``e.jpg`` was invalid in run 1 then replaced: pre-conversion keys are MD5-of-file, so the old
     # failed-bytes row can remain alongside the new successful row (snapshot does not prune orphans).
     assert len(snap.images) in (6, 7)
+
+
+def test_convert_resume_plain_stem_output_idempotent(tmp_path: Path) -> None:
+    """Second convert with same ``run_id`` skips when ``CONVERTED/{stem}.jpg`` already exists."""
+    raw = tmp_path / "raw_data"
+    cls_dir = raw / "solo"
+    conv_dir = cls_dir / CONVERTED_MEDIA_SUBDIR
+    _write_jpeg(cls_dir / "u01.jpg", seed=11)
+
+    first = ImageConverter(raw_data_dir=raw)
+    assert first.run(skip_space_check=True) is True
+    rid = first.run_id
+    assert {p.name for p in conv_dir.glob("*.jpg")} == {"u01.jpg"}
+
+    second = ImageConverter(raw_data_dir=raw)
+    assert second.run(skip_space_check=True, run_id=rid) is False
+    assert {p.name for p in conv_dir.glob("*.jpg")} == {"u01.jpg"}
+
+
+def test_convert_promotes_legacy_hash_suffixed_file_to_plain_stem(tmp_path: Path) -> None:
+    """
+    If only the old hash-suffixed file exists for a sole source, rename it to plain ``{stem}.jpg``
+    and sync the snapshot (no second JPEG).
+    """
+    raw = tmp_path / "raw_data"
+    cls_dir = raw / "solo"
+    conv_dir = cls_dir / CONVERTED_MEDIA_SUBDIR
+    src = cls_dir / "u01.jpg"
+    _write_jpeg(src, seed=11)
+    legacy_name = convert_output_jpeg_filename(src, output_dir=conv_dir)
+    assert legacy_name != "u01.jpg"
+    conv_dir.mkdir(parents=True, exist_ok=True)
+    jpeg_bytes = src.read_bytes()
+    (conv_dir / legacy_name).write_bytes(jpeg_bytes)
+
+    conv = ImageConverter(raw_data_dir=raw)
+    assert conv.run(skip_space_check=True) is True
+    assert conv.stats["files_promoted_to_plain"] == 1
+    assert not (conv_dir / legacy_name).exists()
+    assert (conv_dir / "u01.jpg").is_file()
+    assert {p.name for p in conv_dir.glob("*.jpg")} == {"u01.jpg"}
 
 
 def test_calculate_file_hash_returns_converted_md5_via_dataset_path(tmp_path: Path) -> None:
