@@ -13,6 +13,7 @@ import sys
 import shutil
 import random
 import threading
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Optional, Tuple
 from collections import defaultdict
@@ -31,9 +32,11 @@ from mb.cancellation import check_cancel_event
 from mb.utils.snapshot import (
     UnifiedSnapshot,
     find_unified_snapshot,
+    flatten_convert_stats_errors,
     generate_run_id,
     preload_gather_cache,
     save_unified_snapshot,
+    set_step_errors_for_invocation,
 )
 from mb.data.class_layout import (
     CONVERTED_MEDIA_SUBDIR,
@@ -53,7 +56,7 @@ from mb.data.media_utils import (
     extract_random_video_frame_to_jpeg,
 )
 from mb.pipeline_config import get_pipeline_config
-from mb.models.types import ModelType, VisualMediaSourceType
+from mb.models.types import ModelBuildStepCommand, ModelType, VisualMediaSourceType
 from mb.space_estimate import check_convert_allowed, merge_convert_estimate_into_snapshot
 
 # Configure logging
@@ -94,6 +97,7 @@ class ImageConverter:
         self.unified_snapshot: Optional[UnifiedSnapshot] = None
         self.run_id: Optional[str] = None
         self._requested_run_id: Optional[str] = None
+        self._convert_step_started_at: Optional[str] = None
         self._rng: random.Random = random.Random()
 
     def _scan_suffixes(self) -> List[str]:
@@ -534,6 +538,7 @@ class ImageConverter:
                 raw_data_dir=str(self.raw_data_dir),
             )
         merge_convert_estimate_into_snapshot(self.unified_snapshot, self._last_space_report)
+        self._convert_step_started_at = datetime.now(timezone.utc).isoformat()
 
         # Preload gather cache for faster hash lookups
         cache_loaded = preload_gather_cache(self.raw_data_dir)
@@ -595,6 +600,13 @@ class ImageConverter:
             return True  # Not an error, just nothing to do
         
         # Save unified snapshot at raw_data level (single file for all classes)
+        if self.unified_snapshot and self._convert_step_started_at:
+            set_step_errors_for_invocation(
+                self.unified_snapshot,
+                ModelBuildStepCommand.CONVERT.value,
+                self._convert_step_started_at,
+                flatten_convert_stats_errors(self.stats.get("errors")),
+            )
         snapshot_path = save_unified_snapshot(self.unified_snapshot, self.raw_data_dir, logger)
         logger.info(f"Run ID for this pipeline: {self.run_id}")
         logger.info(

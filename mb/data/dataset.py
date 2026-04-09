@@ -24,6 +24,7 @@ import sys
 import shutil
 import random
 import threading
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Optional
 from collections import defaultdict
@@ -44,12 +45,14 @@ from mb.utils.snapshot import (
     find_unified_snapshot,
     preload_gather_cache,
     save_unified_snapshot,
+    set_step_errors_for_invocation,
 )
 from mb.data.class_layout import (
     discover_class_names,
     normalize_qualifying_subdir,
     resolve_class_media_dir,
 )
+from mb.models.types import ModelBuildStepCommand
 from mb.pipeline_config import get_pipeline_config
 from mb.space_estimate import check_create_dataset_allowed
 
@@ -152,6 +155,14 @@ class DatasetCreator:
         
         # Unified snapshot (will be loaded)
         self.unified_snapshot: Optional[UnifiedSnapshot] = None
+        self._create_dataset_step_started_at: Optional[str] = None
+        self._dataset_pipeline_issues: List[str] = []
+
+    def _note_dataset_issue(self, message: str) -> None:
+        """Collect human-readable issues for :attr:`UnifiedSnapshot.step_errors`."""
+        text = str(message).strip()
+        if text:
+            self._dataset_pipeline_issues.append(text)
 
     def _resolve_class_names(self) -> bool:
         """Set :attr:`_class_names` and :attr:`_class_qualifying_subdir` from overrides and pipeline."""
@@ -241,6 +252,7 @@ class DatasetCreator:
                 # Skip if hash calculation failed
                 if md5_hash is None or sha256_hash is None:
                     logger.warning(f"Failed to calculate hash for {image_file}, skipping")
+                    self._note_dataset_issue(f"hash_failed: {image_file}")
                     continue
                 
                 # Generate hash-based filename (using SHA256)
@@ -331,6 +343,7 @@ class DatasetCreator:
         return None
 
     def _move_train_image_to_review(self, class_name: str, image_file: Path, reason: str) -> None:
+        self._note_dataset_issue(f"review {class_name}/{image_file.name}: {reason}")
         logger.warning(
             "Image %s in class '%s' is %s, moving to review directory",
             image_file.name,
@@ -455,6 +468,7 @@ class DatasetCreator:
             return
         
         if target_count == 0:
+            self._note_dataset_issue("balance: no images found in any class")
             logger.warning("Cannot balance: no images found in any class")
             return
         
@@ -490,6 +504,9 @@ class DatasetCreator:
                 
                 logger.info(f"Balanced {class_name}: kept {target_count}, removed {len(images_to_remove)}")
             elif current_count < target_count:
+                self._note_dataset_issue(
+                    f"balance: class '{class_name}' has {current_count} images, cannot reach target {target_count}"
+                )
                 logger.warning(f"Class '{class_name}' has only {current_count} images, cannot reach target of {target_count}")
             else:
                 logger.info(f"Class '{class_name}' already at target count: {current_count}")
@@ -525,6 +542,9 @@ class DatasetCreator:
             train_images = list(train_class_dir.glob("*.jpg"))
             
             if len(train_images) < self.test_per_class:
+                self._note_dataset_issue(
+                    f"test_split: class '{class_name}' has {len(train_images)} images, fewer than test_per_class={self.test_per_class}"
+                )
                 logger.warning(f"Not enough images in class '{class_name}': {len(train_images)} available, {self.test_per_class} needed")
                 # Use all available images for test
                 selected_images = train_images
@@ -551,7 +571,15 @@ class DatasetCreator:
             # Update data directory if not set
             if not self.unified_snapshot.data_directory:
                 self.unified_snapshot.data_directory = str(self.data_dir)
-            
+
+            if self._create_dataset_step_started_at:
+                set_step_errors_for_invocation(
+                    self.unified_snapshot,
+                    ModelBuildStepCommand.CREATE_DATASET.value,
+                    self._create_dataset_step_started_at,
+                    self._dataset_pipeline_issues,
+                )
+
             # Save unified snapshot
             snapshot_path = save_unified_snapshot(self.unified_snapshot, self.data_dir, logger)
             if snapshot_path:
@@ -674,6 +702,9 @@ class DatasetCreator:
             logger.error("No unified snapshot found! Run ``mb data convert`` (or equivalent) first to create a snapshot.")
             logger.error("Or provide a valid --run-id if the snapshot exists elsewhere.")
             return False
+
+        self._create_dataset_step_started_at = datetime.now(timezone.utc).isoformat()
+        self._dataset_pipeline_issues = []
 
         allowed, _ = check_create_dataset_allowed(
             self.raw_data_dir,

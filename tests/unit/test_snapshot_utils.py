@@ -10,14 +10,18 @@ from pathlib import Path
 import pytest
 
 from mb.utils import snapshot as snapshot_mod
+from mb.models.types import ModelBuildStepCommand
 from mb.utils.snapshot import (
     UnifiedSnapshot,
     calculate_file_hash,
     find_latest_unified_snapshot_path,
     find_unified_snapshot,
+    flatten_convert_stats_errors,
     generate_run_id,
     preload_gather_cache,
+    register_step_error,
     save_unified_snapshot,
+    set_step_errors_for_invocation,
 )
 
 
@@ -94,6 +98,37 @@ def test_unified_snapshot_save_load_roundtrip(tmp_path: Path) -> None:
     assert loaded.training_timing is not None
     assert loaded.training_timing["seconds"]["total"] == 1.5
     assert loaded.to_dict().get("training_timing", {}).get("framework") == "pytorch"
+
+
+def test_step_errors_roundtrip(tmp_path: Path) -> None:
+    raw = tmp_path / "raw_data"
+    raw.mkdir()
+    snap = UnifiedSnapshot(run_id="e_run", raw_data_dir=str(raw))
+    t0 = "2026-04-08T12:00:00+00:00"
+    register_step_error(snap, ModelBuildStepCommand.CONVERT.value, t0, "copy: ('/a', 'broken')")
+    set_step_errors_for_invocation(
+        snap, ModelBuildStepCommand.CREATE_DATASET.value, "2026-04-08T13:00:00+00:00", []
+    )
+    out = tmp_path / "snap.json"
+    assert snap.save(out)
+    loaded = UnifiedSnapshot.load(out)
+    assert loaded is not None
+    assert loaded.step_errors[ModelBuildStepCommand.CONVERT.value][t0][0].startswith("copy:")
+    assert (
+        loaded.step_errors[ModelBuildStepCommand.CREATE_DATASET.value]["2026-04-08T13:00:00+00:00"]
+        == []
+    )
+
+
+def test_flatten_convert_stats_errors() -> None:
+    from collections import defaultdict
+
+    d = defaultdict(list)
+    d["copy"].append(("/x", "oops"))
+    d["conversion"].append("/y")
+    lines = flatten_convert_stats_errors(d)
+    assert any("copy:" in ln for ln in lines)
+    assert any("conversion:" in ln for ln in lines)
 
 
 def test_find_latest_unified_snapshot_path_prefers_newest_mtime(tmp_path: Path) -> None:

@@ -18,8 +18,12 @@ from mb.models.frameworks.keras.trainer import KerasTrainer
 from mb.training.hyperparams import get_training_hyperparams
 from mb.training.run_args import TrainingRunArgs
 from mb.training.snapshot_integration import update_training_snapshot
+from mb.utils.constants import ModelBuilderTaskType
 from mb.utils.snapshot import (
-    find_unified_snapshot, save_unified_snapshot, preload_gather_cache
+    find_unified_snapshot,
+    preload_gather_cache,
+    save_unified_snapshot,
+    set_step_errors_for_invocation,
 )
 
 logger = logging.getLogger(__name__)
@@ -181,7 +185,9 @@ class ModelTrainer:
         
         # Update unified snapshot if requested
         unified_snapshot = None
+        train_invocation_started: Optional[str] = None
         if update_snapshot:
+            train_invocation_started = datetime.now(timezone.utc).isoformat()
             _emit("Loading snapshot…", p_after_snapshot)
             logger.info("Loading unified snapshot...")
             search_paths = [data_dir, data_dir.parent]
@@ -256,7 +262,15 @@ class ModelTrainer:
             }
             logger.info("Updating unified snapshot with training data...")
             update_training_snapshot(data_dir, unified_snapshot)
-            
+
+            if train_invocation_started:
+                set_step_errors_for_invocation(
+                    unified_snapshot,
+                    ModelBuilderTaskType.TRAIN.value,
+                    train_invocation_started,
+                    [],
+                )
+
             # Save updated snapshot
             snapshot_path = save_unified_snapshot(unified_snapshot, data_dir, logger)
             if snapshot_path:

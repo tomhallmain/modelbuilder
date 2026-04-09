@@ -10,10 +10,83 @@ import pickle
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional, Sequence, Set
+
 from mb.utils.logging_setup import get_logger
 
 logger = get_logger(__name__)
+
+# ``step_errors`` keys: use :class:`~mb.models.types.ModelBuildStepCommand` / ``.value`` for
+# ``mb data`` steps and :class:`~mb.utils.constants.ModelBuilderTaskType` / ``.value`` for training.
+
+
+def register_step_error(
+    snapshot: "UnifiedSnapshot",
+    step: str,
+    run_started_at: str,
+    message: str,
+) -> None:
+    """
+    Append one error line for a pipeline *step* and invocation (*run_started_at* ISO timestamp).
+
+    Multiple invocations of the same step append under separate *run_started_at* keys.
+    """
+    text = str(message).strip()
+    if not text:
+        return
+    step_key = str(step).strip()
+    ts_key = str(run_started_at).strip()
+    if not step_key or not ts_key:
+        return
+    if step_key not in snapshot.step_errors:
+        snapshot.step_errors[step_key] = {}
+    if ts_key not in snapshot.step_errors[step_key]:
+        snapshot.step_errors[step_key][ts_key] = []
+    snapshot.step_errors[step_key][ts_key].append(text)
+    snapshot.last_updated = datetime.now().isoformat()
+
+
+def set_step_errors_for_invocation(
+    snapshot: "UnifiedSnapshot",
+    step: str,
+    run_started_at: str,
+    messages: Sequence[str],
+) -> None:
+    """
+    Set the full error list for one step invocation (replaces any prior list for that key).
+
+    Use an empty *messages* to record a completed invocation with no errors.
+    """
+    step_key = str(step).strip()
+    ts_key = str(run_started_at).strip()
+    if not step_key or not ts_key:
+        return
+    if step_key not in snapshot.step_errors:
+        snapshot.step_errors[step_key] = {}
+    cleaned = [str(m).strip() for m in messages if str(m).strip()]
+    snapshot.step_errors[step_key][ts_key] = cleaned
+    snapshot.last_updated = datetime.now().isoformat()
+
+
+def flatten_convert_stats_errors(stats_errors: Any) -> List[str]:
+    """Turn :class:`collections.defaultdict` lists from convert into snapshot-ready strings."""
+    out: List[str] = []
+    if not stats_errors:
+        return out
+    try:
+        items = stats_errors.items()
+    except AttributeError:
+        return out
+    for category, entries in items:
+        if not entries:
+            continue
+        for item in entries:
+            out.append(f"{category}: {item!r}")
+    return out
+
+
+# Backward-friendly alias (see pipeline docs).
+register_error = register_step_error
 
 
 def _posix_rel(p: Optional[str]) -> Optional[str]:
@@ -21,6 +94,27 @@ def _posix_rel(p: Optional[str]) -> Optional[str]:
     if p is None:
         return None
     return str(p).replace("\\", "/")
+
+
+def _coerce_loaded_step_errors(raw: Any) -> Dict[str, Dict[str, List[str]]]:
+    """Validate ``step_errors`` JSON into nested step → timestamp → messages."""
+    out: Dict[str, Dict[str, List[str]]] = {}
+    if not isinstance(raw, dict):
+        return out
+    for step, inv_map in raw.items():
+        sk = str(step).strip()
+        if not sk or not isinstance(inv_map, dict):
+            continue
+        out[sk] = {}
+        for ts_key, msgs in inv_map.items():
+            tk = str(ts_key).strip()
+            if not tk:
+                continue
+            if isinstance(msgs, list):
+                out[sk][tk] = [str(m) for m in msgs if m is not None]
+            else:
+                out[sk][tk] = []
+    return out
 
 
 # Global cache for gather cache (lazy-loaded)
@@ -218,6 +312,8 @@ class UnifiedSnapshot:
         self.space_estimates: Optional[Dict[str, Any]] = None
         # Optional: wall-clock training summary (set by :class:`~mb.training.trainer.ModelTrainer`)
         self.training_timing: Optional[Dict[str, Any]] = None
+        # step → invocation ISO timestamp → list of error lines (see :func:`register_step_error`)
+        self.step_errors: Dict[str, Dict[str, List[str]]] = {}
 
     def add_pre_conversion_image(self, image_path: Path, base_dir: Path) -> bool:
         """Add an image to pre-conversion stage (creates new record)."""
@@ -478,6 +574,8 @@ class UnifiedSnapshot:
             out['space_estimates'] = self.space_estimates
         if self.training_timing is not None:
             out['training_timing'] = self.training_timing
+        if self.step_errors:
+            out['step_errors'] = self.step_errors
         return out
     
     def save(self, output_path: Path) -> bool:
@@ -520,6 +618,12 @@ class UnifiedSnapshot:
             snapshot.space_estimates = se if isinstance(se, dict) else None
             tt = data.get('training_timing')
             snapshot.training_timing = tt if isinstance(tt, dict) else None
+
+            se = data.get("step_errors")
+            if isinstance(se, dict):
+                snapshot.step_errors = _coerce_loaded_step_errors(se)
+            else:
+                snapshot.step_errors = {}
 
             return snapshot
         except Exception:
