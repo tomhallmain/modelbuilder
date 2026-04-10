@@ -17,6 +17,7 @@ import json
 import pickle
 import threading
 import time
+from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Tuple, Optional
 from collections import defaultdict
@@ -35,7 +36,8 @@ from mb.data.class_layout import (
     layout_dict_for_discovery,
 )
 from mb.data.file_types import configured_media_suffixes
-from mb.utils.snapshot import find_unified_snapshot, save_unified_snapshot
+from mb.models.types import ModelBuildStepCommand
+from mb.utils.snapshot import find_unified_snapshot, save_unified_snapshot, set_step_errors_for_invocation
 
 # Configure logging
 logger = setup_logging(script_name="deduplicate_images")
@@ -67,7 +69,104 @@ class ImageDeduplicator:
         self.file_cache: Dict[str, str] = {}  # {file_path: hash_string} - optimized direct storage
         self.cache_modified = False
         self.duplicate_groups: List[Dict[str, object]] = []
+        self._deduplicate_step_started_at: Optional[str] = None
+        self._dedup_errors: List[str] = []
+        self._active_snapshot = None
         self.load_cache()
+
+    def _note_dedup_error(self, message: str) -> None:
+        text = str(message).strip()
+        if not text:
+            return
+        self._dedup_errors.append(text)
+
+    def _try_fix_truncated_converted_from_snapshot(self, converted_path: Path) -> bool:
+        """
+        Try to repair a truncated converted file by regenerating it from snapshot original path.
+
+        Returns True when repair succeeds, False otherwise.
+        """
+        error_lower = "image file is truncated"
+        snapshot = self._active_snapshot
+        if snapshot is None:
+            self._note_dedup_error(
+                f"deduplicate: truncated converted image {converted_path} but no snapshot was available for recovery"
+            )
+            return False
+
+        try:
+            rel_converted = converted_path.resolve().relative_to(self.raw_data_dir.resolve()).as_posix()
+        except Exception:
+            rel_converted = str(converted_path).replace("\\", "/")
+
+        original_path: Optional[Path] = None
+        for image_record in snapshot.images.values():
+            converted = image_record.get("converted")
+            if not isinstance(converted, dict):
+                continue
+            conv_rel = str(converted.get("path") or "").replace("\\", "/")
+            if conv_rel != rel_converted:
+                continue
+            original = image_record.get("original")
+            if not isinstance(original, dict):
+                break
+            orig_rel = str(original.get("path") or "").replace("\\", "/")
+            if not orig_rel:
+                break
+            original_path = self.raw_data_dir / Path(orig_rel)
+            break
+
+        if not original_path:
+            self._note_dedup_error(
+                f"deduplicate: {error_lower} for {converted_path}; could not map converted file to snapshot original"
+            )
+            return False
+        if not original_path.exists():
+            self._note_dedup_error(
+                f"deduplicate: {error_lower} for {converted_path}; mapped original is missing: {original_path}"
+            )
+            return False
+
+        # If original itself is truncated/corrupt, recovery via reconvert is not viable.
+        try:
+            with Image.open(original_path) as img:
+                img.load()
+        except Exception as e:
+            msg = str(e).lower()
+            if error_lower in msg:
+                self._note_dedup_error(
+                    f"deduplicate: original image is also truncated; cannot repair converted file "
+                    f"(original={original_path}, converted={converted_path})"
+                )
+            else:
+                self._note_dedup_error(
+                    f"deduplicate: could not validate mapped original image {original_path} for truncated "
+                    f"converted file {converted_path}: {e}"
+                )
+            return False
+
+        try:
+            # Import lazily to avoid extra startup cost and circular import concerns.
+            from mb.data.convert import ImageConverter
+
+            converter = ImageConverter(self.raw_data_dir)
+            recovered = converter.convert_to_jpeg(original_path, converted_path)
+            if recovered:
+                self.file_cache.pop(str(converted_path), None)
+                self.cache_modified = True
+                logger.info("Recovered truncated converted image via reconvert: %s", converted_path)
+                return True
+            self._note_dedup_error(
+                f"deduplicate: failed to repair truncated converted image using original "
+                f"(original={original_path}, converted={converted_path})"
+            )
+            return False
+        except Exception as e:
+            self._note_dedup_error(
+                f"deduplicate: unexpected recovery error for truncated converted image "
+                f"(original={original_path}, converted={converted_path}): {e}"
+            )
+            return False
     
     def load_cache(self) -> None:
         """
@@ -188,6 +287,7 @@ class ImageDeduplicator:
             return hash_value
         except Exception as e:
             logger.error(f"Error calculating file hash for {image_path}: {e}")
+            self._note_dedup_error(f"hash_error: {image_path}: {e}")
             return None
     
     def calculate_image_hash_pil(self, image_path: Path) -> str:
@@ -213,6 +313,7 @@ class ImageDeduplicator:
                 return hashlib.md5(buffer.getvalue()).hexdigest()
         except Exception as e:
             logger.error(f"Error calculating PIL hash for {image_path}: {e}")
+            self._note_dedup_error(f"pil_hash_error: {image_path}: {e}")
             return None
     
     def find_duplicates_in_directory(self, directory: Path) -> Dict[str, List[Path]]:
@@ -315,6 +416,7 @@ class ImageDeduplicator:
                     logger.debug(f"Removed duplicate: {file_path}")
                 except Exception as e:
                     logger.error(f"Error removing duplicate {file_path}: {e}")
+                    self._note_dedup_error(f"remove_duplicate_error: {file_path}: {e}")
         
         if removed_count > 0:
             logger.info(f"Removed {removed_count} duplicate files from {directory}")
@@ -394,6 +496,10 @@ class ImageDeduplicator:
                         logger.debug(f"Moved small image for review: {file_path} ({width}x{height}) -> {target_path}")
                 except Exception as e:
                     logger.error(f"Error checking dimensions for {file_path}: {e}")
+                    error_text = str(e)
+                    self._note_dedup_error(f"small_image_check_error: {file_path}: {error_text}")
+                    if "image file is truncated" in error_text.lower():
+                        self._try_fix_truncated_converted_from_snapshot(file_path)
         
         if removed_count > 0:
             logger.info(f"Removed {removed_count} very small images (< 80px) from {directory}")
@@ -449,6 +555,13 @@ class ImageDeduplicator:
             logger.warning("No unified snapshot found under %s; skipping deduplication snapshot update", self.raw_data_dir)
             return
         snapshot.set_deduplication_results(self.duplicate_groups)
+        if self._deduplicate_step_started_at:
+            set_step_errors_for_invocation(
+                snapshot,
+                ModelBuildStepCommand.DEDUPLICATE.value,
+                self._deduplicate_step_started_at,
+                self._dedup_errors,
+            )
         saved = save_unified_snapshot(snapshot, self.raw_data_dir, logger=logger)
         if saved is not None:
             logger.info("Updated snapshot with deduplication results: %s", saved)
@@ -563,6 +676,9 @@ class ImageDeduplicator:
             self._cancel_event = None
 
     def _run_impl(self, *, list_only: bool = False, run_id: Optional[str] = None) -> bool:
+        self._dedup_errors = []
+        self._deduplicate_step_started_at = datetime.now().isoformat()
+        self._active_snapshot = find_unified_snapshot([self.raw_data_dir], run_id=run_id, logger=logger)
         log_startup_info(logger, "Image deduplication process")
         logger.info(f"Raw data directory: {self.raw_data_dir}")
         if list_only:

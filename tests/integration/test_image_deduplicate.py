@@ -115,3 +115,96 @@ def test_image_deduplicator_list_only_removes_intra_class_keeps_cross_class_for_
     assert loaded is not None
     assert len(loaded.deduplication_results) == 1
     assert len(loaded.deduplication_results[0]["files"]) == 2
+
+
+def test_image_deduplicator_records_step_errors_in_snapshot(tmp_path: Path) -> None:
+    """Deduplicate run records invocation-scoped step errors under ``deduplicate``."""
+    raw = tmp_path / "raw_data"
+    converted = raw / "coherent" / "CONVERTED"
+    converted.mkdir(parents=True, exist_ok=True)
+    # Force a deterministic processing error in Step 0 (PIL open/load on junk bytes).
+    bad = converted / "broken.jpg"
+    bad.write_bytes(b"not-a-real-jpeg")
+    # Keep one valid image so the run performs normal work too.
+    _write_jpg(converted / "ok.jpg", (300, 300), (12, 34, 56))
+
+    snap = UnifiedSnapshot(run_id="rid_dedup_errors", raw_data_dir=str(raw))
+    snap.images["k_ok"] = {
+        "original": {
+            "hash": "k_ok",
+            "basename": "ok.jpg",
+            "path": "coherent/IMAGES/ok.jpg",
+            "format": ".jpg",
+        },
+        "converted": {"path": "coherent/CONVERTED/ok.jpg", "basename": "ok.jpg", "class": "coherent"},
+        "dataset": None,
+        "training": None,
+    }
+    assert snap.save(raw / "snapshot_rid_dedup_errors.json")
+
+    dedup = ImageDeduplicator(raw_data_dir=raw)
+    assert dedup.run(list_only=True, run_id="rid_dedup_errors") is True
+
+    loaded = UnifiedSnapshot.load(raw / "snapshot_rid_dedup_errors.json")
+    assert loaded is not None
+    step_map = loaded.step_errors.get("deduplicate", {})
+    assert step_map, "expected deduplicate invocation errors to be recorded"
+    all_msgs = [m for msgs in step_map.values() for m in msgs]
+    assert any("small_image_check_error:" in m and "broken.jpg" in m for m in all_msgs)
+
+
+def test_image_deduplicator_attempts_recover_for_truncated_converted_file(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """When converted file is truncated, deduplicate should retry conversion from snapshot original."""
+    raw = tmp_path / "raw_data"
+    class_dir = raw / "coherent"
+    converted = class_dir / "CONVERTED"
+    images = class_dir / "IMAGES"
+    converted.mkdir(parents=True, exist_ok=True)
+    images.mkdir(parents=True, exist_ok=True)
+
+    original = images / "source.jpg"
+    converted_target = converted / "source.jpg"
+    _write_jpg(original, (300, 300), (90, 80, 70))
+    converted_target.write_bytes(b"truncated-jpeg")
+
+    snap = UnifiedSnapshot(run_id="rid_dedup_truncated_recover", raw_data_dir=str(raw))
+    snap.images["k1"] = {
+        "original": {
+            "hash": "k1",
+            "basename": "source.jpg",
+            "path": "coherent/IMAGES/source.jpg",
+            "format": ".jpg",
+        },
+        "converted": {
+            "path": "coherent/CONVERTED/source.jpg",
+            "basename": "source.jpg",
+            "class": "coherent",
+        },
+        "dataset": None,
+        "training": None,
+    }
+    assert snap.save(raw / "snapshot_rid_dedup_truncated_recover.json")
+
+    real_open = Image.open
+
+    def fake_open(path, *args, **kwargs):
+        p = Path(path)
+        if p == converted_target:
+            raise OSError("image file is truncated")
+        return real_open(path, *args, **kwargs)
+
+    recovered_calls: list[tuple[Path, Path]] = []
+
+    def fake_convert_to_jpeg(self, source_path: Path, target_path: Path) -> bool:
+        recovered_calls.append((Path(source_path), Path(target_path)))
+        shutil.copy2(source_path, target_path)
+        return True
+
+    monkeypatch.setattr("mb.data.deduplicate.Image.open", fake_open)
+    monkeypatch.setattr("mb.data.convert.ImageConverter.convert_to_jpeg", fake_convert_to_jpeg)
+
+    dedup = ImageDeduplicator(raw_data_dir=raw)
+    assert dedup.run(list_only=True, run_id="rid_dedup_truncated_recover") is True
+    assert recovered_calls == [(original, converted_target)]
