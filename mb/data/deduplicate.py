@@ -32,6 +32,7 @@ from mb.utils.logging_setup import log_completion_info, log_startup_info, setup_
 from mb.cancellation import check_cancel_event
 from mb.data.class_layout import (
     CONVERTED_MEDIA_SUBDIR,
+    VISUAL_MEDIA_REVIEW_SUBDIR,
     discover_raw_data_bucket_names,
     layout_dict_for_discovery,
 )
@@ -55,14 +56,16 @@ class ImageDeduplicator:
         # Statistics tracking
         self.stats = {
             'duplicates_removed': 0,
+            'duplicates_removed_visual_review': 0,
+            'duplicates_removed_small_review': 0,
             'duplicates_found': 0,
             'small_images_removed': 0,
             'small_images_moved': 0,
         }
         
         # Review directory for small images (80-250px)
-        self.review_dir = self.raw_data_dir / "small_images_review"
-        self.review_dir.mkdir(parents=True, exist_ok=True)
+        self.legacy_review_dir = self.raw_data_dir / "small_images_review"
+        self.legacy_review_dir.mkdir(parents=True, exist_ok=True)
         
         # Cache file for storing file hashes (shared with :mod:`mb.data.gather`)
         self.cache_file = self.raw_data_dir / ".gather_cache.pkl"
@@ -79,6 +82,106 @@ class ImageDeduplicator:
         if not text:
             return
         self._dedup_errors.append(text)
+
+    @staticmethod
+    def _with_conflict_suffix(path: Path) -> Path:
+        """Return a non-conflicting path by appending ``_<n>`` before suffix."""
+        if not path.exists():
+            return path
+        counter = 1
+        original = path
+        while path.exists():
+            path = original.with_name(f"{original.stem}_{counter}{original.suffix}")
+            counter += 1
+        return path
+
+    def _class_small_review_dir(self, converted_dir: Path) -> Path:
+        """Return class-local small-image review dir for a given class CONVERTED dir."""
+        return converted_dir.parent / "small_images_review"
+
+    def _resolve_class_for_legacy_small_review_file(self, legacy_file: Path) -> Optional[str]:
+        """
+        Resolve class bucket for legacy ``raw_data/small_images_review/CONVERTED/...`` files.
+
+        Uses snapshot converted-path suffix matching as primary signal.
+        """
+        snapshot = self._active_snapshot
+        if snapshot is None:
+            return None
+        legacy_root = self.legacy_review_dir / CONVERTED_MEDIA_SUBDIR
+        try:
+            rel_under_converted = legacy_file.resolve().relative_to(legacy_root.resolve()).as_posix()
+        except Exception:
+            return None
+        suffix = f"/{CONVERTED_MEDIA_SUBDIR}/{rel_under_converted}"
+        candidates: List[str] = []
+        for image_record in snapshot.images.values():
+            converted = image_record.get("converted")
+            if not isinstance(converted, dict):
+                continue
+            conv_path = str(converted.get("path") or "").replace("\\", "/")
+            if not conv_path:
+                continue
+            if conv_path.endswith(suffix):
+                cls_name = str(converted.get("class") or "").strip()
+                if cls_name:
+                    candidates.append(cls_name)
+                    continue
+                parts = conv_path.split("/")
+                if parts:
+                    candidates.append(parts[0])
+        uniq = sorted(set(candidates))
+        if len(uniq) == 1:
+            return uniq[0]
+        return None
+
+    def _migrate_legacy_small_images_review(self) -> int:
+        """
+        Migrate legacy root-level small review files into class-local review dirs.
+
+        Legacy layout:
+            raw_data/small_images_review/CONVERTED/<relative_under_converted>
+        New layout:
+            raw_data/<class>/small_images_review/<relative_under_converted>
+        """
+        legacy_converted_root = self.legacy_review_dir / CONVERTED_MEDIA_SUBDIR
+        if not legacy_converted_root.is_dir():
+            return 0
+
+        migrated = 0
+        for ext in configured_media_suffixes():
+            for legacy_file in legacy_converted_root.rglob(f"*{ext}"):
+                if not legacy_file.is_file():
+                    continue
+                class_name = self._resolve_class_for_legacy_small_review_file(legacy_file)
+                if not class_name:
+                    self._note_dedup_error(
+                        f"legacy_small_review_migration_unresolved: {legacy_file}"
+                    )
+                    continue
+                try:
+                    rel_under_converted = legacy_file.resolve().relative_to(
+                        legacy_converted_root.resolve()
+                    )
+                except Exception:
+                    self._note_dedup_error(
+                        f"legacy_small_review_migration_path_error: {legacy_file}"
+                    )
+                    continue
+                target_dir = self.raw_data_dir / class_name / "small_images_review"
+                target_path = self._with_conflict_suffix(target_dir / rel_under_converted)
+                target_path.parent.mkdir(parents=True, exist_ok=True)
+                try:
+                    shutil.move(str(legacy_file), str(target_path))
+                    migrated += 1
+                    logger.info("Migrated legacy small review file: %s -> %s", legacy_file, target_path)
+                except Exception as e:
+                    self._note_dedup_error(
+                        f"legacy_small_review_migration_move_error: {legacy_file}: {e}"
+                    )
+        if migrated > 0:
+            logger.info("Migrated %d file(s) from legacy small_images_review layout", migrated)
+        return migrated
 
     def _try_fix_truncated_converted_from_snapshot(self, converted_path: Path) -> bool:
         """
@@ -475,19 +578,11 @@ class ImageDeduplicator:
                     elif min_dim < 250:
                         # Create target path preserving relative structure
                         relative_path = file_path.relative_to(directory)
-                        # Use directory name to preserve source context
-                        source_dir_name = directory.name
-                        target_path = self.review_dir / source_dir_name / relative_path
+                        target_path = self._class_small_review_dir(directory) / relative_path
                         target_path.parent.mkdir(parents=True, exist_ok=True)
                         
                         # Handle filename conflicts
-                        counter = 1
-                        original_target = target_path
-                        while target_path.exists():
-                            stem = original_target.stem
-                            suffix = original_target.suffix
-                            target_path = original_target.parent / f"{stem}_{counter}{suffix}"
-                            counter += 1
+                        target_path = self._with_conflict_suffix(target_path)
                         
                         # Small delay to ensure file handle is released on Windows
                         time.sleep(0.01)
@@ -536,6 +631,38 @@ class ImageDeduplicator:
                 logger.debug("Skipped (missing CONVERTED): %s", skipped)
         return converted_directories
 
+    def _discover_visual_review_directories(self) -> List[Path]:
+        """Return class-scoped ``visual_media_review`` directories, if present."""
+        layout = layout_dict_for_discovery()
+        bucket_names = discover_raw_data_bucket_names(
+            self.raw_data_dir,
+            explicit=layout["explicit"],
+            class_qualifying_subdir=layout["class_qualifying_subdir"],
+        )
+        review_directories: List[Path] = []
+        for bucket_name in bucket_names:
+            class_dir = self.raw_data_dir / bucket_name
+            review_dir = class_dir / VISUAL_MEDIA_REVIEW_SUBDIR
+            if review_dir.is_dir():
+                review_directories.append(review_dir)
+        return review_directories
+
+    def _discover_small_review_directories(self) -> List[Path]:
+        """Return class-scoped ``small_images_review`` directories, if present."""
+        layout = layout_dict_for_discovery()
+        bucket_names = discover_raw_data_bucket_names(
+            self.raw_data_dir,
+            explicit=layout["explicit"],
+            class_qualifying_subdir=layout["class_qualifying_subdir"],
+        )
+        review_directories: List[Path] = []
+        for bucket_name in bucket_names:
+            class_dir = self.raw_data_dir / bucket_name
+            review_dir = class_dir / "small_images_review"
+            if review_dir.is_dir():
+                review_directories.append(review_dir)
+        return review_directories
+
     def _serialize_duplicate_groups(self, duplicates: Dict[str, List[Path]]) -> List[Dict[str, object]]:
         out: List[Dict[str, object]] = []
         for hash_value in sorted(duplicates.keys()):
@@ -580,6 +707,19 @@ class ImageDeduplicator:
             return
 
         logger.info("Processing CONVERTED directories: %s", [str(d) for d in converted_directories])
+        self._migrate_legacy_small_images_review()
+        visual_review_directories = self._discover_visual_review_directories()
+        small_review_directories = self._discover_small_review_directories()
+        if visual_review_directories:
+            logger.info(
+                "Processing visual review directories (separate pass): %s",
+                [str(d) for d in visual_review_directories],
+            )
+        if small_review_directories:
+            logger.info(
+                "Processing small-image review directories (separate pass): %s",
+                [str(d) for d in small_review_directories],
+            )
         if list_only:
             logger.info(
                 "\nList-only mode: still removes tiny images and duplicates *within* each "
@@ -599,6 +739,24 @@ class ImageDeduplicator:
                 check_cancel_event(getattr(self, "_cancel_event", None))
                 removed_count = self.remove_duplicates_from_directory(directory)
                 self.stats["duplicates_removed"] += removed_count
+
+            if visual_review_directories:
+                logger.info(
+                    "\nStep 1b: Removing duplicates within each visual_media_review directory..."
+                )
+                for directory in visual_review_directories:
+                    check_cancel_event(getattr(self, "_cancel_event", None))
+                    removed_count = self.remove_duplicates_from_directory(directory)
+                    self.stats["duplicates_removed_visual_review"] += removed_count
+
+            if small_review_directories:
+                logger.info(
+                    "\nStep 1c: Removing duplicates within each class small_images_review directory..."
+                )
+                for directory in small_review_directories:
+                    check_cancel_event(getattr(self, "_cancel_event", None))
+                    removed_count = self.remove_duplicates_from_directory(directory)
+                    self.stats["duplicates_removed_small_review"] += removed_count
 
             logger.info("\nStep 2: Finding duplicates across CONVERTED directories (review-only)...")
             check_cancel_event(getattr(self, "_cancel_event", None))
@@ -628,6 +786,20 @@ class ImageDeduplicator:
             check_cancel_event(getattr(self, "_cancel_event", None))
             removed_count = self.remove_duplicates_from_directory(directory)
             self.stats['duplicates_removed'] += removed_count
+
+        if visual_review_directories:
+            logger.info("\nStep 1b: Removing duplicates within each visual_media_review directory...")
+            for directory in visual_review_directories:
+                check_cancel_event(getattr(self, "_cancel_event", None))
+                removed_count = self.remove_duplicates_from_directory(directory)
+                self.stats["duplicates_removed_visual_review"] += removed_count
+
+        if small_review_directories:
+            logger.info("\nStep 1c: Removing duplicates within each class small_images_review directory...")
+            for directory in small_review_directories:
+                check_cancel_event(getattr(self, "_cancel_event", None))
+                removed_count = self.remove_duplicates_from_directory(directory)
+                self.stats["duplicates_removed_small_review"] += removed_count
         
         # Step 2: Find duplicates across all directories
         logger.info("\nStep 2: Finding duplicates across all directories...")
@@ -656,8 +828,14 @@ class ImageDeduplicator:
         logger.info(f"Very small images removed (< 80px): {self.stats['small_images_removed']}")
         logger.info(f"Small images moved to review (80-250px): {self.stats['small_images_moved']}")
         if self.stats['small_images_moved'] > 0:
-            logger.info(f"Review directory: {self.review_dir}")
+            logger.info("Review directory strategy: raw_data/<class>/small_images_review")
         logger.info(f"Duplicates removed: {self.stats['duplicates_removed']}")
+        logger.info(
+            f"Duplicates removed in visual media review dirs: {self.stats['duplicates_removed_visual_review']}"
+        )
+        logger.info(
+            f"Duplicates removed in class small_images_review dirs: {self.stats['duplicates_removed_small_review']}"
+        )
         logger.info(f"Duplicate groups found across directories: {self.stats['duplicates_found']}")
         logger.info("=" * 60)
     
