@@ -69,7 +69,7 @@ class DuplicatesResolverDialog(QDialog):
                 continue
             for group_id in ids:
                 grouped.setdefault(str(group_id), []).append(item)
-        return grouped
+        return {group_id: items for group_id, items in grouped.items() if len(items) >= 2}
 
     def _build_group_box(self, group_id: str) -> QGroupBox:
         items = self._groups.get(group_id, [])
@@ -151,8 +151,14 @@ class DuplicatesResolverDialog(QDialog):
         if not peer_path.exists():
             QMessageBox.warning(self, _("Missing file"), _("Peer file no longer exists:\n{p}").format(p=peer_path))
             list_widget.takeItem(peer_row)
-            box.setTitle(_("{gid} ({count} files)").format(gid=group_id, count=list_widget.count()))
+            if list_widget.count() < 2:
+                box.hide()
+            else:
+                box.setTitle(_("{gid} ({count} files)").format(gid=group_id, count=list_widget.count()))
             return
         peer_path.unlink()
         list_widget.takeItem(peer_row)
-        box.setTitle(_("{gid} ({count} files)").format(gid=group_id, count=list_widget.count()))
+        if list_widget.count() < 2:
+            box.hide()
+        else:
+            box.setTitle(_("{gid} ({count} files)").format(gid=group_id, count=list_widget.count()))

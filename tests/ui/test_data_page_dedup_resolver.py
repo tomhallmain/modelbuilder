@@ -107,6 +107,59 @@ def _build_raw_and_snapshot_for_dedup(tmp_path: Path, *, run_id: str) -> Path:
     return raw.resolve()
 
 
+def _build_raw_and_snapshot_with_singleton_and_pair(tmp_path: Path, *, run_id: str) -> Path:
+    """
+    Build snapshot metadata with one real duplicate pair and one singleton group.
+
+    The singleton group simulates an already-resolved in-class duplicate group where
+    auto-dedup removed all but one file before the resolver is reopened from snapshot.
+    """
+    raw = tmp_path / "raw_data"
+    cats_c = raw / "cats" / "CONVERTED"
+    dogs_c = raw / "dogs" / "CONVERTED"
+    _put_converted_file(cats_c / "pair_a.jpg", b"pair")
+    _put_converted_file(dogs_c / "pair_b.jpg", b"pair")
+    _put_converted_file(cats_c / "single_left.jpg", b"single-left")
+
+    snap = UnifiedSnapshot(run_id=run_id, raw_data_dir=str(raw.resolve()))
+    rows = [
+        ("k1", "cats/CONVERTED/pair_a.jpg", "pair_a.jpg", "cats"),
+        ("k2", "dogs/CONVERTED/pair_b.jpg", "pair_b.jpg", "dogs"),
+        ("k3", "cats/CONVERTED/single_left.jpg", "single_left.jpg", "cats"),
+    ]
+    for key, rel, bn, cls in rows:
+        snap.images[key] = {
+            "original": {
+                "hash": key,
+                "basename": bn,
+                "path": rel.replace("/CONVERTED/", "/IMAGES/"),
+                "format": ".jpg",
+            },
+            "converted": {"path": rel, "basename": bn, "class": cls},
+            "dataset": None,
+            "training": None,
+        }
+    snap.set_deduplication_results(
+        [
+            {
+                "hash": "pair_hash",
+                "files": [
+                    str((cats_c / "pair_a.jpg").resolve()),
+                    str((dogs_c / "pair_b.jpg").resolve()),
+                ],
+            },
+            {
+                # Represents a previously larger group that now has one survivor.
+                "hash": "already_resolved_singleton_hash",
+                "files": [str((cats_c / "single_left.jpg").resolve())],
+            },
+        ]
+    )
+    out = raw / f"snapshot_{run_id}.json"
+    assert snap.save(out)
+    return raw.resolve()
+
+
 def _resolver_dialog_from_data_page(data_page: DataPage) -> DuplicatesResolverDialog | None:
     """Prefer the page-held reference: parented QDialog may not appear in topLevelWidgets."""
     dlg = getattr(data_page, "_duplicates_resolver_dialog", None)
@@ -147,6 +200,49 @@ def test_duplicates_resolver_copy_and_remove_peer(tmp_path: Path, qtbot, english
     QApplication.processEvents()
     assert p_keep.exists()
     assert not p_peer.exists()
+    assert not boxes[0].isVisible()
+    dlg.close()
+
+
+@pytest.mark.ui
+def test_duplicates_resolver_filters_out_singleton_groups(tmp_path: Path, qtbot, english_gui_locale) -> None:
+    p_a = tmp_path / "a.jpg"
+    p_b = tmp_path / "b.jpg"
+    p_single = tmp_path / "single.jpg"
+    p_a.write_bytes(b"a")
+    p_b.write_bytes(b"b")
+    p_single.write_bytes(b"s")
+    items = [
+        {
+            "absolute_converted_path": str(p_a),
+            "converted_path": "cats/CONVERTED/a.jpg",
+            "duplicate_group_ids": ["cross_class_group"],
+        },
+        {
+            "absolute_converted_path": str(p_b),
+            "converted_path": "dogs/CONVERTED/b.jpg",
+            "duplicate_group_ids": ["cross_class_group"],
+        },
+        {
+            # Simulates a group auto-resolved in-class to a single remaining file.
+            "absolute_converted_path": str(p_single),
+            "converted_path": "cats/CONVERTED/single.jpg",
+            "duplicate_group_ids": ["intra_class_resolved_group"],
+        },
+    ]
+    dlg = DuplicatesResolverDialog(items)
+    qtbot.addWidget(dlg)
+    dlg.show()
+    QApplication.processEvents()
+
+    assert set(dlg._groups.keys()) == {"cross_class_group"}
+    boxes = dlg.findChildren(QGroupBox)
+    assert len(boxes) == 1
+    assert "cross_class_group" in boxes[0].title()
+    assert "intra_class_resolved_group" not in boxes[0].title()
+    lists = boxes[0].findChildren(QListWidget)
+    assert len(lists) == 1
+    assert lists[0].count() == 2
     dlg.close()
 
 
@@ -334,5 +430,49 @@ def test_data_page_open_duplicate_resolver_from_snapshot_button(
     assert any("cross.jpg" in t for t in texts)
     assert any("cross_other_name.jpg" in t for t in texts)
     assert cats_cross.exists() and dogs_cross.exists()
+    dlg.close()
+    QApplication.processEvents()
+
+
+@pytest.mark.ui
+def test_data_page_open_resolver_from_snapshot_ignores_singleton_groups(
+    qtbot,
+    main_window: MainWindow,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    english_gui_locale,
+) -> None:
+    run_id = "ui_dedup_open_from_snap_singleton_filtered"
+    raw = _build_raw_and_snapshot_with_singleton_and_pair(tmp_path, run_id=run_id)
+
+    def stub_qt_alert(parent, title, message, kind: str = "info"):
+        if kind == "askyesno":
+            return True
+        return None
+
+    monkeypatch.setattr("ui.pages.data_page.qt_alert", stub_qt_alert)
+
+    _sync_nav_and_stack(main_window, 1)
+    main_window.retranslate_shell_ui()
+    data_page = stacked_inner_page(main_window, 1)
+    assert isinstance(data_page, DataPage)
+    data_page.tabs.setCurrentIndex(2)
+    data_page.dedup_raw_data_dir.setText(str(raw))
+    data_page.dedup_resolver_run_id.setText(run_id)
+
+    qtbot.mouseClick(data_page.btn_dedup_open_resolver_from_snapshot, Qt.MouseButton.LeftButton)
+    QApplication.processEvents()
+
+    dlg = _resolver_dialog_from_data_page(data_page)
+    assert dlg is not None
+    assert len(dlg._groups) == 1
+    only_group_items = next(iter(dlg._groups.values()))
+    assert len(only_group_items) == 2
+    displayed_paths = {
+        str(item.get("absolute_converted_path") or item.get("converted_path") or "") for item in only_group_items
+    }
+    assert any("pair_a.jpg" in p for p in displayed_paths)
+    assert any("pair_b.jpg" in p for p in displayed_paths)
+    assert not any("single_left.jpg" in p for p in displayed_paths)
     dlg.close()
     QApplication.processEvents()
