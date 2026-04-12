@@ -394,6 +394,14 @@ def create_parser() -> argparse.ArgumentParser:
         ),
     )
     fix_jpeg_parser.add_argument(
+        "--include-static-format-mismatches",
+        action="store_true",
+        help=_(
+            "Also rename/repair mislabeled .jpg/.jpeg whose bytes are PNG, WebP, BMP, or TIFF. "
+            "By default those are counted and summarized per class only (GIF and animated-IC cases are always repaired)."
+        ),
+    )
+    fix_jpeg_parser.add_argument(
         "--model-type",
         default=None,
         choices=_MODEL_TYPE_CLI_CHOICES,
@@ -831,11 +839,14 @@ def handle_data_fix_jpeg_extension_mismatch(args):
             dry_run_pillow=report_pillow,
             dry_run_quiet=report_quiet,
             json_lines_to_logger=False,
+            include_static_format_mismatches=bool(
+                getattr(args, "include_static_format_mismatches", False)
+            ),
             rng=rng,
         )
         if not ok:
             return 1
-        if dry_run and stats.mismatches_found > 0:
+        if dry_run and stats.actionable_mismatches_found > 0:
             return 1
         return 0
     except Exception as e:

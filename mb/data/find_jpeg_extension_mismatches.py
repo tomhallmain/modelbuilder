@@ -18,6 +18,11 @@ With ``dry_run=True``, optional ``dry_run_json`` / ``dry_run_pillow`` / ``dry_ru
 former standalone list-mode switches: newline-delimited JSON records, optional Pillow metadata, and
 suppression of verbose per-file log lines (JSON lines use stdout in the CLI and the step logger when
 ``json_lines_to_logger`` is true, e.g. in the GUI).
+
+By default, mislabeled ``.jpg`` whose bytes are PNG/WebP/BMP/TIFF are only counted and summarized per
+class; pass ``include_static_format_mismatches=True`` (CLI: ``--include-static-format-mismatches``)
+to rename and rebuild them like other non-JPEG containers. GIF and image-classification multi-frame
+GIF handling are unchanged.
 """
 
 from __future__ import annotations
@@ -58,6 +63,17 @@ from mb.utils.snapshot import (
 logger = setup_logging(script_name="fix_jpeg_mismatch")
 
 JPEG_MAGIC = b"\xff\xd8\xff"
+
+# Mislabeled ``.jpg`` / ``.jpeg`` whose bytes are PNG/WebP/BMP/TIFF: harmless for most PIL-based training
+# (convert copies or re-encodes). Skipped unless *include_static_format_mismatches* is true.
+_STATIC_FORMAT_EXTENSIONS_DEFAULT_SKIP: frozenset[str] = frozenset({".png", ".webp", ".bmp", ".tiff"})
+
+
+def _static_format_skipped_by_policy(new_ext: str, include_static_format_mismatches: bool) -> bool:
+    if include_static_format_mismatches:
+        return False
+    e = (new_ext or "").lower()
+    return e in _STATIC_FORMAT_EXTENSIONS_DEFAULT_SKIP
 
 
 def read_file_header(path: Path, n: int = 32) -> bytes:
@@ -163,6 +179,10 @@ class RepairStats:
     files_failed: int = 0
     dry_run_actions: int = 0
     mismatches_found: int = 0
+    """All ``.jpg``/``.jpeg`` files whose bytes are not JPEG (including policy-skipped static formats)."""
+    actionable_mismatches_found: int = 0
+    """Subset of mismatches that would be repaired under the current policy (excludes skipped PNG/WebP/BMP/TIFF)."""
+    skipped_static_format_by_class: Dict[str, int] = field(default_factory=dict)
     errors: List[str] = field(default_factory=list)
     snapshot_records_updated: int = 0
     snapshot_apply_errors: List[str] = field(default_factory=list)
@@ -314,6 +334,7 @@ def repair_mislabeled_jpeg_extensions(
     dry_run_pillow: bool = False,
     dry_run_quiet: bool = False,
     json_lines_to_logger: bool = False,
+    include_static_format_mismatches: bool = False,
     cancel_event: Optional[threading.Event] = None,
     rng: Optional[random.Random] = None,
 ) -> Tuple[bool, RepairStats]:
@@ -327,6 +348,10 @@ def repair_mislabeled_jpeg_extensions(
       *json_lines_to_logger* is true (GUI / log capture).
     * *dry_run_pillow* — add a ``pillow`` key with format / GIF metadata (meaningful with *dry_run_json*).
     * *dry_run_quiet* — skip verbose per-file :meth:`logging.Logger.info` lines when not using JSON.
+
+    *include_static_format_mismatches* — when false (default), mislabeled ``.jpg`` / ``.jpeg`` files whose
+    bytes are PNG, WebP, BMP, or TIFF are counted and summarized per class but not renamed or repaired
+    (GIF and animated-IC random-frame cases are still repaired). Set true to repair those as well.
     """
     if (dry_run_json or dry_run_pillow or dry_run_quiet) and not dry_run:
         raise ValueError("dry_run_json, dry_run_pillow, and dry_run_quiet require dry_run=True")
@@ -400,7 +425,6 @@ def repair_mislabeled_jpeg_extensions(
             )
             for src in sorted(mismatches, key=lambda x: str(x)):
                 stats.mismatches_found += 1
-                stats.dry_run_actions += 1
                 expected_jpg_name = basename_map.get(src, "?")
                 head = read_file_header(src)
                 sniff = sniff_container(head)
@@ -416,6 +440,18 @@ def repair_mislabeled_jpeg_extensions(
                     and (pil_fmt == "GIF" or sniff == "gif")
                     and n_gif > 1
                 )
+                skipped_by_policy = (
+                    new_ext != "?"
+                    and _static_format_skipped_by_policy(new_ext, include_static_format_mismatches)
+                    and not animated_ic
+                )
+                if skipped_by_policy:
+                    stats.skipped_static_format_by_class[class_name] = (
+                        stats.skipped_static_format_by_class.get(class_name, 0) + 1
+                    )
+                else:
+                    stats.actionable_mismatches_found += 1
+                    stats.dry_run_actions += 1
                 if dry_run_json:
                     row: Dict[str, Any] = {
                         **_mismatch_row_base(src),
@@ -423,11 +459,12 @@ def repair_mislabeled_jpeg_extensions(
                         "expected_converted_basename": expected_jpg_name,
                         "inferred_extension": new_ext,
                         "animated_ic_random_frame": animated_ic,
+                        "skipped_by_policy": skipped_by_policy,
                     }
                     if dry_run_pillow:
                         _merge_pillow_report(src, row)
                     _emit_json_line(row, json_lines_to_logger=json_lines_to_logger)
-                elif not dry_run_quiet:
+                elif not dry_run_quiet and not skipped_by_policy:
                     logger.info(
                         "[dry-run] would repair %s -> *%s; CONVERTED junk: %s; small_review junk: %s; animated_ic=%s",
                         src,
@@ -436,12 +473,21 @@ def repair_mislabeled_jpeg_extensions(
                         (small_review_dir / expected_jpg_name) if expected_jpg_name != "?" else "(n/a)",
                         animated_ic,
                     )
+            sk = stats.skipped_static_format_by_class.get(class_name, 0)
+            if sk and not include_static_format_mismatches:
+                logger.info(
+                    "Class %s: %d mislabeled .jpg/.jpeg file(s) are PNG/WebP/BMP/TIFF bytes "
+                    "(counted only; no repair unless --include-static-format-mismatches).",
+                    class_name,
+                    sk,
+                )
             if not dry_run_json and not dry_run_quiet and not mismatches:
                 logger.info("[dry-run] no mislabeled .jpg/.jpeg in %s", class_name)
             continue
 
         processed: Set[str] = set()
         failed: Set[str] = set()
+        policy_skipped_paths: Set[str] = set()
         while True:
             check_cancel_event(cancel_event)
             image_files = converter.find_image_files(class_dir)
@@ -451,7 +497,11 @@ def repair_mislabeled_jpeg_extensions(
                 for p in static_paths
                 if p.suffix.lower() in (".jpg", ".jpeg") and not is_jpeg_magic(p)
             ]
-            mismatches = [p for p in mismatches if str(p.resolve()) not in failed]
+            mismatches = [
+                p
+                for p in mismatches
+                if str(p.resolve()) not in failed and str(p.resolve()) not in policy_skipped_paths
+            ]
             if not mismatches:
                 break
             src = sorted(mismatches, key=lambda x: str(x))[0]
@@ -474,6 +524,8 @@ def repair_mislabeled_jpeg_extensions(
                 stats.files_failed += 1
                 continue
 
+            stats.mismatches_found += 1
+
             head = read_file_header(src)
             sniff = sniff_container(head)
             pil_fmt, _ = pillow_format_and_gif_info(src)
@@ -495,6 +547,16 @@ def repair_mislabeled_jpeg_extensions(
                 and (pil_fmt == "GIF" or sniff == "gif")
                 and n_gif_frames > 1
             )
+
+            if (
+                _static_format_skipped_by_policy(new_ext, include_static_format_mismatches)
+                and not animated_ic
+            ):
+                stats.skipped_static_format_by_class[class_name] = (
+                    stats.skipped_static_format_by_class.get(class_name, 0) + 1
+                )
+                policy_skipped_paths.add(key)
+                continue
 
             created: List[Path] = []
             target_jpeg: Optional[Path] = None
@@ -561,6 +623,7 @@ def repair_mislabeled_jpeg_extensions(
                         stats.snapshot_apply_errors.append(f"{rel_original_old}: {e}")
 
                 stats.files_repaired += 1
+                stats.actionable_mismatches_found += 1
                 processed.add(key)
                 logger.info("Repaired -> %s", dest_src)
             except Exception as e:
@@ -573,6 +636,16 @@ def repair_mislabeled_jpeg_extensions(
                 failed.add(key)
                 stats.files_failed += 1
                 stats.errors.append(f"{src}: {e}")
+
+        if not dry_run:
+            sk_live = stats.skipped_static_format_by_class.get(class_name, 0)
+            if sk_live and not include_static_format_mismatches:
+                logger.info(
+                    "Class %s: %d mislabeled .jpg/.jpeg file(s) are PNG/WebP/BMP/TIFF bytes "
+                    "(counted only; no repair unless --include-static-format-mismatches).",
+                    class_name,
+                    sk_live,
+                )
 
     elapsed_sec: Optional[float] = None
     if wall_t0 is not None:
@@ -599,11 +672,13 @@ def repair_mislabeled_jpeg_extensions(
 
     ok = stats.files_failed == 0
     timing_tail = f" wall_seconds={elapsed_sec:.6f}" if elapsed_sec is not None else ""
+    skipped_total = sum(stats.skipped_static_format_by_class.values())
     log_completion_info(
         logger,
         ok,
         f"repaired={stats.files_repaired} failed={stats.files_failed} dry_run_actions={stats.dry_run_actions} "
-        f"mismatches_found={stats.mismatches_found}{timing_tail}",
+        f"mismatches_found={stats.mismatches_found} actionable={stats.actionable_mismatches_found} "
+        f"skipped_static_format={skipped_total}{timing_tail}",
     )
     return ok, stats
 

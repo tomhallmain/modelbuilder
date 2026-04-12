@@ -46,6 +46,12 @@ def _write_single_frame_gif_at_jpg_path(path: Path) -> None:
     Image.new("RGB", (10, 10), (50, 50, 50)).save(path, format="GIF")
 
 
+def _write_png_bytes_at_jpg_path(path: Path) -> None:
+    """PNG payload written to a ``.jpg`` filename (mislabeled source)."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    Image.new("RGB", (4, 4), (10, 20, 30)).save(path, format="PNG")
+
+
 def _assert_jpeg_file(path: Path) -> None:
     assert path.is_file()
     assert read_file_header(path)[:3] == JPEG_MAGIC
@@ -59,6 +65,76 @@ def test_sniff_and_header_helpers_for_gif_named_jpg(tmp_path: Path) -> None:
     head = read_file_header(p)
     assert sniff_container(head) == "gif"
     assert head[:6] == b"GIF89a"
+
+
+def test_repair_dry_run_static_png_skipped_by_default(tmp_path: Path) -> None:
+    raw = tmp_path / "raw_data"
+    images = raw / "coherent" / "IMAGES"
+    _write_png_bytes_at_jpg_path(images / "mis.jpg")
+
+    ok, stats = repair_mislabeled_jpeg_extensions(
+        raw,
+        model_type=ModelType.IMAGE_CLASSIFICATION,
+        dry_run=True,
+    )
+    assert ok is True
+    assert stats.mismatches_found == 1
+    assert stats.actionable_mismatches_found == 0
+    assert stats.dry_run_actions == 0
+    assert stats.skipped_static_format_by_class.get("coherent") == 1
+
+
+def test_repair_dry_run_static_png_actionable_with_include_flag(tmp_path: Path) -> None:
+    raw = tmp_path / "raw_data"
+    images = raw / "coherent" / "IMAGES"
+    _write_png_bytes_at_jpg_path(images / "mis.jpg")
+
+    ok, stats = repair_mislabeled_jpeg_extensions(
+        raw,
+        model_type=ModelType.IMAGE_CLASSIFICATION,
+        dry_run=True,
+        include_static_format_mismatches=True,
+    )
+    assert ok is True
+    assert stats.mismatches_found == 1
+    assert stats.actionable_mismatches_found == 1
+    assert stats.dry_run_actions == 1
+    assert stats.skipped_static_format_by_class.get("coherent", 0) == 0
+
+
+def test_repair_live_leaves_png_mislabeled_by_default(tmp_path: Path) -> None:
+    raw = tmp_path / "raw_data"
+    images = raw / "coherent" / "IMAGES"
+    p = images / "mis.jpg"
+    _write_png_bytes_at_jpg_path(p)
+
+    ok, stats = repair_mislabeled_jpeg_extensions(
+        raw,
+        model_type=ModelType.IMAGE_CLASSIFICATION,
+        dry_run=False,
+    )
+    assert ok is True
+    assert stats.files_repaired == 0
+    assert p.is_file()
+    assert stats.skipped_static_format_by_class.get("coherent") == 1
+
+
+def test_repair_live_renames_png_when_include_flag(tmp_path: Path) -> None:
+    raw = tmp_path / "raw_data"
+    images = raw / "coherent" / "IMAGES"
+    p = images / "mis.jpg"
+    _write_png_bytes_at_jpg_path(p)
+
+    ok, stats = repair_mislabeled_jpeg_extensions(
+        raw,
+        model_type=ModelType.IMAGE_CLASSIFICATION,
+        dry_run=False,
+        include_static_format_mismatches=True,
+    )
+    assert ok is True
+    assert stats.files_repaired == 1
+    assert not p.exists()
+    assert (images / "mis.png").is_file()
 
 
 def test_repair_dry_run_leaves_mislabeled_files_in_place(tmp_path: Path) -> None:
@@ -219,6 +295,34 @@ def test_cli_main_freeform_multiline_argv_matches_data_page_wildcard_split(tmp_p
     extra_clean = shlex.split(text_clean.strip(), posix=os.name != "nt")
     argv_clean = ["data", "fix-jpeg-extension-mismatch", *extra_clean]
     assert mb_main(argv_clean) == 0
+
+
+def test_cli_dry_run_png_only_exits_zero_audit_signal(tmp_path: Path) -> None:
+    """Dry-run exits 0 when only policy-skipped static-format mismatches exist (GIF etc. still -> 1)."""
+    raw = tmp_path / "raw_data"
+    _write_png_bytes_at_jpg_path(raw / "coherent" / "IMAGES" / "x.jpg")
+    argv = [
+        "data",
+        "fix-jpeg-extension-mismatch",
+        "--dry-run",
+        "--raw-data-dir",
+        str(raw),
+    ]
+    assert mb_main(argv) == 0
+
+
+def test_cli_dry_run_include_static_png_exits_nonzero(tmp_path: Path) -> None:
+    raw = tmp_path / "raw_data"
+    _write_png_bytes_at_jpg_path(raw / "coherent" / "IMAGES" / "x.jpg")
+    argv = [
+        "data",
+        "fix-jpeg-extension-mismatch",
+        "--dry-run",
+        "--include-static-format-mismatches",
+        "--raw-data-dir",
+        str(raw),
+    ]
+    assert mb_main(argv) == 1
 
 
 def test_repair_updates_unified_snapshot_original_and_converted(tmp_path: Path) -> None:
