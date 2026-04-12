@@ -11,6 +11,8 @@ from pathlib import Path
 from PIL import Image
 
 from mb.cli import main as mb_main
+from mb.models.types import ModelBuildStepCommand
+from mb.utils.snapshot import UnifiedSnapshot, calculate_file_hash, save_unified_snapshot
 
 from mb.data.class_layout import CONVERTED_MEDIA_SUBDIR, VISUAL_MEDIA_REVIEW_SUBDIR
 from mb.data.find_jpeg_extension_mismatches import (
@@ -217,3 +219,67 @@ def test_cli_main_freeform_multiline_argv_matches_data_page_wildcard_split(tmp_p
     extra_clean = shlex.split(text_clean.strip(), posix=os.name != "nt")
     argv_clean = ["data", "fix-jpeg-extension-mismatch", *extra_clean]
     assert mb_main(argv_clean) == 0
+
+
+def test_repair_updates_unified_snapshot_original_and_converted(tmp_path: Path) -> None:
+    """Mislabeled repair refreshes ``original`` / ``converted`` on matching snapshot rows only."""
+    raw = tmp_path / "raw_data"
+    class_dir = raw / "coherent"
+    images = class_dir / "IMAGES"
+    converted = class_dir / CONVERTED_MEDIA_SUBDIR
+    small_review = class_dir / "small_images_review"
+
+    source_jpg = images / "trick.jpg"
+    _write_animated_gif_at_jpg_path(source_jpg)
+
+    converted.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(source_jpg, converted / "trick.jpg")
+    small_review.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(source_jpg, small_review / "trick.jpg")
+
+    md5_orig = calculate_file_hash(source_jpg, "md5", raw_data_dir=raw)
+    assert md5_orig
+    snap = UnifiedSnapshot(run_id="snaptest", raw_data_dir=str(raw.resolve()))
+    snap.images[md5_orig] = {
+        "original": {
+            "basename": "trick.jpg",
+            "hash": md5_orig,
+            "path": "coherent/IMAGES/trick.jpg",
+            "format": ".jpg",
+        },
+        "converted": {
+            "class": "coherent",
+            "path": "coherent/CONVERTED/stale.jpg",
+            "basename": "stale.jpg",
+            "md5": "00",
+            "sha256": "11",
+            "was_converted": True,
+        },
+    }
+    assert save_unified_snapshot(snap, raw, logger=None) is not None
+
+    ok, stats = repair_mislabeled_jpeg_extensions(
+        raw,
+        model_type=ModelType.IMAGE_CLASSIFICATION,
+        dry_run=False,
+        rng=random.Random(0),
+    )
+    assert ok is True
+    assert stats.snapshot_records_updated >= 1
+
+    loaded = UnifiedSnapshot.load(raw / "snapshot_snaptest.json", silent=True)
+    assert loaded is not None
+    rec = loaded.images.get(md5_orig)
+    assert rec is not None
+    assert rec["original"]["path"].endswith("trick.gif")
+    assert rec["original"]["format"] == ".gif"
+    conv = rec.get("converted") or {}
+    assert conv.get("class") == "coherent"
+    assert "CONVERTED" in (conv.get("path") or "")
+    assert conv.get("basename", "").endswith(".jpg")
+
+    se = loaded.step_errors.get(ModelBuildStepCommand.FIX_JPEG_EXTENSION_MISMATCH.value)
+    assert se
+    assert any(
+        any(m.startswith("wall_seconds:") for m in msgs) for msgs in se.values()
+    )

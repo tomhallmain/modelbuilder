@@ -9,6 +9,11 @@ were produced by :mod:`mb.data.convert` via the JPEG copy path (non-JPEG bytes u
 in ``CONVERTED`` / ``small_images_review``) are removed only after a replacement JPEG is written
 successfully.
 
+When a unified snapshot (``snapshot_<run_id>.json``) exists under the raw data root, each repaired
+file updates **only** that image’s ``original`` and ``converted`` fields to match the renamed source
+and the new ``CONVERTED`` JPEG—``dataset`` / ``training`` are left unchanged. Step timing and any
+errors are recorded under ``fix-jpeg-extension-mismatch`` in the snapshot’s ``step_errors`` map.
+
 With ``dry_run=True``, optional ``dry_run_json`` / ``dry_run_pillow`` / ``dry_run_quiet`` mirror the
 former standalone list-mode switches: newline-delimited JSON records, optional Pillow metadata, and
 suppression of verbose per-file log lines (JSON lines use stdout in the CLI and the step logger when
@@ -22,7 +27,9 @@ import random
 import shutil
 import sys
 import threading
+import time
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 
@@ -35,10 +42,18 @@ from mb.data.media_utils import (
     pil_gif_frame_count,
     pil_image_to_jpeg_normalized,
 )
-from mb.models.types import ModelType
+from mb.models.types import ModelBuildStepCommand, ModelType
 from mb.pipeline_config import get_pipeline_config
 from mb.utils.logging_setup import log_completion_info, log_startup_info, setup_logging
 from mb.utils.utils import assign_still_convert_output_basenames, convert_output_jpeg_filename
+
+from mb.utils.snapshot import (
+    calculate_file_hash,
+    find_unified_snapshot,
+    preload_gather_cache,
+    save_unified_snapshot,
+    set_step_errors_for_invocation,
+)
 
 logger = setup_logging(script_name="fix_jpeg_mismatch")
 
@@ -149,6 +164,102 @@ class RepairStats:
     dry_run_actions: int = 0
     mismatches_found: int = 0
     errors: List[str] = field(default_factory=list)
+    snapshot_records_updated: int = 0
+    snapshot_apply_errors: List[str] = field(default_factory=list)
+
+
+def _posix_rel_str(path: Optional[str]) -> str:
+    if not path:
+        return ""
+    return str(path).replace("\\", "/")
+
+
+def _rel_under_raw(raw_data_dir: Path, path: Path) -> str:
+    return path.resolve().relative_to(raw_data_dir.resolve()).as_posix()
+
+
+def _find_snapshot_record_by_original_path(
+    snapshot: Any,
+    rel_original_old: str,
+) -> Optional[str]:
+    """
+    Return the dict key (original content hash) for the record whose ``original.path`` matches
+    *rel_original_old* (POSIX, relative to raw data root).
+    """
+    want = _posix_rel_str(rel_original_old)
+    for hash_key, rec in snapshot.images.items():
+        orig = rec.get("original")
+        if not isinstance(orig, dict):
+            continue
+        if _posix_rel_str(orig.get("path")) == want:
+            return str(hash_key)
+    return None
+
+
+def _update_snapshot_record_after_repair(
+    snapshot: Any,
+    raw_data_dir: Path,
+    class_name: str,
+    rel_original_old: str,
+    renamed_source: Path,
+    converted_jpeg: Path,
+    *,
+    logger,
+) -> None:
+    """
+    Update *only* ``original`` and ``converted`` for the image that was mislabeled as JPEG.
+
+    Does not modify ``dataset`` or ``training``. Skips quietly if no matching record exists.
+    """
+    hash_key = _find_snapshot_record_by_original_path(snapshot, rel_original_old)
+    if not hash_key:
+        logger.debug(
+            "Snapshot: no record with original.path=%r (skipping snapshot row update)",
+            rel_original_old,
+        )
+        return
+    rec = snapshot.images.get(hash_key)
+    if not isinstance(rec, dict):
+        return
+
+    rel_new = _rel_under_raw(raw_data_dir, renamed_source)
+    md5_c = calculate_file_hash(
+        converted_jpeg,
+        algorithm="md5",
+        raw_data_dir=raw_data_dir,
+        unified_snapshot=None,
+        logger=logger,
+    )
+    sha_c = calculate_file_hash(
+        converted_jpeg,
+        algorithm="sha256",
+        raw_data_dir=raw_data_dir,
+        unified_snapshot=None,
+        logger=logger,
+    )
+    if md5_c is None or sha_c is None:
+        raise RuntimeError(f"could not hash converted output {converted_jpeg}")
+
+    prior_orig = rec.get("original") if isinstance(rec.get("original"), dict) else {}
+    prior_hash = prior_orig.get("hash")
+    was_conv = bool((prior_hash or hash_key) != md5_c)
+
+    rec["original"] = {
+        "basename": renamed_source.name,
+        "hash": prior_hash or hash_key,
+        "path": rel_new,
+        "format": renamed_source.suffix.lower(),
+    }
+    conv_rel = _rel_under_raw(raw_data_dir, converted_jpeg)
+    rec["converted"] = {
+        "class": class_name,
+        "path": conv_rel,
+        "basename": converted_jpeg.name,
+        "md5": md5_c,
+        "sha256": sha_c,
+        "was_converted": was_conv,
+    }
+    snapshot.last_updated = datetime.now().isoformat()
 
 
 def _gif_frame_count(path: Path) -> int:
@@ -240,6 +351,22 @@ def repair_mislabeled_jpeg_extensions(
         logger.warning("No class directories found under %s", raw_data_dir)
         log_completion_info(logger, True, "no class folders to scan")
         return True, stats
+
+    repair_started_iso: Optional[str] = None
+    wall_t0: Optional[float] = None
+    snapshot: Any = None
+    if not dry_run:
+        wall_t0 = time.perf_counter()
+        repair_started_iso = datetime.now(timezone.utc).isoformat()
+        snapshot = find_unified_snapshot([raw_data_dir], run_id=None, logger=logger)
+        if snapshot is None:
+            logger.warning(
+                "No unified snapshot under %s; file repair will run but snapshot rows will not be updated. "
+                "Run mb data convert first to create a snapshot if you need metadata alignment.",
+                raw_data_dir,
+            )
+        else:
+            preload_gather_cache(raw_data_dir)
 
     converter = ImageConverter(raw_data_dir=raw_data_dir, model_type=model_type)
     small_review_name = "small_images_review"
@@ -372,6 +499,8 @@ def repair_mislabeled_jpeg_extensions(
             created: List[Path] = []
             target_jpeg: Optional[Path] = None
             try:
+                rel_original_old = _rel_under_raw(raw_data_dir, src)
+                converted_out: Path
                 if animated_ic:
                     target_jpeg = converted_dir / convert_output_jpeg_filename(
                         src,
@@ -385,6 +514,7 @@ def repair_mislabeled_jpeg_extensions(
                     rp = _copy_visual_review_like_convert(target_jpeg, review_dir)
                     if rp:
                         created.append(rp)
+                    converted_out = target_jpeg
                 else:
                     from PIL import Image
 
@@ -396,12 +526,13 @@ def repair_mislabeled_jpeg_extensions(
                     if not pil_image_to_jpeg_normalized(rgb, out_still):
                         raise RuntimeError("pil_image_to_jpeg_normalized failed")
                     created.append(out_still)
+                    converted_out = out_still
 
                 dest_src = _unique_dest(src.with_suffix(new_ext))
                 src.rename(dest_src)
 
-                if animated_ic and target_jpeg is not None:
-                    if junk_converted.exists() and junk_converted.resolve() != target_jpeg.resolve():
+                if animated_ic:
+                    if junk_converted.exists() and junk_converted.resolve() != converted_out.resolve():
                         try:
                             junk_converted.unlink()
                         except OSError as e:
@@ -412,6 +543,22 @@ def repair_mislabeled_jpeg_extensions(
                         junk_small.unlink()
                     except OSError as e:
                         logger.warning("Could not remove stale small review file %s: %s", junk_small, e)
+
+                if snapshot is not None:
+                    try:
+                        _update_snapshot_record_after_repair(
+                            snapshot,
+                            raw_data_dir,
+                            class_name,
+                            rel_original_old,
+                            dest_src,
+                            converted_out,
+                            logger=logger,
+                        )
+                        stats.snapshot_records_updated += 1
+                    except Exception as e:
+                        logger.warning("Snapshot update failed after repair: %s", e, exc_info=True)
+                        stats.snapshot_apply_errors.append(f"{rel_original_old}: {e}")
 
                 stats.files_repaired += 1
                 processed.add(key)
@@ -427,12 +574,36 @@ def repair_mislabeled_jpeg_extensions(
                 stats.files_failed += 1
                 stats.errors.append(f"{src}: {e}")
 
+    elapsed_sec: Optional[float] = None
+    if wall_t0 is not None:
+        elapsed_sec = time.perf_counter() - wall_t0
+
+    if (
+        not dry_run
+        and snapshot is not None
+        and repair_started_iso is not None
+        and elapsed_sec is not None
+    ):
+        messages: List[str] = []
+        messages.extend(stats.errors)
+        messages.extend(stats.snapshot_apply_errors)
+        messages.append(f"wall_seconds:{elapsed_sec:.6f}")
+        messages.append(f"snapshot_records_updated:{stats.snapshot_records_updated}")
+        set_step_errors_for_invocation(
+            snapshot,
+            ModelBuildStepCommand.FIX_JPEG_EXTENSION_MISMATCH.value,
+            repair_started_iso,
+            messages,
+        )
+        save_unified_snapshot(snapshot, raw_data_dir, logger=logger)
+
     ok = stats.files_failed == 0
+    timing_tail = f" wall_seconds={elapsed_sec:.6f}" if elapsed_sec is not None else ""
     log_completion_info(
         logger,
         ok,
         f"repaired={stats.files_repaired} failed={stats.files_failed} dry_run_actions={stats.dry_run_actions} "
-        f"mismatches_found={stats.mismatches_found}",
+        f"mismatches_found={stats.mismatches_found}{timing_tail}",
     )
     return ok, stats
 

@@ -155,6 +155,10 @@ class DataPage(QWidget):
             _(
                 "Typical order: Gather → Convert → Deduplicate (optional) → Upscale (optional) → Create Dataset. "
                 "If class folders are already under your raw data root, skip Gather and start at Convert. "
+                "If sources were mislabeled as .jpg, run fix-jpeg-extension-mismatch before Create Dataset "
+                "(it repairs CONVERTED/ and updates the unified snapshot—no separate full Convert needed for that). "
+                "Create Dataset reads training JPEGs from each class’s CONVERTED/ folder only—not from "
+                "small_images_review, upscaled_small_images, or visual_media_review. "
                 "See docs/DATA_PIPELINE.md for storage on external drives and large vs small images."
             )
         )
@@ -231,6 +235,24 @@ class DataPage(QWidget):
         self.dataset_max_train.setSpecialValueText(_("None"))
         self.dataset_balance_train.setText(_("Balance train set to smallest class"))
         self.dataset_allow_external.setText(_("Allow external/removable storage"))
+        self._dataset_prereq_note.setText(
+            _(
+                "Before Create Dataset: (1) Raw data must use one folder per class under the raw data root "
+                "(run Gather first if you do not already have that layout). "
+                "(2) Run Convert so each class has normalized JPEGs under CONVERTED/ and the unified snapshot "
+                "matches your sources. "
+                "(3) If any files had the wrong extension for their actual image bytes, run "
+                "mb data fix-jpeg-extension-mismatch (or the Wildcard tab with that subcommand)—it rewrites "
+                "CONVERTED/ and patches the unified snapshot for those files; you do not need a second full Convert "
+                "just to refresh the snapshot. "
+                "(4) Optional: Deduplicate may move borderline-small files out of CONVERTED/ into each class’s "
+                "small_images_review/; Upscale is optional. Create Dataset reads JPEGs from CONVERTED/ only—put "
+                "any images you still want trained back under CONVERTED/ (from small_images_review or from "
+                "upscaled_small_images after upscale) before Create Dataset. "
+                "(5) Choose an output data directory with enough free space; check “Allow external/removable "
+                "storage” when writing to removable drives."
+            )
+        )
         self._apply_pipeline_tab_tooltips()
         self._apply_pipeline_group_tooltips()
         self._apply_intro_tooltip()
@@ -257,6 +279,27 @@ class DataPage(QWidget):
             _(
                 "If the resolver did not open after a list-only run (for example after a UI crash), "
                 "use the button above to load duplicate groups from the snapshot on disk."
+            )
+        )
+        self._dedup_create_dataset_note.setText(
+            _(
+                "Training sources for Create Dataset are JPEGs under each class’s CONVERTED/ only. "
+                "Deduplicate moves borderline-small images from CONVERTED/ into that class’s small_images_review/ "
+                "(and removes very small ones). Files that stay only in small_images_review are not used by "
+                "Create Dataset unless you copy or move them back into CONVERTED/. "
+                "visual_media_review holds duplicate copies of video/GIF frame extracts for review; the canonical "
+                "frame JPEG is already in CONVERTED/, so you do not merge visual_media_review for Create Dataset."
+            )
+        )
+        self._upscale_help_note.setText(
+            _(
+                "Upscale is optional. It enlarges images from the review tree; outputs go under "
+                "<review-dir>/upscaled_small_images/. Default review dir when empty is "
+                "<raw-data-dir>/small_images_review (one subfolder per class)—set Review dir explicitly if "
+                "deduplicate placed files under raw_data/<class>/small_images_review/ instead. "
+                "Create Dataset still reads only from CONVERTED/; copy any upscaled files you want trained into "
+                "the right CONVERTED/ folder before Create Dataset. If you skip upscale, accept that images left "
+                "only in small_images_review stay out of the split unless you return them to CONVERTED/ manually."
             )
         )
         self._refresh_dedup_resolver_run_id_tooltip()
@@ -599,12 +642,22 @@ class DataPage(QWidget):
         self._dedup_scope_note.setObjectName("dedup_scope_note")
         v.addWidget(self._dedup_scope_note)
 
+        self._dedup_create_dataset_note = QLabel()
+        self._dedup_create_dataset_note.setWordWrap(True)
+        self._dedup_create_dataset_note.setObjectName("dedup_create_dataset_note")
+        v.addWidget(self._dedup_create_dataset_note)
+
         v.addStretch(1)
         return tab
 
     def _build_upscale_tab(self) -> QWidget:
         tab = QWidget()
         v = QVBoxLayout(tab)
+
+        self._upscale_help_note = QLabel()
+        self._upscale_help_note.setWordWrap(True)
+        self._upscale_help_note.setObjectName("upscale_help_note")
+        v.addWidget(self._upscale_help_note)
 
         self._upscale_group = QGroupBox("mb data upscale")
         form = QFormLayout(self._upscale_group)
@@ -623,6 +676,11 @@ class DataPage(QWidget):
     def _build_dataset_tab(self) -> QWidget:
         tab = QWidget()
         v = QVBoxLayout(tab)
+
+        self._dataset_prereq_note = QLabel()
+        self._dataset_prereq_note.setWordWrap(True)
+        self._dataset_prereq_note.setObjectName("dataset_prereq_note")
+        v.addWidget(self._dataset_prereq_note)
 
         self._dataset_group = QGroupBox("mb data create-dataset")
         form = QFormLayout(self._dataset_group)
@@ -723,18 +781,26 @@ class DataPage(QWidget):
             ),
             _(
                 "Normalize images to JPEG under each class’s CONVERTED/ folder. "
+                "Video/GIF extracts: the frame JPEG is written to CONVERTED/ and a duplicate copy to "
+                "visual_media_review/ for inspection only. "
                 "Point Raw data dir at the same tree on an internal or external drive; outputs stay beside sources."
             ),
             _(
                 "Remove duplicates and quarantine very small images from class CONVERTED/ folders only "
-                "(raw_data/<class>/CONVERTED); other folders are ignored."
+                "(raw_data/<class>/CONVERTED); other folders are ignored. "
+                "Borderline-small files move to each class’s small_images_review/—Create Dataset does not read "
+                "that folder unless you copy back into CONVERTED/."
             ),
             _(
-                "Upscale images previously moved to the small-image review area (after deduplicate). "
-                "Default review dir is raw_data/small_images_review when left empty."
+                "Optional: enlarge undersized images from the review area. Outputs go under "
+                "upscaled_small_images/; Create Dataset still uses CONVERTED/ only—merge copies there if needed. "
+                "Default review dir when empty is raw_data/small_images_review (class subfolders); override Review "
+                "dir if your review files live under raw_data/<class>/small_images_review/."
             ),
             _(
-                "Build train/ and test/ under the output data directory from the raw tree. "
+                "After initial Convert (and any JPEG extension repair if needed), optionally Dedup/Upscale: "
+                "copies from each class’s CONVERTED/ into train/ and test/ under the output data directory. "
+                "Does not pull from small_images_review, upscaled_small_images, or visual_media_review. "
                 "A good place to put the final dataset on your main drive while raw data stays external."
             ),
             _(
@@ -763,20 +829,26 @@ class DataPage(QWidget):
             ),
             _(
                 "Convert walks class folders, writes CONVERTED/ JPEGs, and records a unified snapshot. "
-                "For image classification, videos and multi-frame GIFs may yield a random frame JPEG. "
+                "For image classification, videos and multi-frame GIFs may yield a random frame JPEG in CONVERTED/ "
+                "plus a duplicate in visual_media_review/ for review only. "
                 "Very large images are downscaled (max edge 4000px)."
             ),
             _(
                 "Deduplicate scans only class CONVERTED/ folders, removes duplicate images, and handles tiny "
-                "dimensions: removes very small images and moves borderline-small ones to small_images_review/ "
-                "for manual review before upscale."
+                "dimensions: removes very small images and moves borderline-small ones to each class’s "
+                "small_images_review/ for optional upscale. Create Dataset sources CONVERTED/ JPEGs only."
             ),
             _(
-                "Upscale processes the review tree produced by deduplicate for undersized images you choose to keep."
+                "Optional: reads the small-image review tree and writes upscaled copies under "
+                "upscaled_small_images/. Create Dataset does not read that output—copy wanted files into CONVERTED/ "
+                "before create-dataset if they should appear in train/test."
             ),
             _(
-                "Create-dataset reads from raw data (including CONVERTED/) and writes the train/test split to the "
-                "output data dir. Set output on a spacious internal disk if raw data lives on external storage."
+                "Prerequisite: Convert has been run (CONVERTED/ + snapshot). JPEG extension repair updates "
+                "that snapshot for repaired files—you do not need another full Convert for snapshot alignment. "
+                "Copies only from each class’s CONVERTED/ (not small_images_review or visual_media_review). "
+                "Writes train/ and test/ to the output data dir. Set output on a spacious internal disk if raw "
+                "data lives on external storage."
             ),
             _(
                 "Runs ``mb data <subcommand>`` with the optional argument text you provide "
@@ -799,7 +871,13 @@ class DataPage(QWidget):
             "Storage: convert reads and writes under the raw data path you choose (including on removable drives). "
             "Create Dataset copies into the output data directory—often set that to your main disk. "
             "Large images: convert downscales long edges; tiny images: deduplicate moves small files to "
-            "small_images_review/. Full discussion: docs/DATA_PIPELINE.md."
+            "small_images_review/. JPEG extension mismatches: run fix-jpeg-extension-mismatch (updates CONVERTED/ "
+            "and the unified snapshot for affected files; no extra Convert pass required for that). "
+            "Create Dataset globs JPEGs from each class’s CONVERTED/ only. "
+            "visual_media_review/ is a duplicate of video/GIF frame outputs for human review—not a second input. "
+            "After deduplicate, files that remain only under small_images_review/ (or only under upscaled_small_images/ "
+            "after upscale) are not used unless you copy the ones you want back into CONVERTED/. "
+            "Full discussion: docs/DATA_PIPELINE.md."
         )
         if self._intro_tooltip is None:
             self._intro_tooltip = create_tooltip(self._intro, detail)
