@@ -431,6 +431,42 @@ class DataPage(QWidget):
         finally:
             self._syncing_shared_pipeline_fields = False
 
+    def _wildcard_command_value_for_persist(self) -> str:
+        """CLI subcommand string for the Wildcard tab combo (stable across ``currentData()`` quirks)."""
+        idx = self.wildcard_command_combo.currentIndex()
+        if idx < 0:
+            return ModelBuildStepCommand.GATHER.value
+        data = self.wildcard_command_combo.itemData(idx)
+        if isinstance(data, ModelBuildStepCommand):
+            return data.value
+        parsed = ModelBuildStepCommand.try_from(data)
+        if parsed is not None:
+            return parsed.value
+        return ModelBuildStepCommand.GATHER.value
+
+    def _apply_wildcard_section_from_state(self, w: object) -> None:
+        """Restore Wildcard command + extra args from cached ``wildcard`` dict."""
+        if not isinstance(w, dict):
+            return
+        wc = w.get("command")
+        if wc is not None:
+            parsed = ModelBuildStepCommand.try_from(wc)
+            if parsed is not None:
+                want = parsed.value
+                for i in range(self.wildcard_command_combo.count()):
+                    data = self.wildcard_command_combo.itemData(i)
+                    cand: ModelBuildStepCommand | None
+                    if isinstance(data, ModelBuildStepCommand):
+                        cand = data
+                    else:
+                        cand = ModelBuildStepCommand.try_from(data)
+                    if cand is not None and cand.value == want:
+                        self.wildcard_command_combo.setCurrentIndex(i)
+                        break
+        ex = w.get("extra_args")
+        if isinstance(ex, str):
+            self.wildcard_extra_args.setPlainText(ex)
+
     def collect_gui_state(self) -> dict:
         """Serializable form state; restored by :class:`ui.controllers.cache_controller.CacheController`."""
         pipe = self._pipeline_shared_dict()
@@ -465,11 +501,7 @@ class DataPage(QWidget):
                 "skip_space": bool(self.dataset_skip_space.isChecked()),
             },
             "wildcard": {
-                "command": (
-                    self.wildcard_command_combo.currentData().value
-                    if isinstance(self.wildcard_command_combo.currentData(), ModelBuildStepCommand)
-                    else ModelBuildStepCommand.GATHER.value
-                ),
+                "command": self._wildcard_command_value_for_persist(),
                 "extra_args": self.wildcard_extra_args.toPlainText(),
             },
         }
@@ -483,19 +515,7 @@ class DataPage(QWidget):
             if isinstance(tab, int) and 0 <= tab < self.tabs.count():
                 self.tabs.setCurrentIndex(tab)
 
-            w = state.get("wildcard") or {}
-            if isinstance(w, dict):
-                wc = w.get("command")
-                if isinstance(wc, str):
-                    parsed = ModelBuildStepCommand.try_from(wc)
-                    if parsed is not None:
-                        for i in range(self.wildcard_command_combo.count()):
-                            if self.wildcard_command_combo.itemData(i) == parsed:
-                                self.wildcard_command_combo.setCurrentIndex(i)
-                                break
-                ex = w.get("extra_args")
-                if isinstance(ex, str):
-                    self.wildcard_extra_args.setPlainText(ex)
+            self._apply_wildcard_section_from_state(state.get("wildcard"))
 
             raw_g, run_g = self._pipeline_shared_for_restore(state)
             self._apply_shared_pipeline_text(raw_g, run_g)
@@ -763,8 +783,8 @@ class DataPage(QWidget):
             raise ValueError(_("Could not parse arguments (check quotes and line breaks): {err}").format(err=e)) from e
 
     def _collect_wildcard_cli_inputs(self) -> dict:
-        cmd = self.wildcard_command_combo.currentData()
-        if not isinstance(cmd, ModelBuildStepCommand):
+        cmd = ModelBuildStepCommand.try_from(self._wildcard_command_value_for_persist())
+        if cmd is None:
             cmd = ModelBuildStepCommand.GATHER
         return {
             "wildcard_cli": True,
@@ -1029,9 +1049,9 @@ class DataPage(QWidget):
 
     def _current_command(self) -> ModelBuildStepCommand:
         if self.tabs.currentIndex() == WILDCARD_TAB_INDEX:
-            cmd = self.wildcard_command_combo.currentData()
-            if isinstance(cmd, ModelBuildStepCommand):
-                return cmd
+            parsed = ModelBuildStepCommand.try_from(self._wildcard_command_value_for_persist())
+            if parsed is not None:
+                return parsed
             return ModelBuildStepCommand.GATHER
         tabs = ModelBuildStepCommand.data_page_tab_values()
         i = self.tabs.currentIndex()

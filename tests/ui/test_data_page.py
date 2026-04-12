@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -106,3 +107,24 @@ def test_data_page_collect_and_restore_gui_state_roundtrip(qtbot, tmp_path) -> N
     assert page2.tabs.currentIndex() == 2
     assert page2.dedup_raw_data_dir.text() == str(tmp_path / "raw")
     assert page2.convert_raw_data_dir.text() == str(tmp_path / "raw")
+
+
+@pytest.mark.ui
+def test_data_page_wildcard_command_persists_in_gui_state_roundtrip(qtbot, english_gui_locale) -> None:
+    page = DataPage()
+    qtbot.addWidget(page)
+    # Last entry in gui_wildcard_command_values() is fix-jpeg-extension-mismatch.
+    page.wildcard_command_combo.setCurrentIndex(page.wildcard_command_combo.count() - 1)
+    page.wildcard_extra_args.setPlainText("--dry-run\n")
+
+    blob = page.collect_gui_state()
+    assert blob.get("wildcard", {}).get("command") == "fix-jpeg-extension-mismatch"
+
+    blob_json = json.loads(json.dumps(blob))
+    page2 = DataPage()
+    qtbot.addWidget(page2)
+    page2.restore_gui_state(blob_json)
+
+    assert page2.wildcard_command_combo.currentIndex() == page.wildcard_command_combo.count() - 1
+    assert page2.collect_gui_state().get("wildcard", {}).get("command") == "fix-jpeg-extension-mismatch"
+    assert page2.wildcard_extra_args.toPlainText() == "--dry-run\n"
