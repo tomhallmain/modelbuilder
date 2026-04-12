@@ -7,6 +7,8 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+
+import yaml
 from typing import Any
 from unittest.mock import patch
 
@@ -54,6 +56,31 @@ def test_main_accepts_config_before_data_for_fix_jpeg_dry_run(tmp_path: Path) ->
     ]
     code = main(good)
     assert code in (0, 1)
+
+
+def test_fix_jpeg_without_raw_data_dir_uses_pipeline_raw_data_dir(tmp_path: Path) -> None:
+    """Omitting ``--raw-data-dir`` must resolve ``data.raw_data_dir`` from ``--config`` (Wildcard / CLI)."""
+    raw = tmp_path / "external_raw"
+    raw.mkdir()
+    (raw / "only_class").mkdir()
+    cfg = tmp_path / "pipe.yaml"
+    cfg.write_text(
+        yaml.dump(
+            {
+                "model": {"default_type": "image_classification"},
+                "data": {"raw_data_dir": str(raw.resolve())},
+            }
+        ),
+        encoding="utf-8",
+    )
+    argv = [
+        "--config",
+        str(cfg),
+        "data",
+        "fix-jpeg-extension-mismatch",
+        "--dry-run",
+    ]
+    assert main(argv) == 0
 
 
 def test_main_no_command_is_nonzero() -> None:

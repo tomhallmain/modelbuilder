@@ -359,8 +359,11 @@ def create_parser() -> argparse.ArgumentParser:
     fix_jpeg_parser.add_argument(
         "--raw-data-dir",
         type=Path,
-        default=Path("raw_data"),
-        help=_("Raw data directory (default: raw_data)"),
+        default=None,
+        help=_(
+            "Raw data directory (default: data.raw_data_dir from the pipeline config after --config; "
+            "same as gather/convert when omitted)."
+        ),
     )
     fix_jpeg_parser.add_argument(
         "--dry-run",
@@ -796,6 +799,13 @@ def handle_data_fix_jpeg_extension_mismatch(args):
     try:
         reload_pipeline_config(getattr(args, "config", None), force=True)
         from mb.data.find_jpeg_extension_mismatches import repair_mislabeled_jpeg_extensions
+        from mb.pipeline_config import gather_pipeline_defaults
+
+        raw_data_dir = getattr(args, "raw_data_dir", None)
+        if raw_data_dir is None:
+            raw_data_dir = gather_pipeline_defaults()["raw_data_dir"]
+        else:
+            raw_data_dir = Path(raw_data_dir)
 
         dry_run = bool(getattr(args, "dry_run", False))
         report_json = bool(getattr(args, "report_json", False))
@@ -814,7 +824,7 @@ def handle_data_fix_jpeg_extension_mismatch(args):
         seed = getattr(args, "seed", None)
         rng = random.Random(seed) if seed is not None else None
         ok, stats = repair_mislabeled_jpeg_extensions(
-            Path(args.raw_data_dir),
+            raw_data_dir,
             model_type=mt,
             dry_run=dry_run,
             dry_run_json=report_json,
