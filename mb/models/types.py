@@ -28,6 +28,7 @@ class ModelBuildStepCommand(str, Enum):
     UPSCALE = "upscale"
     CREATE_DATASET = "create-dataset"
     ESTIMATE_SPACE = "estimate-space"
+    FIX_JPEG_EXTENSION_MISMATCH = "fix-jpeg-extension-mismatch"
 
     @classmethod
     def try_from(cls, raw: object) -> ModelBuildStepCommand | None:
@@ -48,6 +49,18 @@ class ModelBuildStepCommand(str, Enum):
             cls.DEDUPLICATE,
             cls.UPSCALE,
             cls.CREATE_DATASET,
+        )
+
+    @classmethod
+    def gui_wildcard_command_values(cls) -> tuple[ModelBuildStepCommand, ...]:
+        """Commands offered on the Data page Wildcard tab (excludes CLI-only ``estimate-space``)."""
+        return (
+            cls.GATHER,
+            cls.CONVERT,
+            cls.DEDUPLICATE,
+            cls.UPSCALE,
+            cls.CREATE_DATASET,
+            cls.FIX_JPEG_EXTENSION_MISMATCH,
         )
 
 

@@ -345,6 +345,64 @@ def create_parser() -> argparse.ArgumentParser:
         ),
     )
 
+    # mb data fix-jpeg-extension-mismatch
+    fix_jpeg_parser = data_subparsers.add_parser(
+        "fix-jpeg-extension-mismatch",
+        help=_("Rename mislabeled .jpg sources and rebuild CONVERTED JPEGs"),
+        description=_(
+            "Finds non-JPEG bytes under .jpg/.jpeg names in class source trees (same discovery as convert), "
+            "writes corrected JPEGs, and removes stale copies under CONVERTED and small_images_review "
+            "only after a successful write. Animated GIFs use the same random-frame + visual_media_review "
+            "layout as convert when the model type is image_classification."
+        ),
+    )
+    fix_jpeg_parser.add_argument(
+        "--raw-data-dir",
+        type=Path,
+        default=Path("raw_data"),
+        help=_("Raw data directory (default: raw_data)"),
+    )
+    fix_jpeg_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help=_("Log planned repairs only; do not rename files or write outputs."),
+    )
+    fix_jpeg_parser.add_argument(
+        "--json",
+        dest="report_json",
+        action="store_true",
+        help=_(
+            "With --dry-run: print one JSON object per mismatch (newline-delimited) to stdout; "
+            "implies pipeline class discovery like the repair path."
+        ),
+    )
+    fix_jpeg_parser.add_argument(
+        "--pillow",
+        dest="report_pillow",
+        action="store_true",
+        help=_("With --dry-run and --json: include Pillow format and GIF metadata in each JSON object."),
+    )
+    fix_jpeg_parser.add_argument(
+        "--quiet",
+        dest="report_quiet",
+        action="store_true",
+        help=_(
+            "With --dry-run: omit verbose per-file log lines (use with --json for machine-readable output only)."
+        ),
+    )
+    fix_jpeg_parser.add_argument(
+        "--model-type",
+        default=None,
+        choices=_MODEL_TYPE_CLI_CHOICES,
+        help=_("Pipeline model type (default: model.default_type)."),
+    )
+    fix_jpeg_parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help=_("RNG seed for random GIF frame selection (optional)."),
+    )
+
     # mb data estimate-space
     estimate_space_parser = data_subparsers.add_parser(
         "estimate-space",
@@ -731,6 +789,50 @@ def handle_data_create_dataset(args):
         return 1
 
 
+def handle_data_fix_jpeg_extension_mismatch(args):
+    """Handle ``mb data fix-jpeg-extension-mismatch``."""
+    import random
+
+    try:
+        reload_pipeline_config(getattr(args, "config", None), force=True)
+        from mb.data.find_jpeg_extension_mismatches import repair_mislabeled_jpeg_extensions
+
+        dry_run = bool(getattr(args, "dry_run", False))
+        report_json = bool(getattr(args, "report_json", False))
+        report_pillow = bool(getattr(args, "report_pillow", False))
+        report_quiet = bool(getattr(args, "report_quiet", False))
+        if (report_json or report_pillow or report_quiet) and not dry_run:
+            logger.error(_("--json, --pillow, and --quiet require --dry-run"))
+            return 1
+        if report_pillow and not report_json:
+            logger.error(_("--pillow requires --json"))
+            return 1
+
+        mt = ModelType.from_pipeline_value(
+            getattr(args, "model_type", None) or get_pipeline_config().get("model.default_type")
+        )
+        seed = getattr(args, "seed", None)
+        rng = random.Random(seed) if seed is not None else None
+        ok, stats = repair_mislabeled_jpeg_extensions(
+            Path(args.raw_data_dir),
+            model_type=mt,
+            dry_run=dry_run,
+            dry_run_json=report_json,
+            dry_run_pillow=report_pillow,
+            dry_run_quiet=report_quiet,
+            json_lines_to_logger=False,
+            rng=rng,
+        )
+        if not ok:
+            return 1
+        if dry_run and stats.mismatches_found > 0:
+            return 1
+        return 0
+    except Exception as e:
+        logger.error(f"Error in data fix-jpeg-extension-mismatch: {e}", exc_info=True)
+        return 1
+
+
 def handle_data_estimate_space(args):
     """Handle ``mb data estimate-space``."""
     try:
@@ -1014,6 +1116,7 @@ def main(args: Optional[list] = None) -> int:
                 ModelBuildStepCommand.UPSCALE: handle_data_upscale,
                 ModelBuildStepCommand.CREATE_DATASET: handle_data_create_dataset,
                 ModelBuildStepCommand.ESTIMATE_SPACE: handle_data_estimate_space,
+                ModelBuildStepCommand.FIX_JPEG_EXTENSION_MISMATCH: handle_data_fix_jpeg_extension_mismatch,
             }
             return _data_handlers[step](parsed_args)
         
@@ -1055,7 +1158,7 @@ def run_data_subcommand_cli(subcommand: str, argv: Optional[List[str]] = None) -
 
     *subcommand* is a :class:`~mb.models.types.ModelBuildStepCommand` value string
     (``gather``, ``convert``, ``deduplicate``, ``upscale``, ``create-dataset``,
-    ``estimate-space``). *argv* defaults to ``sys.argv[1:]``.
+    ``fix-jpeg-extension-mismatch``, ``estimate-space``, …). *argv* defaults to ``sys.argv[1:]``.
     """
     if argv is None:
         argv = sys.argv[1:]

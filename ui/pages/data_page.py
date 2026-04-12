@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import logging
+import os
 import random
+import shlex
 import threading
 from functools import partial
 from pathlib import Path
@@ -11,11 +13,13 @@ from pathlib import Path
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QCheckBox,
+    QComboBox,
     QFormLayout,
     QGroupBox,
     QHBoxLayout,
     QLabel,
     QLineEdit,
+    QPlainTextEdit,
     QPushButton,
     QSpinBox,
     QTabWidget,
@@ -60,6 +64,9 @@ from ui.task_runner import start_task
 
 logger = logging.getLogger(__name__)
 
+# Tab index of the Wildcard command picker (see :meth:`DataPage._build_wildcard_tab`).
+WILDCARD_TAB_INDEX = 5
+
 # Loggers for ``mb data`` steps (see ``setup_logging(script_name=...)`` in each module). Also
 # ``modelbuilder.mb.space_estimate`` (see :func:`mb.utils.logging_setup.get_logger`) for disk
 # heuristics during convert / create-dataset — same logger as console/file when running the GUI.
@@ -69,6 +76,7 @@ _DATA_COMMAND_LOGGERS: dict[ModelBuildStepCommand, tuple[str, ...]] = {
     ModelBuildStepCommand.DEDUPLICATE: ("modelbuilder.mb.deduplicate_images",),
     ModelBuildStepCommand.UPSCALE: ("modelbuilder.mb.upscale_small_images",),
     ModelBuildStepCommand.CREATE_DATASET: ("modelbuilder.mb.create_datasets", "modelbuilder.mb.space_estimate"),
+    ModelBuildStepCommand.FIX_JPEG_EXTENSION_MISMATCH: ("modelbuilder.mb.fix_jpeg_mismatch",),
 }
 
 
@@ -101,6 +109,7 @@ class DataPage(QWidget):
         self.tabs.addTab(self._build_dedup_tab(), "")
         self.tabs.addTab(self._build_upscale_tab(), "")
         self.tabs.addTab(self._build_dataset_tab(), "")
+        self.tabs.addTab(self._build_wildcard_tab(), "")
         root.addWidget(self.tabs, 1)
 
         actions = QHBoxLayout()
@@ -127,6 +136,8 @@ class DataPage(QWidget):
         self.btn_validate.clicked.connect(self._validate_inputs)
         self.btn_run.clicked.connect(self._run_current_command)
         self.tabs.currentChanged.connect(self._validate_inputs)
+        self.wildcard_command_combo.currentIndexChanged.connect(self._on_wildcard_command_changed)
+        self.wildcard_extra_args.textChanged.connect(self._sync_data_tab_run_without_log)
 
         self._align_shared_raw_data_dir_to_gather_default()
         for ed in self._shared_raw_data_dir_edits():
@@ -136,6 +147,7 @@ class DataPage(QWidget):
         self.dataset_data_dir.textChanged.connect(self._sync_data_tab_run_without_log)
 
         self.retranslate_ui(refresh_output=False)
+        self._sync_data_tab_run_without_log()
 
     def retranslate_ui(self, *, refresh_output: bool = True) -> None:
         self._title.setText(f"<h2>{_('Data')}</h2>")
@@ -151,9 +163,17 @@ class DataPage(QWidget):
         self.tabs.setTabText(2, _("Deduplicate"))
         self.tabs.setTabText(3, _("Upscale"))
         self.tabs.setTabText(4, _("Create Dataset"))
+        self.tabs.setTabText(WILDCARD_TAB_INDEX, _("Wildcard"))
         self.btn_validate.setText(_("Validate Inputs"))
         self.btn_run.setText(_("Run Data Command"))
         self.output.setPlaceholderText(_("Validation and run results will appear here."))
+        self.wildcard_extra_args.setPlaceholderText(
+            _(
+                "Example:\n"
+                "--dry-run --json\n"
+                "--raw-data-dir C:\\path\\to\\raw_data"
+            )
+        )
         if self._last_space_estimate_msg:
             self._space_estimate_status.setText(
                 _("Latest space check") + ": " + self._last_space_estimate_msg
@@ -401,6 +421,14 @@ class DataPage(QWidget):
                 "allow_external": bool(self.dataset_allow_external.isChecked()),
                 "skip_space": bool(self.dataset_skip_space.isChecked()),
             },
+            "wildcard": {
+                "command": (
+                    self.wildcard_command_combo.currentData().value
+                    if isinstance(self.wildcard_command_combo.currentData(), ModelBuildStepCommand)
+                    else ModelBuildStepCommand.GATHER.value
+                ),
+                "extra_args": self.wildcard_extra_args.toPlainText(),
+            },
         }
 
     def restore_gui_state(self, state: dict) -> None:
@@ -411,6 +439,20 @@ class DataPage(QWidget):
             tab = state.get("tab")
             if isinstance(tab, int) and 0 <= tab < self.tabs.count():
                 self.tabs.setCurrentIndex(tab)
+
+            w = state.get("wildcard") or {}
+            if isinstance(w, dict):
+                wc = w.get("command")
+                if isinstance(wc, str):
+                    parsed = ModelBuildStepCommand.try_from(wc)
+                    if parsed is not None:
+                        for i in range(self.wildcard_command_combo.count()):
+                            if self.wildcard_command_combo.itemData(i) == parsed:
+                                self.wildcard_command_combo.setCurrentIndex(i)
+                                break
+                ex = w.get("extra_args")
+                if isinstance(ex, str):
+                    self.wildcard_extra_args.setPlainText(ex)
 
             raw_g, run_g = self._pipeline_shared_for_restore(state)
             self._apply_shared_pipeline_text(raw_g, run_g)
@@ -618,6 +660,60 @@ class DataPage(QWidget):
         v.addStretch(1)
         return tab
 
+    def _build_wildcard_tab(self) -> QWidget:
+        """Run ``mb data <subcommand>`` with optional extra CLI tokens (same as the terminal)."""
+        tab = QWidget()
+        v = QVBoxLayout(tab)
+
+        self._wildcard_group = QGroupBox("mb data (wildcard)")
+        inner = QVBoxLayout(self._wildcard_group)
+        self.wildcard_command_combo = QComboBox()
+        for cmd in ModelBuildStepCommand.gui_wildcard_command_values():
+            label = cmd.value.replace("-", " ")
+            self.wildcard_command_combo.addItem(label, cmd)
+        self.wildcard_extra_args = QPlainTextEdit()
+        self.wildcard_extra_args.setObjectName("wildcard_extra_args")
+        self.wildcard_extra_args.setMinimumHeight(100)
+        self._wildcard_hint = QLabel(
+            _(
+                "Pick the subcommand, then type any arguments for ``mb data <subcommand> …`` "
+                "(line breaks are fine). The active pipeline config path is passed as ``--config`` "
+                "when you do not include it below. Cancellation is not applied to this path—use Ctrl+C in a terminal "
+                "if you need to stop a long job."
+            )
+        )
+        self._wildcard_hint.setWordWrap(True)
+        inner.addWidget(QLabel(_("Command")))
+        inner.addWidget(self.wildcard_command_combo)
+        inner.addWidget(QLabel(_("Arguments (optional)")))
+        inner.addWidget(self.wildcard_extra_args, 1)
+        inner.addWidget(self._wildcard_hint)
+        v.addWidget(self._wildcard_group)
+        v.addStretch(1)
+        return tab
+
+    def _on_wildcard_command_changed(self, *_args: object) -> None:
+        self._sync_data_tab_run_without_log()
+
+    def _parse_wildcard_extra_argv(self) -> list[str]:
+        raw = self.wildcard_extra_args.toPlainText().strip()
+        if not raw:
+            return []
+        try:
+            return shlex.split(raw, posix=os.name != "nt")
+        except ValueError as e:
+            raise ValueError(_("Could not parse arguments (check quotes and line breaks): {err}").format(err=e)) from e
+
+    def _collect_wildcard_cli_inputs(self) -> dict:
+        cmd = self.wildcard_command_combo.currentData()
+        if not isinstance(cmd, ModelBuildStepCommand):
+            cmd = ModelBuildStepCommand.GATHER
+        return {
+            "wildcard_cli": True,
+            "data_subcommand": cmd,
+            "extra_argv": self._parse_wildcard_extra_argv(),
+        }
+
     def _apply_pipeline_tab_tooltips(self) -> None:
         """Hover hints for each Data tab (native tab bar tooltips)."""
         tips = [
@@ -641,6 +737,10 @@ class DataPage(QWidget):
                 "Build train/ and test/ under the output data directory from the raw tree. "
                 "A good place to put the final dataset on your main drive while raw data stays external."
             ),
+            _(
+                "Choose a data subcommand and optional ``mb data …`` arguments in the text box "
+                "(same flags as the CLI)."
+            ),
         ]
         for i, text in enumerate(tips):
             if i < self.tabs.count():
@@ -654,6 +754,7 @@ class DataPage(QWidget):
             self._dedup_group,
             self._upscale_group,
             self._dataset_group,
+            self._wildcard_group,
         ]
         texts = [
             _(
@@ -677,8 +778,14 @@ class DataPage(QWidget):
                 "Create-dataset reads from raw data (including CONVERTED/) and writes the train/test split to the "
                 "output data dir. Set output on a spacious internal disk if raw data lives on external storage."
             ),
+            _(
+                "Runs ``mb data <subcommand>`` with the optional argument text you provide "
+                "(parsed like the shell). The GUI injects ``--config`` when it is not already present."
+            ),
         ]
-        if self._pipeline_group_tooltips is None:
+        if self._pipeline_group_tooltips is None or len(self._pipeline_group_tooltips) != len(
+            groups
+        ):
             self._pipeline_group_tooltips = [
                 create_tooltip(g, t) for g, t in zip(groups, texts)
             ]
@@ -843,6 +950,11 @@ class DataPage(QWidget):
         self.tabs.setEnabled(not busy)
 
     def _current_command(self) -> ModelBuildStepCommand:
+        if self.tabs.currentIndex() == WILDCARD_TAB_INDEX:
+            cmd = self.wildcard_command_combo.currentData()
+            if isinstance(cmd, ModelBuildStepCommand):
+                return cmd
+            return ModelBuildStepCommand.GATHER
         tabs = ModelBuildStepCommand.data_page_tab_values()
         i = self.tabs.currentIndex()
         if 0 <= i < len(tabs):
@@ -871,6 +983,8 @@ class DataPage(QWidget):
             self._append(_("[invalid] {cmd}: {err}").format(cmd=command.value, err=exc))
 
     def _collect_inputs(self, command: ModelBuildStepCommand) -> dict:
+        if self.tabs.currentIndex() == WILDCARD_TAB_INDEX:
+            return self._collect_wildcard_cli_inputs()
         if command == ModelBuildStepCommand.GATHER:
             gd = gather_pipeline_defaults()
             source_dir = Path(self.gather_source.text().strip())
@@ -1121,6 +1235,9 @@ class DataPage(QWidget):
     def _execute_data_command_impl(
         self, ctx: LongTaskContext, command: ModelBuildStepCommand, payload: dict
     ) -> bool:
+        if payload.get("wildcard_cli"):
+            return self._execute_wildcard_mb_data_cli(ctx, command, payload)
+
         ce = ctx.cancel_event
         if command in (ModelBuildStepCommand.CONVERT, ModelBuildStepCommand.CREATE_DATASET):
             if not payload.get("skip_space_check"):
@@ -1183,6 +1300,22 @@ class DataPage(QWidget):
             )
             return bool(creator.run(cancel_event=ce))
         raise ValueError(_("Unknown command: {cmd}").format(cmd=command.value))
+
+    def _execute_wildcard_mb_data_cli(
+        self, ctx: LongTaskContext, command: ModelBuildStepCommand, payload: dict
+    ) -> bool:
+        """Invoke :func:`mb.cli.main` with ``data <subcommand>`` and user-supplied tokens."""
+        from mb.cli import main
+
+        sub = payload["data_subcommand"]
+        extra = list(payload["extra_argv"])
+        pc = payload.get("pipeline_config_path")
+        if pc and "--config" not in extra and "-c" not in extra:
+            extra = ["--config", str(pc)] + extra
+        argv = ["data", sub.value, *extra]
+        ctx.progress(_("Running: {line}").format(line="mb " + " ".join(argv)))
+        code = main(argv)
+        return code == 0
 
     def _on_run_success(self, success: bool) -> None:
         summary = getattr(self, "_pending_run_summary", "mb data")
