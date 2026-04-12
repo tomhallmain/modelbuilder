@@ -1408,9 +1408,12 @@ class DataPage(QWidget):
         sub = payload["data_subcommand"]
         extra = list(payload["extra_argv"])
         pc = payload.get("pipeline_config_path")
+        # ``--config`` is defined on the *root* parser; it must appear before ``data``, not after the
+        # subcommand name (otherwise argparse reports "unrecognized arguments: --config …").
         if pc and "--config" not in extra and "-c" not in extra:
-            extra = ["--config", str(pc)] + extra
-        argv = ["data", sub.value, *extra]
+            argv = ["--config", str(pc), "data", sub.value, *extra]
+        else:
+            argv = ["data", sub.value, *extra]
         ctx.progress(_("Running: {line}").format(line="mb " + " ".join(argv)))
         code = main(argv)
         return code == 0

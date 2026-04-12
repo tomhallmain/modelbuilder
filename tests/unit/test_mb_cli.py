@@ -19,6 +19,43 @@ from mb.training.run_args import TrainingRunArgs
 from tests.test_utils import default_pipeline_config_path, repo_root
 
 
+def test_main_config_after_data_subcommand_is_rejected_for_fix_jpeg(tmp_path: Path) -> None:
+    """Root ``--config`` must appear before ``data``; wildcard used to build argv the wrong way."""
+    cfg = default_pipeline_config_path()
+    raw = tmp_path / "raw_data"
+    raw.mkdir()
+    (raw / "only_class").mkdir()
+    bad = [
+        "data",
+        "fix-jpeg-extension-mismatch",
+        "--config",
+        str(cfg),
+        "--dry-run",
+        "--raw-data-dir",
+        str(raw),
+    ]
+    with pytest.raises(SystemExit):
+        main(bad)
+
+
+def test_main_accepts_config_before_data_for_fix_jpeg_dry_run(tmp_path: Path) -> None:
+    cfg = default_pipeline_config_path()
+    raw = tmp_path / "raw_data"
+    raw.mkdir()
+    (raw / "only_class").mkdir()
+    good = [
+        "--config",
+        str(cfg),
+        "data",
+        "fix-jpeg-extension-mismatch",
+        "--dry-run",
+        "--raw-data-dir",
+        str(raw),
+    ]
+    code = main(good)
+    assert code in (0, 1)
+
+
 def test_main_no_command_is_nonzero() -> None:
     assert main([]) == 1
 

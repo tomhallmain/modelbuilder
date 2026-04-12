@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import json
+import threading
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 from PySide6.QtCore import Qt
@@ -11,6 +13,7 @@ from PySide6.QtCore import Qt
 from mb.data.class_layout import SYNTHETIC_DEFAULT_CLASS_NAMES
 from mb.models.types import ModelBuildStepCommand
 from ui.pages.data_page import DataPage
+from ui.task_context import LongTaskContext
 
 
 @pytest.mark.ui
@@ -128,3 +131,60 @@ def test_data_page_wildcard_command_persists_in_gui_state_roundtrip(qtbot, engli
     assert page2.wildcard_command_combo.currentIndex() == page.wildcard_command_combo.count() - 1
     assert page2.collect_gui_state().get("wildcard", {}).get("command") == "fix-jpeg-extension-mismatch"
     assert page2.wildcard_extra_args.toPlainText() == "--dry-run\n"
+
+
+@pytest.mark.ui
+def test_wildcard_fix_jpeg_passes_config_before_data_to_mb_main(
+    qtbot, english_gui_locale, tmp_path: Path
+) -> None:
+    """GUI must invoke ``main([--config, PATH, data, <sub>, …])`` so argparse accepts ``--config``."""
+    cfg = tmp_path / "pipeline.yaml"
+    cfg.write_text("model:\n  default_type: image_classification\n", encoding="utf-8")
+    raw = tmp_path / "raw_data"
+    raw.mkdir()
+    (raw / "cls").mkdir()
+
+    page = DataPage()
+    qtbot.addWidget(page)
+
+    ctx = LongTaskContext(threading.Event(), lambda *_a: None)
+    payload = {
+        "wildcard_cli": True,
+        "data_subcommand": ModelBuildStepCommand.FIX_JPEG_EXTENSION_MISMATCH,
+        "extra_argv": ["--dry-run", "--raw-data-dir", str(raw)],
+        "pipeline_config_path": cfg,
+    }
+    with patch("mb.cli.main", return_value=0) as mock_main:
+        ok = page._execute_wildcard_mb_data_cli(
+            ctx, ModelBuildStepCommand.FIX_JPEG_EXTENSION_MISMATCH, payload
+        )
+    assert ok is True
+    mock_main.assert_called_once()
+    argv = mock_main.call_args[0][0]
+    assert argv[:3] == ["--config", str(cfg), "data"]
+    assert argv[3] == "fix-jpeg-extension-mismatch"
+
+
+@pytest.mark.ui
+def test_wildcard_without_pipeline_config_omits_config_prefix(
+    qtbot, english_gui_locale, tmp_path: Path
+) -> None:
+    raw = tmp_path / "raw_data"
+    raw.mkdir()
+
+    page = DataPage()
+    qtbot.addWidget(page)
+    ctx = LongTaskContext(threading.Event(), lambda *_a: None)
+    payload = {
+        "wildcard_cli": True,
+        "data_subcommand": ModelBuildStepCommand.FIX_JPEG_EXTENSION_MISMATCH,
+        "extra_argv": ["--dry-run", "--raw-data-dir", str(raw)],
+        "pipeline_config_path": None,
+    }
+    with patch("mb.cli.main", return_value=0) as mock_main:
+        page._execute_wildcard_mb_data_cli(
+            ctx, ModelBuildStepCommand.FIX_JPEG_EXTENSION_MISMATCH, payload
+        )
+    argv = mock_main.call_args[0][0]
+    assert argv[0] == "data"
+    assert argv[1] == "fix-jpeg-extension-mismatch"
