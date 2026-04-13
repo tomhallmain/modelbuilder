@@ -4,7 +4,8 @@ Build train/test splits under ``data_dir`` from raw class folders (ImageFolder-s
 
 :class:`DatasetCreator` resolves class names from pipeline YAML and/or discovery
 (see :mod:`mb.data.class_layout`), copies validated files with hash-based names,
-optionally balances classes, and forms a per-class test split. PIL validates images
+optionally balances classes, and forms a per-class test split (fixed count per class
+or optional ``dataset_weighted`` / modulated counts). PIL validates images
 and enforces on-disk byte bounds plus geometry checks vs pipeline ``data.image_size``:
 minimum shorter edge (:func:`min_edge_pixels_for_pipeline`), minimum total pixel count
 (:func:`min_area_pixels_for_pipeline`), and a maximum aspect ratio
@@ -21,12 +22,13 @@ Implementation notes:
 """
 
 import sys
+import math
 import shutil
 import random
 import threading
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import List, Optional
+from typing import Dict, List, Optional
 from collections import defaultdict
 
 # Image processing imports
@@ -62,6 +64,57 @@ logger = setup_logging(script_name="create_datasets")
 DEFAULT_TEST_PER_CLASS = 1000  # Default test-split size per class (CLI / library; pipeline YAML may override)
 MIN_FILE_SIZE = 6 * 1024  # 6KB minimum
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB maximum
+
+# Test split strategies for :meth:`DatasetCreator.create_test_dataset`
+TEST_SPLIT_MODE_FIXED = "fixed"
+TEST_SPLIT_MODE_DATASET_WEIGHTED = "dataset_weighted"
+
+
+def normalize_test_split_mode(value: Optional[str]) -> str:
+    """
+    Normalize CLI / YAML values to :data:`TEST_SPLIT_MODE_FIXED` or
+    :data:`TEST_SPLIT_MODE_DATASET_WEIGHTED`.
+    """
+    if value is None or (isinstance(value, str) and not str(value).strip()):
+        return TEST_SPLIT_MODE_FIXED
+    s = str(value).strip().lower().replace("-", "_")
+    if s in ("dataset_weighted", "weighted", "modulated"):
+        return TEST_SPLIT_MODE_DATASET_WEIGHTED
+    return TEST_SPLIT_MODE_FIXED
+
+
+def modulated_test_count(
+    n_c: int,
+    n_total: int,
+    *,
+    anchor: int,
+    small_class_threshold: int,
+) -> int:
+    """
+    Per-class test size for ``dataset_weighted`` mode (see module docstring).
+
+    * If ``n_c < small_class_threshold``: ``floor(anchor * (n_c / n_total))`` — small
+      classes get a share of the corpus proportional to ``anchor``.
+    * Else: ``floor(anchor + anchor * (n_c / n_total))`` — larger classes get an
+      additive term plus a share, matching the user's ``A + A * (n_c / total)`` sketch.
+
+    The result is capped so that when ``n_c > 1`` at least one image remains for training.
+    """
+    if n_c < 1 or n_total < 1:
+        return 0
+    r = n_c / n_total
+    a = max(1, int(anchor))
+    thr = max(1, int(small_class_threshold))
+    if n_c < thr:
+        raw = a * r
+    else:
+        raw = a + a * r
+    n_test = int(math.floor(raw))
+    n_test = max(1, n_test) if n_c >= 1 else 0
+    n_test = min(n_test, n_c)
+    if n_c > 1 and n_test >= n_c:
+        n_test = n_c - 1
+    return n_test
 
 # Dimension gates vs pipeline ``data.image_size`` (training resizes to ``image_size`` square).
 # Total pixels should be a meaningful fraction of that target; extreme aspect ratios distort badly.
@@ -142,6 +195,8 @@ class DatasetCreator:
         class_names: Optional[List[str]] = None,
         class_qualifying_subdir: Optional[str] = None,
         skip_space_check: bool = False,
+        test_split_mode: Optional[str] = None,
+        test_small_class_threshold: Optional[int] = None,
     ):
         self.raw_data_dir = Path(raw_data_dir)
         self.data_dir = Path(data_dir)
@@ -152,6 +207,8 @@ class DatasetCreator:
         self._class_names_override = class_names
         self._class_qualifying_subdir_override = class_qualifying_subdir
         self._skip_space_check = skip_space_check
+        self._test_split_mode_override = test_split_mode
+        self._test_small_class_threshold_override = test_small_class_threshold
         self._class_names: List[str] = []
         self._class_qualifying_subdir: Optional[str] = None
 
@@ -396,7 +453,12 @@ class DatasetCreator:
         logger.debug("Moved invalid image: %s (%s) -> %s", image_file.name, reason, target_path)
 
     def remove_invalid_sized_images(self) -> None:
-        """Move images with invalid on-disk size or failed geometry checks to review."""
+        """
+        Move images with invalid on-disk size or failed geometry checks to review.
+
+        TODO: Optional flag to skip this step (or only log) when conversion already
+        enforced geometry — same rationale as skipping duplicate QC after ``convert``.
+        """
         image_size = self._pipeline_image_size()
         min_edge = min_edge_pixels_for_pipeline(image_size)
         min_area = min_area_pixels_for_pipeline(image_size)
@@ -549,48 +611,144 @@ class DatasetCreator:
                     logger.info(f"  {class_name}: {final_count} images")
         else:
             logger.info("No balancing needed - all classes already balanced")
-    
+
+    def _resolved_test_split_mode(self) -> str:
+        if self._test_split_mode_override is not None:
+            return normalize_test_split_mode(self._test_split_mode_override)
+        pc = get_pipeline_config()
+        return normalize_test_split_mode(pc.get("data.test_split_mode"))
+
+    def _resolved_test_small_class_threshold(self) -> int:
+        """
+        Classes with ``n_c < threshold`` use the proportional-only branch of
+        :func:`modulated_test_count`. Defaults to :attr:`test_per_class` (the anchor).
+        """
+        if self._test_small_class_threshold_override is not None:
+            return max(1, int(self._test_small_class_threshold_override))
+        pc = get_pipeline_config()
+        v = pc.get("data.test_small_class_threshold")
+        if v is None:
+            return max(1, int(self.test_per_class))
+        return max(1, int(v))
+
     def create_test_dataset(self) -> None:
         """Create test dataset by randomly moving files from train to test."""
-        logger.info(f"Creating test dataset with {self.test_per_class} items per class...")
-        
+        mode = self._resolved_test_split_mode()
+        anchor = max(1, int(self.test_per_class))
+
+        if mode == TEST_SPLIT_MODE_DATASET_WEIGHTED:
+            thr = self._resolved_test_small_class_threshold()
+            counts: Dict[str, int] = {}
+            for class_name in self._class_names:
+                train_class_dir = self.train_dir / class_name
+                if not train_class_dir.exists():
+                    counts[class_name] = 0
+                    continue
+                counts[class_name] = len(list(train_class_dir.glob("*.jpg")))
+            n_total = sum(counts.values())
+            logger.info(
+                "Creating test dataset (dataset_weighted: anchor=%s, small_class_threshold=%s, n_total=%s)...",
+                anchor,
+                thr,
+                n_total,
+            )
+            if n_total < 1:
+                self._note_dataset_issue("test_split: no images in train for dataset_weighted mode")
+                logger.warning("dataset_weighted: no training images found; skipping test split")
+                return
+
+            for class_name in self._class_names:
+                train_class_dir = self.train_dir / class_name
+                test_class_dir = self.test_dir / class_name
+                if not train_class_dir.exists():
+                    logger.warning("Train directory for class '%s' does not exist", class_name)
+                    continue
+                test_class_dir.mkdir(exist_ok=True)
+                train_images = list(train_class_dir.glob("*.jpg"))
+                n_c = len(train_images)
+                target = modulated_test_count(
+                    n_c, n_total, anchor=anchor, small_class_threshold=thr
+                )
+                branch = "proportional" if n_c < thr else "anchor_plus_share"
+                logger.info(
+                    "  class '%s': n_c=%s, target_test=%s (%s branch)",
+                    class_name,
+                    n_c,
+                    target,
+                    branch,
+                )
+                if target < 1:
+                    continue
+                if len(train_images) < target:
+                    self._note_dataset_issue(
+                        f"test_split: class '{class_name}' has {len(train_images)} images, fewer than target {target}"
+                    )
+                    logger.warning(
+                        "Not enough images in class '%s': %s available, %s needed",
+                        class_name,
+                        len(train_images),
+                        target,
+                    )
+                    selected_images = train_images
+                else:
+                    selected_images = random.sample(train_images, target)
+
+                for image_file in selected_images:
+                    target_path = test_class_dir / image_file.name
+                    shutil.move(str(image_file), str(target_path))
+                    self.stats["test_files_moved"][class_name] += 1
+                    old_final_path = f"train/{class_name}/{image_file.name}"
+                    if self.unified_snapshot:
+                        self.unified_snapshot.update_dataset_split(old_final_path, "test")
+
+                logger.info(
+                    "Moved %s images to test set for class '%s'",
+                    len(selected_images),
+                    class_name,
+                )
+            return
+
+        logger.info("Creating test dataset (fixed: %s items per class)...", anchor)
+
         for class_name in self._class_names:
             train_class_dir = self.train_dir / class_name
             test_class_dir = self.test_dir / class_name
-            
+
             if not train_class_dir.exists():
                 logger.warning(f"Train directory for class '{class_name}' does not exist")
                 continue
-                
+
             test_class_dir.mkdir(exist_ok=True)
-            
+
             # Get all image files in train directory
             train_images = list(train_class_dir.glob("*.jpg"))
-            
-            if len(train_images) < self.test_per_class:
+
+            if len(train_images) < anchor:
                 self._note_dataset_issue(
-                    f"test_split: class '{class_name}' has {len(train_images)} images, fewer than test_per_class={self.test_per_class}"
+                    f"test_split: class '{class_name}' has {len(train_images)} images, fewer than test_per_class={anchor}"
                 )
-                logger.warning(f"Not enough images in class '{class_name}': {len(train_images)} available, {self.test_per_class} needed")
+                logger.warning(
+                    f"Not enough images in class '{class_name}': {len(train_images)} available, {anchor} needed"
+                )
                 # Use all available images for test
                 selected_images = train_images
             else:
                 # Randomly select images for test set
-                selected_images = random.sample(train_images, self.test_per_class)
-            
+                selected_images = random.sample(train_images, anchor)
+
             # Move selected images to test directory and update snapshot
             for image_file in selected_images:
                 target_path = test_class_dir / image_file.name
                 shutil.move(str(image_file), str(target_path))
-                self.stats['test_files_moved'][class_name] += 1
-                
+                self.stats["test_files_moved"][class_name] += 1
+
                 # Update snapshot: change final_path from train to test
                 old_final_path = f"train/{class_name}/{image_file.name}"
                 if self.unified_snapshot:
-                    self.unified_snapshot.update_dataset_split(old_final_path, 'test')
-            
+                    self.unified_snapshot.update_dataset_split(old_final_path, "test")
+
             logger.info(f"Moved {len(selected_images)} images to test set for class '{class_name}'")
-    
+
     def save_dataset_snapshot(self) -> None:
         """Save unified snapshot to JSON file."""
         if self.unified_snapshot:
@@ -700,7 +858,11 @@ class DatasetCreator:
         log_startup_info(logger, "Dataset creation process")
         logger.info(f"Raw data directory: {self.raw_data_dir}")
         logger.info(f"Output data directory: {self.data_dir}")
-        logger.info(f"Test split size per class: {self.test_per_class}")
+        logger.info(
+            "Test split: mode=%s, anchor (test_per_class)=%s",
+            self._resolved_test_split_mode(),
+            self.test_per_class,
+        )
         
         check_cancel_event(self._cancel_event)
         

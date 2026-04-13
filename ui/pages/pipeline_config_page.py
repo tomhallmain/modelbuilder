@@ -332,6 +332,17 @@ class PipelineConfigPage(QWidget):
         self._d_test_pc.setRange(0, 10_000_000)
         form.addRow(_("Test images per class"), self._d_test_pc)
 
+        self._d_test_split_mode = QComboBox()
+        self._d_test_split_mode.addItem(_("Fixed count per class"), "fixed")
+        self._d_test_split_mode.addItem(_("Dataset-weighted (modulated)"), "dataset_weighted")
+        form.addRow(_("Test split mode"), self._d_test_split_mode)
+
+        self._d_test_small_thr = QSpinBox()
+        self._d_test_small_thr.setRange(0, 10_000_000)
+        self._d_test_small_thr.setSpecialValueText(_("Same as test anchor"))
+        self._d_test_small_thr.setValue(0)
+        form.addRow(_("Small-class threshold (weighted)"), self._d_test_small_thr)
+
         self._d_im_size = QSpinBox()
         self._d_im_size.setRange(1, 4096)
         form.addRow(_("Image size (pixels)"), self._d_im_size)
@@ -503,10 +514,14 @@ class PipelineConfigPage(QWidget):
             ),
         }
 
+        tsm_data = self._d_test_split_mode.currentData()
+        st_raw = int(self._d_test_small_thr.value())
         data: dict[str, Any] = {
             "raw_data_dir": self._d_raw.text().strip() or "raw_data",
             "data_dir": self._d_out.text().strip() or "data",
             "test_per_class": int(self._d_test_pc.value()),
+            "test_split_mode": str(tsm_data) if tsm_data else "fixed",
+            "test_small_class_threshold": None if st_raw <= 0 else st_raw,
             "image_size": int(self._d_im_size.value()),
             "batch_size": batch,
             "image_types": _ext_lines_to_list(self._d_img_types.toPlainText()),
@@ -557,6 +572,11 @@ class PipelineConfigPage(QWidget):
         self._d_raw.setText(raw_d)
         self._d_out.setText(str(d.get("data_dir") or ""))
         self._d_test_pc.setValue(int(d.get("test_per_class") or 0))
+        tsm = str(d.get("test_split_mode") or "fixed")
+        tix = self._d_test_split_mode.findData(tsm)
+        self._d_test_split_mode.setCurrentIndex(tix if tix >= 0 else 0)
+        st = d.get("test_small_class_threshold")
+        self._d_test_small_thr.setValue(0 if st is None else int(st))
         self._d_im_size.setValue(int(d.get("image_size") or 224))
         bs = d.get("batch_size")
         self._d_batch.setText("" if bs is None else str(int(bs)))

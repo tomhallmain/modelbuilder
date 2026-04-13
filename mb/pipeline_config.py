@@ -109,6 +109,10 @@ class PipelineConfig:
                 # Train/test split root after create-dataset (train/, test/); not the same as raw_data_dir.
                 "data_dir": "data",
                 "test_per_class": 1000,
+                # "fixed" | "dataset_weighted" — see mb.data.dataset.normalize_test_split_mode
+                "test_split_mode": "fixed",
+                # null = use test_per_class as the small/large class cutoff for dataset_weighted
+                "test_small_class_threshold": None,
                 "image_size": 224,
                 "batch_size": None,
                 "image_types": [

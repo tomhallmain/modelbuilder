@@ -494,6 +494,8 @@ class DataPage(QWidget):
             "dataset": {
                 "data_dir": self.dataset_data_dir.text(),
                 "test_per_class": int(self.dataset_test_per_class.value()),
+                "test_split_mode": self.dataset_test_split_mode.currentData(),
+                "test_small_class_threshold": int(self.dataset_test_small_threshold.value()),
                 "seed": int(self.dataset_seed.value()),
                 "max_train": int(self.dataset_max_train.value()),
                 "balance_train": bool(self.dataset_balance_train.isChecked()),
@@ -550,6 +552,14 @@ class DataPage(QWidget):
                 tpc = ds.get("test_per_class")
                 if isinstance(tpc, int):
                     self.dataset_test_per_class.setValue(tpc)
+                tsm = ds.get("test_split_mode")
+                if isinstance(tsm, str):
+                    tix = self.dataset_test_split_mode.findData(tsm)
+                    if tix >= 0:
+                        self.dataset_test_split_mode.setCurrentIndex(tix)
+                tst = ds.get("test_small_class_threshold")
+                if isinstance(tst, int):
+                    self.dataset_test_small_threshold.setValue(tst)
                 sd = ds.get("seed")
                 if isinstance(sd, int):
                     self.dataset_seed.setValue(sd)
@@ -725,6 +735,15 @@ class DataPage(QWidget):
         form.addRow(_("Raw data dir"), self._path_row(self.dataset_raw_data_dir, select_dir=True))
         form.addRow(_("Output data dir"), self._path_row(self.dataset_data_dir, select_dir=True))
         form.addRow(_("Test items per class"), self.dataset_test_per_class)
+        self.dataset_test_split_mode = QComboBox()
+        self.dataset_test_split_mode.addItem(_("Fixed count per class"), "fixed")
+        self.dataset_test_split_mode.addItem(_("Dataset-weighted (modulated)"), "dataset_weighted")
+        form.addRow(_("Test split mode"), self.dataset_test_split_mode)
+        self.dataset_test_small_threshold = QSpinBox()
+        self.dataset_test_small_threshold.setRange(0, 10_000_000)
+        self.dataset_test_small_threshold.setSpecialValueText(_("Same as test per class"))
+        self.dataset_test_small_threshold.setValue(0)
+        form.addRow(_("Small-class threshold (weighted)"), self.dataset_test_small_threshold)
         form.addRow(_("Seed (optional)"), self.dataset_seed)
         form.addRow(_("Run ID (optional)"), dataset_run_id_row)
         form.addRow(_("Max train per class"), self.dataset_max_train)
@@ -1169,6 +1188,10 @@ class DataPage(QWidget):
                 "raw_data_dir": raw_data_dir,
                 "data_dir": data_dir,
                 "test_per_class": int(self.dataset_test_per_class.value()),
+                "test_split_mode": self.dataset_test_split_mode.currentData(),
+                "test_small_class_threshold": int(self.dataset_test_small_threshold.value())
+                if self.dataset_test_small_threshold.value() > 0
+                else None,
                 "seed": int(self.dataset_seed.value()) if self.dataset_seed.value() > 0 else None,
                 "run_id": run_id,
                 "balance_train": bool(self.dataset_balance_train.isChecked()),
@@ -1395,6 +1418,8 @@ class DataPage(QWidget):
                 max_train_per_class=payload["max_train_per_class"],
                 run_id=payload["run_id"],
                 skip_space_check=payload.get("skip_space_check", False),
+                test_split_mode=payload.get("test_split_mode"),
+                test_small_class_threshold=payload.get("test_small_class_threshold"),
             )
             return bool(creator.run(cancel_event=ce))
         raise ValueError(_("Unknown command: {cmd}").format(cmd=command.value))

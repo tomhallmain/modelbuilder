@@ -303,8 +303,27 @@ def create_parser() -> argparse.ArgumentParser:
         type=int,
         default=1000,
         help=_(
-            "Number of items per class in the test split (default: 1000). "
-            "For image classification this is test images per class."
+            "Number of items per class in the test split when mode is fixed (default: 1000). "
+            "For dataset-weighted mode this is the anchor scale — see --test-split-mode."
+        ),
+    )
+    dataset_parser.add_argument(
+        "--test-split-mode",
+        choices=["fixed", "dataset-weighted"],
+        default=None,
+        help=_(
+            "fixed = test_per_class images per class; dataset-weighted = modulated counts from "
+            "class size vs total (default: data.test_split_mode in pipeline YAML, else fixed)."
+        ),
+    )
+    dataset_parser.add_argument(
+        "--test-small-class-threshold",
+        type=int,
+        default=None,
+        help=_(
+            "With dataset-weighted mode: classes with fewer images than this use a proportional "
+            "test count; larger classes use anchor + anchor×(class_share). "
+            "Omit to use --test-per-class as the threshold (default: pipeline data.test_small_class_threshold)."
         ),
     )
     dataset_parser.add_argument(
@@ -778,8 +797,20 @@ def handle_data_create_dataset(args):
     """Handle 'mb data create-dataset' command."""
     try:
         from mb.utils.storage import check_target_external_storage, check_same_drive
-        from mb.data.dataset import confirm_user_action
-        
+        from mb.data.dataset import confirm_user_action, normalize_test_split_mode
+
+        reload_pipeline_config(getattr(args, "config", None), force=True)
+        pc = get_pipeline_config()
+        tsm = getattr(args, "test_split_mode", None)
+        if tsm is None:
+            tsm = pc.get("data.test_split_mode")
+        test_split_mode = normalize_test_split_mode(tsm)
+        tst = getattr(args, "test_small_class_threshold", None)
+        if tst is None:
+            tst = pc.get("data.test_small_class_threshold")
+            if tst is not None:
+                tst = int(tst)
+
         # Storage checks
         if check_target_external_storage(logger, args.data_dir, override=getattr(args, 'allow_external_storage', False)):
             logger.error(_("Process terminated due to external storage detection."))
@@ -804,6 +835,8 @@ def handle_data_create_dataset(args):
             max_train_per_class=getattr(args, 'max_train_per_class', None),
             run_id=getattr(args, 'run_id', None),
             skip_space_check=getattr(args, "skip_space_check", False),
+            test_split_mode=test_split_mode,
+            test_small_class_threshold=tst,
         )
         
         success = creator.run()

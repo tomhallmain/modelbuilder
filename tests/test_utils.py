@@ -46,6 +46,7 @@ def prepare_synthetic_raw_with_snapshot(
     total_images: int = 100,
     image_seed: int = 42,
     snapshot_run_id: str = "e2e_minimal_snapshot",
+    per_class_counts: dict[str, int] | None = None,
 ) -> Path:
     """
     Build ``<class>/CONVERTED/*.jpg`` under ``workspace/raw_data`` and write
@@ -55,6 +56,11 @@ def prepare_synthetic_raw_with_snapshot(
         Path to ``raw_data`` (pass as ``raw_data_dir`` to :class:`mb.data.dataset.DatasetCreator`).
     """
     raw = workspace / "raw_data"
-    build_synthetic_raw_data_dir(raw, total_images=total_images, seed=image_seed)
+    build_synthetic_raw_data_dir(
+        raw,
+        total_images=total_images,
+        seed=image_seed,
+        per_class_counts=per_class_counts,
+    )
     write_minimal_unified_snapshot(raw, run_id=snapshot_run_id)
     return raw

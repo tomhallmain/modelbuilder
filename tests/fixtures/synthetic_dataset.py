@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import random
 from pathlib import Path
-from typing import Mapping, Sequence
+from typing import Mapping, Optional, Sequence
 
 from mb.data.class_layout import CONVERTED_MEDIA_SUBDIR, SYNTHETIC_DEFAULT_CLASS_NAMES
 from mb.data.dataset import MIN_FILE_SIZE
@@ -59,6 +59,7 @@ def build_synthetic_raw_data_dir(
     seed: int = 42,
     class_names: Sequence[str] | None = None,
     min_bytes: int = MIN_FILE_SIZE,
+    per_class_counts: Optional[Mapping[str, int]] = None,
 ) -> Mapping[str, int]:
     """
     Create a raw data tree compatible with :class:`~mb.data.dataset.DatasetCreator`.
@@ -69,6 +70,7 @@ def build_synthetic_raw_data_dir(
         seed: Base seed for reproducible image bytes.
         class_names: Defaults to :data:`mb.data.class_layout.SYNTHETIC_DEFAULT_CLASS_NAMES` (three classes).
         min_bytes: Minimum JPEG file size (must be ``>= MIN_FILE_SIZE`` for dataset creation).
+        per_class_counts: If set, *total_images* is ignored and each class gets the given count.
 
     Returns:
         Mapping of class name → number of images written.
@@ -77,7 +79,15 @@ def build_synthetic_raw_data_dir(
     n_classes = len(names)
     if n_classes == 0:
         raise ValueError("class_names must not be empty")
-    counts = _split_counts(total_images, n_classes)
+    if per_class_counts is not None:
+        if class_names is None:
+            names = list(per_class_counts.keys())
+            n_classes = len(names)
+        counts = [int(per_class_counts[c]) for c in names]
+        if any(n < 0 for n in counts):
+            raise ValueError("per_class_counts must be non-negative")
+    else:
+        counts = _split_counts(total_images, n_classes)
     out: dict[str, int] = {}
     image_index = 0
     for class_name, n in zip(names, counts):

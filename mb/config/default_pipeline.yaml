@@ -11,6 +11,10 @@ data:
   # Train/test dataset root (train/, test/) after create-dataset; separate from raw_data_dir.
   data_dir: data
   test_per_class: 1000
+  # fixed | dataset_weighted (modulated test counts by class size — see mb.data.dataset)
+  test_split_mode: fixed
+  # null = same as test_per_class (anchor); used only when test_split_mode is dataset_weighted
+  test_small_class_threshold: null
   image_size: 224
   # null = omit from training merge so the model type’s default batch size applies
   batch_size: null
