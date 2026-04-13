@@ -70,7 +70,7 @@ def test_dataset_weighted_near_default_cutoff(tmp_path: Path) -> None:
     dataset_weighted uses proportional + anchor/share branches instead.
     """
     random.seed(42)
-    counts = {"tiny": 50, "mid": 1000, "huge": 400}
+    counts = {"tiny": 50, "mid": 1000, "huge": 4000}
     raw = prepare_synthetic_raw_with_snapshot(
         tmp_path,
         per_class_counts=counts,

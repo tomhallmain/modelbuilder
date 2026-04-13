@@ -39,6 +39,19 @@ def test_modulated_small_integration_style_counts() -> None:
     assert modulated_test_count(400, n_total, anchor=anchor, small_class_threshold=thr) == 172
 
 
+def test_modulated_tiny_mid_huge_tiers_anchor_100() -> None:
+    """
+    Same totals as ``test_dataset_weighted_near_default_cutoff`` (50 / 1000 / 4000): a small
+    class, one at the old default cap, and a large class—static expectations for modulation.
+    """
+    n_total = 5050
+    anchor = 100
+    thr = 100
+    assert modulated_test_count(50, n_total, anchor=anchor, small_class_threshold=thr) == 1
+    assert modulated_test_count(1000, n_total, anchor=anchor, small_class_threshold=thr) == 119
+    assert modulated_test_count(4000, n_total, anchor=anchor, small_class_threshold=thr) == 179
+
+
 def test_modulated_single_image_class() -> None:
     assert modulated_test_count(1, 100, anchor=1000, small_class_threshold=5000) == 1
 

@@ -1479,6 +1479,29 @@ msgstr "Überprüfung des Verzeichnisses (optional)"
 msgid "Output data dir"
 msgstr "Ausgabedatenverzeichnis"
 
+#: ui/pages/data_page.py:737 ui/pages/data_page.py:741
+#: ui/pages/pipeline_config_page.py:338
+msgid "Test split mode"
+msgstr "Test-Split-Modus"
+
+#: ui/pages/data_page.py:739 ui/pages/data_page.py:740
+#: ui/pages/pipeline_config_page.py:336 ui/pages/pipeline_config_page.py:337
+msgid "Fixed count per class"
+msgstr "Feste Anzahl pro Klasse"
+
+#: ui/pages/data_page.py:739 ui/pages/data_page.py:740
+#: ui/pages/pipeline_config_page.py:336 ui/pages/pipeline_config_page.py:337
+msgid "Dataset-weighted (modulated)"
+msgstr "Datensatzgewichtet (moduliert)"
+
+#: ui/pages/data_page.py:744 ui/pages/pipeline_config_page.py:344
+msgid "Small-class threshold (weighted)"
+msgstr "Schwellwert kleine Klasse (gewichtet)"
+
+#: ui/pages/data_page.py:744
+msgid "Same as test per class"
+msgstr "Wie Testanzahl pro Klasse"
+
 #: ui/pages/data_page.py:156 ui/pages/data_page.py:391
 msgid "Test items per class"
 msgstr "Testaufgaben pro Klasse"
