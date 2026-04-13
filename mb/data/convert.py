@@ -144,13 +144,14 @@ class ImageConverter:
             
         return True
     
-    def find_image_files(self, class_dir: Path) -> List[Path]:
+    def find_image_files(self, class_dir: Path, *, log_scan: bool = True) -> List[Path]:
         """
         Find all image files in a class directory, excluding post-convert output trees
         (``CONVERTED``, legacy ``JPEG_IMAGES``).
         
         Args:
             class_dir: Class directory to scan (e.g. ``raw_data/<class_name>``)
+            log_scan: If false, skip INFO lines about scanning (for callers that rescan often).
             
         Returns:
             List of image file paths found
@@ -174,7 +175,8 @@ class ImageConverter:
 
             if subdirs:
                 # Has subdirectories: scan recursively in subdirectories (not root)
-                logger.info(f"Scanning subdirectories in: {class_dir.name}")
+                if log_scan:
+                    logger.info(f"Scanning subdirectories in: {class_dir.name}")
                 for subdir in subdirs:
                     logger.debug(f"  Scanning subdirectory: {subdir.name}")
                     for ext in self._scan_suffixes():
@@ -182,7 +184,8 @@ class ImageConverter:
                             image_files.append(file_path)
             else:
                 # No subdirectories: scan root level (excluding post-convert dirs if present)
-                logger.info(f"Scanning root level in: {class_dir.name} (no subdirectories found)")
+                if log_scan:
+                    logger.info(f"Scanning root level in: {class_dir.name} (no subdirectories found)")
                 for ext in self._scan_suffixes():
                     for file_path in class_dir.glob(f'*{ext}'):
                         if _under_post_convert(file_path):

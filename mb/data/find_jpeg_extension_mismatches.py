@@ -24,6 +24,10 @@ stdout (or the step logger when ``json_lines_to_logger`` is true). Without ``ver
 only when ``verbose`` is true; successful repairs always emit one JSON line when ``json_lines`` is
 true.
 
+Dry-run and live repair both use **one** :meth:`~mb.data.convert.ImageConverter.find_image_files`
+scan per class, one ``assign_still_convert_output_basenames`` map, and the same sorted pass over
+mismatches (live adds writes, renames, and snapshot updates only).
+
 By default, mislabeled ``.jpg`` whose bytes are PNG/WebP/BMP/TIFF are only counted and summarized per
 class; pass ``include_static_format_mismatches=True`` (CLI: ``--include-static-format-mismatches``)
 to rename and rebuild them like other non-JPEG containers. GIF and image-classification multi-frame
@@ -421,15 +425,14 @@ def repair_mislabeled_jpeg_extensions(
         review_dir = class_dir / VISUAL_MEDIA_REVIEW_SUBDIR
         small_review_dir = class_dir / small_review_name
 
-        image_files = converter.find_image_files(class_dir)
-        static_paths, _ = converter._split_static_and_extract(image_files)
-        mismatches = [
-            p
-            for p in static_paths
-            if p.suffix.lower() in (".jpg", ".jpeg") and not is_jpeg_magic(p)
-        ]
-
         if dry_run:
+            image_files = converter.find_image_files(class_dir, log_scan=False)
+            static_paths, _ = converter._split_static_and_extract(image_files)
+            mismatches = [
+                p
+                for p in static_paths
+                if p.suffix.lower() in (".jpg", ".jpeg") and not is_jpeg_magic(p)
+            ]
             static_paths.sort(key=lambda x: str(x))
             basename_map = assign_still_convert_output_basenames(
                 static_paths,
@@ -508,42 +511,34 @@ def repair_mislabeled_jpeg_extensions(
                 logger.info("[dry-run] no mislabeled .jpg/.jpeg in %s", class_name)
             continue
 
-        processed: Set[str] = set()
-        failed: Set[str] = set()
-        policy_skipped_paths: Set[str] = set()
-        while True:
+        # Live repair: same scheduling as dry-run — one tree scan, one basename map, one sorted pass.
+        failed_paths: Set[str] = set()
+        check_cancel_event(cancel_event)
+        image_files = converter.find_image_files(class_dir, log_scan=False)
+        static_paths, _ = converter._split_static_and_extract(image_files)
+        static_paths.sort(key=lambda x: str(x))
+        basename_map = assign_still_convert_output_basenames(
+            static_paths,
+            output_dir=converted_dir,
+        )
+        mismatches = [
+            p
+            for p in static_paths
+            if p.suffix.lower() in (".jpg", ".jpeg") and not is_jpeg_magic(p)
+        ]
+
+        for src in sorted(mismatches, key=lambda x: str(x)):
             check_cancel_event(cancel_event)
-            image_files = converter.find_image_files(class_dir)
-            static_paths, _ = converter._split_static_and_extract(image_files)
-            mismatches = [
-                p
-                for p in static_paths
-                if p.suffix.lower() in (".jpg", ".jpeg") and not is_jpeg_magic(p)
-            ]
-            mismatches = [
-                p
-                for p in mismatches
-                if str(p.resolve()) not in failed and str(p.resolve()) not in policy_skipped_paths
-            ]
-            if not mismatches:
-                break
-            src = sorted(mismatches, key=lambda x: str(x))[0]
+            if not src.is_file():
+                continue
             key = str(src.resolve())
-            if key in processed:
-                failed.add(key)
-                stats.files_failed += 1
-                stats.errors.append(f"loop guard: {src}")
+            if key in failed_paths:
                 continue
 
-            static_paths.sort(key=lambda x: str(x))
-            basename_map = assign_still_convert_output_basenames(
-                static_paths,
-                output_dir=converted_dir,
-            )
             expected_jpg_name = basename_map.get(src)
             if not expected_jpg_name:
                 stats.errors.append(f"no basename mapping for {src}")
-                failed.add(key)
+                failed_paths.add(key)
                 stats.files_failed += 1
                 continue
 
@@ -555,7 +550,7 @@ def repair_mislabeled_jpeg_extensions(
             new_ext = extension_for_container(sniff, pil_fmt)
             if not new_ext:
                 logger.error("Cannot infer extension for %s (sniff=%s pil=%s)", src, sniff, pil_fmt)
-                failed.add(key)
+                failed_paths.add(key)
                 stats.files_failed += 1
                 continue
 
@@ -596,7 +591,6 @@ def repair_mislabeled_jpeg_extensions(
                         "dry_run": False,
                     }
                     _emit_json_line(skip_row, json_lines_to_logger=json_lines_to_logger)
-                policy_skipped_paths.add(key)
                 continue
 
             created: List[Path] = []
@@ -665,7 +659,6 @@ def repair_mislabeled_jpeg_extensions(
 
                 stats.files_repaired += 1
                 stats.actionable_mismatches_found += 1
-                processed.add(key)
                 if json_lines:
                     repaired_row: Dict[str, Any] = {
                         **_mismatch_row_base(dest_src),
@@ -687,7 +680,7 @@ def repair_mislabeled_jpeg_extensions(
                         p.unlink(missing_ok=True)
                     except OSError:
                         pass
-                failed.add(key)
+                failed_paths.add(key)
                 stats.files_failed += 1
                 stats.errors.append(f"{src}: {e}")
 
