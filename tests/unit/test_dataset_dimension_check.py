@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import random
 from pathlib import Path
+from unittest.mock import patch
 
 from PIL import Image
 
@@ -17,21 +18,21 @@ from mb.data.dataset import (
 
 
 def test_min_edge_pixels_for_pipeline_scales_with_image_size() -> None:
-    assert min_edge_pixels_for_pipeline(224) == 56  # max(32, 224 // 4)
-    assert min_edge_pixels_for_pipeline(128) == 32  # max(32, 32)
-    assert min_edge_pixels_for_pipeline(512) == 128
+    assert min_edge_pixels_for_pipeline(224) == 44  # max(24, 224 // 5)
+    assert min_edge_pixels_for_pipeline(128) == 25  # max(24, 128 // 5)
+    assert min_edge_pixels_for_pipeline(512) == 102
 
 
 def test_min_edge_pixels_for_pipeline_bad_values_fallback() -> None:
-    assert min_edge_pixels_for_pipeline(0) == 56  # treated as 224
-    assert min_edge_pixels_for_pipeline(-1) == 56
+    assert min_edge_pixels_for_pipeline(0) == 44  # treated as 224
+    assert min_edge_pixels_for_pipeline(-1) == 44
 
 
 def test_min_area_pixels_for_pipeline_matches_fraction_of_image_size_sq() -> None:
     s = 224
     expected = max(32 * 32, int(MIN_AREA_FRACTION_OF_IMAGE_SIZE_SQUARED * s * s))
     assert min_area_pixels_for_pipeline(224) == expected
-    assert min_area_pixels_for_pipeline(224) == 9031
+    assert min_area_pixels_for_pipeline(224) == 4515
 
 
 def _write_jpeg_at_least(path: Path, width: int, height: int, seed: int) -> None:
@@ -46,8 +47,8 @@ def _write_jpeg_at_least(path: Path, width: int, height: int, seed: int) -> None
     raise AssertionError(f"could not reach MIN_FILE_SIZE for {width}x{height}")
 
 
-def test_remove_invalid_sized_images_moves_too_small_dimensions(tmp_path: Path) -> None:
-    """Shorter edge below min_edge_pixels_for_pipeline (224 → 56) goes to review."""
+def test_remove_invalid_sized_images_moves_too_small_shorter_edge(tmp_path: Path) -> None:
+    """Shorter edge below 50 px goes to review (relaxed vs old pipeline-scaled edge)."""
     raw = tmp_path / "raw"
     raw.mkdir()
     data = tmp_path / "data"
@@ -57,9 +58,8 @@ def test_remove_invalid_sized_images_moves_too_small_dimensions(tmp_path: Path) 
     train_c = dc.train_dir / "c"
     train_c.mkdir(parents=True)
     tiny = train_c / "tiny.jpg"
-    # Not square 55×55: that few pixels cannot produce a JPEG >= MIN_FILE_SIZE (6 KiB).
-    # 55×400 keeps min(width,height)==55 but yields a large enough file for the byte check.
-    _write_jpeg_at_least(tiny, 55, 400, seed=1)
+    # 49×400 keeps file size above MIN_FILE_SIZE but min side < 50.
+    _write_jpeg_at_least(tiny, 49, 400, seed=1)
 
     dc.remove_invalid_sized_images()
 
@@ -88,8 +88,8 @@ def test_remove_invalid_sized_images_keeps_large_enough_dimensions(tmp_path: Pat
     assert dc.stats["files_moved_dimensions"]["c"] == 0
 
 
-def test_remove_invalid_sized_images_moves_insufficient_total_pixels(tmp_path: Path) -> None:
-    """95×95 is below min area for image_size 224 (9031 px²) but passes min edge."""
+def test_remove_invalid_sized_images_keeps_moderate_area_below_old_strict_min(tmp_path: Path) -> None:
+    """Moderate squares pass relaxed tiny-image policy (would have failed legacy strict area)."""
     raw = tmp_path / "raw"
     raw.mkdir()
     data = tmp_path / "data"
@@ -100,16 +100,37 @@ def test_remove_invalid_sized_images_moves_insufficient_total_pixels(tmp_path: P
     train_c.mkdir(parents=True)
     p = train_c / "low_area.jpg"
     _write_jpeg_at_least(p, 95, 95, seed=3)
-    assert 95 * 95 < min_area_pixels_for_pipeline(224)
 
     dc.remove_invalid_sized_images()
+
+    assert p.is_file()
+    assert dc.stats["files_moved_dimensions"]["c"] == 0
+
+
+def test_remove_invalid_sized_images_moves_when_area_below_relaxed_floor_large_image_size(
+    tmp_path: Path,
+) -> None:
+    """With a large pipeline image_size, area floor can exceed 50²; 54×54 may still fail."""
+    raw = tmp_path / "raw"
+    raw.mkdir()
+    data = tmp_path / "data"
+    dc = DatasetCreator(raw_data_dir=raw, data_dir=data)
+    dc._class_names = ["c"]
+    dc.unified_snapshot = None
+    train_c = dc.train_dir / "c"
+    train_c.mkdir(parents=True)
+    p = train_c / "small_sq.jpg"
+    _write_jpeg_at_least(p, 54, 54, seed=5)
+
+    with patch.object(dc, "_pipeline_image_size", return_value=512):
+        dc.remove_invalid_sized_images()
 
     assert not p.exists()
     assert dc.stats["files_moved_dimensions"]["c"] == 1
 
 
-def test_remove_invalid_sized_images_moves_extreme_aspect_ratio(tmp_path: Path) -> None:
-    """Wide strip: max/min > 10:1 goes to review."""
+def test_remove_invalid_sized_images_keeps_extreme_aspect_ratio(tmp_path: Path) -> None:
+    """Wide strip: aspect alone no longer sends images to review."""
     raw = tmp_path / "raw"
     raw.mkdir()
     data = tmp_path / "data"
@@ -123,5 +144,5 @@ def test_remove_invalid_sized_images_moves_extreme_aspect_ratio(tmp_path: Path) 
 
     dc.remove_invalid_sized_images()
 
-    assert not p.exists()
-    assert dc.stats["files_moved_dimensions"]["c"] == 1
+    assert p.is_file()
+    assert dc.stats["files_moved_dimensions"]["c"] == 0

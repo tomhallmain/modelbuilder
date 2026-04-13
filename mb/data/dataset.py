@@ -6,10 +6,8 @@ Build train/test splits under ``data_dir`` from raw class folders (ImageFolder-s
 (see :mod:`mb.data.class_layout`), copies validated files with hash-based names,
 optionally balances classes, and forms a per-class test split (fixed count per class
 or optional ``dataset_weighted`` / modulated counts). PIL validates images
-and enforces on-disk byte bounds plus geometry checks vs pipeline ``data.image_size``:
-minimum shorter edge (:func:`min_edge_pixels_for_pipeline`), minimum total pixel count
-(:func:`min_area_pixels_for_pipeline`), and a maximum aspect ratio
-(:data:`MAX_ASPECT_RATIO`).
+and enforces relaxed on-disk byte bounds; geometry review only removes *tiny* images
+(see :meth:`DatasetCreator._tiny_geometry_review_reason`, :func:`min_area_pixels_for_pipeline`).
 
 **CLI:** ``mb data create-dataset``; ``python -m mb.data.dataset`` delegates via
 :func:`mb.cli.run_data_subcommand_cli`. Pipeline: gather → convert → this step;
@@ -63,8 +61,9 @@ from mb.utils.constants import DatasetSplitMode
 logger = setup_logging(script_name="create_datasets")
 
 DEFAULT_TEST_PER_CLASS = 1000  # Default test-split size per class (CLI / library; pipeline YAML may override)
-MIN_FILE_SIZE = 6 * 1024  # 6KB minimum
-MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB maximum
+# On-disk JPEG bounds (relaxed; conversion already produced valid outputs in most workflows).
+MIN_FILE_SIZE = 1024  # 1 KiB minimum
+MAX_FILE_SIZE = 50 * 1024 * 1024  # 50 MiB maximum
 
 def modulated_test_count(
     n_c: int,
@@ -99,10 +98,15 @@ def modulated_test_count(
         n_test = n_c - 1
     return n_test
 
-# Dimension gates vs pipeline ``data.image_size`` (training resizes to ``image_size`` square).
-# Total pixels should be a meaningful fraction of that target; extreme aspect ratios distort badly.
-MIN_AREA_FRACTION_OF_IMAGE_SIZE_SQUARED = 0.18
-MAX_ASPECT_RATIO = 10.0
+# Geometry helpers vs pipeline ``data.image_size`` (training resizes to ``image_size`` square).
+# Values are relaxed vs earlier strict gates; create-dataset only moves *tiny* images to review.
+MIN_AREA_FRACTION_OF_IMAGE_SIZE_SQUARED = 0.09
+# Retained for documentation / callers; create-dataset no longer rejects on aspect ratio alone.
+MAX_ASPECT_RATIO = 20.0
+
+# Only images below these usability floors go to ``invalid_size_review`` (plus byte-bounds above).
+MIN_USABLE_SHORTER_EDGE_PX = 50
+MIN_USABLE_AREA_PIPELINE_DIVISOR = 8  # max(50², min_area_pixels_for_pipeline(is) // this)
 
 
 def _normalize_pipeline_image_size(image_size: int) -> int:
@@ -117,14 +121,13 @@ def _normalize_pipeline_image_size(image_size: int) -> int:
 
 def min_edge_pixels_for_pipeline(image_size: int) -> int:
     """
-    Minimum allowed shorter edge (pixels) for training images.
+    Reference shorter-edge scale vs pipeline ``data.image_size`` (relaxed heuristic).
 
-    Uses ``max(32, image_size // 4)`` so the threshold scales with pipeline
-    ``data.image_size`` (e.g. 224 → 56 px) while keeping a sane floor for tiny
-    ``image_size`` values.
+    Uses ``max(24, image_size // 5)`` so the value scales with ``image_size`` while staying
+    below historical ``image_size // 4`` strictness.
     """
     n = _normalize_pipeline_image_size(image_size)
-    return max(32, n // 4)
+    return max(24, n // 5)
 
 
 def min_area_pixels_for_pipeline(image_size: int) -> int:
@@ -383,28 +386,32 @@ class DatasetCreator:
             n = 224
         return _normalize_pipeline_image_size(n)
 
-    def _dimension_review_reason(self, image_size: int, w: int, h: int) -> Optional[str]:
-        """If the image should go to review for geometry, return a human-readable reason."""
-        min_edge = min_edge_pixels_for_pipeline(image_size)
-        min_area = min_area_pixels_for_pipeline(image_size)
+    def _tiny_geometry_review_reason(self, image_size: int, w: int, h: int) -> Optional[str]:
+        """
+        If the image is too small to bother training on, return a reason; else None.
+
+        Uses an absolute ~50×50-style floor and a relaxed fraction of
+        :func:`min_area_pixels_for_pipeline` — not the full pipeline min area.
+        Aspect ratio alone never triggers review.
+        """
         shorter = min(w, h)
         longer = max(w, h)
         if shorter < 1 or longer < 1:
             return f"invalid dimensions ({w}x{h} px)"
-        if shorter < min_edge:
+        if shorter < MIN_USABLE_SHORTER_EDGE_PX:
             return (
-                f"shorter edge too small ({w}x{h} px; min {min_edge} px for image_size={image_size})"
+                f"shorter edge too small ({w}x{h} px; min {MIN_USABLE_SHORTER_EDGE_PX} px)"
             )
         area = w * h
-        if area < min_area:
+        min_area_px = min_area_pixels_for_pipeline(image_size)
+        area_floor = max(
+            MIN_USABLE_SHORTER_EDGE_PX * MIN_USABLE_SHORTER_EDGE_PX,
+            min_area_px // MIN_USABLE_AREA_PIPELINE_DIVISOR,
+        )
+        if area < area_floor:
             return (
-                f"not enough pixels ({w}x{h} = {area} px²; min {min_area} px², "
-                f"{MIN_AREA_FRACTION_OF_IMAGE_SIZE_SQUARED:.0%} of image_size² for image_size={image_size})"
-            )
-        if longer / shorter > MAX_ASPECT_RATIO:
-            ar = longer / shorter
-            return (
-                f"aspect ratio too extreme ({w}x{h} px; {ar:.2f}:1 exceeds max {MAX_ASPECT_RATIO}:1)"
+                f"not enough pixels ({w}x{h} = {area} px²; relaxed min {area_floor} px² "
+                f"(image_size={image_size})"
             )
         return None
 
@@ -437,21 +444,28 @@ class DatasetCreator:
 
     def remove_invalid_sized_images(self) -> None:
         """
-        Move images with invalid on-disk size or failed geometry checks to review.
+        Move images with invalid on-disk byte size or *tiny* geometry to review.
 
-        TODO: Optional flag to skip this step (or only log) when conversion already
-        enforced geometry — same rationale as skipping duplicate QC after ``convert``.
+        Geometry: only images shorter than :data:`MIN_USABLE_SHORTER_EDGE_PX` or below a
+        relaxed area floor derived from :func:`min_area_pixels_for_pipeline` are removed.
+        Conversion is assumed to have produced reasonable JPEGs; this step catches
+        pathological tiny inputs only.
         """
         image_size = self._pipeline_image_size()
-        min_edge = min_edge_pixels_for_pipeline(image_size)
-        min_area = min_area_pixels_for_pipeline(image_size)
+        min_area_px = min_area_pixels_for_pipeline(image_size)
+        area_floor = max(
+            MIN_USABLE_SHORTER_EDGE_PX * MIN_USABLE_SHORTER_EDGE_PX,
+            min_area_px // MIN_USABLE_AREA_PIPELINE_DIVISOR,
+        )
         logger.info(
-            "Checking images for invalid file sizes and dimensions "
-            "(image_size=%s: min shorter edge >= %s px, min area >= %s px², max aspect <= %s:1)...",
+            "Checking images for file size and tiny dimensions "
+            "(image_size=%s: byte range [%s, %s], geometry: min shorter edge >= %s px, "
+            "min area >= %s px²; aspect not gated)...",
             image_size,
-            min_edge,
-            min_area,
-            MAX_ASPECT_RATIO,
+            MIN_FILE_SIZE,
+            MAX_FILE_SIZE,
+            MIN_USABLE_SHORTER_EDGE_PX,
+            area_floor,
         )
 
         for class_name in self._class_names:
@@ -487,7 +501,7 @@ class DatasetCreator:
                     moved_dims += 1
                     continue
 
-                dim_reason = self._dimension_review_reason(image_size, w, h)
+                dim_reason = self._tiny_geometry_review_reason(image_size, w, h)
                 if dim_reason is not None:
                     self._move_train_image_to_review(class_name, image_file, dim_reason)
                     moved_dims += 1
