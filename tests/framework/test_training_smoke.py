@@ -15,6 +15,8 @@ from mb.pipeline_config import PipelineConfig
 from mb.training.run_args import TrainingRunArgs
 from mb.training.trainer import ModelTrainer
 
+from tests.fixtures.pipeline_image_size import HIGH_RES_PIPELINE_IMAGE_SIZE
+
 
 @pytest.mark.slow
 @pytest.mark.requires_torch
@@ -50,6 +52,49 @@ def test_model_trainer_pytorch_one_epoch_cpu_smoke(
             "batch_size": 2,
             "num_workers": 0,
             "image_size": 224,
+        },
+    )
+    model_path = trainer.train(run_args)
+    assert model_path.is_file()
+    assert model_path.stat().st_size > 0
+    assert model_path.suffix == ".pth"
+
+
+@pytest.mark.slow
+@pytest.mark.requires_torch
+def test_model_trainer_pytorch_one_epoch_cpu_smoke_high_res_image_size(
+    two_class_classification_data_dir: Path,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """One epoch at ``HIGH_RES_PIPELINE_IMAGE_SIZE`` (>300px) to match fine-tuning above 224 baselines."""
+    pytest.importorskip("torch", reason="PyTorch smoke test")
+    pytest.importorskip("torchvision", reason="PyTorch smoke test")
+    import torch
+
+    monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
+
+    out_dir = tmp_path / "models_high_res"
+    pipeline = PipelineConfig(config_path=None)
+    trainer = ModelTrainer(
+        framework=FrameworkType.PYTORCH,
+        model_type=ModelType.IMAGE_CLASSIFICATION,
+        pipeline_config=pipeline,
+    )
+    run_args = TrainingRunArgs(
+        framework=FrameworkType.PYTORCH,
+        architecture=ArchitectureType.RESNET18,
+        data_dir=two_class_classification_data_dir,
+        output_dir=out_dir,
+        resume_from=None,
+        run_id=None,
+        update_snapshot=False,
+        cli_hyperparams={
+            "frozen_epochs": 1,
+            "unfrozen_epochs": 0,
+            "batch_size": 1,
+            "num_workers": 0,
+            "image_size": HIGH_RES_PIPELINE_IMAGE_SIZE,
         },
     )
     model_path = trainer.train(run_args)

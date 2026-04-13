@@ -9,6 +9,9 @@ from mb.data.class_layout import SYNTHETIC_DEFAULT_CLASS_NAMES
 from mb.data.dataset import DatasetCreator, modulated_test_count
 from mb.utils.constants import DatasetSplitMode
 
+from mb.pipeline_config import reload_pipeline_config
+
+from tests.fixtures.pipeline_image_size import HIGH_RES_PIPELINE_IMAGE_SIZE
 from tests.test_utils import prepare_synthetic_raw_with_snapshot
 
 
@@ -96,3 +99,29 @@ def test_dataset_weighted_near_default_cutoff(tmp_path: Path) -> None:
         tr = len(list((data_dir / "train" / name).glob("*.jpg")))
         assert te == exp, f"{name}: expected {exp} test, got {te}"
         assert te + tr == counts[name]
+
+
+def test_dataset_creator_runs_with_pipeline_high_res_image_size(tmp_path: Path) -> None:
+    """End-to-end create-dataset with ``data.image_size`` = high-res anchor (see fixture docstring)."""
+    pipe = tmp_path / "pipeline_high_res.yaml"
+    pipe.write_text(
+        f"data:\n  image_size: {HIGH_RES_PIPELINE_IMAGE_SIZE}\n",
+        encoding="utf-8",
+    )
+    reload_pipeline_config(pipe, force=True)
+    try:
+        random.seed(42)
+        raw = prepare_synthetic_raw_with_snapshot(tmp_path, total_images=36)
+        data_dir = tmp_path / "data_high_res"
+        creator = DatasetCreator(
+            raw_data_dir=raw,
+            data_dir=data_dir,
+            test_per_class=5,
+            class_names=list(SYNTHETIC_DEFAULT_CLASS_NAMES),
+        )
+        assert creator.run() is True
+        for name in SYNTHETIC_DEFAULT_CLASS_NAMES:
+            assert (data_dir / "train" / name).is_dir()
+            assert (data_dir / "test" / name).is_dir()
+    finally:
+        reload_pipeline_config(None, force=True)

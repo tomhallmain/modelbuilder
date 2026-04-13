@@ -15,12 +15,14 @@ from mb.data.dataset import (
     min_area_pixels_for_pipeline,
     min_edge_pixels_for_pipeline,
 )
+from tests.fixtures.pipeline_image_size import HIGH_RES_PIPELINE_IMAGE_SIZE
 
 
 def test_min_edge_pixels_for_pipeline_scales_with_image_size() -> None:
     assert min_edge_pixels_for_pipeline(224) == 44  # max(24, 224 // 5)
     assert min_edge_pixels_for_pipeline(128) == 25  # max(24, 128 // 5)
     assert min_edge_pixels_for_pipeline(512) == 102
+    assert min_edge_pixels_for_pipeline(HIGH_RES_PIPELINE_IMAGE_SIZE) == 64  # max(24, 320 // 5)
 
 
 def test_min_edge_pixels_for_pipeline_bad_values_fallback() -> None:
@@ -33,6 +35,14 @@ def test_min_area_pixels_for_pipeline_matches_fraction_of_image_size_sq() -> Non
     expected = max(32 * 32, int(MIN_AREA_FRACTION_OF_IMAGE_SIZE_SQUARED * s * s))
     assert min_area_pixels_for_pipeline(224) == expected
     assert min_area_pixels_for_pipeline(224) == 4515
+
+
+def test_min_area_pixels_for_pipeline_high_res_anchor() -> None:
+    """Regression anchor for training above 300px (see ``pipeline_image_size`` fixture)."""
+    s = HIGH_RES_PIPELINE_IMAGE_SIZE
+    expected = max(32 * 32, int(MIN_AREA_FRACTION_OF_IMAGE_SIZE_SQUARED * s * s))
+    assert min_area_pixels_for_pipeline(s) == expected
+    assert min_area_pixels_for_pipeline(s) == 9216
 
 
 def _write_jpeg_at_least(path: Path, width: int, height: int, seed: int) -> None:
@@ -127,6 +137,26 @@ def test_remove_invalid_sized_images_moves_when_area_below_relaxed_floor_large_i
 
     assert not p.exists()
     assert dc.stats["files_moved_dimensions"]["c"] == 1
+
+
+def test_remove_invalid_sized_images_keeps_ok_square_at_high_res_pipeline_size(tmp_path: Path) -> None:
+    """At image_size 320, relaxed area floor is still 2500 px²; 56×56 passes."""
+    raw = tmp_path / "raw"
+    raw.mkdir()
+    data = tmp_path / "data"
+    dc = DatasetCreator(raw_data_dir=raw, data_dir=data)
+    dc._class_names = ["c"]
+    dc.unified_snapshot = None
+    train_c = dc.train_dir / "c"
+    train_c.mkdir(parents=True)
+    p = train_c / "sq.jpg"
+    _write_jpeg_at_least(p, 56, 56, seed=6)
+
+    with patch.object(dc, "_pipeline_image_size", return_value=HIGH_RES_PIPELINE_IMAGE_SIZE):
+        dc.remove_invalid_sized_images()
+
+    assert p.is_file()
+    assert dc.stats["files_moved_dimensions"]["c"] == 0
 
 
 def test_remove_invalid_sized_images_keeps_extreme_aspect_ratio(tmp_path: Path) -> None:
