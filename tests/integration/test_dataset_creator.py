@@ -6,7 +6,8 @@ import random
 from pathlib import Path
 
 from mb.data.class_layout import SYNTHETIC_DEFAULT_CLASS_NAMES
-from mb.data.dataset import DatasetCreator, TEST_SPLIT_MODE_DATASET_WEIGHTED, modulated_test_count
+from mb.data.dataset import DatasetCreator, modulated_test_count
+from mb.utils.constants import DatasetSplitMode
 
 from tests.test_utils import prepare_synthetic_raw_with_snapshot
 
@@ -86,7 +87,7 @@ def test_dataset_weighted_near_default_cutoff(tmp_path: Path) -> None:
         data_dir=data_dir,
         test_per_class=anchor,
         class_names=list(counts.keys()),
-        test_split_mode=TEST_SPLIT_MODE_DATASET_WEIGHTED,
+        test_split_mode=DatasetSplitMode.DATASET_WEIGHTED,
         test_small_class_threshold=thr,
     )
     assert creator.run() is True

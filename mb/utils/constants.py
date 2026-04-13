@@ -1,9 +1,33 @@
 from __future__ import annotations
 
 from enum import Enum
+from typing import Optional, Union
 
 from mb.models.types import ModelBuildStepCommand
 from mb.utils.translations import _
+
+
+class DatasetSplitMode(str, Enum):
+    """
+    Strategy for building the per-class train/test split in :class:`~mb.data.dataset.DatasetCreator`.
+
+    Values match ``data.test_split_mode`` in pipeline YAML and CLI ``--test-split-mode``.
+    """
+
+    FIXED = "fixed"
+    DATASET_WEIGHTED = "dataset_weighted"
+
+    @classmethod
+    def normalize(cls, value: Optional[Union[str, DatasetSplitMode]]) -> DatasetSplitMode:
+        """Map CLI / YAML / pipeline strings (or self) to a member."""
+        if isinstance(value, cls):
+            return value
+        if value is None or (isinstance(value, str) and not str(value).strip()):
+            return cls.FIXED
+        s = str(value).strip().lower().replace("-", "_")
+        if s in ("dataset_weighted", "weighted", "modulated"):
+            return cls.DATASET_WEIGHTED
+        return cls.FIXED
 
 
 class ModelBuilderTaskType(str, Enum):

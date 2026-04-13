@@ -11,6 +11,10 @@ Default file: ``mb/config/default_pipeline.yaml`` (shipped with the package).
 **create-dataset**. Defaults under ``data.gather`` apply to
 :mod:`mb.data.gather` / ``mb data gather``; raw layout and class layout also use
 ``data.*`` (see :func:`gather_pipeline_defaults`).
+
+After merge, :meth:`PipelineConfig._coerce_data_values` normalizes ``data.*`` types so a
+hand-edited YAML cannot break CLI commands (:func:`resolve_create_dataset_cli` merges
+pipeline defaults with ``mb data create-dataset`` flags).
 """
 
 from __future__ import annotations
@@ -21,6 +25,7 @@ from typing import Any, Dict, List, Optional
 import yaml
 
 from mb.models.types import ArchitectureType, FrameworkType
+from mb.utils.constants import DatasetSplitMode
 from mb.utils.logging_setup import get_logger
 
 logger = get_logger("mb.pipeline_config")
@@ -97,6 +102,79 @@ class PipelineConfig:
         elif config_path:
             logger.warning("Pipeline config file not found: %s, using defaults", config_path)
 
+        self._coerce_data_values()
+
+    def _coerce_data_values(self) -> None:
+        """
+        Normalize ``data`` subtree types after YAML merge so hand-edited configs stay usable.
+
+        Unknown or invalid values fall back to built-in defaults with a log line.
+        """
+        defs = self._defaults.get("data") or {}
+        raw = self._config.get("data")
+        if not isinstance(raw, dict):
+            self._config["data"] = dict(defs)
+            raw = self._config["data"]
+
+        def _fallback(key: str) -> Any:
+            return defs.get(key)
+
+        # test_per_class (anchor for weighted mode and fixed-mode count)
+        tp = raw.get("test_per_class", _fallback("test_per_class"))
+        try:
+            raw["test_per_class"] = max(1, int(float(tp)))
+        except (TypeError, ValueError):
+            logger.warning("Invalid data.test_per_class %r; using default %s", tp, _fallback("test_per_class"))
+            raw["test_per_class"] = int(_fallback("test_per_class"))
+
+        # test_split_mode (stored as string for YAML / to_dict)
+        tsm = raw.get("test_split_mode", _fallback("test_split_mode"))
+
+        raw["test_split_mode"] = DatasetSplitMode.normalize(
+            None if tsm is None else str(tsm).strip() or None
+        ).value
+
+        # test_small_class_threshold
+        tst = raw.get("test_small_class_threshold", _fallback("test_small_class_threshold"))
+        if tst is None or (isinstance(tst, str) and not str(tst).strip()):
+            raw["test_small_class_threshold"] = None
+        else:
+            try:
+                raw["test_small_class_threshold"] = max(1, int(float(tst)))
+            except (TypeError, ValueError):
+                logger.warning("Invalid data.test_small_class_threshold %r; using null", tst)
+                raw["test_small_class_threshold"] = None
+
+        # seed (optional int for create-dataset)
+        sd = raw.get("seed", _fallback("seed"))
+        if sd is None or (isinstance(sd, str) and not str(sd).strip()):
+            raw["seed"] = None
+        else:
+            try:
+                raw["seed"] = int(float(sd))
+            except (TypeError, ValueError):
+                logger.warning("Invalid data.seed %r; using null", sd)
+                raw["seed"] = None
+
+        # image_size
+        im = raw.get("image_size", _fallback("image_size"))
+        try:
+            raw["image_size"] = max(1, int(float(im)))
+        except (TypeError, ValueError):
+            logger.warning("Invalid data.image_size %r; using default %s", im, _fallback("image_size"))
+            raw["image_size"] = int(_fallback("image_size"))
+
+        # batch_size: int or None
+        bs = raw.get("batch_size", _fallback("batch_size"))
+        if bs is None or (isinstance(bs, str) and not str(bs).strip()):
+            raw["batch_size"] = None
+        else:
+            try:
+                raw["batch_size"] = max(1, int(float(bs)))
+            except (TypeError, ValueError):
+                logger.warning("Invalid data.batch_size %r; using null", bs)
+                raw["batch_size"] = None
+
     def _get_defaults(self) -> Dict[str, Any]:
         return {
             "model": {
@@ -108,11 +186,14 @@ class PipelineConfig:
                 "raw_data_dir": "raw_data",
                 # Train/test split root after create-dataset (train/, test/); not the same as raw_data_dir.
                 "data_dir": "data",
+                # Fixed-mode test count per class; also the anchor for dataset_weighted (no separate key).
                 "test_per_class": 1000,
-                # "fixed" | "dataset_weighted" — see mb.data.dataset.normalize_test_split_mode
-                "test_split_mode": "fixed",
+                # "fixed" | "dataset_weighted" — see :meth:`DatasetSplitMode.normalize`
+                "test_split_mode": DatasetSplitMode.FIXED.value,
                 # null = use test_per_class as the small/large class cutoff for dataset_weighted
                 "test_small_class_threshold": None,
+                # Optional RNG seed for mb data create-dataset (CLI --seed overrides when set).
+                "seed": None,
                 "image_size": 224,
                 "batch_size": None,
                 "image_types": [
@@ -277,6 +358,90 @@ def get_pipeline_config(config_path: Optional[Path] = None) -> PipelineConfig:
         reload_pipeline_config(None)
     assert _global_pipeline is not None
     return _global_pipeline
+
+
+# TODO: Replace ad-hoc per-command merge helpers (e.g. :func:`resolve_create_dataset_cli`) with a
+# single :func:`resolve_cli` (or similar) that maps argparse namespaces → pipeline keys for *all*
+# ``mb`` subcommands, reusing :meth:`PipelineConfig._coerce_data_values` / shared validation so CLI,
+# GUI, and on-disk YAML stay one consistent surface.
+
+
+def resolve_create_dataset_cli(args: Any) -> Dict[str, Any]:
+    """
+    Merge ``mb data create-dataset`` CLI options with the active pipeline ``data`` section.
+
+    Call after :func:`reload_pipeline_config` so the global config matches ``args.config``.
+
+    ``data.test_per_class`` is both the fixed-mode test count per class and the anchor for
+    ``dataset_weighted`` — there is no separate anchor field.
+
+    CLI flags override the pipeline when provided; omitted CLI options use coerced pipeline
+    values (see :meth:`PipelineConfig._coerce_data_values`).
+
+    Returns:
+        ``test_per_class``, ``test_split_mode`` (``:class:`~mb.utils.constants.DatasetSplitMode``),
+        ``test_small_class_threshold``, and ``seed`` (``None`` if unset).
+
+    .. note::
+
+        Interim helper until a generic :func:`resolve_cli` exists (see module TODO above).
+    """
+    from mb.data.dataset import DEFAULT_TEST_PER_CLASS
+
+    pc = get_pipeline_config()
+    d = pc.to_dict().get("data") or {}
+    if not isinstance(d, dict):
+        d = {}
+
+    tpc = getattr(args, "test_per_class", None)
+    if tpc is None:
+        tpc = d.get("test_per_class", DEFAULT_TEST_PER_CLASS)
+    try:
+        test_per_class = max(1, int(float(tpc)))
+    except (TypeError, ValueError):
+        test_per_class = max(1, int(d.get("test_per_class", DEFAULT_TEST_PER_CLASS)))
+
+    tsm = getattr(args, "test_split_mode", None)
+    if tsm is None:
+        tsm = d.get("test_split_mode")
+    test_split_mode: DatasetSplitMode = DatasetSplitMode.normalize(
+        None if tsm is None else str(tsm).strip() or None
+    )
+
+    tst = getattr(args, "test_small_class_threshold", None)
+    if tst is None:
+        tst = d.get("test_small_class_threshold")
+        if tst is not None:
+            try:
+                tst = max(1, int(float(tst)))
+            except (TypeError, ValueError):
+                tst = None
+    else:
+        try:
+            tst = max(1, int(float(tst)))
+        except (TypeError, ValueError):
+            tst = None
+
+    seed = getattr(args, "seed", None)
+    if seed is None:
+        sp = d.get("seed")
+        if sp is not None:
+            try:
+                seed = int(float(sp))
+            except (TypeError, ValueError):
+                seed = None
+    else:
+        try:
+            seed = int(seed)
+        except (TypeError, ValueError):
+            seed = None
+
+    return {
+        "test_per_class": test_per_class,
+        "test_split_mode": test_split_mode,
+        "test_small_class_threshold": tst,
+        "seed": seed,
+    }
 
 
 def data_class_layout_defaults() -> Dict[str, Any]:

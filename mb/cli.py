@@ -16,6 +16,7 @@ from mb.pipeline_config import (
     gather_pipeline_defaults,
     get_pipeline_config,
     reload_pipeline_config,
+    resolve_create_dataset_cli,
 )
 from mb.utils.logging_setup import setup_logging
 from mb.utils.translations import _
@@ -301,10 +302,10 @@ def create_parser() -> argparse.ArgumentParser:
     dataset_parser.add_argument(
         "--test-per-class",
         type=int,
-        default=1000,
+        default=None,
         help=_(
-            "Number of items per class in the test split when mode is fixed (default: 1000). "
-            "For dataset-weighted mode this is the anchor scale — see --test-split-mode."
+            "Number of items per class in the test split when mode is fixed; also the anchor for "
+            "dataset-weighted mode (default: data.test_per_class from pipeline YAML)."
         ),
     )
     dataset_parser.add_argument(
@@ -329,7 +330,10 @@ def create_parser() -> argparse.ArgumentParser:
     dataset_parser.add_argument(
         "--seed",
         type=int,
-        help=_("Random seed for reproducibility"),
+        default=None,
+        help=_(
+            "Random seed for reproducibility (default: data.seed from pipeline YAML when set, else non-deterministic)"
+        ),
     )
     dataset_parser.add_argument(
         "--run-id",
@@ -797,19 +801,10 @@ def handle_data_create_dataset(args):
     """Handle 'mb data create-dataset' command."""
     try:
         from mb.utils.storage import check_target_external_storage, check_same_drive
-        from mb.data.dataset import confirm_user_action, normalize_test_split_mode
+        from mb.data.dataset import confirm_user_action
 
         reload_pipeline_config(getattr(args, "config", None), force=True)
-        pc = get_pipeline_config()
-        tsm = getattr(args, "test_split_mode", None)
-        if tsm is None:
-            tsm = pc.get("data.test_split_mode")
-        test_split_mode = normalize_test_split_mode(tsm)
-        tst = getattr(args, "test_small_class_threshold", None)
-        if tst is None:
-            tst = pc.get("data.test_small_class_threshold")
-            if tst is not None:
-                tst = int(tst)
+        ds_opts = resolve_create_dataset_cli(args)
 
         # Storage checks
         if check_target_external_storage(logger, args.data_dir, override=getattr(args, 'allow_external_storage', False)):
@@ -821,22 +816,23 @@ def handle_data_create_dataset(args):
             if not confirm_user_action(logger, args):
                 return 1
         
-        # Set random seed if provided
-        if hasattr(args, 'seed') and args.seed is not None:
+        # Set random seed from CLI or pipeline (resolve_create_dataset_cli)
+        if ds_opts["seed"] is not None:
             import random
-            random.seed(args.seed)
-            logger.info(f"Using random seed: {args.seed}")
-        
+
+            random.seed(ds_opts["seed"])
+            logger.info("Using random seed: %s", ds_opts["seed"])
+
         creator = DatasetCreator(
             raw_data_dir=args.raw_data_dir,
             data_dir=args.data_dir,
-            test_per_class=args.test_per_class,
+            test_per_class=ds_opts["test_per_class"],
             balance_train=getattr(args, 'balance_train', False),
             max_train_per_class=getattr(args, 'max_train_per_class', None),
             run_id=getattr(args, 'run_id', None),
             skip_space_check=getattr(args, "skip_space_check", False),
-            test_split_mode=test_split_mode,
-            test_small_class_threshold=tst,
+            test_split_mode=ds_opts["test_split_mode"],
+            test_small_class_threshold=ds_opts["test_small_class_threshold"],
         )
         
         success = creator.run()

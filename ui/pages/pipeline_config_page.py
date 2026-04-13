@@ -343,6 +343,12 @@ class PipelineConfigPage(QWidget):
         self._d_test_small_thr.setValue(0)
         form.addRow(_("Small-class threshold (weighted)"), self._d_test_small_thr)
 
+        self._d_seed = QSpinBox()
+        self._d_seed.setRange(0, 2_147_483_647)
+        self._d_seed.setSpecialValueText(_("None"))
+        self._d_seed.setValue(0)
+        form.addRow(_("Default create-dataset seed"), self._d_seed)
+
         self._d_im_size = QSpinBox()
         self._d_im_size.setRange(1, 4096)
         form.addRow(_("Image size (pixels)"), self._d_im_size)
@@ -516,12 +522,14 @@ class PipelineConfigPage(QWidget):
 
         tsm_data = self._d_test_split_mode.currentData()
         st_raw = int(self._d_test_small_thr.value())
+        seed_v = int(self._d_seed.value())
         data: dict[str, Any] = {
             "raw_data_dir": self._d_raw.text().strip() or "raw_data",
             "data_dir": self._d_out.text().strip() or "data",
             "test_per_class": int(self._d_test_pc.value()),
             "test_split_mode": str(tsm_data) if tsm_data else "fixed",
             "test_small_class_threshold": None if st_raw <= 0 else st_raw,
+            "seed": None if seed_v <= 0 else seed_v,
             "image_size": int(self._d_im_size.value()),
             "batch_size": batch,
             "image_types": _ext_lines_to_list(self._d_img_types.toPlainText()),
@@ -577,6 +585,8 @@ class PipelineConfigPage(QWidget):
         self._d_test_split_mode.setCurrentIndex(tix if tix >= 0 else 0)
         st = d.get("test_small_class_threshold")
         self._d_test_small_thr.setValue(0 if st is None else int(st))
+        sd = d.get("seed")
+        self._d_seed.setValue(0 if sd is None else int(sd))
         self._d_im_size.setValue(int(d.get("image_size") or 224))
         bs = d.get("batch_size")
         self._d_batch.setText("" if bs is None else str(int(bs)))

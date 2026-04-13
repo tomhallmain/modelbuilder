@@ -4,20 +4,17 @@ from __future__ import annotations
 
 import pytest
 
-from mb.data.dataset import (
-    TEST_SPLIT_MODE_DATASET_WEIGHTED,
-    TEST_SPLIT_MODE_FIXED,
-    modulated_test_count,
-    normalize_test_split_mode,
-)
+from mb.data.dataset import modulated_test_count
+from mb.utils.constants import DatasetSplitMode
 
 
-def test_normalize_test_split_mode() -> None:
-    assert normalize_test_split_mode(None) == TEST_SPLIT_MODE_FIXED
-    assert normalize_test_split_mode("fixed") == TEST_SPLIT_MODE_FIXED
-    assert normalize_test_split_mode("dataset_weighted") == TEST_SPLIT_MODE_DATASET_WEIGHTED
-    assert normalize_test_split_mode("dataset-weighted") == TEST_SPLIT_MODE_DATASET_WEIGHTED
-    assert normalize_test_split_mode("modulated") == TEST_SPLIT_MODE_DATASET_WEIGHTED
+def test_dataset_split_mode_normalize() -> None:
+    assert DatasetSplitMode.normalize(None) == DatasetSplitMode.FIXED
+    assert DatasetSplitMode.normalize("fixed") == DatasetSplitMode.FIXED
+    assert DatasetSplitMode.normalize("dataset_weighted") == DatasetSplitMode.DATASET_WEIGHTED
+    assert DatasetSplitMode.normalize("dataset-weighted") == DatasetSplitMode.DATASET_WEIGHTED
+    assert DatasetSplitMode.normalize("modulated") == DatasetSplitMode.DATASET_WEIGHTED
+    assert DatasetSplitMode.normalize(DatasetSplitMode.DATASET_WEIGHTED) == DatasetSplitMode.DATASET_WEIGHTED
 
 
 def test_modulated_user_example_abc_anchor_5000() -> None:

@@ -57,6 +57,7 @@ from mb.data.class_layout import (
 from mb.models.types import ModelBuildStepCommand
 from mb.pipeline_config import get_pipeline_config
 from mb.space_estimate import check_create_dataset_allowed
+from mb.utils.constants import DatasetSplitMode
 
 # Configure logging
 logger = setup_logging(script_name="create_datasets")
@@ -64,24 +65,6 @@ logger = setup_logging(script_name="create_datasets")
 DEFAULT_TEST_PER_CLASS = 1000  # Default test-split size per class (CLI / library; pipeline YAML may override)
 MIN_FILE_SIZE = 6 * 1024  # 6KB minimum
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB maximum
-
-# Test split strategies for :meth:`DatasetCreator.create_test_dataset`
-TEST_SPLIT_MODE_FIXED = "fixed"
-TEST_SPLIT_MODE_DATASET_WEIGHTED = "dataset_weighted"
-
-
-def normalize_test_split_mode(value: Optional[str]) -> str:
-    """
-    Normalize CLI / YAML values to :data:`TEST_SPLIT_MODE_FIXED` or
-    :data:`TEST_SPLIT_MODE_DATASET_WEIGHTED`.
-    """
-    if value is None or (isinstance(value, str) and not str(value).strip()):
-        return TEST_SPLIT_MODE_FIXED
-    s = str(value).strip().lower().replace("-", "_")
-    if s in ("dataset_weighted", "weighted", "modulated"):
-        return TEST_SPLIT_MODE_DATASET_WEIGHTED
-    return TEST_SPLIT_MODE_FIXED
-
 
 def modulated_test_count(
     n_c: int,
@@ -195,7 +178,7 @@ class DatasetCreator:
         class_names: Optional[List[str]] = None,
         class_qualifying_subdir: Optional[str] = None,
         skip_space_check: bool = False,
-        test_split_mode: Optional[str] = None,
+        test_split_mode: Optional[str | DatasetSplitMode] = None,
         test_small_class_threshold: Optional[int] = None,
     ):
         self.raw_data_dir = Path(raw_data_dir)
@@ -612,11 +595,11 @@ class DatasetCreator:
         else:
             logger.info("No balancing needed - all classes already balanced")
 
-    def _resolved_test_split_mode(self) -> str:
+    def _resolved_test_split_mode(self) -> DatasetSplitMode:
         if self._test_split_mode_override is not None:
-            return normalize_test_split_mode(self._test_split_mode_override)
+            return DatasetSplitMode.normalize(self._test_split_mode_override)
         pc = get_pipeline_config()
-        return normalize_test_split_mode(pc.get("data.test_split_mode"))
+        return DatasetSplitMode.normalize(pc.get("data.test_split_mode"))
 
     def _resolved_test_small_class_threshold(self) -> int:
         """
@@ -636,7 +619,7 @@ class DatasetCreator:
         mode = self._resolved_test_split_mode()
         anchor = max(1, int(self.test_per_class))
 
-        if mode == TEST_SPLIT_MODE_DATASET_WEIGHTED:
+        if mode == DatasetSplitMode.DATASET_WEIGHTED:
             thr = self._resolved_test_small_class_threshold()
             counts: Dict[str, int] = {}
             for class_name in self._class_names:

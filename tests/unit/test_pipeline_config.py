@@ -8,14 +8,18 @@ import unittest
 from pathlib import Path
 
 from mb.models.types import ArchitectureType, FrameworkType
+from argparse import Namespace
+
 from mb.pipeline_config import (
     PipelineConfig,
     gather_pipeline_defaults,
     gather_subpath_for_display,
     gather_subpath_for_storage,
     reload_pipeline_config,
+    resolve_create_dataset_cli,
     resolve_gather_path_under_raw,
 )
+from mb.utils.constants import DatasetSplitMode
 
 
 class TestPipelineConfigLoad(unittest.TestCase):
@@ -79,6 +83,64 @@ class TestPipelineConfigLoad(unittest.TestCase):
             gather_subpath_for_storage("raw_data", "coherent", "coherent"),
             "coherent",
         )
+
+    def test_coerce_data_recovers_from_invalid_test_per_class(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            yml = Path(td) / "bad.yaml"
+            yml.write_text(
+                textwrap.dedent(
+                    """
+                    data:
+                      test_per_class: not_a_number
+                      test_split_mode: dataset_weighted
+                      seed: "42"
+                    """
+                ).strip(),
+                encoding="utf-8",
+            )
+            cfg = PipelineConfig(yml)
+            self.assertEqual(cfg.get("data.test_per_class"), 1000)
+            self.assertEqual(cfg.get("data.test_split_mode"), DatasetSplitMode.DATASET_WEIGHTED.value)
+            self.assertEqual(cfg.get("data.seed"), 42)
+
+    def test_resolve_create_dataset_cli_merges_pipeline(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            yml = Path(td) / "ds.yaml"
+            yml.write_text(
+                textwrap.dedent(
+                    """
+                    data:
+                      test_per_class: 2500
+                      test_split_mode: dataset-weighted
+                      test_small_class_threshold: 800
+                      seed: 99
+                    """
+                ).strip(),
+                encoding="utf-8",
+            )
+            reload_pipeline_config(yml, force=True)
+            args = Namespace(
+                test_per_class=None,
+                test_split_mode=None,
+                test_small_class_threshold=None,
+                seed=None,
+            )
+            out = resolve_create_dataset_cli(args)
+            self.assertEqual(out["test_per_class"], 2500)
+            self.assertEqual(out["test_split_mode"], DatasetSplitMode.DATASET_WEIGHTED)
+            self.assertEqual(out["test_small_class_threshold"], 800)
+            self.assertEqual(out["seed"], 99)
+
+            args2 = Namespace(
+                test_per_class=10,
+                test_split_mode="fixed",
+                test_small_class_threshold=None,
+                seed=1,
+            )
+            out2 = resolve_create_dataset_cli(args2)
+            self.assertEqual(out2["test_per_class"], 10)
+            self.assertEqual(out2["test_split_mode"], DatasetSplitMode.FIXED)
+            self.assertEqual(out2["seed"], 1)
 
 
 if __name__ == "__main__":
