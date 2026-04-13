@@ -375,8 +375,9 @@ def create_parser() -> argparse.ArgumentParser:
         dest="report_json",
         action="store_true",
         help=_(
-            "With --dry-run: print one JSON object per mismatch (newline-delimited) to stdout; "
-            "implies pipeline class discovery like the repair path."
+            "Print newline-delimited JSON (stdout): dry-run or live repair. By default only actionable "
+            "mismatches are listed; use -v to include policy-skipped PNG/WebP/BMP/TIFF under .jpg. "
+            "Live repair emits one line per successful fix when applicable."
         ),
     )
     fix_jpeg_parser.add_argument(
@@ -391,6 +392,18 @@ def create_parser() -> argparse.ArgumentParser:
         action="store_true",
         help=_(
             "With --dry-run: omit verbose per-file log lines (use with --json for machine-readable output only)."
+        ),
+    )
+    fix_jpeg_parser.add_argument(
+        "-v",
+        "--verbose",
+        dest="fix_jpeg_verbose",
+        action="store_true",
+        help=_(
+            "With --json: include policy-skipped static-format mismatches in JSON output. "
+            "In text mode: log each policy-skipped file and class progress for every folder; "
+            "with live repair, log each skipped file. Useless with --quiet. "
+            "Separate from top-level mb -v (global logging)."
         ),
     )
     fix_jpeg_parser.add_argument(
@@ -819,8 +832,8 @@ def handle_data_fix_jpeg_extension_mismatch(args):
         report_json = bool(getattr(args, "report_json", False))
         report_pillow = bool(getattr(args, "report_pillow", False))
         report_quiet = bool(getattr(args, "report_quiet", False))
-        if (report_json or report_pillow or report_quiet) and not dry_run:
-            logger.error(_("--json, --pillow, and --quiet require --dry-run"))
+        if (report_pillow or report_quiet) and not dry_run:
+            logger.error(_("--pillow and --quiet require --dry-run"))
             return 1
         if report_pillow and not report_json:
             logger.error(_("--pillow requires --json"))
@@ -835,13 +848,14 @@ def handle_data_fix_jpeg_extension_mismatch(args):
             raw_data_dir,
             model_type=mt,
             dry_run=dry_run,
-            dry_run_json=report_json,
+            json_lines=report_json,
             dry_run_pillow=report_pillow,
             dry_run_quiet=report_quiet,
             json_lines_to_logger=False,
             include_static_format_mismatches=bool(
                 getattr(args, "include_static_format_mismatches", False)
             ),
+            verbose=bool(getattr(args, "fix_jpeg_verbose", False)),
             rng=rng,
         )
         if not ok:

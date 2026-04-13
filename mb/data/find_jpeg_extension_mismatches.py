@@ -14,10 +14,15 @@ file updates **only** that image’s ``original`` and ``converted`` fields to ma
 and the new ``CONVERTED`` JPEG—``dataset`` / ``training`` are left unchanged. Step timing and any
 errors are recorded under ``fix-jpeg-extension-mismatch`` in the snapshot’s ``step_errors`` map.
 
-With ``dry_run=True``, optional ``dry_run_json`` / ``dry_run_pillow`` / ``dry_run_quiet`` mirror the
-former standalone list-mode switches: newline-delimited JSON records, optional Pillow metadata, and
-suppression of verbose per-file log lines (JSON lines use stdout in the CLI and the step logger when
-``json_lines_to_logger`` is true, e.g. in the GUI).
+With ``dry_run=True``, optional ``dry_run_pillow`` / ``dry_run_quiet`` mirror list-mode switches:
+optional Pillow metadata (with JSON lines) and suppression of verbose per-file log lines.
+
+With ``json_lines=True`` (CLI ``--json``), emit newline-delimited JSON for each relevant mismatch to
+stdout (or the step logger when ``json_lines_to_logger`` is true). Without ``verbose``, only
+**actionable** mismatches are emitted (policy-skipped PNG/WebP/BMP/TIFF are omitted); with
+``verbose``, every mismatch is emitted. The same rule applies in live repair: JSON lines for skips
+only when ``verbose`` is true; successful repairs always emit one JSON line when ``json_lines`` is
+true.
 
 By default, mislabeled ``.jpg`` whose bytes are PNG/WebP/BMP/TIFF are only counted and summarized per
 class; pass ``include_static_format_mismatches=True`` (CLI: ``--include-static-format-mismatches``)
@@ -330,11 +335,12 @@ def repair_mislabeled_jpeg_extensions(
     *,
     model_type: ModelType,
     dry_run: bool = False,
-    dry_run_json: bool = False,
+    json_lines: bool = False,
     dry_run_pillow: bool = False,
     dry_run_quiet: bool = False,
     json_lines_to_logger: bool = False,
     include_static_format_mismatches: bool = False,
+    verbose: bool = False,
     cancel_event: Optional[threading.Event] = None,
     rng: Optional[random.Random] = None,
 ) -> Tuple[bool, RepairStats]:
@@ -344,19 +350,25 @@ def repair_mislabeled_jpeg_extensions(
 
     When *dry_run* is true, optional reporting flags apply:
 
-    * *dry_run_json* — emit one JSON object per mismatch (newline-delimited). Uses stdout unless
-      *json_lines_to_logger* is true (GUI / log capture).
-    * *dry_run_pillow* — add a ``pillow`` key with format / GIF metadata (meaningful with *dry_run_json*).
+    * *json_lines* — emit JSON objects (see module docstring). Uses stdout unless *json_lines_to_logger*
+      is true (GUI / log capture). May be combined with live repair (not dry run).
+    * *dry_run_pillow* — add a ``pillow`` key with format / GIF metadata (meaningful with *json_lines*;
+      dry run only).
     * *dry_run_quiet* — skip verbose per-file :meth:`logging.Logger.info` lines when not using JSON.
+
+    *verbose* — include policy-skipped static-format mismatches in JSON output and per-file text lines
+    for those skips; log class progress for every folder. Suppressed when *dry_run_quiet* is true.
 
     *include_static_format_mismatches* — when false (default), mislabeled ``.jpg`` / ``.jpeg`` files whose
     bytes are PNG, WebP, BMP, or TIFF are counted and summarized per class but not renamed or repaired
     (GIF and animated-IC random-frame cases are still repaired). Set true to repair those as well.
     """
-    if (dry_run_json or dry_run_pillow or dry_run_quiet) and not dry_run:
-        raise ValueError("dry_run_json, dry_run_pillow, and dry_run_quiet require dry_run=True")
-    if dry_run_pillow and not dry_run_json:
-        raise ValueError("dry_run_pillow requires dry_run_json=True")
+    if dry_run_pillow and not dry_run:
+        raise ValueError("dry_run_pillow requires dry_run=True")
+    if dry_run_quiet and not dry_run:
+        raise ValueError("dry_run_quiet requires dry_run=True")
+    if dry_run_pillow and not json_lines:
+        raise ValueError("dry_run_pillow requires json_lines=True")
 
     log_startup_info(logger, "Repair mislabeled JPEG extensions (dry_run=%s)" % (dry_run,))
     stats = RepairStats()
@@ -398,7 +410,7 @@ def repair_mislabeled_jpeg_extensions(
 
     for ci, class_name in enumerate(class_names):
         check_cancel_event(cancel_event)
-        if ci % 2 == 0:
+        if verbose or ci % 2 == 0:
             logger.info("Class %s (%d/%d)", class_name, ci + 1, len(class_names))
         class_dir = raw_data_dir / class_name
         if not class_dir.is_dir():
@@ -452,7 +464,7 @@ def repair_mislabeled_jpeg_extensions(
                 else:
                     stats.actionable_mismatches_found += 1
                     stats.dry_run_actions += 1
-                if dry_run_json:
+                if json_lines and (verbose or not skipped_by_policy):
                     row: Dict[str, Any] = {
                         **_mismatch_row_base(src),
                         "class": class_name,
@@ -460,19 +472,30 @@ def repair_mislabeled_jpeg_extensions(
                         "inferred_extension": new_ext,
                         "animated_ic_random_frame": animated_ic,
                         "skipped_by_policy": skipped_by_policy,
+                        "dry_run": True,
                     }
                     if dry_run_pillow:
                         _merge_pillow_report(src, row)
                     _emit_json_line(row, json_lines_to_logger=json_lines_to_logger)
-                elif not dry_run_quiet and not skipped_by_policy:
-                    logger.info(
-                        "[dry-run] would repair %s -> *%s; CONVERTED junk: %s; small_review junk: %s; animated_ic=%s",
-                        src,
-                        new_ext,
-                        (converted_dir / expected_jpg_name) if expected_jpg_name != "?" else "(n/a)",
-                        (small_review_dir / expected_jpg_name) if expected_jpg_name != "?" else "(n/a)",
-                        animated_ic,
-                    )
+                elif not dry_run_quiet:
+                    if not skipped_by_policy:
+                        logger.info(
+                            "[dry-run] would repair %s -> *%s; CONVERTED junk: %s; small_review junk: %s; animated_ic=%s",
+                            src,
+                            new_ext,
+                            (converted_dir / expected_jpg_name) if expected_jpg_name != "?" else "(n/a)",
+                            (small_review_dir / expected_jpg_name) if expected_jpg_name != "?" else "(n/a)",
+                            animated_ic,
+                        )
+                    elif verbose:
+                        logger.info(
+                            "[dry-run] skip (policy: PNG/WebP/BMP/TIFF under .jpg) %s inferred=%s; "
+                            "CONVERTED junk: %s; small_review junk: %s",
+                            src,
+                            new_ext,
+                            (converted_dir / expected_jpg_name) if expected_jpg_name != "?" else "(n/a)",
+                            (small_review_dir / expected_jpg_name) if expected_jpg_name != "?" else "(n/a)",
+                        )
             sk = stats.skipped_static_format_by_class.get(class_name, 0)
             if sk and not include_static_format_mismatches:
                 logger.info(
@@ -481,7 +504,7 @@ def repair_mislabeled_jpeg_extensions(
                     class_name,
                     sk,
                 )
-            if not dry_run_json and not dry_run_quiet and not mismatches:
+            if not json_lines and not dry_run_quiet and not mismatches:
                 logger.info("[dry-run] no mislabeled .jpg/.jpeg in %s", class_name)
             continue
 
@@ -555,6 +578,24 @@ def repair_mislabeled_jpeg_extensions(
                 stats.skipped_static_format_by_class[class_name] = (
                     stats.skipped_static_format_by_class.get(class_name, 0) + 1
                 )
+                if verbose:
+                    logger.info(
+                        "[skip] policy (PNG/WebP/BMP/TIFF under .jpg): %s inferred=%s "
+                        "(use --include-static-format-mismatches to repair)",
+                        src,
+                        new_ext,
+                    )
+                if json_lines and verbose:
+                    skip_row: Dict[str, Any] = {
+                        **_mismatch_row_base(src),
+                        "class": class_name,
+                        "expected_converted_basename": expected_jpg_name,
+                        "inferred_extension": new_ext,
+                        "animated_ic_random_frame": animated_ic,
+                        "skipped_by_policy": True,
+                        "dry_run": False,
+                    }
+                    _emit_json_line(skip_row, json_lines_to_logger=json_lines_to_logger)
                 policy_skipped_paths.add(key)
                 continue
 
@@ -625,6 +666,19 @@ def repair_mislabeled_jpeg_extensions(
                 stats.files_repaired += 1
                 stats.actionable_mismatches_found += 1
                 processed.add(key)
+                if json_lines:
+                    repaired_row: Dict[str, Any] = {
+                        **_mismatch_row_base(dest_src),
+                        "class": class_name,
+                        "expected_converted_basename": expected_jpg_name,
+                        "inferred_extension": new_ext,
+                        "animated_ic_random_frame": animated_ic,
+                        "skipped_by_policy": False,
+                        "dry_run": False,
+                        "result": "repaired",
+                        "converted_jpeg": str(converted_out),
+                    }
+                    _emit_json_line(repaired_row, json_lines_to_logger=json_lines_to_logger)
                 logger.info("Repaired -> %s", dest_src)
             except Exception as e:
                 logger.exception("Repair failed for %s: %s", src, e)

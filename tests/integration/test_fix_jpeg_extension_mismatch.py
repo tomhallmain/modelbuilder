@@ -2,14 +2,18 @@
 
 from __future__ import annotations
 
+import json
 import os
 import random
 import shlex
 import shutil
 from pathlib import Path
+from unittest.mock import patch
 
 from PIL import Image
+import pytest
 
+import mb.data.find_jpeg_extension_mismatches as fjem_module
 from mb.cli import main as mb_main
 from mb.models.types import ModelBuildStepCommand
 from mb.utils.snapshot import UnifiedSnapshot, calculate_file_hash, save_unified_snapshot
@@ -82,6 +86,106 @@ def test_repair_dry_run_static_png_skipped_by_default(tmp_path: Path) -> None:
     assert stats.actionable_mismatches_found == 0
     assert stats.dry_run_actions == 0
     assert stats.skipped_static_format_by_class.get("coherent") == 1
+
+
+def test_verbose_dry_run_logs_policy_skip_per_file(tmp_path: Path) -> None:
+    raw = tmp_path / "raw_data"
+    _write_png_bytes_at_jpg_path(raw / "coherent" / "IMAGES" / "mis.jpg")
+    with patch.object(fjem_module.logger, "info") as mock_info:
+        repair_mislabeled_jpeg_extensions(
+            raw,
+            model_type=ModelType.IMAGE_CLASSIFICATION,
+            dry_run=True,
+            verbose=True,
+        )
+    blob = repr(mock_info.call_args_list)
+    assert "[dry-run] skip (policy:" in blob
+
+
+def test_verbose_live_logs_policy_skip_per_file(tmp_path: Path) -> None:
+    raw = tmp_path / "raw_data"
+    _write_png_bytes_at_jpg_path(raw / "coherent" / "IMAGES" / "mis.jpg")
+    with patch.object(fjem_module.logger, "info") as mock_info:
+        repair_mislabeled_jpeg_extensions(
+            raw,
+            model_type=ModelType.IMAGE_CLASSIFICATION,
+            dry_run=False,
+            verbose=True,
+        )
+    blob = repr(mock_info.call_args_list)
+    assert "[skip] policy (PNG/WebP/BMP/TIFF" in blob
+
+
+def test_json_lines_dry_run_without_verbose_omits_policy_skipped_stdout(
+    capsys: pytest.CaptureFixture[str], tmp_path: Path
+) -> None:
+    raw = tmp_path / "raw_data"
+    _write_png_bytes_at_jpg_path(raw / "coherent" / "IMAGES" / "mis.jpg")
+    repair_mislabeled_jpeg_extensions(
+        raw,
+        model_type=ModelType.IMAGE_CLASSIFICATION,
+        dry_run=True,
+        json_lines=True,
+        verbose=False,
+    )
+    assert capsys.readouterr().out.strip() == ""
+
+
+def test_json_lines_dry_run_verbose_includes_policy_skipped_stdout(
+    capsys: pytest.CaptureFixture[str], tmp_path: Path
+) -> None:
+    raw = tmp_path / "raw_data"
+    _write_png_bytes_at_jpg_path(raw / "coherent" / "IMAGES" / "mis.jpg")
+    repair_mislabeled_jpeg_extensions(
+        raw,
+        model_type=ModelType.IMAGE_CLASSIFICATION,
+        dry_run=True,
+        json_lines=True,
+        verbose=True,
+    )
+    out = capsys.readouterr().out.strip()
+    assert out
+    obj = json.loads(out.splitlines()[0])
+    assert obj["skipped_by_policy"] is True
+
+
+def test_json_lines_live_skips_policy_without_verbose_emits_no_stdout(
+    capsys: pytest.CaptureFixture[str], tmp_path: Path
+) -> None:
+    raw = tmp_path / "raw_data"
+    _write_png_bytes_at_jpg_path(raw / "coherent" / "IMAGES" / "mis.jpg")
+    ok, stats = repair_mislabeled_jpeg_extensions(
+        raw,
+        model_type=ModelType.IMAGE_CLASSIFICATION,
+        dry_run=False,
+        json_lines=True,
+        verbose=False,
+    )
+    assert ok is True
+    assert stats.files_repaired == 0
+    assert capsys.readouterr().out.strip() == ""
+
+
+def test_json_lines_live_repair_emits_repaired_row(
+    capsys: pytest.CaptureFixture[str], tmp_path: Path
+) -> None:
+    raw = tmp_path / "raw_data"
+    images = raw / "coherent" / "IMAGES"
+    _write_animated_gif_at_jpg_path(images / "trick.jpg")
+    ok, stats = repair_mislabeled_jpeg_extensions(
+        raw,
+        model_type=ModelType.IMAGE_CLASSIFICATION,
+        dry_run=False,
+        json_lines=True,
+        rng=random.Random(0),
+    )
+    assert ok is True
+    assert stats.files_repaired >= 1
+    out = capsys.readouterr().out.strip()
+    assert out
+    obj = json.loads(out.splitlines()[0])
+    assert obj["result"] == "repaired"
+    assert obj["skipped_by_policy"] is False
 
 
 def test_repair_dry_run_static_png_actionable_with_include_flag(tmp_path: Path) -> None:
