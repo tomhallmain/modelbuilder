@@ -658,6 +658,80 @@ class DatasetCreator:
             return max(1, int(self.test_per_class))
         return max(1, int(v))
 
+    def _log_ideal_split_preview(self) -> None:
+        """
+        Log an approximate train/test preview from source JPEG counts.
+
+        This assumes an ideal path where source ``*.jpg``/``*.jpeg`` files are all usable
+        (no corruption/geometry moves). It is intended as an operator-facing sanity preview,
+        not a strict guarantee of final counts.
+        """
+        mode = self._resolved_test_split_mode()
+        anchor = max(1, int(self.test_per_class))
+        thr = self._resolved_test_small_class_threshold()
+
+        source_counts: Dict[str, int] = {}
+        for class_name in self._class_names:
+            raw_class_dir = self.raw_data_dir / class_name
+            media_dir = resolve_class_media_dir(raw_class_dir, self._class_qualifying_subdir)
+            if media_dir is None or not media_dir.exists():
+                source_counts[class_name] = 0
+                continue
+            source_counts[class_name] = len(list(media_dir.glob("*.jpg"))) + len(
+                list(media_dir.glob("*.jpeg"))
+            )
+
+        # Apply optional pre-split training caps in the same order as runtime behavior.
+        projected_train_pool = dict(source_counts)
+        if self.max_train_per_class is not None:
+            cap = max(0, int(self.max_train_per_class))
+            for k in projected_train_pool:
+                projected_train_pool[k] = min(projected_train_pool[k], cap)
+        if self.balance_train and projected_train_pool:
+            target = min(projected_train_pool.values())
+            for k in projected_train_pool:
+                projected_train_pool[k] = min(projected_train_pool[k], target)
+
+        projected_test: Dict[str, int] = {}
+        if mode == DatasetSplitMode.DATASET_WEIGHTED:
+            n_total = sum(projected_train_pool.values())
+            n_nonzero = sum(1 for v in projected_train_pool.values() if v > 0)
+            mean_class_size = n_total / max(1, n_nonzero)
+            for class_name, n_c in projected_train_pool.items():
+                projected_test[class_name] = modulated_test_count(
+                    n_c,
+                    n_total,
+                    anchor=anchor,
+                    small_class_threshold=thr,
+                    mean_class_size=mean_class_size,
+                )
+        else:
+            for class_name, n_c in projected_train_pool.items():
+                projected_test[class_name] = min(anchor, n_c)
+
+        logger.info(
+            "Ideal split preview (source JPG/JPEG counts; assumes all valid): mode=%s, "
+            "anchor=%s, small_class_threshold=%s, balance_train=%s, max_train_per_class=%s",
+            mode.value,
+            anchor,
+            thr,
+            bool(self.balance_train),
+            self.max_train_per_class,
+        )
+        for class_name in self._class_names:
+            source_n = source_counts.get(class_name, 0)
+            pool_n = projected_train_pool.get(class_name, 0)
+            test_n = projected_test.get(class_name, 0)
+            train_n = max(0, pool_n - test_n)
+            logger.info(
+                "  preview '%s': source=%s, pre_split_pool=%s, projected_test=%s, projected_train=%s",
+                class_name,
+                source_n,
+                pool_n,
+                test_n,
+                train_n,
+            )
+
     def create_test_dataset(self) -> None:
         """Create test dataset by randomly moving files from train to test."""
         mode = self._resolved_test_split_mode()
@@ -944,6 +1018,10 @@ class DatasetCreator:
         
         check_cancel_event(self._cancel_event)
         
+        self._log_ideal_split_preview()
+
+        check_cancel_event(self._cancel_event)
+
         # Step 1: Copy files to train directory with hash-based filenames
         self.copy_files_to_train()
         
