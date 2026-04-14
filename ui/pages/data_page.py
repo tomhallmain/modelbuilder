@@ -1187,14 +1187,19 @@ class DataPage(QWidget):
                             "(see the Run ID field tooltip for locations checked)."
                         ).format(rid=run_id)
                     )
+            tpc = int(self.dataset_test_per_class.value())
+            tst_raw = int(self.dataset_test_small_threshold.value())
+            # Spinbox 0 is the special "Same as test per class" value. Sending None here made
+            # :class:`~mb.data.dataset.DatasetCreator` fall through to pipeline
+            # ``data.test_small_class_threshold`` instead of using this tab's anchor — pass the
+            # anchor explicitly so GUI and pipeline stay aligned.
+            test_small_thr = tst_raw if tst_raw > 0 else tpc
             return {
                 "raw_data_dir": raw_data_dir,
                 "data_dir": data_dir,
-                "test_per_class": int(self.dataset_test_per_class.value()),
+                "test_per_class": tpc,
                 "test_split_mode": self.dataset_test_split_mode.currentData(),
-                "test_small_class_threshold": int(self.dataset_test_small_threshold.value())
-                if self.dataset_test_small_threshold.value() > 0
-                else None,
+                "test_small_class_threshold": test_small_thr,
                 "seed": int(self.dataset_seed.value()) if self.dataset_seed.value() > 0 else None,
                 "run_id": run_id,
                 "balance_train": bool(self.dataset_balance_train.isChecked()),

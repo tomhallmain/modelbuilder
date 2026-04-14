@@ -932,6 +932,12 @@ def handle_train(args):
         reload_pipeline_config(getattr(args, "config", None), force=True)
         pipeline = get_pipeline_config()
 
+        # TODO: Read an RNG seed from pipeline config (e.g. a dedicated ``training.seed`` or
+        # ``model.seed``; align whether ``data.seed`` should apply here too) and set
+        # ``random`` / ``numpy`` / ``torch`` (and CUDA deterministic flags as needed) before
+        # ``ModelTrainer.train`` so runs are reproducible. Wire the same hook for the
+        # ``train_args_json`` branch below.
+
         if getattr(args, "train_args_json", None):
             run_args = load_training_run_args_json(args.train_args_json)
             mt_cfg = ModelType.from_pipeline_value(pipeline.get("model.default_type"))

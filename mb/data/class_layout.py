@@ -155,18 +155,26 @@ def resolve_class_media_dir(
     """
     Directory that holds source JPEGs for dataset creation (under each class folder).
 
-    If *class_qualifying_subdir* is set, use ``raw_class_dir / <qualifier>`` only if it exists.
+    Prefer post-convert JPEG staging under each class folder first:
+    ``CONVERTED`` then legacy ``JPEG_IMAGES``.
 
-    If unset, prefer ``CONVERTED`` (then legacy ``JPEG_IMAGES``), then ``IMAGES``, then fall back to *raw_class_dir*
+    If neither exists, and *class_qualifying_subdir* is set, use
+    ``raw_class_dir / <qualifier>`` if it exists.
+
+    Last fallback when qualifier is unset: ``IMAGES`` then *raw_class_dir*
     (images may live directly in the class folder).
     """
     logger.info(f"Resolving class media dir for: {raw_class_dir} (qualifier: {class_qualifying_subdir})")
     raw_class_dir = Path(raw_class_dir)
+    for name in (CONVERTED_MEDIA_SUBDIR, LEGACY_CONVERTED_MEDIA_SUBDIR):
+        d = raw_class_dir / name
+        if d.is_dir():
+            return d
     q = normalize_qualifying_subdir(class_qualifying_subdir)
     if q:
         d = raw_class_dir / q
         return d if d.is_dir() else None
-    for name in (CONVERTED_MEDIA_SUBDIR, LEGACY_CONVERTED_MEDIA_SUBDIR, "IMAGES"):
+    for name in ("IMAGES",):
         d = raw_class_dir / name
         if d.is_dir():
             return d
