@@ -63,7 +63,8 @@ class TrainPage(QWidget):
         self.model_type = QComboBox()
         self.model_type.addItems(["image_classification"])
         self.framework = QComboBox()
-        self.framework.addItems(FrameworkType.registered_values())
+        # ``registered_values`` returns a set-like container; sort for deterministic UI order.
+        self.framework.addItems(sorted(FrameworkType.registered_values()))
         self.architecture = QLineEdit(ArchitectureType.get_default().value)
         self.architecture.setObjectName("train_architecture_edit")
         self.data_dir = QLineEdit("data")
@@ -225,7 +226,9 @@ class TrainPage(QWidget):
         """Serializable form state; restored by :class:`ui.controllers.cache_controller.CacheController`."""
         return {
             "model_type_idx": int(self.model_type.currentIndex()),
+            "model_type_value": self.model_type.currentText(),
             "framework_idx": int(self.framework.currentIndex()),
+            "framework_value": self.framework.currentText(),
             "architecture": self.architecture.text(),
             "data_dir": self.data_dir.text(),
             "output_dir": self.output_dir.text(),
@@ -248,12 +251,32 @@ class TrainPage(QWidget):
             return
         self.framework.blockSignals(True)
         try:
-            mti = state.get("model_type_idx")
-            if isinstance(mti, int) and 0 <= mti < self.model_type.count():
-                self.model_type.setCurrentIndex(mti)
-            fi = state.get("framework_idx")
-            if isinstance(fi, int) and 0 <= fi < self.framework.count():
-                self.framework.setCurrentIndex(fi)
+            mtv = state.get("model_type_value")
+            if isinstance(mtv, str):
+                mtix = self.model_type.findText(mtv)
+                if mtix >= 0:
+                    self.model_type.setCurrentIndex(mtix)
+                else:
+                    mti = state.get("model_type_idx")
+                    if isinstance(mti, int) and 0 <= mti < self.model_type.count():
+                        self.model_type.setCurrentIndex(mti)
+            else:
+                mti = state.get("model_type_idx")
+                if isinstance(mti, int) and 0 <= mti < self.model_type.count():
+                    self.model_type.setCurrentIndex(mti)
+            fv = state.get("framework_value")
+            if isinstance(fv, str):
+                fix = self.framework.findText(fv)
+                if fix >= 0:
+                    self.framework.setCurrentIndex(fix)
+                else:
+                    fi = state.get("framework_idx")
+                    if isinstance(fi, int) and 0 <= fi < self.framework.count():
+                        self.framework.setCurrentIndex(fi)
+            else:
+                fi = state.get("framework_idx")
+                if isinstance(fi, int) and 0 <= fi < self.framework.count():
+                    self.framework.setCurrentIndex(fi)
             self.architecture.setText(str(state.get("architecture", "")))
             self.data_dir.setText(str(state.get("data_dir", "")))
             self.output_dir.setText(str(state.get("output_dir", "")))
