@@ -65,20 +65,41 @@ DEFAULT_TEST_PER_CLASS = 1000  # Default test-split size per class (CLI / librar
 MIN_FILE_SIZE = 1024  # 1 KiB minimum
 MAX_FILE_SIZE = 50 * 1024 * 1024  # 50 MiB maximum
 
+
+def _modulated_min_test_low_end_third(n_c: int) -> int:
+    """
+    Minimum test count so a class devotes at least about a third of its images to test,
+    while leaving at least one training image when ``n_c > 1``.
+    """
+    if n_c < 1:
+        return 0
+    if n_c == 1:
+        return 1
+    # ceil(n_c / 3), capped so train keeps ≥ 1 image
+    return min((n_c + 2) // 3, n_c - 1)
+
+
 def modulated_test_count(
     n_c: int,
     n_total: int,
     *,
     anchor: int,
     small_class_threshold: int,
+    mean_class_size: Optional[float] = None,
 ) -> int:
     """
     Per-class test size for ``dataset_weighted`` mode (see module docstring).
 
     * If ``n_c < small_class_threshold``: ``floor(anchor * (n_c / n_total))`` — small
-      classes get a share of the corpus proportional to ``anchor``.
+      classes get a share of the corpus proportional to ``anchor``. The result is then
+      raised to at least about a third of ``n_c`` (so tiny proportional allocations are
+      not starved of test data), subject to leaving at least one image for training.
     * Else: ``floor(anchor + anchor * (n_c / n_total))`` — larger classes get an
       additive term plus a share, matching the user's ``A + A * (n_c / total)`` sketch.
+      When ``mean_class_size`` is set (typically ``n_total /`` number of non-empty classes)
+      and ``n_c`` is below that mean, the raw value is capped by
+      ``anchor * (n_c / mean_class_size)`` so below-average classes are not assigned a
+      full anchor-sized test holdout.
 
     The result is capped so that when ``n_c > 1`` at least one image remains for training.
     """
@@ -87,12 +108,21 @@ def modulated_test_count(
     r = n_c / n_total
     a = max(1, int(anchor))
     thr = max(1, int(small_class_threshold))
-    if n_c < thr:
+    small_branch = n_c < thr
+    if small_branch:
         raw = a * r
     else:
         raw = a + a * r
+        if (
+            mean_class_size is not None
+            and mean_class_size > 0
+            and n_c < mean_class_size
+        ):
+            raw = min(raw, a * (n_c / mean_class_size))
     n_test = int(math.floor(raw))
     n_test = max(1, n_test) if n_c >= 1 else 0
+    if small_branch:
+        n_test = max(n_test, _modulated_min_test_low_end_third(n_c))
     n_test = min(n_test, n_c)
     if n_c > 1 and n_test >= n_c:
         n_test = n_c - 1
@@ -643,11 +673,15 @@ class DatasetCreator:
                     continue
                 counts[class_name] = len(list(train_class_dir.glob("*.jpg")))
             n_total = sum(counts.values())
+            n_nonzero = sum(1 for v in counts.values() if v > 0)
+            mean_class_size = n_total / max(1, n_nonzero)
             logger.info(
-                "Creating test dataset (dataset_weighted: anchor=%s, small_class_threshold=%s, n_total=%s)...",
+                "Creating test dataset (dataset_weighted: anchor=%s, small_class_threshold=%s, "
+                "n_total=%s, mean_class_size=%s)...",
                 anchor,
                 thr,
                 n_total,
+                mean_class_size,
             )
             if n_total < 1:
                 self._note_dataset_issue("test_split: no images in train for dataset_weighted mode")
@@ -664,7 +698,11 @@ class DatasetCreator:
                 train_images = list(train_class_dir.glob("*.jpg"))
                 n_c = len(train_images)
                 target = modulated_test_count(
-                    n_c, n_total, anchor=anchor, small_class_threshold=thr
+                    n_c,
+                    n_total,
+                    anchor=anchor,
+                    small_class_threshold=thr,
+                    mean_class_size=mean_class_size,
                 )
                 branch = "proportional" if n_c < thr else "anchor_plus_share"
                 logger.info(

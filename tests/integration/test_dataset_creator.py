@@ -80,10 +80,16 @@ def test_dataset_weighted_near_default_cutoff(tmp_path: Path) -> None:
     n_total = sum(counts.values())
     anchor = 100
     thr = 100
+    mean_class_size = n_total / len(counts)
+    kwargs = {
+        "anchor": anchor,
+        "small_class_threshold": thr,
+        "mean_class_size": mean_class_size,
+    }
     expected_test = {
-        "tiny": modulated_test_count(counts["tiny"], n_total, anchor=anchor, small_class_threshold=thr),
-        "mid": modulated_test_count(counts["mid"], n_total, anchor=anchor, small_class_threshold=thr),
-        "huge": modulated_test_count(counts["huge"], n_total, anchor=anchor, small_class_threshold=thr),
+        "tiny": modulated_test_count(counts["tiny"], n_total, **kwargs),
+        "mid": modulated_test_count(counts["mid"], n_total, **kwargs),
+        "huge": modulated_test_count(counts["huge"], n_total, **kwargs),
     }
     creator = DatasetCreator(
         raw_data_dir=raw,
