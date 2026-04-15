@@ -359,7 +359,11 @@ class TrainPage(QWidget):
         return spin
 
     def _browse(self, edit: QLineEdit, select_file: bool = False) -> None:
-        start = edit.text().strip() or str(Path.cwd())
+        start = edit.text().strip()
+        if not start and select_file and edit is self.resume_from:
+            start = self.output_dir.text().strip()
+        if not start:
+            start = str(Path.cwd())
         if select_file:
             value = get_open_file_name(
                 self,
