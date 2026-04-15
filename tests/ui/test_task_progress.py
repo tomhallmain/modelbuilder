@@ -17,6 +17,7 @@ from PySide6.QtWidgets import QWidget
 
 from mb.cancellation import OperationCancelled
 from ui.lib.task_progress import attach_progress_dialog
+from ui.lib.training_progress_dialog import TrainingProgressDialog
 from ui.task_context import LongTaskContext
 from ui.task_runner import start_task
 
@@ -146,3 +147,18 @@ def test_progress_dialog_reset_once_on_cancelled(qtbot) -> None:
             )
     finally:
         patcher.stop()
+
+
+@pytest.mark.ui
+def test_training_progress_dialog_shows_global_and_epoch_eta(qtbot) -> None:
+    dlg = TrainingProgressDialog(parent=None, title="Training", cancellable=False)
+    qtbot.addWidget(dlg)
+
+    # First determinate sample initializes ETA baselines.
+    dlg.on_progress("Frozen phase: epoch 5/5 — batch 1/1000", 30, indeterminate=False)
+    assert "Current epoch ETA:" in dlg._eta_epoch.text()
+
+    # A later batch should keep both ETA rows populated.
+    dlg.on_progress("Frozen phase: epoch 5/5 — batch 10/1000", 31, indeterminate=False)
+    assert "Estimated time remaining:" in dlg._eta.text()
+    assert "Current epoch ETA:" in dlg._eta_epoch.text()

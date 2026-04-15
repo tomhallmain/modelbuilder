@@ -35,6 +35,7 @@ from mb.pipeline_config import (
     save_pipeline_yaml,
 )
 from mb.models.types import ArchitectureType, FrameworkType, ModelType
+from mb.utils.logging_setup import get_logger
 from ui.lib.directory_line_edit_row import make_directory_line_edit_row
 from ui.lib.form_layout_i18n import apply_qform_label_column
 from ui.lib.qt_alert import qt_alert
@@ -44,6 +45,8 @@ from ui.workspace import resolve_pipeline_save_path
 
 if TYPE_CHECKING:
     from ui.main_window import MainWindow
+
+logger = get_logger(__name__)
 
 
 def _ext_lines_to_list(text: str) -> list[str]:
@@ -719,6 +722,11 @@ class PipelineConfigPage(QWidget):
         except OSError as e:
             qt_alert(self, _("Pipeline"), _("Could not write:\n{path}\n\n{err}").format(path=target, err=e))
             return False
+        logger.info(
+            "Pipeline config saved to %s (%s)",
+            target,
+            "manual" if show_success else "autosave",
+        )
 
         if mw is not None:
             mw.reload_mb_yaml_config()

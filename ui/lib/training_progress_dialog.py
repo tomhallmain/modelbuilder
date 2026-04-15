@@ -6,6 +6,7 @@ Wired to :class:`ui.task_runner.BackgroundTaskHandle` like :func:`ui.lib.task_pr
 
 from __future__ import annotations
 
+import re
 import time
 from typing import Optional
 
@@ -65,6 +66,9 @@ class TrainingProgressDialog(QDialog):
         # Match normal dialog text (do not use palette(mid) — unreadable on dark themes).
         self._eta.setWordWrap(True)
         root.addWidget(self._eta)
+        self._eta_epoch = QLabel(_("Current epoch ETA: —"))
+        self._eta_epoch.setWordWrap(True)
+        root.addWidget(self._eta_epoch)
 
         btn_row = QHBoxLayout()
         btn_row.addStretch(1)
@@ -76,6 +80,10 @@ class TrainingProgressDialog(QDialog):
         root.addLayout(btn_row)
 
         self._t_eta_start: float | None = None
+        self._eta_frac_start: float | None = None
+        self._epoch_key: str | None = None
+        self._epoch_batch_start: int | None = None
+        self._epoch_t_start: float | None = None
         self._t_open = time.monotonic()
 
     def set_cancel_handler(self, on_cancel: object) -> None:
@@ -84,11 +92,14 @@ class TrainingProgressDialog(QDialog):
 
     def on_progress(self, message: str, percent: object, indeterminate: bool) -> None:
         self._status.setText(message)
+        self._update_epoch_eta(message)
         if indeterminate:
             self._bar.setRange(0, 0)
             elapsed = time.monotonic() - self._t_open
             self._eta.setText(_format_elapsed_label(elapsed) + " · " + _("ETA unknown"))
+            self._eta_epoch.setText(_("Current epoch ETA: —"))
             self._t_eta_start = None
+            self._eta_frac_start = None
             return
 
         self._bar.setRange(0, 100)
@@ -113,16 +124,58 @@ class TrainingProgressDialog(QDialog):
         now = time.monotonic()
         if self._t_eta_start is None:
             self._t_eta_start = now
+            # Baseline may be >0 (e.g. resumed jobs or phase-weighted progress).
+            # ETA should use progress achieved in *this* run, not absolute global fraction.
+            self._eta_frac_start = frac
         elapsed = now - self._t_eta_start
-        # elapsed / frac estimates total time from first in-range sample; remaining = T - elapsed = elapsed*(1/frac - 1)
-        remaining = elapsed * (1.0 / frac - 1.0)
-        if frac < 0.005 and elapsed < 8.0:
+        frac0 = self._eta_frac_start if self._eta_frac_start is not None else 0.0
+        delta_frac = frac - frac0
+        if delta_frac < 0.002 and elapsed < 8.0:
             self._eta.setText(_("Estimated time remaining: calculating…"))
             return
+        rate = max(1e-9, delta_frac / max(elapsed, 1e-9))
+        # Global ETA: time remaining until overall progress reaches 100%.
+        remaining = max(0.0, (1.0 - frac) / rate)
         if remaining > 365 * 24 * 3600:
             self._eta.setText(_("Estimated time remaining: —"))
             return
         self._eta.setText(_format_eta_label(remaining))
+
+    def _update_epoch_eta(self, message: str) -> None:
+        # Expected pattern from training emitters: "<epoch label> — batch <n>/<total>"
+        m = re.search(r"^(?P<label>.+?)\s+—\s+batch\s+(?P<n>\d+)/(?P<tot>\d+)$", str(message).strip())
+        if not m:
+            self._eta_epoch.setText(_("Current epoch ETA: —"))
+            self._epoch_key = None
+            self._epoch_batch_start = None
+            self._epoch_t_start = None
+            return
+        key = m.group("label")
+        n = int(m.group("n"))
+        tot = int(m.group("tot"))
+        now = time.monotonic()
+        if key != self._epoch_key:
+            self._epoch_key = key
+            self._epoch_batch_start = n
+            self._epoch_t_start = now
+            self._eta_epoch.setText(_("Current epoch ETA: calculating…"))
+            return
+        if self._epoch_t_start is None or self._epoch_batch_start is None:
+            self._epoch_t_start = now
+            self._epoch_batch_start = n
+            self._eta_epoch.setText(_("Current epoch ETA: calculating…"))
+            return
+        delta_batches = n - self._epoch_batch_start
+        elapsed = now - self._epoch_t_start
+        if delta_batches < 1 or elapsed < 1.0:
+            self._eta_epoch.setText(_("Current epoch ETA: calculating…"))
+            return
+        rate = delta_batches / max(elapsed, 1e-9)  # batches/sec
+        remaining_batches = max(0, tot - n)
+        remaining_s = remaining_batches / max(rate, 1e-9)
+        self._eta_epoch.setText(
+            _("Current epoch ETA: {eta}").format(eta=format_eta_seconds(float(remaining_s)))
+        )
 
 
 def attach_training_progress_dialog(
