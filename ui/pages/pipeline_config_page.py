@@ -133,6 +133,7 @@ class PipelineConfigPage(QWidget):
         # is still None, so _refresh_from_disk would call reload_pipeline_config(None) and replace
         # the user pipeline with packaged defaults.
         QTimer.singleShot(0, self._startup_pipeline_refresh)
+        self._last_saved_cfg: dict[str, Any] = {}
 
     def collect_gui_state(self) -> dict:
         return {}
@@ -663,8 +664,10 @@ class PipelineConfigPage(QWidget):
                 _("Loaded: packaged defaults\nSave will write to: {path}").format(path=save_hint)
             )
 
-        self._apply_dict_to_form(pc.to_dict())
-        self._sync_yaml_editor(pc.to_dict())
+        loaded = pc.to_dict()
+        self._apply_dict_to_form(loaded)
+        self._sync_yaml_editor(loaded)
+        self._last_saved_cfg = self._full_pipeline_dict_from_form()
 
     def _apply_advanced_yaml(self) -> None:
         raw = self._yaml_edit.toPlainText()
@@ -697,8 +700,14 @@ class PipelineConfigPage(QWidget):
         self._apply_dict_to_form(merged)
         self._sync_yaml_editor(merged)
 
-    def _on_save(self) -> None:
+    def has_unsaved_changes(self) -> bool:
+        return self._full_pipeline_dict_from_form() != self._last_saved_cfg
+
+    def save_if_dirty(self, *, show_success: bool = False) -> bool:
         from utils.config import get_user_pipeline_config_path
+
+        if not self.has_unsaved_changes():
+            return True
 
         mw = self._main_window()
         cfg = self._full_pipeline_dict_from_form()
@@ -709,14 +718,25 @@ class PipelineConfigPage(QWidget):
             save_pipeline_yaml(target, cfg)
         except OSError as e:
             qt_alert(self, _("Pipeline"), _("Could not write:\n{path}\n\n{err}").format(path=target, err=e))
-            return
+            return False
 
         if mw is not None:
             mw.reload_mb_yaml_config()
         else:
             reload_pipeline_config(target, force=True)
-        self._refresh_from_disk()
-        qt_alert(self, _("Pipeline"), _("Saved to:\n{path}").format(path=target))
+        self._refresh_from_disk(force=False)
+        self._last_saved_cfg = self._full_pipeline_dict_from_form()
+        if show_success:
+            qt_alert(self, _("Pipeline"), _("Saved to:\n{path}").format(path=target))
+        return True
+
+    def _on_save(self) -> None:
+        self.save_if_dirty(show_success=True)
+
+    def hideEvent(self, event) -> None:
+        # Best-effort autosave when navigating away from this page.
+        self.save_if_dirty(show_success=False)
+        super().hideEvent(event)
 
     def _on_set_default(self) -> None:
         from utils.config import get_user_pipeline_config_path

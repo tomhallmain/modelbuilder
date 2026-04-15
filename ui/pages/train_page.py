@@ -487,6 +487,16 @@ class TrainPage(QWidget):
             self._append(_("[invalid] {err}").format(err=exc))
 
     def _start_training(self) -> None:
+        # Ensure unsaved pipeline hyperparameters are persisted before launching training.
+        mw = self.window()
+        page_widgets = getattr(mw, "page_widgets", None)
+        if isinstance(page_widgets, list):
+            for page in page_widgets:
+                save_if_dirty = getattr(page, "save_if_dirty", None)
+                if callable(save_if_dirty):
+                    if not save_if_dirty(show_success=False):
+                        self._append(_("[error] Could not auto-save pipeline config; training cancelled."))
+                        return
         args = self._collect_inputs()
         summary_base = f"{args.framework.value}/{args.architecture.value}"
         if self.train_subprocess.isChecked():
