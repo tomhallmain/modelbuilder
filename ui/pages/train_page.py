@@ -26,6 +26,7 @@ from PySide6.QtWidgets import (
 from mb.models.types import ArchitectureType, FrameworkType, ModelType
 from mb.pipeline_config import get_pipeline_config
 from mb.training.run_args import TrainingRunArgs
+from mb.utils.logging_setup import setup_logging
 from ui.lib.fast_directory_picker_qt import get_existing_directory, get_open_file_name
 from ui.lib.qt_alert import qt_alert, qt_operation_error
 from mb.utils.constants import ModelBuilderTaskType
@@ -553,6 +554,9 @@ class TrainPage(QWidget):
 
     def _execute_training(self, ctx: LongTaskContext, args: TrainingRunArgs) -> str:
         from mb.training.trainer import ModelTrainer
+
+        # Ensure training modules using stdlib loggers also write to shared log file.
+        setup_logging(script_name="train_gui")
 
         trainer = ModelTrainer(
             framework=args.framework,

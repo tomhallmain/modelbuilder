@@ -151,6 +151,16 @@ def setup_logging(
     logger.setLevel(log_level)
     for h in logger.handlers:
         h.setLevel(log_level)
+    # Ensure modules using stdlib loggers (e.g. ``logging.getLogger(__name__)`` in training)
+    # also emit to the shared handlers when a CLI command is running.
+    root_logger = logging.getLogger()
+    root_logger.setLevel(log_level)
+    if not root_logger.handlers:
+        for h in logger.handlers:
+            root_logger.addHandler(h)
+    else:
+        for h in root_logger.handlers:
+            h.setLevel(log_level)
     return logger
 
 

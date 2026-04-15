@@ -206,12 +206,13 @@ class PyTorchTrainer(FrameworkTrainer):
             )
             
             remaining_frozen = frozen_epochs - frozen_epochs_completed
+            frozen_start_completed = frozen_epochs_completed
             spe = len(train_loader) + len(val_loader)
             for epoch in range(remaining_frozen):
                 check_cancel_event(cancel_event)
-                epoch_num = frozen_epochs_completed + epoch + 1
+                epoch_num = frozen_start_completed + epoch + 1
                 logger.info(f"Frozen epoch {epoch_num}/{frozen_epochs}")
-                epochs_done_before = frozen_epochs_completed + epoch
+                epochs_done_before = frozen_start_completed + epoch
                 emit = subepoch_progress_emit(
                     progress_cb,
                     total_plan_epochs,
@@ -273,12 +274,13 @@ class PyTorchTrainer(FrameworkTrainer):
             )
             
             remaining_unfrozen = unfrozen_epochs - unfrozen_epochs_completed
+            unfrozen_start_completed = unfrozen_epochs_completed
             spe = len(train_loader) + len(val_loader)
             for epoch in range(remaining_unfrozen):
                 check_cancel_event(cancel_event)
-                epoch_num = unfrozen_epochs_completed + epoch + 1
+                epoch_num = unfrozen_start_completed + epoch + 1
                 logger.info(f"Unfrozen epoch {epoch_num}/{unfrozen_epochs}")
-                epochs_done_before = frozen_epochs_completed + unfrozen_epochs_completed + epoch
+                epochs_done_before = frozen_epochs_completed + unfrozen_start_completed + epoch
                 emit = subepoch_progress_emit(
                     progress_cb,
                     total_plan_epochs,
