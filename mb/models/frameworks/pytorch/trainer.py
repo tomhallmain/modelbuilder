@@ -441,6 +441,8 @@ class PyTorchTrainer(FrameworkTrainer):
         for batch_idx, (inputs, targets) in enumerate(train_loader):
             check_cancel_event(cancel_event)
             inputs = inputs.to(self.device)
+            if not torch.is_tensor(targets):
+                targets = torch.as_tensor(targets)
             targets = targets.to(self.device)
 
             # Forward pass
@@ -489,6 +491,8 @@ class PyTorchTrainer(FrameworkTrainer):
             for inputs, targets in val_loader:
                 check_cancel_event(cancel_event)
                 inputs = inputs.to(self.device)
+                if not torch.is_tensor(targets):
+                    targets = torch.as_tensor(targets)
                 targets = targets.to(self.device)
 
                 outputs = model(inputs)

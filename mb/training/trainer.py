@@ -151,10 +151,20 @@ class ModelTrainer:
             if 'batch_size' in cli_hyperparams and cli_hyperparams['batch_size']:
                 hyperparams['batch_size'] = cli_hyperparams['batch_size']
         
-        # Set defaults if not specified
+        # Set defaults and normalize optional/nullable values from config/UI.
         image_size = hyperparams.get('image_size', 224)
-        batch_size = hyperparams.get('batch_size', 32)
-        num_workers = hyperparams.get('num_workers', 0)
+        try:
+            batch_size = int(hyperparams.get('batch_size') or 32)
+        except (TypeError, ValueError):
+            batch_size = 32
+        if batch_size < 1:
+            batch_size = 32
+        try:
+            num_workers = int(hyperparams.get('num_workers') or 0)
+        except (TypeError, ValueError):
+            num_workers = 0
+        if num_workers < 0:
+            num_workers = 0
         
         logger.info("Hyperparameters:")
         for key, value in hyperparams.items():
