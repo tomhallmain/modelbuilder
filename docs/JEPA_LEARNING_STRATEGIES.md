@@ -109,7 +109,63 @@ The two methods are close enough that they could share most of the same integrat
 
 ---
 
-## 3. JEPA — Joint Embedding Predictive Architecture
+## 3. Semi-Supervised and Label-Guided Learning
+
+The strategies above are purely self-supervised: labels play no role in pre-training. In practice there is often a labelled subset available — not enough to train a classifier from scratch, but enough to steer the embedding space toward a specific label taxonomy. The methods below occupy the middle ground between pure SSL and fully supervised training.
+
+### Supervised Contrastive Learning (SupCon)
+
+SupCon (Khosla et al., 2020) extends the SimCLR contrastive objective to use class labels. Instead of pulling together only two augmented views of the same image, SupCon pulls together **all images sharing the same class label** within the batch. Unlabelled images can be excluded or treated as their own single-member class.
+
+The effect is that the embedding space is explicitly organised around the target label taxonomy from the start of pre-training, while still benefiting from contrastive representation learning. SupCon consistently outperforms cross-entropy on in-distribution accuracy and improves robustness to distribution shift.
+
+#### What would change in this codebase
+
+| Component | Change required |
+|---|---|
+| `data_loader.py` | Same dual-view augmentation as SimCLR; labels must be passed through to the loss |
+| `trainer.py` | Phase 0.5 loss changes from NT-Xent (per-image contrast) to SupCon (per-class contrast); labelled and unlabelled images can be mixed in the same batch |
+| Loss function | NT-Xent over `(z_i, z_j)` pairs → SupCon over all same-class pairs in the batch |
+
+SupCon shares its infrastructure almost entirely with SimCLR — the same projection head, the same dual-view data loader. Only the loss function and the requirement to pass labels into the loss differ.
+
+---
+
+### PAWS — Predicting View-Assignments with Support Samples
+
+PAWS (Assran et al., 2021, Meta AI) is the most label-efficient approach in this family. A small **support set** — as few as 1–10 labelled images per class — is held fixed throughout training. For each unlabelled training image, two augmented views are generated. The model predicts a soft label distribution for each view by comparing its embedding to the support set embeddings (softmax over distances). The loss enforces that both views produce the same soft-label distribution (sharpened via temperature).
+
+- The support set defines the label structure that the embedding space is steered toward.
+- The vast majority of training images remain unlabelled.
+- With as few as 1 labelled image per class, PAWS approaches the performance of full SupCon on standard benchmarks.
+
+PAWS is therefore the most direct mechanism for "I have a small set of representative images per class and want the SSL embedding space to reflect my taxonomy."
+
+---
+
+### Semi-Supervised Learning: FixMatch / MeanTeacher
+
+For completeness, these methods run a supervised loss on the labelled subset and a consistency regularisation loss on unlabelled data **simultaneously**, without a separate pre-training phase:
+
+- **MeanTeacher** (Tarvainen & Valpola, 2017): the teacher is an EMA copy of the student — the same mechanism as I-JEPA's target encoder. Unlabelled images must produce consistent predictions between student and teacher.
+- **FixMatch** (Sohn et al., 2020, Google): generates a pseudo-label from a weakly-augmented view; the loss enforces that the same pseudo-label is predicted on a strongly-augmented view of the same image, but only when pseudo-label confidence exceeds a threshold.
+
+These require no projection head and integrate directly into the existing supervised phases, but are more sensitive to the labelled/unlabelled ratio and confidence threshold than SupCon or PAWS.
+
+---
+
+### Relationship to the Phase 0 pre-training model
+
+Phase 0 pre-training (Section 6) is pure SSL — labels are entirely ignored. The methods above are complementary:
+
+- **SupCon or PAWS** can follow Phase 0 as an optional Phase 0.5, applying label-guided contrastive learning to the labelled subset after the backbone has been pre-trained on all available unlabelled data.
+- **FixMatch/MeanTeacher** can replace the supervised fine-tuning phases when labelled data is very scarce.
+
+The cleanest integration path when a labelled subset is available: Phase 0 (VICReg or I-JEPA on the full unlabelled set) → Phase 0.5 (SupCon or PAWS on the labelled subset) → existing frozen/unfrozen phases.
+
+---
+
+## 4. JEPA — Joint Embedding Predictive Architecture
 
 ### Concept
 
@@ -143,6 +199,10 @@ The EMA target encoder is the same technique used in BYOL — it prevents collap
 - The masking strategy (predict missing regions from context) is a strong inductive bias for learning object-level semantics rather than texture.
 - Performance scales well with ViT (Vision Transformer) backbones but the predictor concept is architecture-agnostic.
 
+#### Reference implementation
+
+Meta AI released the official I-JEPA code at [`facebookresearch/ijepa`](https://github.com/facebookresearch/ijepa) (GitHub). It is not pip-installable as a standalone library but is a complete, runnable codebase. ViT backbones for the context and target encoders are most easily sourced from the `timm` package (`pip install timm`), which provides ViT-B/16, ViT-L/16, and ViT-H/14 with pretrained weights. The `lightly` library (`pip install lightly`) also provides I-JEPA as a composable PyTorch module — see the Available Libraries note in the Integration Roadmap (Section 6).
+
 #### What would change in this codebase
 
 I-JEPA requires more invasive changes than VICReg or SimCLR:
@@ -167,7 +227,7 @@ I-JEPA requires more invasive changes than VICReg or SimCLR:
 
 ---
 
-## 4. LeJEPA
+## 5. LeJEPA
 
 LeJEPA is Yann LeCun's most recent extension of the JEPA concept. The "Le" prefix reflects LeCun's continued evolution of the world model / energy-based model framework that JEPA is part of. At time of writing, the full technical details of LeJEPA are not yet widely published, but the conceptual direction extends JEPA toward:
 
@@ -179,7 +239,7 @@ For this pipeline, LeJEPA's relevance is forward-looking: the architecture choic
 
 ---
 
-## 5. Integration Roadmap
+## 6. Integration Roadmap
 
 The cleanest way to add these to the existing pipeline without breaking its current supervised-fine-tuning workflow:
 
@@ -188,9 +248,11 @@ The cleanest way to add these to the existing pipeline without breaking its curr
 Insert before the existing frozen phase. Controlled by a new `ssl_mode` field in `TrainingRunArgs`. When set, the trainer runs SSL pre-training on the training images (labels ignored), then discards the projection head / predictor before handing the backbone to the existing frozen → unfrozen supervised phases.
 
 ```
-[Phase 0: SSL pre-training]   ← new, optional
+[Phase 0: SSL pre-training]     ← new, optional (VICReg / I-JEPA / SimCLR — labels ignored)
     ↓ (discard projection head / predictor)
-[Phase 1: Frozen fine-tuning] ← existing, unchanged
+[Phase 0.5: Label-guided SSL]   ← new, optional (SupCon / PAWS — requires labelled subset)
+    ↓
+[Phase 1: Frozen fine-tuning]   ← existing, unchanged
     ↓
 [Phase 2: Unfrozen fine-tuning] ← existing, unchanged
 ```
@@ -199,19 +261,35 @@ Insert before the existing frozen phase. Controlled by a new `ssl_mode` field in
 
 The existing train transforms in `data_loader.py` are appropriate for supervised fine-tuning. SSL pre-training needs a separate, stronger augmentation pipeline. The `create_data_loaders()` function would need a `mode` parameter (`"supervised"` vs `"ssl"`) to select the appropriate transforms — or a dedicated `create_ssl_data_loaders()` factory.
 
+### Available Python libraries
+
+Several libraries significantly reduce the Phase 0 implementation cost:
+
+| Library | What it provides | Install |
+|---|---|---|
+| `lightly` | SimCLR, VICReg, Barlow Twins, BYOL, I-JEPA, V-JEPA as composable PyTorch modules — loss functions, masking strategies, and EMA update logic all pre-built | `pip install lightly` |
+| `timm` | ~700 classification backbones (ViT, Swin, ConvNeXt, ResNet, etc.) with pretrained weights — the standard source for ViT encoders required by I-JEPA | `pip install timm` |
+| `solo-learn` | Alternative PyTorch SSL library; similar method coverage to `lightly` | `pip install solo-learn` |
+
+`lightly` is the most directly relevant: VICReg, Barlow Twins, SimCLR, and I-JEPA are all available as ready-to-use modules. Using it for Phase 0 reduces the implementation work to primarily data loader changes and the `ssl_mode` routing in `trainer.py`, rather than re-implementing loss functions and masking transforms from scratch.
+
 ### Recommended implementation order
 
-1. **VICReg** — lowest complexity, no batch-size constraints, uses existing CNN backbones. Best first step.
+1. **VICReg** — lowest complexity, no batch-size constraints, uses existing CNN backbones. Best first step. Use `lightly.loss.VICRegLoss`.
 2. **Barlow Twins** — same infrastructure as VICReg, just a different loss. Near-free once VICReg is in.
 3. **SimCLR / MoCo** — requires large-batch or queue infrastructure, but well-understood.
-4. **I-JEPA** — requires ViT support (new architecture family) and predictor network. Significant but high-value work.
-5. **LeJEPA extensions** — builds on I-JEPA infrastructure.
+4. **SupCon** — same dual-view infrastructure as SimCLR, different loss. Add as Phase 0.5 whenever a labelled subset is available.
+5. **PAWS** — adds a support-set lookup; the most label-efficient label-guided option.
+6. **I-JEPA** — requires ViT support (new architecture family via `timm`) and predictor network. Significant but high-value work; use `lightly` to avoid reimplementing masking and EMA logic.
+7. **LeJEPA extensions** — builds on I-JEPA infrastructure.
 
 ### New hyperparameters summary
 
 | Parameter | Applies to | Description |
 |---|---|---|
-| `ssl_mode` | all SSL | `None` \| `"vicreg"` \| `"barlow_twins"` \| `"simclr"` \| `"ijepa"` |
+| `ssl_mode` | Phase 0 | `None` \| `"vicreg"` \| `"barlow_twins"` \| `"simclr"` \| `"ijepa"` |
+| `ssl_label_guided_mode` | Phase 0.5 | `None` \| `"supcon"` \| `"paws"` — requires a labelled subset; runs after Phase 0 if set |
+| `paws_support_set_size` | PAWS | Number of labelled images per class to use as the support set (default: 10) |
 | `ssl_epochs` | all SSL | Epochs for Phase 0 pre-training |
 | `ssl_projection_dim` | contrastive + dim-contrastive | Output dimension of projection MLP |
 | `ssl_temperature` | SimCLR | NT-Xent temperature τ |
@@ -223,7 +301,7 @@ The existing train transforms in `data_loader.py` are appropriate for supervised
 
 ---
 
-## 6. Relevance to Future Model Types
+## 7. Relevance to Future Model Types
 
 | Future model type | Most applicable SSL strategy | Reason |
 |---|---|---|
@@ -240,5 +318,9 @@ The existing train transforms in `data_loader.py` are appropriate for supervised
 - Chen et al. (2020). *A Simple Framework for Contrastive Learning of Visual Representations* (SimCLR). [arXiv:2002.05709](https://arxiv.org/abs/2002.05709)
 - Bardes, Ponce, LeCun (2022). *VICReg: Variance-Invariance-Covariance Regularization for Self-Supervised Learning*. [arXiv:2105.04906](https://arxiv.org/abs/2105.04906)
 - Zbontar et al. (2021). *Barlow Twins: Self-Supervised Learning via Redundancy Reduction*. [arXiv:2103.03230](https://arxiv.org/abs/2103.03230)
+- Khosla et al. (2020). *Supervised Contrastive Learning* (SupCon). [arXiv:2004.11362](https://arxiv.org/abs/2004.11362)
+- Assran et al. (2021). *Semi-Supervised Learning of Visual Features by Non-Parametrically Predicting View Assignments* (PAWS). [arXiv:2104.13963](https://arxiv.org/abs/2104.13963)
+- Tarvainen & Valpola (2017). *Mean teachers are better role models* (MeanTeacher). [arXiv:1703.01780](https://arxiv.org/abs/1703.01780)
+- Sohn et al. (2020). *FixMatch: Simplifying Semi-Supervised Learning with Consistency and Confidence*. [arXiv:2001.07685](https://arxiv.org/abs/2001.07685)
 - Assran et al. (2023). *Self-Supervised Learning from Images with a Joint-Embedding Predictive Architecture* (I-JEPA). [arXiv:2301.08243](https://arxiv.org/abs/2301.08243)
 - LeCun (2022). *A Path Towards Autonomous Machine Intelligence*. [openreview.net](https://openreview.net/pdf?id=BZ5a1r-kVsf) — foundational JEPA concept paper
