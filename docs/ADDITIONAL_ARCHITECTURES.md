@@ -516,7 +516,165 @@ model.print_trainable_parameters()
 
 ---
 
-## 8. Packages summary
+## 8. Recurrent-Depth Transformers — Mythos / OpenMythos
+
+### Background and provenance
+
+**Mythos** was an unreleased Anthropic model described in public technical communication but never open-sourced. Its central innovation is the **Recurrent-Depth Transformer (RDT)**, sometimes called a *Looped Transformer*: instead of stacking hundreds of unique layers, a single transformer block is recycled and executed multiple times within one forward pass, sharing its weights across all iterations. **OpenMythos** (`kyegomez/OpenMythos`, GitHub) is an independent community reproduction of this design based on the public description, and is the only available open implementation.
+
+This section documents the RDT architecture as realised in OpenMythos, its component design choices, and where it is relevant to the goals of this project.
+
+---
+
+### 8.1 Core architecture — the Recurrent-Depth Transformer
+
+A standard transformer of depth D contains D distinct sets of weights. An RDT collapses this into three phases:
+
+```
+[Prelude]              ← P standard transformer layers, executed once
+      ↓
+[Recurrent Block]      ← 1 transformer block, weights shared, executed up to K times
+      ↓
+[Coda]                 ← C standard transformer layers, executed once
+```
+
+The Prelude encodes the input into a hidden state `h_0`. At each loop iteration `t`, the recurrent block updates the hidden state:
+
+```
+h_{t+1} = A·h_t + B·e + Transformer(h_t, e)
+```
+
+Where:
+- `h_t` is the current hidden state (the "thinking" state being refined across iterations)
+- `e` is the encoded input from the Prelude, **re-injected at every loop** to prevent the hidden state from drifting away from the input signal
+- `A` and `B` are learned scalar matrices that gate how much the previous state and the input each contribute
+
+After K iterations, the Coda processes the final hidden state into output logits.
+
+#### Why this matters
+
+A model trained on K loops can be run at inference time with K′ > K loops on harder examples — at the cost of proportionally more compute but with no additional parameters. This is **inference-time compute scaling**, analogous in effect to chain-of-thought reasoning: the model can "think longer" about a difficult input by iterating more. Benchmarks on compositional reasoning tasks (multi-hop chains) show that an RDT trained on 5-hop chains generalises to 10-hop chains by increasing loop count at inference, whereas a standard transformer fails on out-of-distribution hop counts.
+
+---
+
+### 8.2 Spectral stability
+
+Training looped models risks two failure modes: the hidden state either explodes or collapses to zero across iterations. OpenMythos addresses this structurally by parameterising `A` as a **continuous negative diagonal matrix** and approximating the discrete update with a Zero-Order Hold or Euler scheme:
+
+```
+A = -exp(a_raw)   (elementwise, guaranteeing A < 0)
+discrete A = exp(A·Δt)   (always in (0, 1))
+```
+
+This guarantees that the **spectral radius ρ(A) < 1 by construction**, regardless of learning rate — the hidden state is always a contractive map of itself, ensuring stability without the gradient clipping or careful initialisation required by vanilla RNNs. The constraint does not need to be imposed as a penalty term; it is enforced in the parameterisation.
+
+---
+
+### 8.3 Attention variants — MLA and GQA
+
+The recurrent block's self-attention layer supports two modes, switchable via config:
+
+**MLA (Multi-head Latent Attention)** — introduced in DeepSeek-V2/V3. Rather than storing full-rank K and V caches for each head, MLA compresses the key-value state into a low-rank latent vector and reconstructs K/V on the fly:
+
+```
+[c_KV] = W_DKV · h       (down-project to low-rank latent)
+K = W_UK · c_KV          (up-project to key heads)
+V = W_UV · c_KV          (up-project to value heads)
+Q = W_DQ · h → W_UQ      (separate query compression)
+```
+
+Key-value cache at inference stores only `c_KV` (the compressed latent) rather than full K and V matrices, reducing KV cache memory roughly in proportion to `kv_lora_rank / (n_heads × head_dim)`. MLA also separates positional information: a RoPE-encoded component of the query/key is concatenated to the compressed non-positional component, so position encoding does not contaminate the cached latent.
+
+**GQA (Grouped Query Attention)** — simpler alternative: `n_kv_heads` key/value heads shared across groups of query heads. Faster to implement, lower memory than MHA, but does not achieve MLA's compression ratio. Appropriate for smaller variants where KV cache is not the bottleneck.
+
+---
+
+### 8.4 Sparse Mixture of Experts feedforward
+
+The feedforward sublayer within the recurrent block is a **sparse MoE**:
+
+- `n_experts` expert MLPs are defined in total
+- `n_shared_experts` are **always activated** for every token (domain-general capacity)
+- From the remaining experts, `n_experts_per_tok` are selected via a learned router (top-K gating) per token
+- `expert_dim` controls each expert's internal hidden dimension
+
+This allows the model to specialise different experts for different types of content (e.g. code, reasoning, factual recall) while only paying the cost of `n_shared_experts + n_experts_per_tok` experts per forward pass — keeping FLOPs proportional to the activated subset rather than the full expert count. The architecture is directly analogous to the MoE design in Mixtral, DeepSeek-V2, and other efficiency-focused LLMs.
+
+---
+
+### 8.5 Available variants
+
+OpenMythos ships five pre-configured size presets:
+
+| Variant | Parameters | Notes |
+|---|---|---|
+| `mythos_1b` | ~1B | Entry-level; fits in consumer VRAM |
+| `mythos_3b` | ~3B | Practical fine-tuning target |
+| `mythos_7b` | ~7B | Competitive with Llama-class models |
+| `mythos_70b` | ~70B | Large-scale; multi-GPU required |
+| `mythos_1t` | ~1T | Research-scale; not practical without clusters |
+
+All variants share the same RDT structure; they differ in `dim`, `n_heads`, `n_experts`, `max_loop_iters`, and layer counts.
+
+#### Minimal configuration
+
+```python
+from openmythos import Mythos, MythosConfig
+
+config = MythosConfig(
+    vocab_size=50_257,
+    dim=2048,
+    n_heads=16,
+    max_seq_len=8192,
+    max_loop_iters=8,        # train with 4–8, can increase at inference
+    prelude_layers=2,
+    coda_layers=2,
+    n_experts=16,
+    n_shared_experts=2,
+    n_experts_per_tok=2,
+    expert_dim=512,
+    lora_rank=16,
+    attn_type="mla",         # or "gqa"
+)
+model = Mythos(config)
+
+# Standard forward pass (fixed loop count)
+logits = model(input_ids, n_loops=4)
+
+# Inference-time compute scaling — same weights, more thinking
+logits_hard = model(input_ids, n_loops=12)
+```
+
+---
+
+### 8.6 Relevance to this project
+
+The Mythos / RDT architecture is primarily a **language model** design. Its direct integration into the current vision-focused pipeline is limited, but there are several meaningful points of contact:
+
+#### As a text encoder for multimodal generation
+
+The video generation section (Section 5) describes the move from CLIP+T5 text encoders toward larger, richer language model encoders (HunyuanVideo's bilingual LLM encoder, Wan 2.1's umt5-xxl). An RDT-based text encoder with MoE feedforward and configurable loop depth represents the logical next step in this direction: a compact model (3B–7B activated parameters) capable of deeper compositional reasoning than T5-class encoders, with the ability to scale text encoding compute independently of model size at inference time.
+
+#### Inference-time compute scaling as a general principle
+
+The RDT loop mechanism is architecturally agnostic — the same principle (recycle a block N times, re-inject input at every step) can be applied to:
+- **Vision Transformers** (ViT-RDT): patch tokens as the hidden state, the full image embedding re-injected as `e`, the loop count scaling spatial reasoning depth for dense tasks
+- **Video encoders**: temporal hidden states iterated across the loop, enabling the model to "replay" a clip conceptually before predicting
+- Any sequence model where the depth of reasoning should be proportional to the difficulty of the instance, not fixed by the architecture
+
+#### Component-level relevance
+
+Even if the full RDT is not adopted, two components are independently relevant:
+- **MLA** is the current state-of-the-art KV cache compression technique and directly applicable to any attention-heavy model (large ViTs, video DiTs, multimodal encoders) where KV memory is a bottleneck
+- **Sparse MoE** is applicable to any part of the pipeline where a single dense feedforward layer is a capacity bottleneck — including Flux's single-stream blocks or a large multimodal encoder
+
+#### Practical caveats
+
+OpenMythos is a community implementation of an unreleased model. Its weight checkpoints have not been trained to production quality. Using it in this project means training from scratch, which requires significant compute and data (the reference training run targets 30B tokens on FineWeb-Edu). It is therefore more relevant as an **architectural reference and research direction** than as a plug-and-play pretrained backbone. The most practical near-term use case is experimenting with small variants (mythos_1b, mythos_3b) as text encoders or sequence reasoning modules alongside pretrained vision backbones.
+
+---
+
+## 9. Packages summary
 
 | Package | Primary use | Install |
 |---|---|---|
@@ -532,6 +690,7 @@ model.print_trainable_parameters()
 | `monai` | 3D U-Net, medical imaging segmentation | `pip install monai` |
 | `kohya_ss` | GUI + scripts for LoRA/LoHa/LoKr/LyCORIS training on Flux and SD | GitHub only (`kohya-ss/sd-scripts`) |
 | `pytorchvideo` | SlowFast, MViT, video data loading utilities (Meta AI) | `pip install pytorchvideo` |
+| `openmythos` | Recurrent-Depth Transformer (Mythos architecture): looped transformer, MLA, MoE | GitHub only (`kyegomez/OpenMythos`) |
 
 ---
 
@@ -564,3 +723,7 @@ model.print_trainable_parameters()
 - Liu et al. (2024). *DoRA: Weight-Decomposed Low-Rank Adaptation*. [arXiv:2402.09353](https://arxiv.org/abs/2402.09353)
 - Khosla et al. (2020). *Supervised Contrastive Learning* (SupCon). [arXiv:2004.11362](https://arxiv.org/abs/2004.11362)
 - Assran et al. (2021). *Semi-Supervised Learning of Visual Features by Non-Parametrically Predicting View Assignments* (PAWS). [arXiv:2104.13963](https://arxiv.org/abs/2104.13963)
+- Liu et al. (2024). *DeepSeek-V2: A Strong, Economical, and Efficient Mixture-of-Experts Language Model* (MLA, MoE). [arXiv:2405.04434](https://arxiv.org/abs/2405.04434)
+- Giannou et al. (2023). *Looped Transformers as Programmable Computers*. [arXiv:2301.13196](https://arxiv.org/abs/2301.13196)
+- Dehghani et al. (2018). *Universal Transformers* (foundational looped/recurrent-depth transformer). [arXiv:1807.03819](https://arxiv.org/abs/1807.03819)
+- Gomez, K. (2025). *OpenMythos: Open-source Recurrent-Depth Transformer*. [github.com/kyegomez/OpenMythos](https://github.com/kyegomez/OpenMythos)
