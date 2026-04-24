@@ -22,6 +22,7 @@ from mb.export.bundle import export_bundle
 from mb.pipeline_config import get_pipeline_config
 from mb.utils.constants import ModelBuilderTaskType
 from mb.utils.recent_run_history import append_recent_run
+from mb.utils.snapshot import run_id_from_latest_unified_snapshot
 from mb.utils.translations import _
 from ui.lib.fast_directory_picker_qt import get_existing_directory, get_open_file_name
 from ui.lib.form_layout_i18n import apply_qform_label_column
@@ -50,7 +51,6 @@ class ExportPage(QWidget):
         self._main_form = form
 
         self.input_model = QLineEdit()
-        self.output_dir = QLineEdit()
         self.architecture = QLineEdit()
         self.num_classes = QSpinBox()
         self.num_classes.setRange(0, 1_000_000)
@@ -62,19 +62,16 @@ class ExportPage(QWidget):
         self.image_size.setSpecialValueText(_("Auto"))
         self.image_size.setValue(0)
         self.run_id = QLineEdit()
-        self.snapshot_path = QLineEdit()
         self.emit_arch_py = QCheckBox()
         self.emit_arch_py.setChecked(True)
 
         form.addRow(_("Input model"), self._path_row(self.input_model, select_file=True))
-        form.addRow(_("Output directory"), self._path_row(self.output_dir, select_file=False))
         form.addRow(_("Architecture"), self.architecture)
         form.addRow(_("Num classes"), self.num_classes)
         form.addRow(_("Class names (comma-separated)"), self.class_names)
         form.addRow(_("Data directory"), self._path_row(self.data_dir, select_file=False))
         form.addRow(_("Image size"), self.image_size)
         form.addRow(_("Run ID (optional)"), self.run_id)
-        form.addRow(_("Snapshot JSON (optional)"), self._path_row(self.snapshot_path, select_file=True))
         form.addRow(_("Generate architecture stub"), self.emit_arch_py)
         root.addWidget(group)
 
@@ -96,6 +93,7 @@ class ExportPage(QWidget):
 
         self.btn_validate.clicked.connect(self._validate_inputs)
         self.btn_export.clicked.connect(self._run_export)
+        self._prefill_from_pipeline()
 
         self.retranslate_ui(refresh_output=False)
 
@@ -106,14 +104,12 @@ class ExportPage(QWidget):
             self._main_form,
             [
                 _("Input model"),
-                _("Output directory"),
                 _("Architecture"),
                 _("Num classes"),
                 _("Class names (comma-separated)"),
                 _("Data directory"),
                 _("Image size"),
                 _("Run ID (optional)"),
-                _("Snapshot JSON (optional)"),
                 _("Generate architecture stub"),
             ],
         )
@@ -125,7 +121,7 @@ class ExportPage(QWidget):
         self.btn_validate.setText(_("Validate Export"))
         self.btn_export.setText(_("Run Export"))
         self.output.setPlaceholderText(_("Export validation and execution messages will appear here."))
-        for edit in (self.input_model, self.output_dir, self.data_dir, self.snapshot_path):
+        for edit in (self.input_model, self.data_dir):
             row = edit.parentWidget()
             if row is not None:
                 btn = row.findChild(QPushButton)
@@ -136,39 +132,48 @@ class ExportPage(QWidget):
 
     def _run_startup_validation(self) -> None:
         self.output.clear()
+        self._prefill_from_pipeline()
+        self._sync_input_model_from_convert_page_if_empty()
         self._validate_inputs()
 
     def collect_gui_state(self) -> dict:
         return {
             "input_model": self.input_model.text(),
-            "output_dir": self.output_dir.text(),
             "architecture": self.architecture.text(),
             "num_classes": int(self.num_classes.value()),
             "class_names": self.class_names.text(),
             "data_dir": self.data_dir.text(),
             "image_size": int(self.image_size.value()),
             "run_id": self.run_id.text(),
-            "snapshot_path": self.snapshot_path.text(),
             "emit_arch_py": bool(self.emit_arch_py.isChecked()),
         }
 
     def restore_gui_state(self, state: dict) -> None:
         if not state:
             return
-        self.input_model.setText(str(state.get("input_model", "")))
-        self.output_dir.setText(str(state.get("output_dir", "")))
-        self.architecture.setText(str(state.get("architecture", "")))
+        # Keep pipeline-prefilled defaults when cache contains empty strings.
+        input_model = str(state.get("input_model", "")).strip()
+        if input_model:
+            self.input_model.setText(input_model)
+        architecture = str(state.get("architecture", "")).strip()
+        if architecture:
+            self.architecture.setText(architecture)
         nc = state.get("num_classes")
         if isinstance(nc, int):
             self.num_classes.setValue(nc)
         self.class_names.setText(str(state.get("class_names", "")))
-        self.data_dir.setText(str(state.get("data_dir", "")))
+        data_dir = str(state.get("data_dir", "")).strip()
+        if data_dir:
+            self.data_dir.setText(data_dir)
         iz = state.get("image_size")
         if isinstance(iz, int):
             self.image_size.setValue(iz)
-        self.run_id.setText(str(state.get("run_id", "")))
-        self.snapshot_path.setText(str(state.get("snapshot_path", "")))
+        run_id = str(state.get("run_id", "")).strip()
+        if run_id:
+            self.run_id.setText(run_id)
         self.emit_arch_py.setChecked(bool(state.get("emit_arch_py", True)))
+        self._prefill_from_pipeline()
+        self._sync_input_model_from_convert_page_if_empty()
 
     def _path_row(self, edit: QLineEdit, *, select_file: bool) -> QWidget:
         row = QWidget()
@@ -186,9 +191,9 @@ class ExportPage(QWidget):
         if select_file:
             value = get_open_file_name(
                 self,
-                _("Select model or snapshot file"),
+                _("Select model file"),
                 start,
-                _("Model files (*.pth *.pt);;Snapshot files (snapshot_*.json);;All files (*.*)"),
+                _("Model files (*.pth *.pt);;All files (*.*)"),
             )
         else:
             value = get_existing_directory(self, _("Select directory"), start)
@@ -205,11 +210,11 @@ class ExportPage(QWidget):
 
     def _collect_inputs(self) -> dict:
         input_path = Path(self.input_model.text().strip())
-        output_dir = Path(self.output_dir.text().strip())
         if not input_path.exists():
             raise ValueError(_("Input model file does not exist."))
-        if not output_dir.parent.exists():
-            raise ValueError(_("Output directory parent does not exist."))
+        output_dir = input_path.parent
+        if not output_dir.exists():
+            raise ValueError(_("Input model parent directory does not exist."))
 
         class_names_text = self.class_names.text().strip()
         class_names = None
@@ -219,7 +224,6 @@ class ExportPage(QWidget):
                 class_names = None
 
         data_dir_text = self.data_dir.text().strip()
-        snapshot_text = self.snapshot_path.text().strip()
 
         return {
             "input_model": input_path,
@@ -231,9 +235,59 @@ class ExportPage(QWidget):
             "image_size": int(self.image_size.value()) if self.image_size.value() > 0 else None,
             "include_architecture_py": bool(self.emit_arch_py.isChecked()),
             "run_id": self.run_id.text().strip() or None,
-            "snapshot_path": Path(snapshot_text) if snapshot_text else None,
+            "snapshot_path": None,
             "pipeline_config": get_pipeline_config().to_dict(),
         }
+
+    def _prefill_from_pipeline(self) -> None:
+        pc = get_pipeline_config()
+        arch = pc.get("model.default_architecture")
+        if isinstance(arch, str) and arch.strip() and not self.architecture.text().strip():
+            self.architecture.setText(arch.strip())
+        data_dir = pc.get("data.data_dir")
+        if isinstance(data_dir, str) and data_dir.strip() and not self.data_dir.text().strip():
+            self.data_dir.setText(data_dir.strip())
+        image_size = pc.get("data.image_size")
+        try:
+            if int(image_size) > 0:
+                self.image_size.setValue(int(image_size))
+        except Exception:
+            pass
+        if not self.run_id.text().strip():
+            raw_dir = pc.get("data.raw_data_dir")
+            search_paths: list[Path] = []
+            if isinstance(data_dir, str) and data_dir.strip():
+                search_paths.append(Path(data_dir.strip()))
+            if isinstance(raw_dir, str) and raw_dir.strip():
+                search_paths.append(Path(raw_dir.strip()))
+            if search_paths:
+                rid = run_id_from_latest_unified_snapshot(search_paths, quiet=True)
+                if isinstance(rid, str) and rid.strip():
+                    self.run_id.setText(rid.strip())
+
+    def _sync_input_model_from_convert_page_if_empty(self) -> None:
+        if self.input_model.text().strip():
+            return
+        w = self.window()
+        page_widgets = getattr(w, "page_widgets", None)
+        if not isinstance(page_widgets, list):
+            return
+        for page in page_widgets:
+            convert_input = getattr(page, "input_model", None)
+            if convert_input is None:
+                continue
+            text_fn = getattr(convert_input, "text", None)
+            if not callable(text_fn):
+                continue
+            model_path = str(text_fn()).strip()
+            if model_path:
+                self.input_model.setText(model_path)
+                break
+
+    def showEvent(self, event) -> None:
+        self._prefill_from_pipeline()
+        self._sync_input_model_from_convert_page_if_empty()
+        super().showEvent(event)
 
     def _can_run(self) -> bool:
         try:
