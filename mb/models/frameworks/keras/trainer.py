@@ -339,8 +339,16 @@ class KerasTrainer(FrameworkTrainer):
         """
         if not TF_AVAILABLE:
             raise ImportError("TensorFlow is required for Keras evaluation")
-        
+
+        cancel_event: Optional[threading.Event] = kwargs.get("cancel_event")
+        progress_cb: Optional[Callable[[str, Optional[float]], None]] = kwargs.get("progress_cb")
+        check_cancel_event(cancel_event)
+        if progress_cb is not None:
+            progress_cb("Evaluating…", 0.0)
         results = model.evaluate(val_loader, verbose=0)
+        check_cancel_event(cancel_event)
+        if progress_cb is not None:
+            progress_cb("Evaluating…", 1.0)
         
         # Results are [loss, accuracy, ...] based on metrics
         metrics = {}

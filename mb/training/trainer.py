@@ -228,6 +228,22 @@ class ModelTrainer:
                 overall = train_lo + (train_hi - train_lo) * float(pct)
                 _emit(msg, overall)
 
+        def _evaluate_progress(msg: str, pct: Optional[float]) -> None:
+            if pct is None:
+                _emit(msg, None)
+            else:
+                overall = train_hi + (eval_end - train_hi) * float(pct)
+                _emit(msg, overall)
+
+        snapshot_end = 0.99
+
+        def _snapshot_progress(msg: str, pct: Optional[float]) -> None:
+            if pct is None:
+                _emit(msg, None)
+            else:
+                overall = eval_end + (snapshot_end - eval_end) * float(pct)
+                _emit(msg, overall)
+
         # Train model (framework reports 0..1 within the training loop only)
         _emit("Training…", train_lo)
         logger.info("Starting training...")
@@ -244,10 +260,15 @@ class ModelTrainer:
         )
         t_train1 = time.perf_counter()
 
-        # Evaluate model (can be noticeable on large val sets — no per-batch hook here yet)
+        # Evaluate model
         _emit("Evaluating…", train_hi)
         logger.info("Evaluating model...")
-        metrics = self.framework_trainer.evaluate(trained_model, val_loader)
+        metrics = self.framework_trainer.evaluate(
+            trained_model,
+            val_loader,
+            cancel_event=cancel_event,
+            progress_cb=_evaluate_progress,
+        )
         t_eval1 = time.perf_counter()
         _emit("Evaluating…", eval_end)
         logger.info("Evaluation metrics:")
@@ -271,7 +292,12 @@ class ModelTrainer:
                 },
             }
             logger.info("Updating unified snapshot with training data...")
-            update_training_snapshot(data_dir, unified_snapshot)
+            update_training_snapshot(
+                data_dir,
+                unified_snapshot,
+                cancel_event=cancel_event,
+                progress_cb=_snapshot_progress,
+            )
 
             if train_invocation_started:
                 set_step_errors_for_invocation(
@@ -290,6 +316,7 @@ class ModelTrainer:
                 logger.info(
                     f"Unified snapshot updated: {train_total} train, {test_total} test images"
                 )
+            _emit("Updating snapshot…", snapshot_end)
         
         # Save final model
         output_dir.mkdir(parents=True, exist_ok=True)

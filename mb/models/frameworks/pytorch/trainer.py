@@ -346,8 +346,25 @@ class PyTorchTrainer(FrameworkTrainer):
         """
         model.eval()
         criterion = nn.CrossEntropyLoss()
-        
-        val_loss, val_acc = self._validate(model, val_loader, criterion)
+
+        cancel_event: Optional[threading.Event] = kwargs.get("cancel_event")
+        progress_cb: Optional[Callable[[str, Optional[float]], None]] = kwargs.get("progress_cb")
+        total_steps = max(len(val_loader), 1)
+
+        def _emit_eval_step(step: int) -> None:
+            if progress_cb is None:
+                return
+            pct = min(max(step / total_steps, 0.0), 1.0)
+            progress_cb(f"Evaluating… — batch {step}/{total_steps}", pct)
+
+        val_loss, val_acc = self._validate(
+            model,
+            val_loader,
+            criterion,
+            cancel_event=cancel_event,
+            train_step_count=0,
+            on_batch_step=_emit_eval_step,
+        )
         
         return {
             'loss': val_loss,
