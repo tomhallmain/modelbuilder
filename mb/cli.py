@@ -695,7 +695,8 @@ def create_parser() -> argparse.ArgumentParser:
     export_bundle_parser.add_argument("--num-classes", type=int, help=_("Number of output classes"))
     export_bundle_parser.add_argument("--class-names", nargs="+", help=_("Optional ordered class names"))
     export_bundle_parser.add_argument("--data-dir", type=Path, help=_("Optional data dir to infer class names from train/"))
-    export_bundle_parser.add_argument("--image-size", type=int, default=224, help=_("Expected input image size"))
+    export_bundle_parser.add_argument("--image-size", type=int, help=_("Expected input image size (defaults to pipeline)"))
+    export_bundle_parser.add_argument("--snapshot", type=Path, help=_("Optional snapshot JSON path"))
     export_bundle_parser.add_argument(
         "--no-architecture-py",
         action="store_true",
@@ -1188,6 +1189,9 @@ def handle_export_bundle(args) -> int:
             logger.error(_("Input model file not found: {path}").format(path=args.input))
             return 1
 
+        reload_pipeline_config(getattr(args, "config", None), force=True)
+        pipeline = get_pipeline_config()
+
         result = export_bundle(
             input_model=args.input,
             output_dir=args.output_dir,
@@ -1197,6 +1201,8 @@ def handle_export_bundle(args) -> int:
             data_dir=args.data_dir,
             image_size=args.image_size,
             include_architecture_py=not bool(args.no_architecture_py),
+            pipeline_config=pipeline.to_dict(),
+            snapshot_path=args.snapshot,
             run_id=args.run_id,
         )
         logger.info(_("Bundle export completed: {path}").format(path=args.output_dir))

@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from mb.conversion.converters import convert_pytorch_to_safetensors, detect_model_framework
+from mb.utils.snapshot import UnifiedSnapshot, find_unified_snapshot
 
 
 def _sha256_file(path: Path) -> str:
@@ -26,6 +27,46 @@ def _discover_class_names(data_dir: Optional[Path]) -> list[str]:
     if not train_dir.is_dir():
         return []
     return sorted([p.name for p in train_dir.iterdir() if p.is_dir()])
+
+
+def _discover_class_names_from_snapshot(snapshot: Any) -> list[str]:
+    images = getattr(snapshot, "images", None)
+    if not isinstance(images, dict):
+        return []
+    names: set[str] = set()
+    for rec in images.values():
+        if not isinstance(rec, dict):
+            continue
+        for key in ("training", "dataset", "converted"):
+            section = rec.get(key)
+            if isinstance(section, dict):
+                cls = section.get("class")
+                if isinstance(cls, str) and cls.strip():
+                    names.add(cls.strip())
+    return sorted(names)
+
+
+def _snapshot_summary(snapshot: Any) -> dict[str, Any]:
+    try:
+        payload = snapshot.to_dict()
+    except Exception:
+        payload = {}
+    if not isinstance(payload, dict):
+        payload = {}
+    out: dict[str, Any] = {}
+    run_id = getattr(snapshot, "run_id", None)
+    if isinstance(run_id, str) and run_id.strip():
+        out["run_id"] = run_id
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        out["summary"] = summary
+    raw_dir = payload.get("raw_data_directory")
+    if isinstance(raw_dir, str) and raw_dir.strip():
+        out["raw_data_directory"] = raw_dir
+    data_dir = payload.get("data_directory")
+    if isinstance(data_dir, str) and data_dir.strip():
+        out["data_directory"] = data_dir
+    return out
 
 
 def _architecture_stub_text(
@@ -75,8 +116,10 @@ def export_bundle(
     num_classes: Optional[int],
     class_names: Optional[list[str]],
     data_dir: Optional[Path],
-    image_size: int,
+    image_size: Optional[int],
     include_architecture_py: bool,
+    pipeline_config: Optional[dict[str, Any]] = None,
+    snapshot_path: Optional[Path] = None,
     run_id: Optional[str] = None,
 ) -> dict[str, Any]:
     """
@@ -96,29 +139,108 @@ def export_bundle(
     if not ok or not weights_path.exists():
         raise RuntimeError("Failed to export safetensors weights")
 
+    model_cfg = (pipeline_config or {}).get("model") if isinstance(pipeline_config, dict) else None
+    data_cfg = (pipeline_config or {}).get("data") if isinstance(pipeline_config, dict) else None
+    if not isinstance(model_cfg, dict):
+        model_cfg = {}
+    if not isinstance(data_cfg, dict):
+        data_cfg = {}
+
+    resolved_architecture = architecture or model_cfg.get("default_architecture")
+    resolved_data_dir = data_dir
+    if resolved_data_dir is None:
+        dd = data_cfg.get("data_dir")
+        if isinstance(dd, str) and dd.strip():
+            resolved_data_dir = Path(dd)
+
+    snapshot: Optional[Any] = None
+    resolved_snapshot_path: Optional[Path] = None
+    if snapshot_path is not None:
+        snapshot = UnifiedSnapshot.load(snapshot_path, silent=True)
+        if snapshot is None:
+            raise ValueError(f"Snapshot could not be loaded: {snapshot_path}")
+        resolved_snapshot_path = snapshot_path
+    else:
+        search_paths: list[Path] = []
+        if resolved_data_dir is not None:
+            search_paths.append(Path(resolved_data_dir))
+        rd = data_cfg.get("raw_data_dir")
+        if isinstance(rd, str) and rd.strip():
+            search_paths.append(Path(rd))
+        if search_paths:
+            snapshot = find_unified_snapshot(search_paths, run_id=run_id, logger=None)
+            if snapshot is not None:
+                rid = getattr(snapshot, "run_id", None)
+                if isinstance(rid, str) and rid.strip():
+                    for base in search_paths:
+                        cand = base / f"snapshot_{rid}.json"
+                        if cand.is_file():
+                            resolved_snapshot_path = cand
+                            break
+
+    resolved_image_size = image_size if image_size is not None else data_cfg.get("image_size", 224)
+    try:
+        resolved_image_size = int(resolved_image_size)
+    except (TypeError, ValueError):
+        resolved_image_size = 224
+    if resolved_image_size < 1:
+        resolved_image_size = 224
+
     resolved_classes = list(class_names or [])
     if not resolved_classes:
-        resolved_classes = _discover_class_names(data_dir)
+        resolved_classes = _discover_class_names(resolved_data_dir)
+    if not resolved_classes:
+        cfg_classes = data_cfg.get("class_names")
+        if isinstance(cfg_classes, list):
+            resolved_classes = [str(x).strip() for x in cfg_classes if str(x).strip()]
+    if not resolved_classes and snapshot is not None:
+        resolved_classes = _discover_class_names_from_snapshot(snapshot)
+
     resolved_num_classes = int(num_classes) if num_classes is not None else None
     if resolved_num_classes is None and resolved_classes:
         resolved_num_classes = len(resolved_classes)
 
+    effective_run_id = run_id
+    if not effective_run_id and snapshot is not None:
+        snap_rid = getattr(snapshot, "run_id", None)
+        if isinstance(snap_rid, str) and snap_rid.strip():
+            effective_run_id = snap_rid
+
+    snapshot_info = _snapshot_summary(snapshot) if snapshot is not None else None
+
     manifest = {
         "schema_version": 1,
         "created_at": datetime.now(timezone.utc).isoformat(),
-        "export": {"command": "mb export bundle", "run_id": run_id},
+        "export": {
+            "command": "mb export bundle",
+            "run_id": effective_run_id,
+            "snapshot_path": str(resolved_snapshot_path) if resolved_snapshot_path is not None else None,
+        },
         "model": {
             "framework": "pytorch",
             "weights_format": "safetensors",
-            "architecture": architecture,
+            "architecture": resolved_architecture,
             "num_classes": resolved_num_classes,
             "class_names": resolved_classes or None,
         },
         "preprocessing": {
-            "image_size": int(image_size),
+            "image_size": int(resolved_image_size),
             "channels": 3,
             "normalize_mean": [0.485, 0.456, 0.406],
             "normalize_std": [0.229, 0.224, 0.225],
+        },
+        "source_context": {
+            "pipeline_model_defaults": {
+                "default_framework": model_cfg.get("default_framework"),
+                "default_architecture": model_cfg.get("default_architecture"),
+            },
+            "pipeline_data_defaults": {
+                "data_dir": data_cfg.get("data_dir"),
+                "raw_data_dir": data_cfg.get("raw_data_dir"),
+                "image_size": data_cfg.get("image_size"),
+                "class_names": data_cfg.get("class_names"),
+            },
+            "snapshot": snapshot_info,
         },
         "artifacts": {
             "weights_file": weights_path.name,
@@ -132,7 +254,7 @@ def export_bundle(
     if include_architecture_py:
         arch_py_path.write_text(
             _architecture_stub_text(
-                architecture=architecture,
+                architecture=resolved_architecture,
                 num_classes=resolved_num_classes,
                 framework="pytorch",
             ),
