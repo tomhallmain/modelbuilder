@@ -71,3 +71,23 @@ def test_convert_page_collect_and_restore_gui_state_roundtrip(qtbot, tmp_path: P
     assert page2.architecture.text() == ArchitectureType.EFFICIENTNET_B0.value
     assert page2.num_classes.value() == 5
     assert page2.image_size.value() == 299
+
+
+@pytest.mark.ui
+def test_convert_page_validate_safetensors_pytorch_without_arch_num_classes(
+    qtbot, english_gui_locale, tmp_path: Path
+) -> None:
+    input_pth = tmp_path / "stub.pth"
+    input_pth.write_bytes(b"x")
+    output_st = tmp_path / "out.safetensors"
+    page = ConvertPage()
+    qtbot.addWidget(page)
+    page.framework.setCurrentIndex(1)  # pytorch
+    page.target.setCurrentIndex(1)  # safetensors
+    page.input_model.setText(str(input_pth))
+    page.output_model.setText(str(output_st))
+    page.architecture.setText("")
+    page.num_classes.setValue(0)
+    qtbot.mouseClick(page.btn_validate, Qt.MouseButton.LeftButton)
+    assert page.btn_convert.isEnabled()
+    assert "valid" in page.output.toPlainText().lower()
