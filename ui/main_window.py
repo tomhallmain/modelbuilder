@@ -34,6 +34,7 @@ from ui.pages import (
     ConfigPage,
     ConvertPage,
     DataPage,
+    ExportPage,
     HomePage,
     InfoPage,
     PipelineConfigPage,
@@ -54,12 +55,13 @@ from utils.notification_manager import notification_manager
 
 class MainWindow(QMainWindow):
     #: (Page class, English gettext msgid for sidebar). Order mirrors
-    #: :attr:`mb.utils.constants.ModelBuilderTaskType.nav_row_index` (Data/Train/Convert rows).
+    #: :attr:`mb.utils.constants.ModelBuilderTaskType.nav_row_index` (Data/Train/Convert/Export rows).
     NAV_PAGE_SPECS: ClassVar[list[tuple[Type[QWidget], str]]] = [
         (HomePage, "Home"),
         (DataPage, "Data"),
         (TrainPage, "Train"),
         (ConvertPage, "Convert"),
+        (ExportPage, "Export"),
         (ConfigPage, "App"),
         (PipelineConfigPage, "Pipeline"),
         (InfoPage, "Info"),

@@ -132,7 +132,7 @@ def format_recent_runs_for_display(entries: List[dict[str, Any]], *, limit: int 
     if not entries:
         return _(
             "No runs recorded yet.\n\n"
-            "Completed and failed jobs from Data, Train, and Convert are listed here."
+            "Completed and failed jobs from Data, Train, Convert, and Export are listed here."
         )
     lines: List[str] = []
     for e in entries[:limit]:
