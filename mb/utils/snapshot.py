@@ -356,6 +356,18 @@ class UnifiedSnapshot:
                 return rec
             # stale index entry
             self._dataset_path_index.pop(key, None)
+        # Fallback for callers/tests that mutate ``self.images`` directly without
+        # going through ``add_dataset_image`` (index not yet populated).
+        for oh, rec in self.images.items():
+            if not isinstance(rec, dict):
+                continue
+            dataset_info = rec.get("dataset")
+            if not isinstance(dataset_info, dict):
+                continue
+            rec_path = _posix_rel(dataset_info.get("path"))
+            if rec_path == key:
+                self._dataset_path_index[key] = oh
+                return rec
         return None
 
     def add_pre_conversion_image(self, image_path: Path, base_dir: Path) -> bool:

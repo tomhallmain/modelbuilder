@@ -12,9 +12,10 @@ from ui.pages import ConfigPage
 
 
 def _config_page(win: MainWindow) -> ConfigPage:
-    page = win.page_widgets[4]
-    assert isinstance(page, ConfigPage)
-    return page
+    for page in win.page_widgets:
+        if isinstance(page, ConfigPage):
+            return page
+    raise AssertionError("ConfigPage not found in MainWindow.page_widgets")
 
 
 @pytest.mark.ui
