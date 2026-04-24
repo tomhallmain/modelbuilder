@@ -337,6 +337,11 @@ class ExportPage(QWidget):
         self._append(_("[done] Export succeeded."))
         self._append(_("Weights: {path}").format(path=result.get("weights_path")))
         self._append(_("Manifest: {path}").format(path=result.get("manifest_path")))
+        arch_path = result.get("architecture_path")
+        if arch_path:
+            self._append(_("Architecture stub: {path}").format(path=arch_path))
+        else:
+            self._append(_("[info] Architecture stub not generated (option disabled)."))
         append_recent_run(
             ModelBuilderTaskType.EXPORT,
             getattr(self, "_pending_export_summary", "mb export bundle"),
