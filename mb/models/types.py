@@ -161,6 +161,22 @@ class InfoSubcommand(str, Enum):
             return None
 
 
+class ExportSubcommand(str, Enum):
+    """``mb export <subcommand>`` (deployment/bundle artifacts)."""
+
+    BUNDLE = "bundle"
+
+    @classmethod
+    def try_from(cls, raw: object) -> ExportSubcommand | None:
+        if raw is None:
+            return None
+        s = str(raw).strip().lower()
+        try:
+            return cls(s)
+        except ValueError:
+            return None
+
+
 class ConversionTargetFormat(str, Enum):
     """``mb convert --target`` output format."""
 

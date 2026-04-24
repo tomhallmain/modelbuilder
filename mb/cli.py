@@ -34,6 +34,7 @@ from mb.training.run_args import TrainingRunArgs, load_training_run_args_json
 from mb.models.types import (
     ArchitectureType,
     ConversionTargetFormat,
+    ExportSubcommand,
     FrameworkType,
     InfoSubcommand,
     ModelBuildStepCommand,
@@ -669,6 +670,38 @@ def create_parser() -> argparse.ArgumentParser:
         required=True,
         help=_("Path to data directory"),
     )
+
+    # Export command
+    export_parser = subparsers.add_parser(
+        "export",
+        help=_("Export model bundle artifacts"),
+        description=_(
+            "Export deployment bundle artifacts such as safetensors weights and metadata manifests."
+        ),
+    )
+    export_subparsers = export_parser.add_subparsers(
+        dest="export_command",
+        help=_("Export subcommands"),
+        metavar="SUBCOMMAND",
+    )
+
+    export_bundle_parser = export_subparsers.add_parser(
+        ExportSubcommand.BUNDLE.value,
+        help=_("Export a model bundle (safetensors + manifest + optional architecture stub)"),
+    )
+    export_bundle_parser.add_argument("--input", type=Path, required=True, help=_("Input model file (.pth/.pt)"))
+    export_bundle_parser.add_argument("--output-dir", type=Path, required=True, help=_("Output bundle directory"))
+    export_bundle_parser.add_argument("--architecture", type=str, help=_("Model architecture id (e.g. resnet34)"))
+    export_bundle_parser.add_argument("--num-classes", type=int, help=_("Number of output classes"))
+    export_bundle_parser.add_argument("--class-names", nargs="+", help=_("Optional ordered class names"))
+    export_bundle_parser.add_argument("--data-dir", type=Path, help=_("Optional data dir to infer class names from train/"))
+    export_bundle_parser.add_argument("--image-size", type=int, default=224, help=_("Expected input image size"))
+    export_bundle_parser.add_argument(
+        "--no-architecture-py",
+        action="store_true",
+        help=_("Do not emit model_architecture.py stub"),
+    )
+    export_bundle_parser.add_argument("--run-id", type=str, help=_("Optional run ID to include in manifest"))
     
     return parser
 
@@ -1146,6 +1179,37 @@ def handle_info_dataset(args):
     return 0
 
 
+def handle_export_bundle(args) -> int:
+    """Handle 'mb export bundle' command."""
+    try:
+        from mb.export.bundle import export_bundle
+
+        if not args.input.exists():
+            logger.error(_("Input model file not found: {path}").format(path=args.input))
+            return 1
+
+        result = export_bundle(
+            input_model=args.input,
+            output_dir=args.output_dir,
+            architecture=args.architecture,
+            num_classes=args.num_classes,
+            class_names=list(args.class_names) if args.class_names else None,
+            data_dir=args.data_dir,
+            image_size=args.image_size,
+            include_architecture_py=not bool(args.no_architecture_py),
+            run_id=args.run_id,
+        )
+        logger.info(_("Bundle export completed: {path}").format(path=args.output_dir))
+        logger.info(_("Weights: {path}").format(path=result["weights_path"]))
+        logger.info(_("Manifest: {path}").format(path=result["manifest_path"]))
+        if result.get("architecture_path"):
+            logger.info(_("Architecture stub: {path}").format(path=result["architecture_path"]))
+        return 0
+    except Exception as e:
+        logger.error(_("Export failed: {err}").format(err=e), exc_info=args.verbose)
+        return 1
+
+
 def main(args: Optional[list] = None) -> int:
     """
     Main entry point for the CLI.
@@ -1209,6 +1273,20 @@ def main(args: Optional[list] = None) -> int:
             if info_sub == InfoSubcommand.MODEL:
                 return handle_info_model(parsed_args)
             return handle_info_dataset(parsed_args)
+
+        elif parsed_args.command == "export":
+            raw_export = parsed_args.export_command
+            if not raw_export:
+                logger.error(_("No export subcommand specified"))
+                return 1
+            sub = ExportSubcommand.try_from(raw_export)
+            if sub is None:
+                logger.error(_("Unknown export subcommand: {cmd}").format(cmd=raw_export))
+                return 1
+            if sub == ExportSubcommand.BUNDLE:
+                return handle_export_bundle(parsed_args)
+            logger.error(_("Unhandled export subcommand: {cmd}").format(cmd=sub.value))
+            return 1
         
         else:
             logger.error(_("Unknown command: {cmd}").format(cmd=parsed_args.command))
