@@ -32,7 +32,6 @@ def test_export_page_collect_and_restore_gui_state_roundtrip(qtbot, tmp_path: Pa
     page.input_model.setText(str(tmp_path / "a.pth"))
     page.architecture.setText("resnet18")
     page.num_classes.setValue(3)
-    page.class_names.setText("a, b, c")
     page.data_dir.setText(str(tmp_path / "data"))
     page.image_size.setValue(224)
     page.run_id.setText("rid123")
@@ -45,7 +44,6 @@ def test_export_page_collect_and_restore_gui_state_roundtrip(qtbot, tmp_path: Pa
     assert page2.input_model.text() == str(tmp_path / "a.pth")
     assert page2.architecture.text() == "resnet18"
     assert page2.num_classes.value() == 3
-    assert page2.class_names.text() == "a, b, c"
     assert page2.data_dir.text() == str(tmp_path / "data")
     assert page2.image_size.value() == 224
     assert page2.run_id.text() == "rid123"

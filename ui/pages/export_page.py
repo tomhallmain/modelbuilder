@@ -55,7 +55,6 @@ class ExportPage(QWidget):
         self.num_classes = QSpinBox()
         self.num_classes.setRange(0, 1_000_000)
         self.num_classes.setSpecialValueText(_("Auto"))
-        self.class_names = QLineEdit()
         self.data_dir = QLineEdit()
         self.image_size = QSpinBox()
         self.image_size.setRange(0, 4096)
@@ -68,8 +67,7 @@ class ExportPage(QWidget):
         form.addRow(_("Input model"), self._path_row(self.input_model, select_file=True))
         form.addRow(_("Architecture"), self.architecture)
         form.addRow(_("Num classes"), self.num_classes)
-        form.addRow(_("Class names (comma-separated)"), self.class_names)
-        form.addRow(_("Data directory"), self._path_row(self.data_dir, select_file=False))
+        form.addRow(_("Dataset directory"), self._path_row(self.data_dir, select_file=False))
         form.addRow(_("Image size"), self.image_size)
         form.addRow(_("Run ID (optional)"), self.run_id)
         form.addRow(_("Generate architecture stub"), self.emit_arch_py)
@@ -106,8 +104,7 @@ class ExportPage(QWidget):
                 _("Input model"),
                 _("Architecture"),
                 _("Num classes"),
-                _("Class names (comma-separated)"),
-                _("Data directory"),
+                _("Dataset directory"),
                 _("Image size"),
                 _("Run ID (optional)"),
                 _("Generate architecture stub"),
@@ -116,7 +113,10 @@ class ExportPage(QWidget):
         self.num_classes.setSpecialValueText(_("Auto"))
         self.image_size.setSpecialValueText(_("Auto"))
         self._hint.setText(
-            _("Tip: leave architecture/num classes/image size empty to use snapshot/pipeline defaults.")
+            _(
+                "Class names are auto-resolved from snapshot or dataset directory. "
+                "Tip: leave architecture/num classes/image size on Auto to use defaults."
+            )
         )
         self.btn_validate.setText(_("Validate Export"))
         self.btn_export.setText(_("Run Export"))
@@ -141,7 +141,6 @@ class ExportPage(QWidget):
             "input_model": self.input_model.text(),
             "architecture": self.architecture.text(),
             "num_classes": int(self.num_classes.value()),
-            "class_names": self.class_names.text(),
             "data_dir": self.data_dir.text(),
             "image_size": int(self.image_size.value()),
             "run_id": self.run_id.text(),
@@ -161,7 +160,6 @@ class ExportPage(QWidget):
         nc = state.get("num_classes")
         if isinstance(nc, int):
             self.num_classes.setValue(nc)
-        self.class_names.setText(str(state.get("class_names", "")))
         data_dir = str(state.get("data_dir", "")).strip()
         if data_dir:
             self.data_dir.setText(data_dir)
@@ -216,13 +214,6 @@ class ExportPage(QWidget):
         if not output_dir.exists():
             raise ValueError(_("Input model parent directory does not exist."))
 
-        class_names_text = self.class_names.text().strip()
-        class_names = None
-        if class_names_text:
-            class_names = [x.strip() for x in class_names_text.split(",") if x.strip()]
-            if not class_names:
-                class_names = None
-
         data_dir_text = self.data_dir.text().strip()
 
         return {
@@ -230,7 +221,7 @@ class ExportPage(QWidget):
             "output_dir": output_dir,
             "architecture": self.architecture.text().strip() or None,
             "num_classes": int(self.num_classes.value()) if self.num_classes.value() > 0 else None,
-            "class_names": class_names,
+            "class_names": None,
             "data_dir": Path(data_dir_text) if data_dir_text else None,
             "image_size": int(self.image_size.value()) if self.image_size.value() > 0 else None,
             "include_architecture_py": bool(self.emit_arch_py.isChecked()),
@@ -249,8 +240,9 @@ class ExportPage(QWidget):
             self.data_dir.setText(data_dir.strip())
         image_size = pc.get("data.image_size")
         try:
-            if int(image_size) > 0:
-                self.image_size.setValue(int(image_size))
+            parsed = int(float(image_size))
+            if parsed > 0:
+                self.image_size.setValue(parsed)
         except Exception:
             pass
         if not self.run_id.text().strip():
