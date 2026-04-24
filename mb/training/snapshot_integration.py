@@ -31,6 +31,7 @@ def update_training_snapshot(
     """
     train_dir = data_dir / 'train'
     test_dir = data_dir / 'test'
+    media_suffixes = tuple(configured_media_suffixes())
     
     def scan_directory(directory: Path, split: str) -> None:
         """Scan a directory and populate snapshot data."""
@@ -48,7 +49,7 @@ def update_training_snapshot(
             
             # Find all image files recursively
             image_files = []
-            for ext in configured_media_suffixes():
+            for ext in media_suffixes:
                 image_files.extend(class_dir.rglob(f'*{ext}'))
                 image_files.extend(class_dir.rglob(f'*{ext.upper()}'))
             

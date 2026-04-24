@@ -228,18 +228,16 @@ def calculate_file_hash(file_path: Path, algorithm: str = 'md5', raw_data_dir: O
         # in ``add_dataset_image``. Training snapshot passes *relative_path* here so we can return
         # ``converted.md5`` without re-reading bytes (same as create-dataset's computed MD5).
         if unified_snapshot and relative_path:
-            # Look up the image record by dataset path
             rp = _posix_rel(relative_path)
-            for image_record in unified_snapshot.images.values():
-                dataset_info = image_record.get('dataset')
-                if dataset_info and _posix_rel(dataset_info.get('path')) == rp:
-                    # Found the record — use stored converted MD5 (same bytes as train/test copy).
-                    converted_info = image_record.get('converted')
-                    if converted_info and isinstance(converted_info, dict):
-                        converted_md5 = converted_info.get('md5')
-                        if converted_md5:
-                            # Return the converted hash directly - no file I/O needed!
-                            return converted_md5
+            image_record = unified_snapshot._get_image_record_by_dataset_path(rp)
+            if image_record:
+                # Found the record — use stored converted MD5 (same bytes as train/test copy).
+                converted_info = image_record.get('converted')
+                if converted_info and isinstance(converted_info, dict):
+                    converted_md5 = converted_info.get('md5')
+                    if converted_md5:
+                        # Return the converted hash directly - no file I/O needed!
+                        return converted_md5
         
         # Try cache lookup if available (direct path matching)
         if _gather_cache:
@@ -310,6 +308,12 @@ class UnifiedSnapshot:
         # Single list: one record per original image with all stages nested
         # Keyed by original_hash for fast lookup
         self.images: Dict[str, Dict] = {}  # {original_hash: image_record}
+        # Fast lookup: dataset path (train/test/...) -> original hash key in ``self.images``.
+        # Keeps training integration and dataset path updates from devolving to O(n^2).
+        # TODO(perf): If snapshots grow beyond practical in-memory dict size, move this lookup
+        # layer to a small indexed DB (e.g. sqlite) or add an LRU-backed persistent cache so
+        # training integration can stream updates without retaining the full map in RAM.
+        self._dataset_path_index: Dict[str, str] = {}
         # Optional: disk space estimates (fingerprints + bytes) from :mod:`mb.space_estimate`
         self.space_estimates: Optional[Dict[str, Any]] = None
         # Optional: wall-clock training summary (set by :class:`~mb.training.trainer.ModelTrainer`)
@@ -318,6 +322,41 @@ class UnifiedSnapshot:
         self.step_errors: Dict[str, Dict[str, List[str]]] = {}
         # Optional deduplication duplicate groups from ``mb data deduplicate`` list/scan.
         self.deduplication_results: List[Dict[str, Any]] = []
+
+    def _index_dataset_path(self, path: Optional[str], original_hash: str) -> None:
+        key = _posix_rel(path)
+        if key:
+            self._dataset_path_index[key] = original_hash
+
+    def _unindex_dataset_path(self, path: Optional[str], *, expected_hash: Optional[str] = None) -> None:
+        key = _posix_rel(path)
+        if not key:
+            return
+        if expected_hash is None:
+            self._dataset_path_index.pop(key, None)
+            return
+        if self._dataset_path_index.get(key) == expected_hash:
+            self._dataset_path_index.pop(key, None)
+
+    def _rebuild_dataset_path_index(self) -> None:
+        self._dataset_path_index.clear()
+        for original_hash, image_record in self.images.items():
+            dataset_info = image_record.get("dataset")
+            if isinstance(dataset_info, dict):
+                self._index_dataset_path(dataset_info.get("path"), original_hash)
+
+    def _get_image_record_by_dataset_path(self, path: Optional[str]) -> Optional[Dict[str, Any]]:
+        key = _posix_rel(path)
+        if not key:
+            return None
+        original_hash = self._dataset_path_index.get(key)
+        if original_hash is not None:
+            rec = self.images.get(original_hash)
+            if rec is not None:
+                return rec
+            # stale index entry
+            self._dataset_path_index.pop(key, None)
+        return None
 
     def add_pre_conversion_image(self, image_path: Path, base_dir: Path) -> bool:
         """Add an image to pre-conversion stage (creates new record)."""
@@ -448,6 +487,8 @@ class UnifiedSnapshot:
             }
         
         # Update dataset stage
+        old_dataset = self.images[original_hash].get("dataset")
+        old_path = old_dataset.get("path") if isinstance(old_dataset, dict) else None
         self.images[original_hash]['dataset'] = {
             'class': class_name,
             'path': final_path,
@@ -455,28 +496,42 @@ class UnifiedSnapshot:
             'sha256': converted_sha256,
             'split': 'train'  # Will be updated if moved to test
         }
+        self._unindex_dataset_path(old_path, expected_hash=original_hash)
+        self._index_dataset_path(final_path, original_hash)
         self.last_updated = datetime.now().isoformat()
     
     def update_dataset_split(self, final_path: str, new_split: str) -> bool:
         """Update dataset split for an image."""
-        # Find image by dataset final_path
-        for image_record in self.images.values():
-            if image_record.get('dataset') and image_record['dataset'].get('path') == final_path:
-                image_record['dataset']['split'] = new_split
-                if new_split == 'test':
-                    image_record['dataset']['path'] = image_record['dataset']['path'].replace('train/', 'test/', 1)
-                self.last_updated = datetime.now().isoformat()
-                return True
+        image_record = self._get_image_record_by_dataset_path(final_path)
+        if image_record and isinstance(image_record.get("dataset"), dict):
+            dataset_info = image_record["dataset"]
+            old_path = dataset_info.get("path")
+            dataset_info['split'] = new_split
+            if new_split == 'test' and isinstance(old_path, str):
+                dataset_info['path'] = old_path.replace('train/', 'test/', 1)
+            new_path = dataset_info.get("path")
+            # Keep index synchronized with the latest split/path.
+            for h, rec in self.images.items():
+                if rec is image_record:
+                    self._unindex_dataset_path(old_path, expected_hash=h)
+                    self._index_dataset_path(new_path, h)
+                    break
+            self.last_updated = datetime.now().isoformat()
+            return True
         return False
     
     def remove_dataset_image(self, final_path: str) -> bool:
         """Remove an image from dataset creation (sets dataset to None)."""
-        # Find image by dataset final_path and remove dataset info
-        for image_record in self.images.values():
-            if image_record.get('dataset') and image_record['dataset'].get('path') == final_path:
-                image_record['dataset'] = None
-                self.last_updated = datetime.now().isoformat()
-                return True
+        image_record = self._get_image_record_by_dataset_path(final_path)
+        if image_record and isinstance(image_record.get("dataset"), dict):
+            old_path = image_record["dataset"].get("path")
+            image_record['dataset'] = None
+            for h, rec in self.images.items():
+                if rec is image_record:
+                    self._unindex_dataset_path(old_path, expected_hash=h)
+                    break
+            self.last_updated = datetime.now().isoformat()
+            return True
         return False
     
     def add_training_image(self, split: str, class_name: str, path: str, hash: str, basename: str) -> None:
@@ -491,16 +546,33 @@ class UnifiedSnapshot:
             basename: Basename of the image file
         """
         path_key = _posix_rel(path)
-        # Find image record by matching dataset path (most reliable)
+        # Fast path: O(1) lookup by dataset path.
         found = False
-        for image_record in self.images.values():
-            dataset_info = image_record.get('dataset')
-            if dataset_info and _posix_rel(dataset_info.get('path')) == path_key:
-                # Get original and converted info from the record itself
-                original = image_record.get('original', {})
-                converted = image_record.get('converted', {})
-                
-                image_record['training'] = {
+        image_record = self._get_image_record_by_dataset_path(path_key)
+        if image_record:
+            # Get original and converted info from the record itself
+            original = image_record.get('original', {})
+            converted = image_record.get('converted', {})
+            image_record['training'] = {
+                'split': split,
+                'class': class_name,
+                'path': path_key,
+                'hash': hash,
+                'basename': basename,
+                'original_hash': original.get('hash'),
+                'original_path': original.get('path'),
+                'original_format': original.get('format'),
+                'was_converted': converted.get('was_converted') if converted else None
+            }
+            found = True
+        
+        # If not found by path, try to match by hash (fallback)
+        if not found and hash:
+            direct = self.images.get(hash)
+            if direct:
+                original = direct.get('original', {})
+                converted = direct.get('converted', {})
+                direct['training'] = {
                     'split': split,
                     'class': class_name,
                     'path': path_key,
@@ -512,9 +584,6 @@ class UnifiedSnapshot:
                     'was_converted': converted.get('was_converted') if converted else None
                 }
                 found = True
-                break
-        
-        # If not found by path, try to match by hash (fallback)
         if not found and hash:
             for image_record in self.images.values():
                 original = image_record.get('original', {})
@@ -659,6 +728,7 @@ class UnifiedSnapshot:
                 original_hash = img_record.get('original', {}).get('hash')
                 if original_hash:
                     snapshot.images[original_hash] = img_record
+            snapshot._rebuild_dataset_path_index()
 
             se = data.get('space_estimates')
             snapshot.space_estimates = se if isinstance(se, dict) else None
