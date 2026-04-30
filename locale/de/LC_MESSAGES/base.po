@@ -2,9 +2,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
-"POT-Creation-Date: 2026-04-03 23:35-0400\n"
-"PO-Revision-Date: 2026-04-03 23:35-0400\n"
-"Last-Translator: Thomas Hall <tomhall.main@gmail.com>\n"
+"POT-Creation-Date: 2026-04-30 17:17-0400\n"
+"PO-Revision-Date: 2026-04-30 17:17-0400\n"
+"Last-Translator: Translator Name <translator@example.com>\n"
 "Language-Team: de Team <<EMAIL>>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -12,41 +12,41 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: mb/cli.py:57
+#: mb/cli.py:59
 msgid "Model Builder - A unified CLI for building ML models"
 msgstr ""
 "Modellbauer - Eine einheitliche Befehlszeilenschnittstelle zum Erstellen von"
 " ML-Modellen"
 
-#: mb/cli.py:72
+#: mb/cli.py:74
 msgid "Path to configuration file (YAML)"
 msgstr "Pfad zur Konfigurationsdatei (YAML)"
 
-#: mb/cli.py:78
+#: mb/cli.py:80
 msgid "Enable verbose logging"
 msgstr "Ausführliche Protokollierung aktivieren"
 
-#: mb/cli.py:84
+#: mb/cli.py:86
 msgid "Available commands"
 msgstr "Verfügbare Befehle"
 
-#: mb/cli.py:91
+#: mb/cli.py:93
 msgid "Data processing operations"
 msgstr "Datenverarbeitungsvorgänge"
 
-#: mb/cli.py:92
+#: mb/cli.py:94
 msgid "Data processing operations for preparing image datasets"
 msgstr "Datenverarbeitungsaufgaben zur Vorbereitung von Bild-Datensätzen"
 
-#: mb/cli.py:96
+#: mb/cli.py:98
 msgid "Data subcommands"
 msgstr "Datenunterbefehle"
 
-#: mb/cli.py:103
+#: mb/cli.py:105
 msgid "Gather images from source directories"
 msgstr "Bilder aus den Quellenordnern sammeln"
 
-#: mb/cli.py:105
+#: mb/cli.py:107
 msgid ""
 "Gather images from source directories into a target directory, with "
 "deduplication and optional weighting by subdirectory."
@@ -54,15 +54,15 @@ msgstr ""
 "Bilder aus Quellverzeichnissen in ein Zielverzeichnis zusammenführen, mit "
 "Duplikatsbereinigung und optionaler Gewichtung nach Unterverzeichnissen."
 
-#: mb/cli.py:113
+#: mb/cli.py:115
 msgid "Source directory containing images"
 msgstr "Quelldirectory enthält Images"
 
-#: mb/cli.py:119
+#: mb/cli.py:121
 msgid "Subdirectories to process"
 msgstr "Unterverzeichnisse zu verarbeiten"
 
-#: mb/cli.py:126
+#: mb/cli.py:128
 msgid ""
 "Target number of images to gather (default: from pipeline "
 "data.gather.default_target_count). Treated as a limit, not an exact "
@@ -72,7 +72,7 @@ msgstr ""
 "„data.gather.default_target_count“). Wird als Obergrenze betrachtet, nicht "
 "als exakte Vorgabe."
 
-#: mb/cli.py:134
+#: mb/cli.py:136
 msgid ""
 "Target directory for gathered images (default: from pipeline "
 "data.gather.default_target_dir)"
@@ -80,7 +80,7 @@ msgstr ""
 "Zielverzeichnis für die gesammelten Bilder (Standard: aus der Pipeline "
 "„data.gather.default_target_dir“)"
 
-#: mb/cli.py:140
+#: mb/cli.py:142
 msgid ""
 "Rejected directory for manually rejected images (default: "
 "data.gather.default_rejected_dir)"
@@ -88,7 +88,7 @@ msgstr ""
 "Verzeichnis für manuell abgelehnte Bilder (Standard: "
 "data.gather.default_rejected_dir)"
 
-#: mb/cli.py:146
+#: mb/cli.py:148
 msgid ""
 "Relative weights for subdirectories: \"subdir1:weight1,subdir2:weight2\" "
 "(e.g. \"neutral:4,drawing:1\" ≈ 80%%/20%%, or \"neutral:0.8,drawing:0.2\"). "
@@ -99,13 +99,14 @@ msgstr ""
 "Die Gewichte werden automatisch normiert; es können beliebige positive "
 "Zahlen verwendet werden."
 
-#: mb/cli.py:148
+#: mb/cli.py:157
 msgid ""
-"Root directory for raw data (default: data.gather.default_raw_data_dir)"
+"Root directory for raw data (default: data.raw_data_dir in pipeline config)"
 msgstr ""
-"Stammverzeichnis für Rohdaten (Standard: data.gather.default_raw_data_dir)"
+"Stammverzeichnis für Rohdaten (Standard: „data.raw_data_dir“ in der "
+"Pipeline-Konfiguration)"
 
-#: mb/cli.py:162
+#: mb/cli.py:164
 msgid ""
 "Pipeline model type (default: model.default_type). When "
 "image_classification, gather also considers configured video extensions."
@@ -114,11 +115,11 @@ msgstr ""
 "Bildklassifizierung berücksichtigt „gather“ auch konfigurierte "
 "Videoerweiterungen."
 
-#: mb/cli.py:170
+#: mb/cli.py:172
 msgid "Convert images to specified format"
 msgstr "Bilder in das/zum angegebenen Format konvertieren"
 
-#: mb/cli.py:172
+#: mb/cli.py:174
 msgid ""
 "Convert images in the raw data directory to a specified format (e.g., JPEG)."
 " Large images are automatically resized to prevent memory issues."
@@ -127,11 +128,11 @@ msgstr ""
 "(z.B. JPEG). Große Bilder werden automatisch resize um Speicherprobleme zu "
 "verhindern."
 
-#: mb/cli.py:180 mb/cli.py:241 mb/cli.py:267 mb/cli.py:341
+#: mb/cli.py:182 mb/cli.py:269 mb/cli.py:295 mb/cli.py:473
 msgid "Raw data directory (default: raw_data)"
 msgstr "Rohdatenverzeichnis (Standard: raw_data)"
 
-#: mb/cli.py:187
+#: mb/cli.py:189
 msgid ""
 "Target format for converted outputs (default: jpeg). The converter is "
 "currently JPEG-oriented; non-default values may be ignored until "
@@ -142,7 +143,7 @@ msgstr ""
 "werden möglicherweise ignoriert, bis die entsprechende Funktion "
 "implementiert ist."
 
-#: mb/cli.py:196
+#: mb/cli.py:198
 msgid ""
 "Pipeline model type (default: model.default_type). When "
 "image_classification, videos and multi-frame GIFs get a random frame as "
@@ -152,7 +153,7 @@ msgstr ""
 "„image_classification“, Videos und GIFs mit mehreren Bildern wird ein "
 "zufälliges Bild als JPEG verwendet."
 
-#: mb/cli.py:204
+#: mb/cli.py:206
 msgid ""
 "Allow convert to run even if the raw-data drive appears to have insufficient"
 " free space (heuristic estimate; not recommended)."
@@ -161,11 +162,11 @@ msgstr ""
 "genügend freien Speicherplatz verfügt (heuristische Schätzung; nicht "
 "empfohlen)."
 
-#: mb/cli.py:212
+#: mb/cli.py:223
 msgid "Remove duplicate images"
 msgstr "Doppelbilder entfernen"
 
-#: mb/cli.py:214
+#: mb/cli.py:225
 msgid ""
 "Remove duplicate images within and across class directories. Uses perceptual"
 " hashing to identify duplicates and moves them to a review directory."
@@ -174,7 +175,7 @@ msgstr ""
 "Nutzt Perceptual Hashing, um Duplikate zu identifizieren, und verschiebt "
 "diese in ein Überprüfungsverzeichnis."
 
-#: mb/cli.py:223
+#: mb/cli.py:234
 msgid ""
 "Root raw data directory containing class subdirectories (default: raw_data)."
 " Typical layouts include multiple class folders under this root."
@@ -183,11 +184,11 @@ msgstr ""
 "Klassen enthält (Standard: raw_data). Typischerweise befinden sich unter "
 "diesem Stammverzeichnis mehrere Ordner für die einzelnen Klassen."
 
-#: mb/cli.py:231
+#: mb/cli.py:259
 msgid "Upscale small images"
 msgstr "Kleine Bilder hochskalieren"
 
-#: mb/cli.py:233
+#: mb/cli.py:261
 msgid ""
 "Upscale images that are smaller than a minimum dimension threshold. Small "
 "images are moved to a review directory for manual inspection before "
@@ -197,7 +198,7 @@ msgstr ""
 "vergrößert. Kleine Bilder werden vor der Vergrößerung zur manuellen "
 "Überprüfung in ein Überprüfungsverzeichnis verschoben."
 
-#: mb/cli.py:247
+#: mb/cli.py:275
 msgid ""
 "Review directory containing small images to upscale (default: <raw-data-"
 "dir>/small_images_review). Upscaled outputs go under <review-"
@@ -207,11 +208,11 @@ msgstr ""
 "(Standard: <raw-data-dir>/small_images_review). Die hochskalierten "
 "Ergebnisse werden unter <review-dir>/upscaled_small_images abgelegt."
 
-#: mb/cli.py:256
+#: mb/cli.py:284
 msgid "Create train/test dataset splits"
 msgstr "Erstelle Training-/Test-Datensatz-Zerteilungen"
 
-#: mb/cli.py:258
+#: mb/cli.py:286
 msgid ""
 "Create training and test dataset splits from raw data. Validates images, "
 "removes corrupted files, filters by size, and creates balanced train/test "
@@ -221,7 +222,7 @@ msgstr ""
 "removes corrupted files, filters by size, and creates balanced train/test "
 "splits with hash-based filenames."
 
-#: mb/cli.py:273
+#: mb/cli.py:301
 msgid "Output data directory (default: data)"
 msgstr "Ausgabeverzeichnis (Standard: data)"
 
@@ -237,14 +238,14 @@ msgstr ""
 msgid "Random seed for reproducibility"
 msgstr "Zufallsschub für die Wiederherstellbarkeit"
 
-#: mb/cli.py:292 mb/cli.py:431
+#: mb/cli.py:342 mb/cli.py:563
 msgid ""
 "Run ID of unified snapshot to update (auto-detects latest if not provided)"
 msgstr ""
 "Run-ID von einem einheitlichen Snapshot zum Anzupdaten (Automatisch den "
 "neuesten ermitteln, wenn keiner angegeben ist)."
 
-#: mb/cli.py:298
+#: mb/cli.py:348
 msgid ""
 "Balance the training set to the smallest class size (default: off, keeps "
 "natural proportions)."
@@ -252,7 +253,7 @@ msgstr ""
 "Das Trainingsset an die kleinste Klassengröße anpassen (Standard: "
 "deaktiviert, behält die natürlichen Proportionen bei)."
 
-#: mb/cli.py:305
+#: mb/cli.py:355
 msgid ""
 "Maximum training items per class (no limit if omitted; keeps natural "
 "proportions below the cap)."
@@ -261,13 +262,13 @@ msgstr ""
 "nicht angegeben; die natürlichen Proportionen bleiben unterhalb der "
 "Obergrenze)."
 
-#: mb/cli.py:311
+#: mb/cli.py:361
 msgid "Allow running on external/removable storage (not recommended)"
 msgstr ""
 "Ermöglichen das Laufenlassen auf externen/entfernungsschreibbaren "
 "Speichermedien (nicht empfohlen)"
 
-#: mb/cli.py:317
+#: mb/cli.py:367
 msgid ""
 "Allow create-dataset even if the output data drive appears to have "
 "insufficient free space (heuristic estimate; not recommended)."
@@ -276,12 +277,12 @@ msgstr ""
 "über genügend freien Speicherplatz verfügt (heuristische Schätzung; nicht "
 "empfohlen)."
 
-#: mb/cli.py:325
+#: mb/cli.py:457
 msgid "Estimate disk space needed for convert or create-dataset"
 msgstr ""
 "Schätzung des für „convert“ oder „create-dataset“ benötigten Speicherplatzes"
 
-#: mb/cli.py:327
+#: mb/cli.py:459
 msgid ""
 "Walks source files (same rules as convert/dataset) and compares a rough byte"
 " estimate to free space on the target volume. Exits non-zero if the estimate"
@@ -292,19 +293,19 @@ msgstr ""
 "auf dem Zielvolume. Gibt einen Wert ungleich Null zurück, wenn die Schätzung"
 " den freien Speicherplatz übersteigt."
 
-#: mb/cli.py:335
+#: mb/cli.py:467
 msgid "Which step to estimate for"
 msgstr "Welcher Schritt zur Schätzung für"
 
-#: mb/cli.py:346
+#: mb/cli.py:478
 msgid "Output data directory (required when operation is create-dataset)"
 msgstr "Ausgabeverzeichnis (erforderlich bei der Operation „create-dataset“)"
 
-#: mb/cli.py:352
+#: mb/cli.py:484
 msgid "Train a model"
 msgstr "Trainieren Sie ein Modell"
 
-#: mb/cli.py:354
+#: mb/cli.py:486
 msgid ""
 "Train a machine learning model using the specified framework and "
 "architecture. Supports transfer learning with frozen/unfrozen training "
@@ -314,79 +315,79 @@ msgstr ""
 "angegebenen Frameworks und der angegebenen Architektur. Unterstützt "
 "Transferlernen mit „gefrorenen“ und „nicht gefrorenen“ Trainingsphasen."
 
-#: mb/cli.py:362
+#: mb/cli.py:494
 msgid "Model type (default: image_classification)"
 msgstr "Modelltyp (Standardwert: image_classification)"
 
-#: mb/cli.py:367
+#: mb/cli.py:499
 msgid "Framework to use (default: from config)"
 msgstr "Rahmenwerk zum verwenden (Standard: aus der Konfiguration)"
 
-#: mb/cli.py:371
+#: mb/cli.py:503
 msgid "Model architecture (e.g., resnet34)"
 msgstr "Modellarchitektur (z. B. ResNet34)"
 
-#: mb/cli.py:376
+#: mb/cli.py:508
 msgid "Data directory (default: from config)"
 msgstr ""
 "Datenverzeichnis (voreausgewählter Wert: Standard: aus der Konfiguration)"
 
-#: mb/cli.py:381
+#: mb/cli.py:513
 msgid "Output directory for models (default: from config)"
 msgstr "Ausgabeverzeichnis für Modelle (Standard: aus der Konfiguration)"
 
-#: mb/cli.py:386
+#: mb/cli.py:518
 msgid "Number of frozen training epochs (default: from config)"
 msgstr ""
 "Anzahl der frohenen Trainingsepochen (Standardwert: aus der Konfiguration)"
 
-#: mb/cli.py:391
+#: mb/cli.py:523
 msgid "Number of unfrozen training epochs (default: from config)"
 msgstr ""
 "Anzahl von unschlossenen Trainingsepochen (Standardmäßig: vom Config "
 "Defaults)"
 
-#: mb/cli.py:396
+#: mb/cli.py:528
 msgid "Learning rate for frozen phase (default: from config)"
 msgstr "Lernrate für die frorene Phase (voredefiniert: aus der Konfiguration)"
 
-#: mb/cli.py:401
+#: mb/cli.py:533
 msgid "Maximum learning rate for unfrozen phase (default: from config)"
 msgstr ""
 "Maximaler Lernrate für die nichtgefrorene Phase (Standard: aus der "
 "Konfiguration)"
 
-#: mb/cli.py:406
+#: mb/cli.py:538
 msgid "Minimum learning rate for unfrozen phase (default: from config)"
 msgstr ""
 "Minimale Lernrate für die nicht gefrorene Phase (Standard: aus der "
 "Konfiguration)"
 
-#: mb/cli.py:411
+#: mb/cli.py:543
 msgid "Batch size (default: from config or auto-detect)"
 msgstr ""
 "Batchgröße (Standard: aus der Konfiguration oder automatisch ermittelt "
 "werden)"
 
-#: mb/cli.py:416
+#: mb/cli.py:548
 msgid "Image size (default: 224)"
 msgstr "Bildgröße (Standard: 224)"
 
-#: mb/cli.py:421
+#: mb/cli.py:553
 msgid "Number of data loading workers (default: from config)"
 msgstr "Anzahl der Datenvorlader (Standard: aus der Konfiguration)"
 
-#: mb/cli.py:426
+#: mb/cli.py:558
 msgid "Path to checkpoint to resume training from"
 msgstr "Pfad zum Checkpunkt um die Training fortzusetzen von"
 
-#: mb/cli.py:436
+#: mb/cli.py:568
 msgid "Skip updating the unified snapshot with training data"
 msgstr ""
 "Überspringen Sie die Aktualisierung der einheitlichen Momentaufnahme mit den"
 " Trainingdaten."
 
-#: mb/cli.py:443
+#: mb/cli.py:575
 msgid ""
 "Load TrainingRunArgs from JSON (see mb.training.run_args); other train flags"
 " are ignored"
@@ -394,11 +395,11 @@ msgstr ""
 "Laden von TrainingRunArgs aus JSON (siehe mb.training.run_args); andere "
 "Train-Flaggen werden ignoriert."
 
-#: mb/cli.py:450
+#: mb/cli.py:582
 msgid "Convert model between formats"
 msgstr "Modell zwischen den Formaten konvertieren"
 
-#: mb/cli.py:452
+#: mb/cli.py:584
 msgid ""
 "Convert a trained model between different formats. Supports PyTorch -> ONNX,"
 " PyTorch -> SafeTensors, and Keras -> ONNX."
@@ -406,23 +407,23 @@ msgstr ""
 "Konvertieren Sie ein trainiertes Modell zwischen verschiedenen Formaten. "
 "Unterstützt PyTorch -> ONNX, PyTorch -> SafeTensors und Keras -> ONNX."
 
-#: mb/cli.py:460
+#: mb/cli.py:592
 msgid "Input model file"
 msgstr "Eingabemodell-Datei"
 
-#: mb/cli.py:466
+#: mb/cli.py:598
 msgid "Output model file"
 msgstr "Ausgabedatei des Modells"
 
-#: mb/cli.py:471
+#: mb/cli.py:603
 msgid "Source framework (auto-detected if not specified)"
 msgstr "Quellrahmenwerk (wird automatisch erkannt, sofern nicht angegeben)"
 
-#: mb/cli.py:477
+#: mb/cli.py:609
 msgid "Target format (onnx or safetensors)"
 msgstr "Zielformat (ONNX oder safetensors)"
 
-#: mb/cli.py:481
+#: mb/cli.py:613
 msgid ""
 "Model architecture (required for PyTorch -> ONNX conversion, e.g., "
 "'resnet34')"
@@ -430,21 +431,21 @@ msgstr ""
 "Modellarchitektur (erforderlich für die Konvertierung von PyTorch -> ONNX, "
 "z. B., 'resnet34')"
 
-#: mb/cli.py:486
+#: mb/cli.py:618
 msgid "Number of output classes (required for PyTorch -> ONNX conversion)"
 msgstr ""
 "Anzahl der Ausgabeklassen (erforderlich für die Konvertierung von PyTorch ->"
 " ONNX)"
 
-#: mb/cli.py:492
+#: mb/cli.py:624
 msgid "Input image size (default: 224, used for ONNX conversion)"
 msgstr "Eingabebildgröße (Standard: 224, genutzt für die ONNX-Konvertierung)"
 
-#: mb/cli.py:498
+#: mb/cli.py:630
 msgid "Show information about models or datasets"
 msgstr "Zeigen Sie Informationen zu Modellen oder Datensätzen."
 
-#: mb/cli.py:500
+#: mb/cli.py:632
 msgid ""
 "Display information about trained models or datasets, including metadata, "
 "architecture details, and dataset statistics."
@@ -452,15 +453,15 @@ msgstr ""
 "Zeigen Sie Informationen zu trainierten Modellen oder Datensätzen an, "
 "darunter Metadaten, Details zur Architektur und Statistiken zum Datensatz."
 
-#: mb/cli.py:506
+#: mb/cli.py:638
 msgid "Info subcommands"
 msgstr "Info Unterbefehle"
 
-#: mb/cli.py:513
+#: mb/cli.py:645
 msgid "Show model information"
 msgstr "Zeige Modellinformation an"
 
-#: mb/cli.py:515
+#: mb/cli.py:647
 msgid ""
 "Display detailed information about a trained model, including architecture, "
 "framework, number of parameters, and training metadata."
@@ -468,15 +469,15 @@ msgstr ""
 "Zeige detaillierte Informationen zu einem trainierten Modell an, darunter "
 "Architektur, Framework, Anzahl der Parameter und Trainingsmetadaten."
 
-#: mb/cli.py:523
+#: mb/cli.py:655
 msgid "Path to model file"
 msgstr "Pfad zur Modelldatei"
 
-#: mb/cli.py:529
+#: mb/cli.py:661
 msgid "Show dataset information"
 msgstr "Datensatzinformation anzeigen"
 
-#: mb/cli.py:531
+#: mb/cli.py:663
 msgid ""
 "Display statistics about a dataset, including class distributions, image "
 "counts, and data directory structure."
@@ -484,126 +485,134 @@ msgstr ""
 "Zeigen Sie Statistiken über einem Dataset an, einschließlich "
 "Klassenverteilungen, Bildanzahlen und Datenverzeichnisstruktur."
 
-#: mb/cli.py:539
+#: mb/cli.py:671
 msgid "Path to data directory"
 msgstr "Pfad zum Datenvierzchnis"
 
-#: mb/cli.py:551
+#: mb/cli.py:716
 msgid "Please specify valid subdirectories using --subdirs argument"
 msgstr ""
 "Bitte bestimmen Sie gültige Unterordner mithilfe des --subdirs-Arguments."
 
-#: mb/cli.py:560
+#: mb/cli.py:725
 msgid "Invalid weight format: {pair}. Expected format: subdir:weight"
 msgstr "Ungültiger Gewichtsformat: {pair}. Erwarteter Format: subdir:gewicht."
 
-#: mb/cli.py:570
+#: mb/cli.py:735
 msgid "Weight must be non-negative: {subdir}={weight}"
 msgstr "Das Gewicht muss nicht negativ sein: {subdir}={weight}"
 
-#: mb/cli.py:581
+#: mb/cli.py:746
 msgid "Subdirectories in weights not found in --subdirs: {weights}"
 msgstr ""
 "Unterverzeichnisse in „weights“, die nicht in --subdirs: {weights} enthalten"
 " sind"
 
-#: mb/cli.py:669
+#: mb/cli.py:845
 msgid "Process terminated due to external storage detection."
 msgstr "Prozess wurde beendet aufgrund der externen Speichermedium-Detektion."
 
-#: mb/cli.py:713
+#: mb/cli.py:947
 msgid "--data-dir is required when operation is create-dataset"
 msgstr ""
 "--data-dir ist erforderlich, wenn die Operation 'create-dataset' ausgeführt "
 "wird."
 
-#: mb/cli.py:732
-msgid "Unsupported framework in JSON: {fw}"
-msgstr "Nicht unterstützter Framework in JSON: {fw}"
-
-#: mb/cli.py:739
+#: mb/cli.py:979
 msgid "Unsupported model type from config: {t}"
 msgstr "Nicht unterstützter Modelltyp aus der Konfiguration: {t}"
 
-#: mb/cli.py:744 mb/cli.py:794
+#: mb/cli.py:984 mb/cli.py:1034
 msgid "Data directory does not exist: {path}"
 msgstr "Datenverzeichnis existiert nicht: {path}"
 
-#: mb/cli.py:756 mb/cli.py:831
+#: mb/cli.py:996 mb/cli.py:1071
 msgid "Architecture '{arch}' not supported for framework '{fw}'"
 msgstr ""
 "Die Architektur '{arch}' wird für das Framework '{fw}' nicht unterstützt."
 
-#: mb/cli.py:767 mb/cli.py:853
+#: mb/cli.py:1007 mb/cli.py:1093
 msgid "Training completed successfully. Model saved to: {path}"
 msgstr ""
 "Das Training ist erfolgreich abgeschlossen worden. Modell gespeichert unter:"
 " {path}"
 
-#: mb/cli.py:775 ui/pages/train_page.py:375
+#: mb/cli.py:1015 ui/pages/train_page.py:439
 msgid "Unsupported framework: {fw}"
 msgstr "Nicht unterstützter Framework: {fw}"
 
-#: mb/cli.py:780
+#: mb/cli.py:1020
 msgid "Unsupported model type: {t}"
 msgstr "Nicht unterstützter Modelltyp: {t}"
 
-#: mb/cli.py:858
+#: mb/cli.py:1028
+msgid "Unsupported architecture: {arch}"
+msgstr "Nicht unterstützte Architektur: {arch}"
+
+#: mb/cli.py:1098
 msgid "Training failed: {err}"
 msgstr "Training verwarf sich: {err}"
 
-#: mb/cli.py:869
+#: mb/cli.py:1109 mb/cli.py:1189
 msgid "Input model file not found: {path}"
 msgstr "Eingabedatei nicht gefunden: {path}"
 
-#: mb/cli.py:878
+#: mb/cli.py:1118
 msgid "Could not detect source framework. Please specify --framework"
 msgstr ""
 "Das Source-Rahmenwerk konnte nicht erkannt werden. Bitte angeben Sie "
 "--Rahmenwerk"
 
-#: mb/cli.py:884
+#: mb/cli.py:1124
 msgid "PyTorch -> ONNX conversion requires --architecture and --num-classes"
 msgstr ""
 "PyTorch -> ONNX-Konvertierung erfordert --Architektur und --Anzahl-Klassen"
 
-#: mb/cli.py:903
+#: mb/cli.py:1143
 msgid "Conversion completed successfully: {path}"
 msgstr "Konvertierung abgeschlossen erfolgreich: {path}"
 
-#: mb/cli.py:907 ui/pages/convert_page.py:344
+#: mb/cli.py:1147 ui/pages/convert_page.py:344
 msgid "Conversion failed"
 msgstr "Konvertierung fehlgeschlagen"
 
-#: mb/cli.py:911
+#: mb/cli.py:1151
 msgid "Conversion error: {err}"
 msgstr "Konvertierungfehler: {err}"
 
-#: mb/cli.py:920 ui/pages/info_page.py:184
+#: mb/cli.py:1160 ui/pages/info_page.py:184
 msgid "Model path not found: {path}"
 msgstr "Modellpfad nicht gefunden: {path}"
 
-#: mb/cli.py:934 ui/pages/info_page.py:198
+#: mb/cli.py:1174 ui/pages/info_page.py:198
 msgid "Data directory not found: {path}"
 msgstr "Datenverzeichnis nicht gefunden: {path}"
 
-#: mb/cli.py:969
+#: mb/cli.py:1245
 msgid "No data subcommand specified"
 msgstr "Kein Datensubcommand angegeben"
 
-#: mb/cli.py:995
+#: mb/cli.py:1250
+msgid "Unknown data subcommand: {cmd}"
+msgstr "Unbekannter Datensatz-Befehl: {cmd}"
+
+#: mb/cli.py:1272
 msgid "No info subcommand specified"
 msgstr "Kein info-Unterbefehl angegeben"
 
-#: mb/cli.py:1007 ui/pages/data_page.py:616 ui/pages/data_page.py:773
+#: mb/cli.py:1277
+msgid "Unknown info subcommand: {cmd}"
+msgstr "Unbekannter Info-Unterbefehl: {cmd}"
+
+#: mb/cli.py:1298 ui/pages/data_page.py:1210 ui/pages/data_page.py:1433
 msgid "Unknown command: {cmd}"
 msgstr "Unbekannter Befehl: {cmd}"
 
-#: mb/cli.py:1011
+#: mb/cli.py:1302
 msgid "Interrupted by user"
 msgstr "Unterbrochen von Benutzer"
 
-#: mb/cli.py:1014
+#: mb/cli.py:1305
 msgid "Error: {err}"
 msgstr "Fehler: {err}"
 
@@ -651,29 +660,29 @@ msgstr "  fehlt"
 msgid "  total: {n}"
 msgstr "  Summe: {n}"
 
-#: mb/data/dataset.py:624
+#: mb/data/dataset.py:1072
 msgid "Source and target directories are on the same drive."
 msgstr "Die Quelle und das Zielverzeichnis sind auf dem gleichen Laufwerk."
 
-#: mb/data/dataset.py:626
+#: mb/data/dataset.py:1074
 msgid ""
 "The script will use copy operations (not move) to preserve source files."
 msgstr ""
 "Das Skript wird Kopieroperationen (nicht verschieben) verwenden, um "
 "Quelldateien zu erhalten."
 
-#: mb/data/dataset.py:645
+#: mb/data/dataset.py:1093
 msgid ""
 "Source drive {drive} is the system drive. Proceeding without confirmation."
 msgstr ""
 "Die Quelle Laufwerk {drive} ist das Systemlaufwerk. Ohne Bestätigung "
 "fortsetzen."
 
-#: mb/data/dataset.py:655
+#: mb/data/dataset.py:1103
 msgid "NOTE: Source drive {src} is different from system drive {sys}."
 msgstr "HINWEIS: Quelldrive {src} ist verschieden vom Systemlaufwerk {sys}."
 
-#: mb/data/dataset.py:661
+#: mb/data/dataset.py:1109
 msgid ""
 "This may indicate an external drive that failed detection. Consider whether "
 "to proceed."
@@ -681,7 +690,7 @@ msgstr ""
 "Das könnte darauf hindeuten, dass eine externe Festplatte nicht erkannt "
 "wurde. Betrachten Sie, ob Sie fortfahren möchten."
 
-#: mb/data/dataset.py:667
+#: mb/data/dataset.py:1115
 msgid ""
 "NOTE: Unable to determine system drive. If this is not your main system "
 "drive,"
@@ -689,7 +698,7 @@ msgstr ""
 "HINWEIS: Kann das Systemlaufwerk nicht bestimmen. Falls dies nicht Ihr "
 "Hauptsystemlaufwerk ist,"
 
-#: mb/data/dataset.py:672
+#: mb/data/dataset.py:1120
 msgid ""
 "it may indicate an external drive that failed detection. Consider whether to"
 " proceed."
@@ -697,7 +706,7 @@ msgstr ""
 "Es kann eine externe Festplatte anzeigen, die nicht erkannt wurde. Überlegen"
 " Sie, ob Sie fortfahren möchten."
 
-#: mb/data/dataset.py:677
+#: mb/data/dataset.py:1125
 msgid ""
 "NOTE: If this is not your main system drive, it may indicate an external "
 "drive"
@@ -705,24 +714,24 @@ msgstr ""
 "HINWEIS: Wenn dies nicht Ihr主系统laufwerk ist, kann es sich um ein externes "
 "laufwerk handeln"
 
-#: mb/data/dataset.py:679
+#: mb/data/dataset.py:1127
 msgid "that failed detection. Consider whether to proceed."
 msgstr ""
 "Die fehlgeschlagene Detektion. Überlegen Sie sich, ob Sie fortfahren sollen."
 
-#: mb/data/dataset.py:681
+#: mb/data/dataset.py:1129
 msgid "Continue with same-drive operation? (y/N): "
 msgstr "Weitert man mit der Gleichlaufbetriebsoperation? (Y/N): "
 
-#: mb/data/dataset.py:683
+#: mb/data/dataset.py:1131
 msgid "Operation cancelled by user."
 msgstr "Operation abgestoppt vom Benutzer."
 
-#: mb/utils/constants.py:52
+#: mb/utils/constants.py:78
 msgid "System"
 msgstr "System"
 
-#: mb/utils/constants.py:71
+#: mb/utils/constants.py:97
 msgid "Access Password Administration"
 msgstr "Zugang Passwort Verwaltung"
 
@@ -748,27 +757,27 @@ msgstr "OK"
 msgid "fail"
 msgstr "scheitern"
 
-#: ui/app.py:28 ui/main_window.py:81 ui/main_window.py:117
+#: ui/app.py:28 ui/main_window.py:83 ui/main_window.py:119
 msgid "Model Builder"
 msgstr "Modellbauwerks"
 
-#: ui/main_window.py:262
+#: ui/main_window.py:264
 msgid "File"
 msgstr "Datei"
 
-#: ui/main_window.py:263
+#: ui/main_window.py:265
 msgid "Set workspace folder…"
 msgstr "Arbeitsordner festlegen…"
 
-#: ui/main_window.py:266
+#: ui/main_window.py:268
 msgid "Set config file…"
 msgstr "Konfigurationsdatei festlegen…"
 
-#: ui/main_window.py:269
+#: ui/main_window.py:271
 msgid "Open application settings (YAML)…"
 msgstr "Anwendungseinstellungen (YAML) öffnen…"
 
-#: ui/main_window.py:273
+#: ui/main_window.py:275
 msgid ""
 "Desktop shell options (toasts, cache interval, …); see "
 "mb/config/application.example.yaml. Reload the app or use Set config file "
@@ -778,37 +787,37 @@ msgstr ""
 "mb/config/application.example.yaml. Lade die App neu oder verwende "
 "„Konfigurationsdatei für Pipeline-YAML festlegen“."
 
-#: ui/main_window.py:279
+#: ui/main_window.py:281
 msgid "Exit"
 msgstr "Beenden"
 
-#: ui/main_window.py:284
+#: ui/main_window.py:286
 msgid "Help"
 msgstr "Hilfe"
 
-#: ui/main_window.py:285 ui/main_window.py:353
+#: ui/main_window.py:287 ui/main_window.py:355
 msgid "About Model Builder"
 msgstr "Über den Modellerbauer"
 
-#: ui/main_window.py:297
+#: ui/main_window.py:299
 msgid " | Config: {path}"
 msgstr " | Konfiguration: {path}"
 
-#: ui/main_window.py:301
+#: ui/main_window.py:303
 msgid "Workspace: {root}{cfg}"
 msgstr "Arbeitsplatz: {root}{cfg}"
 
-#: ui/main_window.py:302
+#: ui/main_window.py:304
 msgid "No workspace folder set — use File → Set workspace folder"
 msgstr ""
 "Kein Arbeitsverzeichnis festgelegt — Benutze Datei → Arbeitsverzeichnis "
 "setzen"
 
-#: ui/main_window.py:313
+#: ui/main_window.py:315
 msgid "Application settings"
 msgstr "Anwendungssettings"
 
-#: ui/main_window.py:314
+#: ui/main_window.py:316
 msgid ""
 "File not found:\n"
 "{path}"
@@ -816,23 +825,23 @@ msgstr ""
 "Datei nicht gefunden:\n"
 "{path}"
 
-#: ui/main_window.py:323
+#: ui/main_window.py:325
 msgid "Workspace root folder"
 msgstr "Arbeitsbereichs-Rootverzeichnis"
 
-#: ui/main_window.py:339
+#: ui/main_window.py:341
 msgid "Optional YAML config"
 msgstr "Optionale YAML-Config"
 
-#: ui/main_window.py:341
+#: ui/main_window.py:343
 msgid "YAML (*.yaml *.yml);;All files (*.*)"
 msgstr "YAML (*.yaml *.yml);;Alle Dateien (*.*)"
 
-#: ui/main_window.py:365
+#: ui/main_window.py:367
 msgid "Background task"
 msgstr "Hintergrundtask"
 
-#: ui/main_window.py:367
+#: ui/main_window.py:369
 msgid ""
 "A background task is still running. Closing now may leave partial outputs "
 "(checkpoints, datasets, copies). Exit anyway?"
@@ -848,7 +857,7 @@ msgstr "Fehler"
 #: ui/lib/custom_dialogs_qt.py:120 ui/lib/fast_directory_picker_qt.py:411
 #: ui/lib/fast_directory_picker_qt.py:673
 #: ui/lib/fast_directory_picker_qt.py:994 ui/lib/qt_alert.py:28
-#: ui/lib/task_progress.py:38 ui/lib/training_progress_dialog.py:73
+#: ui/lib/task_progress.py:38 ui/lib/training_progress_dialog.py:77
 msgid "Cancel"
 msgstr "Abbrechen"
 
@@ -856,6 +865,21 @@ msgstr "Abbrechen"
 #: ui/lib/qt_alert.py:129
 msgid "OK"
 msgstr "OK"
+
+#: ui/lib/directory_line_edit_row.py:29 ui/pages/convert_page.py:201
+#: ui/pages/data_page.py:957 ui/pages/export_page.py:197
+#: ui/pages/info_page.py:152 ui/pages/train_page.py:379
+msgid "Select directory"
+msgstr "Verzeichnis auswählen"
+
+#: ui/lib/directory_line_edit_row.py:30 ui/pages/convert_page.py:142
+#: ui/pages/convert_page.py:190 ui/pages/data_page.py:325
+#: ui/pages/data_page.py:946 ui/pages/export_page.py:129
+#: ui/pages/export_page.py:181 ui/pages/info_page.py:67
+#: ui/pages/info_page.py:141 ui/pages/train_page.py:216
+#: ui/pages/train_page.py:321
+msgid "Browse..."
+msgstr "Durchsuchen..."
 
 #: ui/lib/fast_directory_picker_qt.py:217
 #: ui/lib/fast_directory_picker_qt.py:278
@@ -1022,7 +1046,7 @@ msgid "output.onnx"
 msgstr "ausgabe.onnx"
 
 #: ui/lib/fast_directory_picker_qt.py:998 ui/pages/config_page.py:82
-#: ui/pages/config_page.py:160 ui/pages/pipeline_config_page.py:217
+#: ui/pages/config_page.py:160 ui/pages/pipeline_config_page.py:224
 msgid "Save"
 msgstr "Speichern"
 
@@ -1054,12 +1078,55 @@ msgstr "Kopiere Details"
 msgid "Open log folder"
 msgstr "Öffne den Log-Ordner"
 
-#: ui/lib/task_progress.py:31 ui/lib/training_progress_dialog.py:55
+#: ui/lib/task_progress.py:31 ui/lib/training_progress_dialog.py:56
 msgid "Starting…"
 msgstr "Startend…"
 
+#: ui/lib/training_progress_dialog.py:32 ui/lib/training_progress_dialog.py:34
+#: ui/lib/training_progress_dialog.py:121
+#: ui/lib/training_progress_dialog.py:140
+msgid "Estimated time remaining: —"
+msgstr "Verbleibende Zeit geschätzt: —"
+
+#: ui/lib/training_progress_dialog.py:35
+msgid "Estimated time remaining: {eta}"
+msgstr "Verbleibende geschätzte Zeit: {eta}"
+
+#: ui/lib/training_progress_dialog.py:41
+msgid "Elapsed: {t}"
+msgstr "Verstrichen: {t}"
+
+#: ui/lib/training_progress_dialog.py:99
+#: ui/lib/training_progress_dialog.py:109
+msgid "ETA unknown"
+msgstr "ETA unbekannt"
+
+#: ui/lib/training_progress_dialog.py:118
+msgid "Estimated time remaining: almost done"
+msgstr "Estimierten verbleibenden Zeit: fast fertig"
+
+#: ui/lib/training_progress_dialog.py:134
+msgid "Estimated time remaining: calculating…"
+msgstr "Verbleibende Zeit Schätzung: berechnend..."
+
+#: ui/lib/training_progress_dialog.py:200
+msgid "Cancel training"
+msgstr "Training abbrechen"
+
+#: ui/lib/training_progress_dialog.py:201
+msgid ""
+"Stop training? Partial checkpoints may already exist in the output folder."
+msgstr ""
+"Das Training abbrechen? Möglicherweise befinden sich bereits teilweise "
+"verarbeitete Checkpoints im Ausgabeordner."
+
+#: ui/lib/training_progress_dialog.py:208
+#: ui/lib/training_progress_dialog.py:209
+msgid "Cancelling…"
+msgstr "Beenden…"
+
 #: ui/pages/config_page.py:80 ui/pages/config_page.py:159
-#: ui/pages/pipeline_config_page.py:215
+#: ui/pages/pipeline_config_page.py:222
 msgid "Reload from disk"
 msgstr "Neu laden aus dem Datenträger"
 
@@ -1198,7 +1265,7 @@ msgstr ""
 "Die Standardgröße des Hauptfensters muss im Format BREITExHÖHE angegeben "
 "werden (z. B. 1200x960)."
 
-#: ui/pages/config_page.py:390 ui/pages/pipeline_config_page.py:683
+#: ui/pages/config_page.py:390 ui/pages/pipeline_config_page.py:723
 msgid ""
 "Could not write:\n"
 "{path}\n"
@@ -1210,7 +1277,7 @@ msgstr ""
 "\n"
 "{err}"
 
-#: ui/pages/config_page.py:401 ui/pages/pipeline_config_page.py:691
+#: ui/pages/config_page.py:401 ui/pages/pipeline_config_page.py:738
 msgid ""
 "Saved to:\n"
 "{path}"
@@ -1218,7 +1285,7 @@ msgstr ""
 "Gespeichert unter:\n"
 "{path}"
 
-#: ui/pages/config_page.py:414 ui/pages/pipeline_config_page.py:704
+#: ui/pages/config_page.py:414 ui/pages/pipeline_config_page.py:760
 msgid ""
 "Could not write defaults to:\n"
 "{path}\n"
@@ -1243,6 +1310,7 @@ msgid "Required only for PyTorch -> ONNX"
 msgstr "Erforderlich nur für PyTorch -> ONNX"
 
 #: ui/pages/convert_page.py:82 ui/pages/convert_page.py:121
+#: ui/pages/export_page.py:67 ui/pages/export_page.py:104
 msgid "Input model"
 msgstr "Eingabemodel"
 
@@ -1259,16 +1327,19 @@ msgid "Target format"
 msgstr "Zielformat"
 
 #: ui/pages/convert_page.py:86 ui/pages/convert_page.py:125
-#: ui/pages/train_page.py:79 ui/pages/train_page.py:161
+#: ui/pages/export_page.py:68 ui/pages/export_page.py:105
+#: ui/pages/train_page.py:84 ui/pages/train_page.py:166
 msgid "Architecture"
 msgstr "Architektur"
 
 #: ui/pages/convert_page.py:87 ui/pages/convert_page.py:126
+#: ui/pages/export_page.py:69 ui/pages/export_page.py:106
 msgid "Num classes"
 msgstr "Num Klassen"
 
 #: ui/pages/convert_page.py:88 ui/pages/convert_page.py:127
-#: ui/pages/train_page.py:120 ui/pages/train_page.py:184
+#: ui/pages/export_page.py:71 ui/pages/export_page.py:108
+#: ui/pages/train_page.py:125 ui/pages/train_page.py:189
 msgid "Image size"
 msgstr "Bildgröße"
 
@@ -1294,20 +1365,6 @@ msgid "Note: architecture/num_classes are needed for PyTorch -> ONNX."
 msgstr ""
 "Anmerkung: architecture/num_classes werden für PyTorch -> ONNX benötigt."
 
-#: ui/lib/directory_line_edit_row.py:30 ui/pages/convert_page.py:142
-#: ui/pages/convert_page.py:190 ui/pages/data_page.py:186
-#: ui/pages/data_page.py:489 ui/pages/info_page.py:67
-#: ui/pages/info_page.py:141 ui/pages/train_page.py:204
-#: ui/pages/train_page.py:287
-msgid "Browse..."
-msgstr "Durchsuchen..."
-
-#: ui/lib/directory_line_edit_row.py:29 ui/pages/convert_page.py:201
-#: ui/pages/data_page.py:500 ui/pages/info_page.py:152
-#: ui/pages/train_page.py:315
-msgid "Select directory"
-msgstr "Verzeichnis auswählen"
-
 #: ui/pages/convert_page.py:209
 msgid "Select output file"
 msgstr "Wählen Sie die Ausgabedatei aus."
@@ -1316,7 +1373,8 @@ msgstr "Wählen Sie die Ausgabedatei aus."
 msgid "Model files (*.onnx *.safetensors);;All files (*.*)"
 msgstr "Modelldateien (*.onnx *.safetensors);;Alle Dateien (*.*)."
 
-#: ui/pages/convert_page.py:218 ui/pages/info_page.py:160
+#: ui/pages/convert_page.py:218 ui/pages/export_page.py:192
+#: ui/pages/info_page.py:160
 msgid "Select model file"
 msgstr "Auswählen der Modelldatei"
 
@@ -1327,7 +1385,7 @@ msgstr ""
 "Modelldateien (*.pth *.pt *.h5 *.keras *.onnx *.safetensors);; Alle Dateien "
 "(*.*)"
 
-#: ui/pages/convert_page.py:237
+#: ui/pages/convert_page.py:237 ui/pages/export_page.py:212
 msgid "Input model file does not exist."
 msgstr "Die Eingabedatei des Modells existiert nicht."
 
@@ -1343,7 +1401,8 @@ msgstr "PyTorch -> ONNX benötigt Architektur und Anzahl der Klassen."
 msgid "[ok] conversion inputs valid (source={src})"
 msgstr "[ok] Konvertierungs-Eingaben sind gültig (Quelle={src})"
 
-#: ui/pages/convert_page.py:282 ui/pages/train_page.py:423
+#: ui/pages/convert_page.py:282 ui/pages/export_page.py:304
+#: ui/pages/train_page.py:487
 msgid "[invalid] {err}"
 msgstr "[ungültig] {err}"
 
@@ -1364,8 +1423,8 @@ msgstr "[fertig] Die Konvertierung war erfolgreich."
 msgid "[failed] Conversion failed."
 msgstr "[fehlgeschlagen] Die Konvertierung ist fehlgeschlagen."
 
-#: ui/pages/convert_page.py:335 ui/pages/train_page.py:463
-#: ui/pages/train_page.py:552
+#: ui/pages/convert_page.py:335 ui/pages/export_page.py:352
+#: ui/pages/train_page.py:537 ui/pages/train_page.py:629
 msgid "[error] {err}"
 msgstr "[Fehler] {err}"
 
@@ -1390,40 +1449,39 @@ msgstr ""
 "Speicherung auf externen Laufwerken sowie zu großen und kleinen Bildern "
 "finden Sie in der Datei docs/DATA_PIPELINE.md."
 
-#: ui/pages/data_page.py:111
+#: ui/pages/data_page.py:165
 msgid "Gather"
 msgstr "Sammeln"
 
-#: ui/pages/data_page.py:112
+#: ui/pages/data_page.py:166
 msgid "Convert"
 msgstr "Konvertieren"
 
-#: ui/pages/data_page.py:113
+#: ui/pages/data_page.py:167
 msgid "Deduplicate"
 msgstr "Deduplizieren"
 
-#: ui/pages/data_page.py:114
+#: ui/pages/data_page.py:168
 msgid "Upscale"
 msgstr "Hochwertig"
 
-#: ui/pages/data_page.py:115
+#: ui/pages/data_page.py:169
 msgid "Create Dataset"
 msgstr "Datensatz erstellen"
 
-#: ui/pages/data_page.py:116
+#: ui/pages/data_page.py:171
 msgid "Validate Inputs"
 msgstr "Validiere Eingaben"
 
-#: ui/pages/data_page.py:117
+#: ui/pages/data_page.py:172
 msgid "Run Data Command"
 msgstr "führen Sie den Datenbefehl aus"
 
-#: ui/pages/data_page.py:118
+#: ui/pages/data_page.py:173
 msgid "Validation and run results will appear here."
 msgstr "Die Validierungs- und Ausführungsergebnisse werden hier angezeigt."
 
-#: ui/pages/data_page.py:121 ui/pages/data_page.py:646
-#: ui/pages/data_page.py:662
+#: ui/pages/data_page.py:183 ui/pages/data_page.py:1233
 msgid "Latest space check"
 msgstr "Aktuelle Raumkontrolle"
 
@@ -1435,114 +1493,116 @@ msgstr ""
 "Keine Platzschätzung vorhanden. Es erscheint hier, wenn Sie Konvertieren "
 "oder Datasets erstellen (bevor der Befehl startet)."
 
-#: ui/pages/data_page.py:133 ui/pages/data_page.py:307
+#: ui/pages/data_page.py:195 ui/pages/data_page.py:598
 msgid "Source dir"
 msgstr "Quellverzeichnis"
 
-#: ui/pages/data_page.py:134 ui/pages/data_page.py:308
+#: ui/pages/data_page.py:196 ui/pages/data_page.py:599
 msgid "Subdirs (space-separated)"
 msgstr "Unterordner (mit Leerzeichen getrennt)"
 
-#: ui/pages/data_page.py:135 ui/pages/data_page.py:309
+#: ui/pages/data_page.py:197 ui/pages/data_page.py:600
 msgid "Target count"
 msgstr "Zielanzahl"
 
-#: ui/pages/data_page.py:136 ui/pages/data_page.py:310
+#: ui/pages/data_page.py:198 ui/pages/data_page.py:601
 msgid "Target dir"
 msgstr "Ziel-Ordner"
 
-#: ui/pages/data_page.py:137 ui/pages/data_page.py:311
+#: ui/pages/data_page.py:199 ui/pages/data_page.py:602
 msgid "Rejected dir"
 msgstr "Abgelehnter Ordner"
 
-#: ui/pages/data_page.py:138 ui/pages/data_page.py:312
+#: ui/pages/data_page.py:200 ui/pages/data_page.py:603
 msgid "Subdir weights"
 msgstr "Unterverzeichnis Gewichte"
 
-#: ui/pages/data_page.py:139 ui/pages/data_page.py:144
-#: ui/pages/data_page.py:146 ui/pages/data_page.py:149
-#: ui/pages/data_page.py:154 ui/pages/data_page.py:313
-#: ui/pages/data_page.py:327 ui/pages/data_page.py:345
-#: ui/pages/data_page.py:359 ui/pages/data_page.py:389
+#: ui/pages/data_page.py:201 ui/pages/data_page.py:206
+#: ui/pages/data_page.py:210 ui/pages/data_page.py:220
+#: ui/pages/data_page.py:225 ui/pages/data_page.py:604
+#: ui/pages/data_page.py:622 ui/pages/data_page.py:641
+#: ui/pages/data_page.py:700 ui/pages/data_page.py:738
 msgid "Raw data dir"
 msgstr "Rohdatenverzeichnis"
 
-#: ui/pages/data_page.py:144 ui/pages/data_page.py:328
+#: ui/pages/data_page.py:206 ui/pages/data_page.py:623
 msgid "Format (jpeg/jpg)"
 msgstr "Format (jpeg/jpg)"
 
-#: ui/pages/data_page.py:149 ui/pages/data_page.py:361
+#: ui/pages/data_page.py:220 ui/pages/data_page.py:702
 msgid "Review dir (optional)"
 msgstr "Überprüfung des Verzeichnisses (optional)"
 
-#: ui/pages/data_page.py:155 ui/pages/data_page.py:390
+#: ui/pages/data_page.py:226 ui/pages/data_page.py:739
 msgid "Output data dir"
 msgstr "Ausgabedatenverzeichnis"
 
-#: ui/pages/data_page.py:737 ui/pages/data_page.py:741
-#: ui/pages/pipeline_config_page.py:338
+#: ui/pages/data_page.py:228 ui/pages/data_page.py:744
+#: ui/pages/pipeline_config_page.py:342
 msgid "Test split mode"
 msgstr "Test-Split-Modus"
 
-#: ui/pages/data_page.py:739 ui/pages/data_page.py:740
-#: ui/pages/pipeline_config_page.py:336 ui/pages/pipeline_config_page.py:337
+#: ui/pages/data_page.py:742 ui/pages/pipeline_config_page.py:340
 msgid "Fixed count per class"
 msgstr "Feste Anzahl pro Klasse"
 
-#: ui/pages/data_page.py:739 ui/pages/data_page.py:740
-#: ui/pages/pipeline_config_page.py:336 ui/pages/pipeline_config_page.py:337
+#: ui/pages/data_page.py:743 ui/pages/pipeline_config_page.py:341
 msgid "Dataset-weighted (modulated)"
 msgstr "Datensatzgewichtet (moduliert)"
 
-#: ui/pages/data_page.py:744 ui/pages/pipeline_config_page.py:344
+#: ui/pages/data_page.py:229 ui/pages/data_page.py:749
+#: ui/pages/pipeline_config_page.py:348
 msgid "Small-class threshold (weighted)"
 msgstr "Schwellwert kleine Klasse (gewichtet)"
 
-#: ui/pages/data_page.py:744
+#: ui/pages/data_page.py:747
 msgid "Same as test per class"
 msgstr "Wie Testanzahl pro Klasse"
 
-#: ui/pages/data_page.py:156 ui/pages/data_page.py:391
+#: ui/pages/data_page.py:227 ui/pages/data_page.py:740
 msgid "Test items per class"
 msgstr "Testaufgaben pro Klasse"
 
-#: ui/pages/data_page.py:157 ui/pages/data_page.py:392
+#: ui/pages/data_page.py:230 ui/pages/data_page.py:750
 msgid "Seed (optional)"
 msgstr "Kerne (optional)"
 
-#: ui/pages/data_page.py:158 ui/pages/data_page.py:393
-#: ui/pages/train_page.py:83 ui/pages/train_page.py:165
+#: ui/pages/data_page.py:206 ui/pages/data_page.py:231
+#: ui/pages/data_page.py:624 ui/pages/data_page.py:751
+#: ui/pages/export_page.py:72 ui/pages/export_page.py:109
+#: ui/pages/train_page.py:88 ui/pages/train_page.py:170
 msgid "Run ID (optional)"
 msgstr "Lauf-ID (optional)"
 
-#: ui/pages/data_page.py:159 ui/pages/data_page.py:394
+#: ui/pages/data_page.py:232 ui/pages/data_page.py:752
 msgid "Max train per class"
 msgstr "Maximalzahl an Führenden pro Klasse"
 
-#: ui/pages/data_page.py:164 ui/pages/data_page.py:385
+#: ui/pages/data_page.py:238 ui/pages/data_page.py:734
+#: ui/pages/pipeline_config_page.py:352
 msgid "None"
 msgstr "Keine"
 
-#: ui/pages/data_page.py:165 ui/pages/data_page.py:386
+#: ui/pages/data_page.py:239 ui/pages/data_page.py:735
 msgid "Balance train set to smallest class"
 msgstr "Balance Schulungset zu kleinsten Klasse"
 
-#: ui/pages/data_page.py:166 ui/pages/data_page.py:387
+#: ui/pages/data_page.py:240 ui/pages/data_page.py:736
 msgid "Allow external/removable storage"
 msgstr "Externe/Wechselspeicher zulassen"
 
-#: ui/pages/data_page.py:330
+#: ui/pages/data_page.py:626
 msgid "Skip free-space check (not recommended; use if you accept the risk)"
 msgstr ""
 "Freiraumprüfung überspringen (nicht empfohlen; nur verwenden, wenn Sie das "
 "Risiko in Kauf nehmen)"
 
-#: ui/pages/data_page.py:398
+#: ui/pages/data_page.py:756
 msgid "Skip free-space check on output drive (not recommended)"
 msgstr ""
 "Freiraumprüfung auf dem Ausgabelaufwerk überspringen (nicht empfohlen)"
 
-#: ui/pages/data_page.py:409
+#: ui/pages/data_page.py:821
 msgid ""
 "Copy samples from source subdirectories into class folders under the raw "
 "data root. Skip this tab if your data is already organized as one folder per"
@@ -1594,7 +1654,7 @@ msgstr ""
 "Hauptlaufwerk zu speichern, während die Rohdaten auf einem externen "
 "Speichermedium verbleiben."
 
-#: ui/pages/data_page.py:443
+#: ui/pages/data_page.py:869
 msgid ""
 "Gather copies files into timestamped runs under the target dir and tracks "
 "hashes so reruns skip already-seen files. Set raw data dir to the pipeline "
@@ -1664,47 +1724,47 @@ msgstr ""
 "Seiten; kleine Bilder: „deduplicate“ verschiebt kleine Dateien in den Ordner"
 " „small_images_review/“. Ausführliche Erläuterung: docs/DATA_PIPELINE.md."
 
-#: ui/pages/data_page.py:508
+#: ui/pages/data_page.py:965
 msgid "Select file"
 msgstr "Datei auswählen"
 
-#: ui/pages/data_page.py:510
+#: ui/pages/data_page.py:967
 msgid "All files (*.*)"
 msgstr "Alle Dateien (*.*)"
 
-#: ui/pages/data_page.py:545
+#: ui/pages/data_page.py:1099
 msgid "[ok] {cmd}: inputs look valid"
 msgstr "[ok] {cmd}: Eingaben sind gültig"
 
-#: ui/pages/data_page.py:549
+#: ui/pages/data_page.py:1103
 msgid "[invalid] {cmd}: {err}"
 msgstr "[ungültig] {cmd}: {err}"
 
-#: ui/pages/data_page.py:556
+#: ui/pages/data_page.py:1112
 msgid "Source dir does not exist."
 msgstr "Quelldir existiert nicht."
 
-#: ui/pages/data_page.py:559
+#: ui/pages/data_page.py:1115
 msgid "Provide at least one subdirectory."
 msgstr "Bereitstellen Sie mindestens einen Unterordner."
 
-#: ui/pages/data_page.py:565
+#: ui/pages/data_page.py:1121
 msgid "Subdir weights must be in subdir:weight format."
 msgstr "Unterordner-Gewichte müssen im Unterordner:Gewicht-Format sein."
 
-#: ui/pages/data_page.py:586
+#: ui/pages/data_page.py:1142
 msgid "Format must be jpeg or jpg."
 msgstr "Das Format muss jpeg oder jpg sein."
 
-#: ui/pages/data_page.py:604
+#: ui/pages/data_page.py:1179
 msgid "Raw data dir does not exist."
 msgstr "Das Raw Data-Verzeichnis existiert nicht."
 
-#: ui/pages/data_page.py:652 ui/pages/data_page.py:668
+#: ui/pages/data_page.py:1260 ui/pages/data_page.py:1288
 msgid "Insufficient disk space (estimate)"
 msgstr "Nicht genügend Speicherplatz (Schätzung)"
 
-#: ui/pages/data_page.py:653 ui/pages/data_page.py:669
+#: ui/pages/data_page.py:1261 ui/pages/data_page.py:1289
 msgid ""
 "{msg}\n"
 "\n"
@@ -1714,11 +1774,11 @@ msgstr ""
 "\n"
 "Weiterschalten trotzdem?"
 
-#: ui/pages/data_page.py:691
+#: ui/pages/data_page.py:1306
 msgid "External storage"
 msgstr "externe Speicherung"
 
-#: ui/pages/data_page.py:693
+#: ui/pages/data_page.py:1308
 msgid ""
 "The target data directory is on external or removable storage, and \"Allow "
 "external storage\" is not checked. Enable it on the Create Dataset tab or "
@@ -1729,29 +1789,29 @@ msgstr ""
 "aktiviert. Aktivieren Sie diese Option auf der Registerkarte „Datensatz "
 "erstellen“ oder wählen Sie ein anderes Datenverzeichnis aus."
 
-#: ui/pages/data_page.py:703
+#: ui/pages/data_page.py:1318
 msgid "Confirm"
 msgstr "Bestätigen"
 
-#: ui/pages/data_page.py:704
+#: ui/pages/data_page.py:1319
 msgid "Source and target are on the same drive. Continue dataset creation?"
 msgstr ""
 "Die Quelle und das Ziel befinden sich auf demselben Laufwerk. Soll die "
 "Datensatzerstellung fortgesetzt werden?"
 
-#: ui/pages/data_page.py:725
+#: ui/pages/data_page.py:1355
 msgid "Data: {cmd}"
 msgstr "Daten: {cmd}"
 
-#: ui/pages/data_page.py:780
+#: ui/pages/data_page.py:1459
 msgid "[done] Data command completed successfully."
 msgstr "[fertig] Der Datenbefehl wurde erfolgreich ausgeführt."
 
-#: ui/pages/data_page.py:791
+#: ui/pages/data_page.py:1475
 msgid "[failed] Data command reported failure."
 msgstr "[fehlgeschlagen] Datenbefehl meldete einen Fehler."
 
-#: ui/pages/data_page.py:803
+#: ui/pages/data_page.py:1487
 msgid ""
 "[stopped] Data command cancelled — partial copies or snapshot updates may "
 "exist; check folders before re-running."
@@ -1760,18 +1820,18 @@ msgstr ""
 "oder Snapshot-Aktualisierungen vorhanden; überprüfen Sie die Ordner, bevor "
 "Sie den Vorgang erneut ausführen."
 
-#: ui/pages/data_page.py:825
+#: ui/pages/data_page.py:1509
 msgid "Data command failed"
 msgstr "Datenbefehl fehlgeschlagen"
 
-#: ui/pages/data_page.py:826
+#: ui/pages/data_page.py:1510
 msgid ""
 "A data pipeline step reported an error. See Details for the full message."
 msgstr ""
 "Eine Pipeline-Schritt im Bereich der Datenverarbeitung hat einen Fehler "
 "gemeldet. Siehe Details für die vollständige Meldung."
 
-#: ui/pages/home_page.py:100
+#: ui/pages/home_page.py:107
 msgid ""
 "Model Builder desktop shell for data prep, training, conversion, and info "
 "tools."
@@ -1779,17 +1839,17 @@ msgstr ""
 "Modellbauer Desktop-Shell für Datenvorbereitung, Training, Konvertierung und"
 " Informationswerkzeuge."
 
-#: ui/pages/home_page.py:103
+#: ui/pages/home_page.py:110
 msgid "Current scope"
 msgstr "Aktueller Umfang"
 
-#: ui/pages/home_page.py:104
+#: ui/pages/home_page.py:111
 msgid "- Data pipeline: gather, convert, dedupe, upscale, create dataset"
 msgstr ""
 "- Datenpipeline: sammeln, konvertieren, deduplizieren, upskalieren, "
 "Datensatz erstellen"
 
-#: ui/pages/home_page.py:106
+#: ui/pages/home_page.py:113
 msgid "- Training: in-process or detached (CLI: {cmd})"
 msgstr "- Training: im Prozess oder abgekoppelt (CLI: {cmd})"
 
@@ -1797,39 +1857,39 @@ msgstr "- Training: im Prozess oder abgekoppelt (CLI: {cmd})"
 msgid "- Model conversion and dataset / model inspection (Info)"
 msgstr "- Modellkonvertierung und Datensätte-/Modellaufsicht (Info)"
 
-#: ui/pages/home_page.py:109
+#: ui/pages/home_page.py:117
 msgid "- App shell (App) and ML defaults (Pipeline)"
 msgstr "- App-Shell (App) und ML-Defaults (Pipeline)"
 
-#: ui/pages/home_page.py:110
+#: ui/pages/home_page.py:118
 msgid "Quick actions"
 msgstr "Schnelle Aktionen"
 
-#: ui/pages/home_page.py:111
+#: ui/pages/home_page.py:119
 msgid "Open Data Page"
 msgstr "Öffentliche-Daten-Seite"
 
-#: ui/pages/home_page.py:112
+#: ui/pages/home_page.py:120
 msgid "Open Train Page"
 msgstr "Öffne Schienen-Seite"
 
-#: ui/pages/home_page.py:113
+#: ui/pages/home_page.py:121
 msgid "Open Convert Page"
 msgstr "Öffne Konvertierung-Seite"
 
-#: ui/pages/home_page.py:114
+#: ui/pages/home_page.py:123
 msgid "Latest unified snapshot"
 msgstr "Aktueller einheitlicher Snapshot"
 
-#: ui/pages/home_page.py:115 ui/pages/home_page.py:117
+#: ui/pages/home_page.py:124 ui/pages/home_page.py:126
 msgid "Loading…"
 msgstr "Laden…"
 
-#: ui/pages/home_page.py:116
+#: ui/pages/home_page.py:125
 msgid "Recent run history"
 msgstr "Letzter Auftragsverlauf"
 
-#: ui/pages/home_page.py:140
+#: ui/pages/home_page.py:149
 msgid ""
 "No snapshot_*.json found under the configured raw data or data directories.\n"
 "(Run convert and create-dataset to create one.)"
@@ -1843,8 +1903,8 @@ msgstr ""
 "Prüfen Sie die Modellenmetadaten und die Struktur der Statistiken des "
 "Datensatzes."
 
-#: ui/pages/info_page.py:54 ui/pages/pipeline_config_page.py:157
-#: ui/pages/pipeline_config_page.py:162
+#: ui/pages/info_page.py:54 ui/pages/pipeline_config_page.py:164
+#: ui/pages/pipeline_config_page.py:169
 msgid "Model"
 msgstr "Modell"
 
@@ -1857,7 +1917,7 @@ msgid "Model path"
 msgstr "Modellpfad"
 
 #: ui/pages/info_page.py:57 ui/pages/info_page.py:120
-#: ui/pages/train_page.py:80 ui/pages/train_page.py:162
+#: ui/pages/train_page.py:85 ui/pages/train_page.py:167
 msgid "Data dir"
 msgstr "Daten dir"
 
@@ -1885,7 +1945,7 @@ msgstr "Modellpfad erforderlich"
 msgid "Please provide a model path."
 msgstr "Bitte geben Sie den Modellpfad an."
 
-#: ui/pages/info_page.py:183
+#: ui/lib/duplicates_resolver_window.py:152 ui/pages/info_page.py:183
 msgid "Missing file"
 msgstr "Fehlender Datei"
 
@@ -1897,15 +1957,15 @@ msgstr "Ungültiger Pfad"
 msgid "Missing directory"
 msgstr "Verzeichnis fehlt"
 
-#: ui/pages/pipeline_config_page.py:148 ui/pages/pipeline_config_page.py:646
-#: ui/pages/pipeline_config_page.py:649 ui/pages/pipeline_config_page.py:655
-#: ui/pages/pipeline_config_page.py:667 ui/pages/pipeline_config_page.py:683
-#: ui/pages/pipeline_config_page.py:691 ui/pages/pipeline_config_page.py:703
-#: ui/pages/pipeline_config_page.py:712
+#: ui/pages/pipeline_config_page.py:155 ui/pages/pipeline_config_page.py:680
+#: ui/pages/pipeline_config_page.py:683 ui/pages/pipeline_config_page.py:689
+#: ui/pages/pipeline_config_page.py:701 ui/pages/pipeline_config_page.py:723
+#: ui/pages/pipeline_config_page.py:738 ui/pages/pipeline_config_page.py:759
+#: ui/pages/pipeline_config_page.py:768
 msgid "Pipeline"
 msgstr "Pipeline"
 
-#: ui/pages/pipeline_config_page.py:151
+#: ui/pages/pipeline_config_page.py:158
 msgid ""
 "Machine-learning defaults (<code>model</code>, <code>data</code>, "
 "<code>training</code>, <code>paths</code>). Save writes to your active "
@@ -1919,144 +1979,126 @@ msgstr ""
 "<code>pipeline.yaml</code> neben <code>application.yaml</code> im App-"
 "Datenverzeichnis, wenn nur gepackte Standardwerte geladen werden."
 
-#: ui/pages/pipeline_config_page.py:158 ui/pages/pipeline_config_page.py:163
+#: ui/pages/pipeline_config_page.py:165 ui/pages/pipeline_config_page.py:170
 msgid "Data"
 msgstr "Daten"
 
-#: ui/pages/pipeline_config_page.py:159 ui/pages/pipeline_config_page.py:165
-#: ui/pages/train_page.py:493
+#: ui/pages/pipeline_config_page.py:166 ui/pages/pipeline_config_page.py:172
+#: ui/pages/train_page.py:567
 msgid "Training"
 msgstr "Training"
 
-#: ui/pages/pipeline_config_page.py:160 ui/pages/pipeline_config_page.py:166
+#: ui/pages/pipeline_config_page.py:167 ui/pages/pipeline_config_page.py:173
 msgid "Paths"
 msgstr "Wege"
 
-#: ui/pages/pipeline_config_page.py:161
+#: ui/pages/pipeline_config_page.py:168
 msgid "Advanced (YAML)"
 msgstr "Erweitert (YAML)"
 
-#: ui/pages/pipeline_config_page.py:157
-msgid "model"
-msgstr "Modell"
+#: ui/pages/pipeline_config_page.py:171
+msgid "Gather defaults"
+msgstr "Standardwerte abrufen"
 
-#: ui/pages/pipeline_config_page.py:158
-msgid "data"
-msgstr "Daten"
+#: ui/pages/pipeline_config_page.py:176 ui/pages/pipeline_config_page.py:302
+msgid "Default model type"
+msgstr "Standardmodelltyp"
 
-#: ui/pages/pipeline_config_page.py:159
-msgid "data.gather"
-msgstr "Daten.sammeln"
+#: ui/pages/pipeline_config_page.py:176 ui/pages/pipeline_config_page.py:305
+msgid "Default framework"
+msgstr "Standardframework"
 
-#: ui/pages/pipeline_config_page.py:160
-msgid "training"
-msgstr "Training"
+#: ui/pages/pipeline_config_page.py:176 ui/pages/pipeline_config_page.py:308
+msgid "Default architecture"
+msgstr "Standardarchitektur"
 
-#: ui/pages/pipeline_config_page.py:161
-msgid "paths"
-msgstr "Pfaden"
+#: ui/pages/pipeline_config_page.py:181 ui/pages/pipeline_config_page.py:325
+msgid "Raw data directory"
+msgstr "Rohdatenverzeichnis"
 
-#: ui/pages/pipeline_config_page.py:164 ui/pages/pipeline_config_page.py:232
-msgid "default_type"
-msgstr "Standard Typ"
+#: ui/pages/pipeline_config_page.py:182 ui/pages/pipeline_config_page.py:331
+msgid "Dataset output directory"
+msgstr "Datenpunkt-Ausgabeverzeichnis"
 
-#: ui/pages/pipeline_config_page.py:164 ui/pages/pipeline_config_page.py:235
-msgid "default_framework"
-msgstr "Standard Rahmenwerk"
+#: ui/pages/pipeline_config_page.py:183 ui/pages/pipeline_config_page.py:337
+msgid "Test images per class"
+msgstr "Prüfabbildungen pro Klasse"
 
-#: ui/pages/pipeline_config_page.py:164 ui/pages/pipeline_config_page.py:238
-msgid "default_architecture"
-msgstr "Standard Architektur"
+#: ui/pages/pipeline_config_page.py:184 ui/pages/pipeline_config_page.py:358
+msgid "Image size (pixels)"
+msgstr "Bildergöße (Pixel)"
 
-#: ui/pages/pipeline_config_page.py:169 ui/pages/pipeline_config_page.py:254
-msgid "raw_data_dir"
-msgstr "Rohdaten-Verzeichnis"
+#: ui/pages/pipeline_config_page.py:185 ui/pages/pipeline_config_page.py:364
+msgid "Training batch size"
+msgstr "Training Batch Größe"
 
-#: ui/pages/pipeline_config_page.py:170 ui/pages/pipeline_config_page.py:257
-msgid "data_dir"
-msgstr "Datenverzeichnis"
+#: ui/pages/pipeline_config_page.py:186 ui/pages/pipeline_config_page.py:368
+msgid "Image file extensions (one per line)"
+msgstr "Bild-Dateiendungen (eine pro Zeile)"
 
-#: ui/pages/pipeline_config_page.py:171 ui/pages/pipeline_config_page.py:261
-msgid "test_per_class"
-msgstr "Tests pro Klasse"
+#: ui/pages/pipeline_config_page.py:187 ui/pages/pipeline_config_page.py:372
+msgid "Video file extensions (one per line)"
+msgstr "Video-Dateiendungen (eine pro Zeile)"
 
-#: ui/pages/pipeline_config_page.py:172 ui/pages/pipeline_config_page.py:265
-msgid "image_size"
-msgstr "bild_größe"
+#: ui/pages/pipeline_config_page.py:188 ui/pages/pipeline_config_page.py:377
+msgid "Class folder names (empty = auto-discover)"
+msgstr "Klassenordner Namen (leer = automatisch entdecken)"
 
-#: ui/pages/pipeline_config_page.py:173 ui/pages/pipeline_config_page.py:269
-msgid "batch_size (empty = null)"
-msgstr "batch_size (leer = null)"
+#: ui/pages/pipeline_config_page.py:189 ui/pages/pipeline_config_page.py:381
+msgid "Class qualifying subfolder"
+msgstr "Klassenqualifizierender Unterordner"
 
-#: ui/pages/pipeline_config_page.py:174 ui/pages/pipeline_config_page.py:273
-msgid "image_types (one extension per line)"
-msgstr "Bildformate (eine Dateiendung pro Zeile)"
+#: ui/pages/pipeline_config_page.py:195 ui/pages/pipeline_config_page.py:393
+msgid "Default gather target count"
+msgstr "Standard Ziel Anzahl Sammeln"
 
-#: ui/pages/pipeline_config_page.py:175 ui/pages/pipeline_config_page.py:277
-msgid "video_types (one extension per line)"
-msgstr "videotypen (eine Erweiterung pro Zeile)"
+#: ui/pages/pipeline_config_page.py:196 ui/pages/pipeline_config_page.py:400
+msgid "Gather target subfolder"
+msgstr "Die Zielspeicherordner ermitteln"
 
-#: ui/pages/pipeline_config_page.py:176 ui/pages/pipeline_config_page.py:282
-msgid "class_names (empty = auto-discover)"
-msgstr "Klassen-Namen ( leer = automatisch erkennen )"
+#: ui/pages/pipeline_config_page.py:197 ui/pages/pipeline_config_page.py:411
+msgid "Rejected subfolder"
+msgstr "Abgelehnter Unterordner"
 
-#: ui/pages/pipeline_config_page.py:177 ui/pages/pipeline_config_page.py:286
-msgid "class_qualifying_subdir (empty = any)"
-msgstr "class_qualifying_subdir (leer = beliebig)"
+#: ui/pages/pipeline_config_page.py:203 ui/pages/pipeline_config_page.py:432
+#: ui/pages/train_page.py:119 ui/pages/train_page.py:183
+msgid "Frozen epochs"
+msgstr "Eingefrorene Epochen"
 
-#: ui/pages/pipeline_config_page.py:183 ui/pages/pipeline_config_page.py:298
-msgid "default_target_count"
-msgstr "Standard-Ziel-Anzahl"
+#: ui/pages/pipeline_config_page.py:204 ui/pages/pipeline_config_page.py:436
+#: ui/pages/train_page.py:120 ui/pages/train_page.py:184
+msgid "Unfrozen epochs"
+msgstr "Aufgetaute Epochen"
 
-#: ui/pages/pipeline_config_page.py:184 ui/pages/pipeline_config_page.py:301
-msgid "default_target_dir"
-msgstr "Standard-Zieldir"
+#: ui/pages/pipeline_config_page.py:205 ui/pages/pipeline_config_page.py:442
+msgid "Frozen learning rate"
+msgstr "Gefrorener Lernrate"
 
-#: ui/pages/pipeline_config_page.py:185 ui/pages/pipeline_config_page.py:304
-msgid "default_rejected_dir"
-msgstr "Verzeichnis für abgelehnte Dateien"
+#: ui/pages/pipeline_config_page.py:206 ui/pages/pipeline_config_page.py:447
+msgid "Unfrozen LR (max)"
+msgstr "Ungefroren LR (max)"
 
-#: ui/pages/pipeline_config_page.py:186 ui/pages/pipeline_config_page.py:307
-msgid "default_raw_data_dir"
-msgstr "Standard Rohdaten-Verzeichnis"
+#: ui/pages/pipeline_config_page.py:207 ui/pages/pipeline_config_page.py:452
+msgid "Unfrozen LR (min)"
+msgstr "Ungefroren LR (min)"
 
-#: ui/pages/pipeline_config_page.py:192 ui/pages/pipeline_config_page.py:324
-msgid "frozen_epochs"
-msgstr "Gefrorene Epochen"
+#: ui/pages/pipeline_config_page.py:208 ui/pages/pipeline_config_page.py:456
+msgid "DataLoader workers"
+msgstr "DataLoader-Prozesse"
 
-#: ui/pages/pipeline_config_page.py:193 ui/pages/pipeline_config_page.py:328
-msgid "unfrozen_epochs"
-msgstr "Totale Epochen"
+#: ui/pages/pipeline_config_page.py:214 ui/pages/pipeline_config_page.py:476
+msgid "Models directory"
+msgstr "Modelverzeichnis"
 
-#: ui/pages/pipeline_config_page.py:194 ui/pages/pipeline_config_page.py:334
-msgid "frozen_lr"
-msgstr "gefrorener_lernenrate"
+#: ui/pages/pipeline_config_page.py:214 ui/pages/pipeline_config_page.py:482
+msgid "Logs directory"
+msgstr "Log-Verzeichnis"
 
-#: ui/pages/pipeline_config_page.py:195 ui/pages/pipeline_config_page.py:339
-msgid "unfrozen_lr_max"
-msgstr "ungefrorene_lernenrate_max"
+#: ui/pages/pipeline_config_page.py:214
+msgid "Timing data directory"
+msgstr "Timing-Daten-Verzeichnis"
 
-#: ui/pages/pipeline_config_page.py:196 ui/pages/pipeline_config_page.py:344
-msgid "unfrozen_lr_min"
-msgstr "ungefrorene_lernenrate_min"
-
-#: ui/pages/pipeline_config_page.py:197 ui/pages/pipeline_config_page.py:348
-msgid "num_workers"
-msgstr "num_arbeiter"
-
-#: ui/pages/pipeline_config_page.py:203 ui/pages/pipeline_config_page.py:367
-msgid "models_dir"
-msgstr "Modelle-Verzeichnis"
-
-#: ui/pages/pipeline_config_page.py:203 ui/pages/pipeline_config_page.py:370
-msgid "logs_dir"
-msgstr "Protokolle-Verzeichnis"
-
-#: ui/pages/pipeline_config_page.py:203 ui/pages/pipeline_config_page.py:373
-msgid "timing_dir"
-msgstr "Zeitplanverzeichnis"
-
-#: ui/pages/pipeline_config_page.py:211
+#: ui/pages/pipeline_config_page.py:218
 msgid ""
 "Full pipeline document. Click “Apply YAML” to parse and refresh the tabs, or"
 " edit the tabs and Save — the Advanced view updates on reload."
@@ -2066,15 +2108,15 @@ msgstr ""
 "Registerkarten und klicken Sie auf „Speichern“ – die Ansicht „Erweitert“ "
 "wird beim Neuladen aktualisiert."
 
-#: ui/pages/pipeline_config_page.py:216
+#: ui/pages/pipeline_config_page.py:223
 msgid "Apply YAML"
 msgstr "Wenden YAML an"
 
-#: ui/pages/pipeline_config_page.py:218
+#: ui/pages/pipeline_config_page.py:225
 msgid "Reset to shipped defaults…"
 msgstr "Zurücksetzen auf die Gelieferten Standardeinstellungen…"
 
-#: ui/pages/pipeline_config_page.py:220
+#: ui/pages/pipeline_config_page.py:227
 msgid ""
 "Replace your user pipeline.yaml (app data) with the package "
 "default_pipeline.yaml."
@@ -2082,19 +2124,115 @@ msgstr ""
 "Ersetzen Sie Ihre Datei „user-pipeline.yaml“ (App-Daten) durch die Datei "
 "„default_pipeline.yaml“ aus dem Paket."
 
-#: ui/pages/pipeline_config_page.py:218
-msgid "store_checkpoints"
-msgstr "speichern_checkpunkte"
+#: ui/pages/pipeline_config_page.py:229
+msgid "Save training checkpoints"
+msgstr "Trainingsergebnisse speichern"
 
-#: ui/pages/pipeline_config_page.py:268 ui/pages/pipeline_config_page.py:285
-msgid "empty → null"
-msgstr "leer → null"
+#: ui/pages/pipeline_config_page.py:245
+msgid "Task type selected when you start a new model project."
+msgstr "Aufgabenart ausgewählt, wenn Sie ein neues Modellprojekt starten."
 
-#: ui/pages/pipeline_config_page.py:352
+#: ui/pages/pipeline_config_page.py:250
+msgid "Deep learning framework for new runs (e.g. pytorch)."
+msgstr "Tiefes-Lern-Framework für neue Laufen (z.B. PyTorch)"
+
+#: ui/pages/pipeline_config_page.py:255
+msgid "Default backbone architecture name for new training runs."
+msgstr "Standard Rückgratarchitektur-Name für neue Trainingserungen."
+
+#: ui/pages/pipeline_config_page.py:261
+msgid ""
+"Root folder for raw images: one subfolder per class after gather/convert. "
+"Relative paths are resolved from the app working directory or project root."
+msgstr ""
+"Stammverzeichnis für Rohbilder: ein Unterordner pro Klasse nach dem "
+"Sammeln/Konvertieren. Relative Pfade werden ausgehend vom Arbeitsverzeichnis"
+" der App oder vom Projektstammverzeichnis aufgelöst."
+
+#: ui/pages/pipeline_config_page.py:269
+msgid ""
+"Output of create-dataset: this folder holds train/ and test/ used for "
+"training and snapshots. Keep it on a fast internal disk when raw data lives "
+"on external storage."
+msgstr ""
+"Ausgabe von `create-dataset`: Dieser Ordner enthält die Verzeichnisse "
+"`train/` und `test/`, die für das Training und für Snapshots verwendet "
+"werden. Speichern Sie ihn auf einer schnellen internen Festplatte, wenn sich"
+" die Rohdaten auf einem externen Speicher befinden."
+
+#: ui/pages/pipeline_config_page.py:277
+msgid ""
+"Subfolder under raw data for accepted gather output (e.g. coherent). "
+"Relative to Raw data directory unless you enter an absolute path."
+msgstr ""
+"Unterordner unter „Raw data“ für die Ausgabe akzeptierter Datensätze (z. B. "
+"kohärent). Relativ zum Verzeichnis „Raw data“, sofern Sie keinen absoluten "
+"Pfad angeben."
+
+#: ui/pages/pipeline_config_page.py:285
+msgid ""
+"Subfolder under raw data for files rejected during gather (e.g. rejected). "
+"Relative to Raw data directory unless you enter an absolute path."
+msgstr ""
+"Unterordner unter „Raw data“ für Dateien, die während der Datenerfassung "
+"verworfen wurden (z. B. „rejected“). Relativ zum Verzeichnis „Raw data“, "
+"sofern Sie keinen absoluten Pfad angeben."
+
+#: ui/pages/pipeline_config_page.py:326
+msgid "Select raw data directory"
+msgstr "Wählen Sie das Rohdatenverzeichnis aus."
+
+#: ui/pages/pipeline_config_page.py:332
+msgid "Select dataset directory"
+msgstr "Wählen Sie das Dataset-Verzeichnis aus."
+
+#: ui/pages/pipeline_config_page.py:362
+msgid ""
+"Leave empty for the model-type default batch size (omitted from saved YAML)."
+msgstr ""
+"Leer lassen, um die Standard-Batchgröße des Modelltyps zu verwenden (wird in"
+" der gespeicherten YAML-Datei nicht aufgeführt)."
+
+#: ui/pages/pipeline_config_page.py:376
 msgid "One class folder name per line; empty = discover"
 msgstr "Einer Klassenordnername pro Zeile; Leer = entdecken"
 
-#: ui/pages/pipeline_config_page.py:629
+#: ui/pages/pipeline_config_page.py:380
+msgid "empty = any"
+msgstr "Leer =beliebig"
+
+#: ui/pages/pipeline_config_page.py:397
+msgid "Relative to raw data directory (e.g. coherent); absolute path optional"
+msgstr ""
+"Relativ zum Verzeichnis mit den Rohdaten (z. B. „coherent“); absoluter Pfad "
+"optional"
+
+#: ui/pages/pipeline_config_page.py:402
+msgid "Select default gather target directory"
+msgstr "Wählen Sie die voreinstellige Sammlungszielverzeichnis-Auswahl"
+
+#: ui/pages/pipeline_config_page.py:408
+msgid "Relative to raw data directory (e.g. rejected); absolute path optional"
+msgstr ""
+"Relativ zum Rohdatenverzeichnis (z.B. abgelehnt); optionaler absoluter Pfad"
+
+#: ui/pages/pipeline_config_page.py:413
+msgid "Select default rejected directory"
+msgstr "Standardverzeichnis für ausgewiesene auswählen"
+
+#: ui/pages/pipeline_config_page.py:477
+msgid "Select models directory"
+msgstr "Wählen Sie das Modellverzeichnis aus."
+
+#: ui/pages/pipeline_config_page.py:483
+msgid "Select logs directory"
+msgstr "Wählen Sie das Protokolle-Verzeichnis"
+
+#: ui/pages/pipeline_config_page.py:465
+msgid "Select timing data directory"
+msgstr "Wählen Sie das Zeitdatenverzeichnis aus"
+
+#: ui/pages/pipeline_config_page.py:661
 msgid ""
 "Loaded: {path}\n"
 "Save will write to: {save}"
@@ -2102,7 +2240,7 @@ msgstr ""
 "Geladen: {path}\n"
 "Beim Speichern wird in die Datei {save} geschrieben"
 
-#: ui/pages/pipeline_config_page.py:635
+#: ui/pages/pipeline_config_page.py:667
 msgid ""
 "Loaded: packaged defaults\n"
 "Save will write to: {path}"
@@ -2110,7 +2248,7 @@ msgstr ""
 "Geladen: Standardwerte\n"
 "Beim Speichern wird in folgenden Ordner geschrieben: {path}"
 
-#: ui/pages/pipeline_config_page.py:646
+#: ui/pages/pipeline_config_page.py:680
 msgid ""
 "Invalid YAML:\n"
 "{err}"
@@ -2118,11 +2256,11 @@ msgstr ""
 "Ungültiges YAML:\n"
 "{err}"
 
-#: ui/pages/pipeline_config_page.py:649
+#: ui/pages/pipeline_config_page.py:683
 msgid "Root value must be a mapping."
 msgstr "Der Wurzelwert muss eine Zuordnung sein."
 
-#: ui/pages/pipeline_config_page.py:657
+#: ui/pages/pipeline_config_page.py:691
 msgid ""
 "The document contains keys outside model/data/training/paths: {keys}\n"
 "They will be ignored when applying to the form. Continue?"
@@ -2130,11 +2268,11 @@ msgstr ""
 "Das Dokument enthält Schlüssel außerhalb von „model/data/training/paths“: {keys}\n"
 "Diese werden bei der Anwendung auf das Formular ignoriert. Möchten Sie fortfahren?"
 
-#: ui/pages/pipeline_config_page.py:667
+#: ui/pages/pipeline_config_page.py:701
 msgid "No model/data/training/paths keys found."
 msgstr "Keine Model/Daten/Training/Pfad-Tasten gefunden."
 
-#: ui/pages/pipeline_config_page.py:712
+#: ui/pages/pipeline_config_page.py:768
 msgid ""
 "Reset user pipeline to shipped defaults:\n"
 "{path}"
@@ -2142,85 +2280,77 @@ msgstr ""
 "Benutzerpipeline auf die standardisierten Defaults zurücksetzen:\n"
 "{path}"
 
-#: ui/pages/train_page.py:75 ui/pages/train_page.py:170
+#: ui/pages/train_page.py:80 ui/pages/train_page.py:175
 msgid "Skip unified snapshot update"
 msgstr "Aktualisierung des einheitlichen Momentaufnahme überspringen"
 
-#: ui/pages/train_page.py:77 ui/pages/train_page.py:159
+#: ui/pages/train_page.py:82 ui/pages/train_page.py:164
 msgid "Model type"
 msgstr "Modellart"
 
-#: ui/pages/train_page.py:78 ui/pages/train_page.py:160
+#: ui/pages/train_page.py:83 ui/pages/train_page.py:165
 msgid "Framework"
 msgstr "Rahmenwerk"
 
-#: ui/pages/train_page.py:81 ui/pages/train_page.py:163
+#: ui/pages/train_page.py:86 ui/pages/train_page.py:168
 msgid "Output dir"
 msgstr "Ausgabeverzeichnis"
 
-#: ui/pages/train_page.py:82 ui/pages/train_page.py:164
+#: ui/pages/train_page.py:87 ui/pages/train_page.py:169
 msgid "Resume checkpoint"
 msgstr "Checkpoint fortsetzen"
 
-#: ui/pages/train_page.py:86 ui/pages/train_page.py:172
+#: ui/pages/train_page.py:91 ui/pages/train_page.py:177
 msgid ""
 "Run training in a separate process (survives closing this app; see log file)"
 msgstr ""
 "Das Training in einem separaten Prozess ausführen (bleibt auch nach dem "
 "Schließen dieser App erhalten; siehe Protokolldatei)"
 
-#: ui/pages/train_page.py:106 ui/pages/train_page.py:188
+#: ui/pages/export_page.py:57 ui/pages/export_page.py:61
+#: ui/pages/export_page.py:113 ui/pages/export_page.py:114
+#: ui/pages/train_page.py:111 ui/pages/train_page.py:193
 msgid "Auto"
 msgstr "Auto"
 
-#: ui/pages/train_page.py:112 ui/pages/train_page.py:189
+#: ui/pages/train_page.py:117 ui/pages/train_page.py:194
 msgid "Config default"
 msgstr "Standard-Konfiguration"
 
-#: ui/pages/pipeline_config_page.py:196 ui/pages/pipeline_config_page.py:408
-#: ui/pages/train_page.py:114 ui/pages/train_page.py:178
-msgid "Frozen epochs"
-msgstr "Eingefrorene Epochen"
-
-#: ui/pages/pipeline_config_page.py:197 ui/pages/pipeline_config_page.py:412
-#: ui/pages/train_page.py:115 ui/pages/train_page.py:179
-msgid "Unfrozen epochs"
-msgstr "Aufgetaute Epochen"
-
-#: ui/pages/train_page.py:116 ui/pages/train_page.py:180
+#: ui/pages/train_page.py:121 ui/pages/train_page.py:185
 msgid "Frozen LR"
 msgstr "Eingefrohen LR"
 
-#: ui/pages/train_page.py:117 ui/pages/train_page.py:181
+#: ui/pages/train_page.py:122 ui/pages/train_page.py:186
 msgid "Unfrozen LR max"
 msgstr "Aufgetaute LR-Max"
 
-#: ui/pages/train_page.py:118 ui/pages/train_page.py:182
+#: ui/pages/train_page.py:123 ui/pages/train_page.py:187
 msgid "Unfrozen LR min"
 msgstr "Aufgetaute LR-Min"
 
-#: ui/pages/train_page.py:119 ui/pages/train_page.py:183
+#: ui/pages/train_page.py:124 ui/pages/train_page.py:188
 msgid "Batch size"
 msgstr "Losgröße"
 
-#: ui/pages/train_page.py:121 ui/pages/train_page.py:185
+#: ui/pages/train_page.py:126 ui/pages/train_page.py:190
 msgid "Num workers"
 msgstr "Anzahl der Arbeitnehmer"
 
-#: ui/pages/train_page.py:125 ui/pages/train_page.py:190
+#: ui/pages/train_page.py:130 ui/pages/train_page.py:195
 msgid "Validate Training Config"
 msgstr "Trainingskonfiguration validieren"
 
-#: ui/pages/train_page.py:127 ui/pages/train_page.py:191
+#: ui/pages/train_page.py:132 ui/pages/train_page.py:196
 msgid "Start Training"
 msgstr "Training starten"
 
-#: ui/pages/train_page.py:138 ui/pages/train_page.py:193
+#: ui/pages/train_page.py:143 ui/pages/train_page.py:198
 msgid "Training validation and execution messages will appear here."
 msgstr ""
 "Die Training-, Validierung- und Ausführungsmeldungen werden hier angezeigt."
 
-#: ui/pages/train_page.py:151
+#: ui/pages/train_page.py:156
 msgid ""
 "Configure framework, architecture, paths, and hyperparameters (training CLI:"
 " {cmd})."
@@ -2228,63 +2358,71 @@ msgstr ""
 "Konfigurieren Sie das Framework, die Architektur, die Pfade und die "
 "Hyperparameter (Trainings-CLI: {cmd})."
 
-#: ui/pages/train_page.py:155
+#: ui/pages/train_page.py:160
 msgid "Core configuration"
 msgstr "Kernkonfiguration"
 
-#: ui/pages/train_page.py:174
+#: ui/pages/train_page.py:179
 msgid "Hyperparameters"
 msgstr "Hyperparameter"
 
-#: ui/pages/train_page.py:306
+#: ui/pages/train_page.py:370
 msgid "Select checkpoint file"
 msgstr "Wählen Sie die Checkpoint-Datei aus"
 
-#: ui/pages/train_page.py:308
+#: ui/pages/train_page.py:372
 msgid ""
 "Model/checkpoint files (*.pth *.pt *.h5 *.keras *.ckpt);;All files (*.*)"
 msgstr ""
 "Modellsicherungsdateien (*.pth *.pt *.h5 *.keras *.ckpt);; Alle Dateien "
 "(*.*)."
 
-#: ui/pages/train_page.py:350
-msgid "[info] {fw} architectures: {names}"
-msgstr "[Info] {fw} Architekturen: {names}"
-
-#: ui/pages/train_page.py:333 ui/pages/train_page.py:355
+#: ui/pages/train_page.py:397 ui/pages/train_page.py:419
 msgid "Enter architecture manually"
 msgstr "Geben Sie die Architektur händisch ein"
 
-#: ui/pages/train_page.py:357
+#: ui/pages/train_page.py:399
+msgid "[warn] Unsupported framework for architecture list: {fw}"
+msgstr "[warn] Nicht unterstütztes Framework für die Architekturliste: {fw}"
+
+#: ui/pages/train_page.py:414
+msgid "[info] {fw} architectures: {names}"
+msgstr "[Info] {fw} Architekturen: {names}"
+
+#: ui/pages/train_page.py:421
 msgid "[warn] Could not load architecture list for {fw}: {err}"
 msgstr ""
 "[warn] Die Architekturstufe für {fw} konnte nicht geladen werden: {err}"
 
-#: ui/pages/train_page.py:379
+#: ui/pages/train_page.py:443
 msgid "Architecture is required."
 msgstr "Architektur wird benöigt."
 
-#: ui/pages/train_page.py:384
+#: ui/pages/train_page.py:446
+msgid "Unknown architecture: {a}"
+msgstr "Unbekannte Architektur: {a}"
+
+#: ui/pages/train_page.py:448
 msgid "Data directory does not exist."
 msgstr "Das Datenverzeichnis existiert nicht."
 
-#: ui/pages/train_page.py:388
+#: ui/pages/train_page.py:452
 msgid "Resume checkpoint path does not exist."
 msgstr "Der Pfad zum Kontrollpunkt für die Wiederaufnahme existiert nicht."
 
-#: ui/pages/train_page.py:419
+#: ui/pages/train_page.py:483
 msgid "[ok] training inputs look valid"
 msgstr "[ok] Trainingseinträge sind gültig"
 
-#: ui/pages/train_page.py:441
+#: ui/pages/train_page.py:515
 msgid "[detached] PID {pid} — log: {log} — args JSON: {args}"
 msgstr "[getrennt] PID {pid} — Protokoll: {log} — Argumente (JSON): {args}"
 
-#: ui/pages/train_page.py:453
+#: ui/pages/train_page.py:527
 msgid "Training started (separate process)"
 msgstr "Training ist gestartet (eigenen Prozess)"
 
-#: ui/pages/train_page.py:455
+#: ui/pages/train_page.py:529
 msgid ""
 "Training is running outside this window. Closing the app does not stop it.\n"
 "\n"
@@ -2308,26 +2446,26 @@ msgstr ""
 "\n"
 "Beenden Sie den Prozess über den Task-Manager oder Ihr Betriebssystem, falls Sie den Vorgang abbrechen müssen."
 
-#: ui/pages/train_page.py:472
+#: ui/pages/train_page.py:546
 msgid "Could not start detached training"
 msgstr "Das detached Training konnte nicht gestartet werden."
 
-#: ui/pages/train_page.py:473
+#: ui/pages/train_page.py:547
 msgid "Failed to launch the training subprocess. See Details for the error."
 msgstr ""
 "Das Launchen des Trainingseinheit-Unterprozesses ist gescheitert. Siehe "
 "Details für die Meldung."
 
-#: ui/pages/train_page.py:507
+#: ui/pages/train_page.py:584
 msgid "Architecture '{arch}' not supported for {fw}. Supported: {sup}"
 msgstr ""
 "Die Architektur „{arch}“ wird für {fw} nicht unterstützt. Unterstützt: {sup}"
 
-#: ui/pages/train_page.py:522
+#: ui/pages/train_page.py:599
 msgid "[done] Training complete. Model saved: {path}"
 msgstr "[erledigt] Training abgeschlossen. Modell gespeichert: {path}"
 
-#: ui/pages/train_page.py:541
+#: ui/pages/train_page.py:618
 msgid ""
 "[stopped] Training cancelled — partial checkpoints may exist; check the "
 "output folder before re-running."
@@ -2336,11 +2474,11 @@ msgstr ""
 "Checkpoints vorhanden; überprüfen Sie den Ausgabeordner, bevor Sie den "
 "Vorgang erneut ausführen."
 
-#: ui/pages/train_page.py:561
+#: ui/pages/train_page.py:638
 msgid "Training failed"
 msgstr "Das Training ist fehlgeschlagen."
 
-#: ui/pages/train_page.py:562
+#: ui/pages/train_page.py:639
 msgid ""
 "Training stopped with an error. See Details for the message from the "
 "trainer."
@@ -2352,267 +2490,1097 @@ msgstr ""
 msgid " etc."
 msgstr " u.a."
 
-#: mb/cli.py:155
+#: mb/cli.py:215
 msgid ""
-"Root directory for raw data (default: data.raw_data_dir in pipeline config)"
+"Unified snapshot run ID to update (snapshot_<run_id>.json under raw data). "
+"Omit to start a new snapshot with a new run ID."
 msgstr ""
-"Stammverzeichnis für Rohdaten (Standard: „data.raw_data_dir“ in der "
-"Pipeline-Konfiguration)"
+"Einheitliche Snapshot-Lauf-ID für die Aktualisierung (snapshot_<run_id>.json"
+" im Rohdatenordner). Weglassen, um einen neuen Snapshot mit einer neuen "
+"Lauf-ID zu starten."
 
-#: mb/cli.py:788
-msgid "Unsupported architecture: {arch}"
-msgstr "Nicht unterstützte Architektur: {arch}"
+#: mb/cli.py:242
+msgid ""
+"Scan and print duplicate groups as indented JSON (no removals). Useful for "
+"manual review workflows."
+msgstr ""
+"Gruppen von Duplikaten als eingerücktes JSON scannen und drucken (ohne "
+"Löschungen). Nützlich für manuelle Überprüfungsabläufe."
 
-#: mb/cli.py:974
-msgid "Unknown data subcommand: {cmd}"
-msgstr "Unbekannter Datensatz-Befehl: {cmd}"
+#: mb/cli.py:251
+msgid ""
+"Optional unified snapshot run ID to update with deduplication metadata. If "
+"omitted, the latest loadable snapshot under raw data is used when available."
+msgstr ""
+"Optionale einheitliche Snapshot-Lauf-ID zur Aktualisierung mit Metadaten zur"
+" Deduplizierung. Wird diese Angabe weggelassen, wird der aktuellste ladbare "
+"Snapshot unter den Rohdaten verwendet, sofern verfügbar."
 
-#: mb/cli.py:1000
-msgid "Unknown info subcommand: {cmd}"
-msgstr "Unbekannter Info-Unterbefehl: {cmd}"
+#: mb/cli.py:308
+msgid ""
+"Number of items per class in the test split when mode is fixed; also the "
+"anchor for dataset-weighted mode (default: data.test_per_class from pipeline"
+" YAML)."
+msgstr ""
+"Anzahl der Elemente pro Klasse bei der Aufteilung des Tests, wenn der Modus "
+"feststeht; dient zudem als Anker für den datensatzgewichteten Modus "
+"(Standard: `data.test_per_class` aus der Pipeline-YAML)."
 
-#: ui/lib/training_progress_dialog.py:31 ui/lib/training_progress_dialog.py:33
-#: ui/lib/training_progress_dialog.py:110
-#: ui/lib/training_progress_dialog.py:123
-msgid "Estimated time remaining: —"
-msgstr "Verbleibende Zeit geschätzt: —"
+#: mb/cli.py:317
+msgid ""
+"fixed = test_per_class images per class; dataset-weighted = modulated counts"
+" from class size vs total (default: data.test_split_mode in pipeline YAML, "
+"else fixed)."
+msgstr ""
+"fixed = test_per_class Bilder pro Klasse; dataset-weighted = modulierte "
+"Zählwerte, basierend auf dem Verhältnis von Klassengröße zu Gesamtgröße "
+"(Standard: data.test_split_mode in der Pipeline-YAML, andernfalls fixed)."
 
-#: ui/lib/training_progress_dialog.py:34
-msgid "Estimated time remaining: {eta}"
-msgstr "Verbleibende geschätzte Zeit: {eta}"
+#: mb/cli.py:326
+msgid ""
+"With dataset-weighted mode: classes with fewer images than this use a "
+"proportional test count; larger classes use anchor + anchor×(class_share). "
+"Omit to use --test-per-class as the threshold (default: pipeline "
+"data.test_small_class_threshold)."
+msgstr ""
+"Im datensatzgewichteten Modus: Klassen mit weniger Bildern als dieser Wert "
+"verwenden eine proportionale Testanzahl; größere Klassen verwenden „Anker + "
+"Anker × (Klassenanteil)“. Weglassen, um „--test-per-class“ als Schwellenwert"
+" zu verwenden (Standard: pipeline data.test_small_class_threshold)."
 
-#: ui/lib/training_progress_dialog.py:40
-msgid "Elapsed: {t}"
-msgstr "Verstrichen: {t}"
+#: mb/cli.py:336
+msgid ""
+"Random seed for reproducibility (default: data.seed from pipeline YAML when "
+"set, else non-deterministic)"
+msgstr ""
+"Zufallszahl für die Reproduzierbarkeit (Standard: „data.seed“ aus der "
+"Pipeline-YAML-Datei, sofern festgelegt; andernfalls nicht deterministisch)"
 
-#: ui/lib/training_progress_dialog.py:90 ui/lib/training_progress_dialog.py:98
-msgid "ETA unknown"
-msgstr "ETA unbekannt"
+#: mb/cli.py:375
+msgid "Rename mislabeled .jpg sources and rebuild CONVERTED JPEGs"
+msgstr ""
+"Falsch benannte .jpg-Quelldateien umbenennen und die konvertierten JPEGs neu"
+" erstellen"
 
-#: ui/lib/training_progress_dialog.py:107
-msgid "Estimated time remaining: almost done"
-msgstr "Estimierten verbleibenden Zeit: fast fertig"
+#: mb/cli.py:377
+msgid ""
+"Finds non-JPEG bytes under .jpg/.jpeg names in class source trees (same "
+"discovery as convert), writes corrected JPEGs, and removes stale copies "
+"under CONVERTED and small_images_review only after a successful write. "
+"Animated GIFs use the same random-frame + visual_media_review layout as "
+"convert when the model type is image_classification."
+msgstr ""
+"Sucht in den Quellcode-Verzeichnissen der Klassen nach Nicht-JPEG-Bytes "
+"unter .jpg/.jpeg-Dateinamen (gleiche Erkennung wie bei „convert“), schreibt "
+"korrigierte JPEGs und entfernt veraltete Kopien unter „CONVERTED“ und "
+"„small_images_review“ erst nach erfolgreichem Speichern. Animierte GIFs "
+"verwenden dasselbe Layout aus „random-frame“ und „visual_media_review“ wie "
+"„convert“, wenn der Modelltyp „image_classification“ ist."
 
-#: ui/lib/training_progress_dialog.py:120
-msgid "Estimated time remaining: calculating…"
-msgstr "Verbleibende Zeit Schätzung: berechnend..."
+#: mb/cli.py:388
+msgid ""
+"Raw data directory (default: data.raw_data_dir from the pipeline config "
+"after --config; same as gather/convert when omitted)."
+msgstr ""
+"Verzeichnis für Rohdaten (Standard: „data.raw_data_dir“ aus der Pipeline-"
+"Konfiguration nach „--config“; entspricht „gather/convert“, wenn nicht "
+"angegeben)."
 
-#: ui/lib/training_progress_dialog.py:147
-msgid "Cancel training"
-msgstr "Training abbrechen"
+#: mb/cli.py:395
+msgid "Log planned repairs only; do not rename files or write outputs."
+msgstr ""
+"Nur geplante Reparaturen protokollieren; Dateien nicht umbenennen und keine "
+"Ausgaben schreiben."
 
+#: mb/cli.py:402
+msgid ""
+"Print newline-delimited JSON (stdout): dry-run or live repair. By default "
+"only actionable mismatches are listed; use -v to include policy-skipped "
+"PNG/WebP/BMP/TIFF under .jpg. Live repair emits one line per successful fix "
+"when applicable."
+msgstr ""
+"JSON mit Zeilenumbrüchen ausgeben (stdout): Testlauf oder Live-Reparatur. "
+"Standardmäßig werden nur behebbare Abweichungen aufgelistet; verwende -v, um"
+" von der Richtlinie übersprungene PNG-/WebP-/BMP-/TIFF-Dateien unter .jpg "
+"einzubeziehen. Bei der Live-Reparatur wird gegebenenfalls eine Zeile pro "
+"erfolgreicher Korrektur ausgegeben."
+
+#: mb/cli.py:411
+msgid ""
+"With --dry-run and --json: include Pillow format and GIF metadata in each "
+"JSON object."
+msgstr ""
+"Mit den Optionen --dry-run und --json: Füge das Pillow-Format und die GIF-"
+"Metadaten in jedes JSON-Objekt ein."
+
+#: mb/cli.py:418
+msgid ""
+"With --dry-run: omit verbose per-file log lines (use with --json for "
+"machine-readable output only)."
+msgstr ""
+"Mit --dry-run: Ausführliche Protokollzeilen pro Datei werden weggelassen "
+"(nur in Verbindung mit --json für maschinenlesbare Ausgabe verwenden)."
+
+#: mb/cli.py:427
+msgid ""
+"With --json: include policy-skipped static-format mismatches in JSON output."
+" In text mode: log each policy-skipped file and class progress for every "
+"folder; with live repair, log each skipped file. Useless with --quiet. "
+"Separate from top-level mb -v (global logging)."
+msgstr ""
+"Mit --json: Unstimmigkeiten im statischen Format, die aufgrund von "
+"Richtlinien übersprungen wurden, in die JSON-Ausgabe aufnehmen. Im "
+"Textmodus: Für jeden Ordner den Fortschritt für jede übersprungene Datei und"
+" Klasse protokollieren; bei der Live-Reparatur jede übersprungene Datei "
+"protokollieren. Bei Verwendung von --quiet ohne Wirkung. Unabhängig von der "
+"obersten Option mb -v (globale Protokollierung)."
+
+#: mb/cli.py:437
+msgid ""
+"Also rename/repair mislabeled .jpg/.jpeg whose bytes are PNG, WebP, BMP, or "
+"TIFF. By default those are counted and summarized per class only (GIF and "
+"animated-IC cases are always repaired)."
+msgstr ""
+"Benenne außerdem falsch beschriftete .jpg/.jpeg-Dateien um bzw. repariere "
+"sie, deren Byte-Inhalt aus PNG, WebP, BMP oder TIFF besteht. Standardmäßig "
+"werden diese nur nach Dateityp gezählt und zusammengefasst (GIF- und "
+"animierte IC-Dateien werden immer repariert)."
+
+#: mb/cli.py:445
+msgid "Pipeline model type (default: model.default_type)."
+msgstr "Pipeline-Modelltyp (Standard: model.default_type)."
+
+#: mb/cli.py:451
+msgid "RNG seed for random GIF frame selection (optional)."
+msgstr ""
+"RNG-Zaehler für die zufällige Auswahl von GIF-Bildschirmausschnitten "
+"(optional)."
+
+#: mb/cli.py:677
+msgid "Export model bundle artifacts"
+msgstr "Exportieren Sie die Modellbündel-Artefakte"
+
+#: mb/cli.py:679
+msgid ""
+"Export deployment bundle artifacts such as safetensors weights and metadata "
+"manifests."
+msgstr ""
+"Exportieren Sie Artefakte des Bereitstellungs-Bundles, wie beispielsweise "
+"Safetensors-Gewichtungen und Metadaten-Manifeste."
+
+#: mb/cli.py:684
+msgid "Export subcommands"
+msgstr "Export-Unterbefehle"
+
+#: mb/cli.py:690
+msgid ""
+"Export a model bundle (safetensors + manifest + optional architecture stub)"
+msgstr ""
+"Ein Modellpaket exportieren (Sicherheitssensoren + Manifest + optionaler "
+"Architektur-Stub)"
+
+#: mb/cli.py:692
+msgid "Input model file (.pth/.pt)"
+msgstr "Eingabedatei des Modells (.pth/.pt)"
+
+#: mb/cli.py:693
+msgid "Output bundle directory"
+msgstr "Bundle-Ausgabeverzeichnis"
+
+#: mb/cli.py:694
+msgid "Model architecture id (e.g. resnet34)"
+msgstr "Modellarchitektur-ID (z. B. resnet34)"
+
+#: mb/cli.py:695
+msgid "Number of output classes"
+msgstr "Anzahl von Ausgabetypen"
+
+#: mb/cli.py:696
+msgid "Optional ordered class names"
+msgstr "Optionale geordnete Klassen-Namen"
+
+#: mb/cli.py:697
+msgid "Optional data dir to infer class names from train/"
+msgstr ""
+"Optionales Datenverzeichnis, aus dem Klassennamen aus „train/“ abgeleitet "
+"werden"
+
+#: mb/cli.py:698
+msgid "Expected input image size (defaults to pipeline)"
+msgstr "Erwartete Größe des Eingabebildes (Standard: Pipeline)"
+
+#: mb/cli.py:699
+msgid "Optional snapshot JSON path"
+msgstr "Optionales Snap-JSON-Pfad"
+
+#: mb/cli.py:703
+msgid "Do not emit model_architecture.py stub"
+msgstr "Den Stub „model_architecture.py“ nicht ausgeben"
+
+#: mb/cli.py:705
+msgid "Optional run ID to include in manifest"
+msgstr "Optionale Ausführungs-ID zum Einbinden im Manifest"
+
+#: mb/cli.py:899
+msgid "--pillow and --quiet require --dry-run"
+msgstr "--Kissen und --still erfordern --trockenläufen"
+
+#: mb/cli.py:902
+msgid "--pillow requires --json"
+msgstr "--pillow erfordert --json"
+
+#: mb/cli.py:1208
+msgid "Bundle export completed: {path}"
+msgstr "Bundle-Export abgeschlossen: {path}"
+
+#: mb/cli.py:1209 ui/pages/export_page.py:338
+msgid "Weights: {path}"
+msgstr "Gewichte: {path}"
+
+#: mb/cli.py:1210 ui/pages/export_page.py:339
+msgid "Manifest: {path}"
+msgstr "Manifest: {path}"
+
+#: mb/cli.py:1212 ui/pages/export_page.py:342
+msgid "Architecture stub: {path}"
+msgstr "Architekturstub: {path}"
+
+#: mb/cli.py:1215
+msgid "Export failed: {err}"
+msgstr "Export fehlgeschlagen: {err}"
+
+#: mb/cli.py:1286
+msgid "No export subcommand specified"
+msgstr "Kein Export-Unterbefehl angegeben"
+
+#: mb/cli.py:1290
+msgid "Unknown export subcommand: {cmd}"
+msgstr "Unbekannter Export-Unterbefehl: {cmd}"
+
+#: mb/cli.py:1294
+msgid "Unhandled export subcommand: {cmd}"
+msgstr "Unbehandelter Export-Unterbefehl: {cmd}"
+
+#: mb/utils/recent_run_history.py:134
+msgid ""
+"No runs recorded yet.\n"
+"\n"
+"Completed and failed jobs from Data, Train, Convert, and Export are listed here."
+msgstr ""
+"Es wurden noch keine Durchläufe verzeichnet.\n"
+"\n"
+"Hier werden abgeschlossene und fehlgeschlagene Aufträge aus den Bereichen „Daten“, „Trainieren“, „Konvertieren“ und „Exportieren“ aufgelistet."
+
+#: ui/lib/duplicates_resolver_window.py:33
+msgid "Duplicate Resolver"
+msgstr "Duplikationsauflöser"
+
+#: ui/lib/duplicates_resolver_window.py:40
+msgid ""
+"Review potential duplicates from snapshot metadata. Select one path and copy"
+" it, or remove the non-selected peer when exactly two files remain in a "
+"group."
+msgstr ""
+"Überprüfen Sie die Metadaten der Snapshots auf mögliche Duplikate. Wählen "
+"Sie einen Pfad aus und kopieren Sie ihn, oder entfernen Sie den nicht "
+"ausgewählten Eintrag, sobald genau zwei Dateien in einer Gruppe verbleiben."
+
+#: ui/lib/duplicates_resolver_window.py:59
+msgid "Close"
+msgstr "Schließen"
+
+#: ui/lib/duplicates_resolver_window.py:76
+#: ui/lib/duplicates_resolver_window.py:157
+#: ui/lib/duplicates_resolver_window.py:164
+msgid "{gid} ({count} files)"
+msgstr "{gid} ({count} Dateien)"
+
+#: ui/lib/duplicates_resolver_window.py:91
+msgid "Copy selected path"
+msgstr "Kopieren ausgewählten Pfad"
+
+#: ui/lib/duplicates_resolver_window.py:93
+msgid "Remove non-selected peer"
+msgstr "Nicht ausgewählten _PEER_ entfernen"
+
+#: ui/lib/duplicates_resolver_window.py:111
+#: ui/lib/duplicates_resolver_window.py:129
+msgid "No selection"
+msgstr "Keine Auswahl"
+
+#: ui/lib/duplicates_resolver_window.py:111
+msgid "Select a file path first."
+msgstr "Wählen Sie einen Dateipfad zuerst aus."
+
+#: ui/lib/duplicates_resolver_window.py:115
+#: ui/lib/duplicates_resolver_window.py:143
+#: ui/lib/duplicates_resolver_window.py:149
+msgid "Unavailable"
+msgstr "Nicht verfügbar"
+
+#: ui/lib/duplicates_resolver_window.py:115
+msgid "Selected item has no path."
+msgstr "Ausgewählten Objekt hat keinen Pfad."
+
+#: ui/lib/duplicates_resolver_window.py:123
+msgid "Action not allowed"
+msgstr "Die Aktion ist nicht erlaubt"
+
+#: ui/lib/duplicates_resolver_window.py:124
+msgid "This action requires exactly two files in the group."
+msgstr "Für diese Aktion sind genau zwei Dateien in der Gruppe erforderlich."
+
+#: ui/lib/duplicates_resolver_window.py:129
+msgid "Select the file you want to keep."
+msgstr "Wählen Sie die Datei aus, die Sie behalten möchten."
+
+#: ui/lib/duplicates_resolver_window.py:143
+msgid "Could not resolve peer file path."
+msgstr "Der Dateipfad des Peers konnte nicht aufgelöst werden."
+
+#: ui/lib/duplicates_resolver_window.py:149
+msgid "Peer file path is empty."
+msgstr "Der Dateipfad des Peers ist leer."
+
+#: ui/lib/duplicates_resolver_window.py:152
+msgid ""
+"Peer file no longer exists:\n"
+"{p}"
+msgstr ""
+"Die Datei des Peers existiert nicht mehr:\n"
+"{p}"
+
+#: ui/lib/training_progress_dialog.py:69
+#: ui/lib/training_progress_dialog.py:100
 #: ui/lib/training_progress_dialog.py:148
+msgid "Current epoch ETA: —"
+msgstr "Aktuelle Epoche ETA: —"
+
+#: ui/lib/training_progress_dialog.py:161
+#: ui/lib/training_progress_dialog.py:166
+#: ui/lib/training_progress_dialog.py:171
+msgid "Current epoch ETA: calculating…"
+msgstr "Aktuelle Epoche ETA: Berechnung läuft…"
+
+#: ui/lib/training_progress_dialog.py:177
+msgid "Current epoch ETA: {eta}"
+msgstr "Aktuelle Epoche ETA: {eta}"
+
+#: ui/pages/data_page.py:156
 msgid ""
-"Stop training? Partial checkpoints may already exist in the output folder."
+"Typical order: Gather → Convert → Deduplicate (optional) → Upscale "
+"(optional) → Create Dataset. If class folders are already under your raw "
+"data root, skip Gather and start at Convert. If sources were mislabeled as "
+".jpg, run fix-jpeg-extension-mismatch before Create Dataset (it repairs "
+"CONVERTED/ and updates the unified snapshot—no separate full Convert needed "
+"for that). Create Dataset reads training JPEGs from each class’s CONVERTED/ "
+"folder only—not from small_images_review, upscaled_small_images, or "
+"visual_media_review. See docs/DATA_PIPELINE.md for storage on external "
+"drives and large vs small images."
 msgstr ""
-"Das Training abbrechen? Möglicherweise befinden sich bereits teilweise "
-"verarbeitete Checkpoints im Ausgabeordner."
+"Typische Reihenfolge: Sammeln → Konvertieren → Deduplizieren (optional) → "
+"Hochskalieren (optional) → Datensatz erstellen. Wenn sich Klassenordner "
+"bereits im Stammverzeichnis Ihrer Rohdaten befinden, überspringen Sie "
+"„Sammeln“ und beginnen Sie mit „Konvertieren“. Wenn Quellen "
+"fälschlicherweise als .jpg gekennzeichnet wurden, führen Sie vor dem "
+"Erstellen des Datensatzes „fix-jpeg-extension-mismatch“ aus (dies repariert "
+"CONVERTED/ und aktualisiert den einheitlichen Snapshot – dafür ist keine "
+"separate vollständige Konvertierung erforderlich).  „Create Dataset“ liest "
+"Trainings-JPEGs ausschließlich aus dem Ordner „CONVERTED/“ der jeweiligen "
+"Klasse – nicht aus den Ordnern „small_images_review“, "
+"„upscaled_small_images“ oder „visual_media_review“. Informationen zur "
+"Speicherung auf externen Laufwerken sowie zu großen und kleinen Bildern "
+"findest du in der Datei „docs/DATA_PIPELINE.md“."
 
-#: ui/lib/training_progress_dialog.py:155
-#: ui/lib/training_progress_dialog.py:156
-msgid "Cancelling…"
-msgstr "Beenden…"
+#: ui/pages/data_page.py:170
+msgid "Wildcard"
+msgstr "Wildcard"
 
-#: ui/pages/pipeline_config_page.py:164
-msgid "Gather defaults"
-msgstr "Standardwerte abrufen"
-
-#: ui/pages/pipeline_config_page.py:169 ui/pages/pipeline_config_page.py:295
-msgid "Default model type"
-msgstr "Standardmodelltyp"
-
-#: ui/pages/pipeline_config_page.py:169 ui/pages/pipeline_config_page.py:298
-msgid "Default framework"
-msgstr "Standardframework"
-
-#: ui/pages/pipeline_config_page.py:169 ui/pages/pipeline_config_page.py:301
-msgid "Default architecture"
-msgstr "Standardarchitektur"
-
-#: ui/pages/pipeline_config_page.py:174 ui/pages/pipeline_config_page.py:318
-msgid "Raw data directory"
-msgstr "Rohdatenverzeichnis"
-
-#: ui/pages/pipeline_config_page.py:175 ui/pages/pipeline_config_page.py:324
-msgid "Dataset output directory"
-msgstr "Datenpunkt-Ausgabeverzeichnis"
-
-#: ui/pages/pipeline_config_page.py:176 ui/pages/pipeline_config_page.py:330
-msgid "Test images per class"
-msgstr "Prüfabbildungen pro Klasse"
-
-#: ui/pages/pipeline_config_page.py:177 ui/pages/pipeline_config_page.py:334
-msgid "Image size (pixels)"
-msgstr "Bildergöße (Pixel)"
-
-#: ui/pages/pipeline_config_page.py:178 ui/pages/pipeline_config_page.py:340
-msgid "Training batch size"
-msgstr "Training Batch Größe"
-
-#: ui/pages/pipeline_config_page.py:179 ui/pages/pipeline_config_page.py:344
-msgid "Image file extensions (one per line)"
-msgstr "Bild-Dateiendungen (eine pro Zeile)"
-
-#: ui/pages/pipeline_config_page.py:180 ui/pages/pipeline_config_page.py:348
-msgid "Video file extensions (one per line)"
-msgstr "Video-Dateiendungen (eine pro Zeile)"
-
-#: ui/pages/pipeline_config_page.py:181 ui/pages/pipeline_config_page.py:353
-msgid "Class folder names (empty = auto-discover)"
-msgstr "Klassenordner Namen (leer = automatisch entdecken)"
-
-#: ui/pages/pipeline_config_page.py:182 ui/pages/pipeline_config_page.py:357
-msgid "Class qualifying subfolder"
-msgstr "Klassenqualifizierender Unterordner"
-
-#: ui/pages/pipeline_config_page.py:188 ui/pages/pipeline_config_page.py:369
-msgid "Default gather target count"
-msgstr "Standard Ziel Anzahl Sammeln"
-
-#: ui/pages/pipeline_config_page.py:189 ui/pages/pipeline_config_page.py:376
-msgid "Gather target subfolder"
-msgstr "Die Zielspeicherordner ermitteln"
-
-#: ui/pages/pipeline_config_page.py:190 ui/pages/pipeline_config_page.py:387
-msgid "Rejected subfolder"
-msgstr "Abgelehnter Unterordner"
-
-#: ui/pages/pipeline_config_page.py:198 ui/pages/pipeline_config_page.py:418
-msgid "Frozen learning rate"
-msgstr "Gefrorener Lernrate"
-
-#: ui/pages/pipeline_config_page.py:199 ui/pages/pipeline_config_page.py:423
-msgid "Unfrozen LR (max)"
-msgstr "Ungefroren LR (max)"
-
-#: ui/pages/pipeline_config_page.py:200 ui/pages/pipeline_config_page.py:428
-msgid "Unfrozen LR (min)"
-msgstr "Ungefroren LR (min)"
-
-#: ui/pages/pipeline_config_page.py:201 ui/pages/pipeline_config_page.py:432
-msgid "DataLoader workers"
-msgstr "DataLoader-Prozesse"
-
-#: ui/pages/pipeline_config_page.py:207 ui/pages/pipeline_config_page.py:452
-msgid "Models directory"
-msgstr "Modelverzeichnis"
-
-#: ui/pages/pipeline_config_page.py:207 ui/pages/pipeline_config_page.py:458
-msgid "Logs directory"
-msgstr "Log-Verzeichnis"
-
-#: ui/pages/pipeline_config_page.py:207 ui/pages/pipeline_config_page.py:464
-msgid "Timing data directory"
-msgstr "Timing-Daten-Verzeichnis"
-
-#: ui/pages/pipeline_config_page.py:222
-msgid "Save training checkpoints"
-msgstr "Trainingsergebnisse speichern"
-
-#: ui/pages/pipeline_config_page.py:238
-msgid "Task type selected when you start a new model project."
-msgstr "Aufgabenart ausgewählt, wenn Sie ein neues Modellprojekt starten."
-
-#: ui/pages/pipeline_config_page.py:243
-msgid "Deep learning framework for new runs (e.g. pytorch)."
-msgstr "Tiefes-Lern-Framework für neue Laufen (z.B. PyTorch)"
-
-#: ui/pages/pipeline_config_page.py:248
-msgid "Default backbone architecture name for new training runs."
-msgstr "Standard Rückgratarchitektur-Name für neue Trainingserungen."
-
-#: ui/pages/pipeline_config_page.py:254
+#: ui/pages/data_page.py:176
 msgid ""
-"Root folder for raw images: one subfolder per class after gather/convert. "
-"Relative paths are resolved from the app working directory or project root."
+"Example:\n"
+"--dry-run --json\n"
+"--raw-data-dir C:\\path\\to\\raw_data"
 msgstr ""
-"Stammverzeichnis für Rohbilder: ein Unterordner pro Klasse nach dem "
-"Sammeln/Konvertieren. Relative Pfade werden ausgehend vom Arbeitsverzeichnis"
-" der App oder vom Projektstammverzeichnis aufgelöst."
+"Example:\n"
+"--dry-run --json\n"
+"--raw-data-dir C:\\Pfad\\zu\\Rohdaten"
 
-#: ui/pages/pipeline_config_page.py:262
+#: ui/pages/data_page.py:188
 msgid ""
-"Output of create-dataset: this folder holds train/ and test/ used for "
-"training and snapshots. Keep it on a fast internal disk when raw data lives "
-"on external storage."
+"No space estimate yet. It updates after the disk-space check finishes (first"
+" phase of Convert or Create Dataset)."
 msgstr ""
-"Ausgabe von `create-dataset`: Dieser Ordner enthält die Verzeichnisse "
-"`train/` und `test/`, die für das Training und für Snapshots verwendet "
-"werden. Speichern Sie ihn auf einer schnellen internen Festplatte, wenn sich"
-" die Rohdaten auf einem externen Speicher befinden."
+"Es liegt noch keine Schätzung des Speicherplatzbedarfs vor. Diese wird "
+"angezeigt, sobald die Überprüfung des Speicherplatzes abgeschlossen ist "
+"(erste Phase von „Konvertieren“ oder „Datensatz erstellen“)."
 
-#: ui/pages/pipeline_config_page.py:270
+#: ui/pages/data_page.py:210 ui/pages/data_page.py:654
+msgid "Snapshot Run ID (optional)"
+msgstr "Schnappschusslauf-ID (optional)"
+
+#: ui/pages/data_page.py:214 ui/pages/data_page.py:644
 msgid ""
-"Subfolder under raw data for accepted gather output (e.g. coherent). "
-"Relative to Raw data directory unless you enter an absolute path."
+"Review cross-class duplicates only: same-class CONVERTED duplicates are "
+"removed automatically; JSON + resolver list cross-class groups after run"
 msgstr ""
-"Unterordner unter „Raw data“ für die Ausgabe akzeptierter Datensätze (z. B. "
-"kohärent). Relativ zum Verzeichnis „Raw data“, sofern Sie keinen absoluten "
-"Pfad angeben."
+"Nur klassenübergreifende Duplikate prüfen: Duplikate derselben Klasse, die "
+"konvertiert wurden, werden automatisch entfernt; JSON + Resolver listet nach"
+" der Ausführung klassenübergreifende Gruppen auf"
 
-#: ui/pages/pipeline_config_page.py:278
+#: ui/pages/data_page.py:243
 msgid ""
-"Subfolder under raw data for files rejected during gather (e.g. rejected). "
-"Relative to Raw data directory unless you enter an absolute path."
+"Before Create Dataset: (1) Raw data must use one folder per class under the "
+"raw data root (run Gather first if you do not already have that layout). (2)"
+" Run Convert so each class has normalized JPEGs under CONVERTED/ and the "
+"unified snapshot matches your sources. (3) If any files had the wrong "
+"extension for their actual image bytes, run mb data fix-jpeg-extension-"
+"mismatch (or the Wildcard tab with that subcommand)—it rewrites CONVERTED/ "
+"and patches the unified snapshot for those files; you do not need a second "
+"full Convert just to refresh the snapshot. (4) Optional: Deduplicate may "
+"move borderline-small files out of CONVERTED/ into each class’s "
+"small_images_review/; Upscale is optional. Create Dataset reads JPEGs from "
+"CONVERTED/ only—put any images you still want trained back under CONVERTED/ "
+"(from small_images_review or from upscaled_small_images after upscale) "
+"before Create Dataset. (5) Choose an output data directory with enough free "
+"space; check “Allow external/removable storage” when writing to removable "
+"drives."
 msgstr ""
-"Unterordner unter „Raw data“ für Dateien, die während der Datenerfassung "
-"verworfen wurden (z. B. „rejected“). Relativ zum Verzeichnis „Raw data“, "
-"sofern Sie keinen absoluten Pfad angeben."
+"Vor dem Erstellen des Datensatzes: (1) Die Rohdaten müssen in einem eigenen "
+"Ordner pro Klasse unter dem Stammverzeichnis der Rohdaten abgelegt sein "
+"(führen Sie zunächst „Gather“ aus, falls Sie diese Struktur noch nicht "
+"haben). (2) Führen Sie „Convert“ aus, damit jede Klasse normalisierte JPEGs "
+"unter „CONVERTED/“ enthält und der einheitliche Snapshot mit Ihren Quellen "
+"übereinstimmt. (3) Falls Dateien eine falsche Dateiendung für ihre "
+"tatsächlichen Bilddaten hatten, führen Sie den Befehl „mb data fix-jpeg-"
+"extension-mismatch“ (oder die Registerkarte „Wildcard“ mit diesem "
+"Unterbefehl) aus – dadurch wird der Ordner „CONVERTED/“ neu geschrieben und "
+"der einheitliche Snapshot für diese Dateien korrigiert; Sie benötigen keinen"
+" zweiten vollständigen Konvertierungsvorgang, nur um den Snapshot zu "
+"aktualisieren. (4) Optional: Bei der Deduplizierung werden Dateien, die "
+"grenzwertig klein sind, möglicherweise aus dem Ordner „CONVERTED/“ in den "
+"Ordner „small_images_review/“ der jeweiligen Klasse verschoben; die "
+"Hochskalierung ist optional. „Create Dataset“ liest JPEGs ausschließlich aus"
+" dem Ordner „CONVERTED/“ – verschieben Sie alle Bilder, die Sie noch "
+"trainieren möchten, vor dem Ausführen von „Create Dataset“ zurück in den "
+"Ordner „CONVERTED/“ (aus „small_images_review“ oder aus "
+"„upscaled_small_images“ nach der Hochskalierung). (5) Wählen Sie ein "
+"Ausgabeverzeichnis mit ausreichend freiem Speicherplatz; aktivieren Sie "
+"„Externen/Wechselspeicher zulassen“, wenn Sie auf Wechseldatenträger "
+"schreiben."
 
-#: ui/pages/pipeline_config_page.py:319
-msgid "Select raw data directory"
-msgstr "Wählen Sie das Rohdatenverzeichnis aus."
+#: ui/pages/data_page.py:263 ui/pages/data_page.py:264
+#: ui/pages/data_page.py:265 ui/pages/train_page.py:200
+msgid "Latest"
+msgstr "Neueste"
 
-#: ui/pages/pipeline_config_page.py:325
-msgid "Select dataset directory"
-msgstr "Wählen Sie das Dataset-Verzeichnis aus."
-
-#: ui/pages/pipeline_config_page.py:338
+#: ui/pages/data_page.py:267
 msgid ""
-"Leave empty for the model-type default batch size (omitted from saved YAML)."
+"Set Run ID from the newest snapshot_*.json file under the shared raw data "
+"directory (by file modification time)."
 msgstr ""
-"Leer lassen, um die Standard-Batchgröße des Modelltyps zu verwenden (wird in"
-" der gespeicherten YAML-Datei nicht aufgeführt)."
+"Legen Sie die Lauf-ID anhand der neuesten Datei „snapshot_*.json“ im "
+"Verzeichnis für gemeinsam genutzte Rohdaten fest (nach dem Änderungsdatum "
+"der Datei)."
 
-#: ui/pages/pipeline_config_page.py:356
-msgid "empty = any"
-msgstr "Leer =beliebig"
-
-#: ui/pages/pipeline_config_page.py:373
-msgid "Relative to raw data directory (e.g. coherent); absolute path optional"
+#: ui/pages/data_page.py:274
+msgid ""
+"Set Run ID from the newest snapshot_*.json found across the same search "
+"paths as manual Run ID entry (raw dir, its parent, output data dir, and "
+"class folders)."
 msgstr ""
-"Relativ zum Verzeichnis mit den Rohdaten (z. B. „coherent“); absoluter Pfad "
-"optional"
+"Die Lauf-ID wird anhand der neuesten Datei „snapshot_*.json“ festgelegt, die"
+" in denselben Suchpfaden gefunden wird wie bei der manuellen Eingabe der "
+"Lauf-ID (Rohdatenverzeichnis, dessen übergeordnetes Verzeichnis, "
+"Ausgabedatenverzeichnis und Klassenordner)."
 
-#: ui/pages/pipeline_config_page.py:378
-msgid "Select default gather target directory"
-msgstr "Wählen Sie die voreinstellige Sammlungszielverzeichnis-Auswahl"
+#: ui/pages/data_page.py:279
+msgid "Open duplicate resolver from snapshot…"
+msgstr "Öffne Duplikationslöser aus dem Schnappschuss…"
 
-#: ui/pages/pipeline_config_page.py:384
-msgid "Relative to raw data directory (e.g. rejected); absolute path optional"
+#: ui/pages/data_page.py:283
+msgid ""
+"If the resolver did not open after a list-only run (for example after a UI "
+"crash), use the button above to load duplicate groups from the snapshot on "
+"disk."
 msgstr ""
-"Relativ zum Rohdatenverzeichnis (z.B. abgelehnt); optionaler absoluter Pfad"
+"Falls sich der Resolver nach einem „List-only“-Durchlauf nicht geöffnet hat "
+"(beispielsweise nach einem Absturz der Benutzeroberfläche), laden Sie über "
+"die Schaltfläche oben doppelte Gruppen aus dem Snapshot auf der Festplatte."
 
-#: ui/pages/pipeline_config_page.py:389
-msgid "Select default rejected directory"
-msgstr "Standardverzeichnis für ausgewiesene auswählen"
+#: ui/pages/data_page.py:289
+msgid ""
+"Training sources for Create Dataset are JPEGs under each class’s CONVERTED/ "
+"only. Deduplicate moves borderline-small images from CONVERTED/ into that "
+"class’s small_images_review/ (and removes very small ones). Files that stay "
+"only in small_images_review are not used by Create Dataset unless you copy "
+"or move them back into CONVERTED/. visual_media_review holds duplicate "
+"copies of video/GIF frame extracts for review; the canonical frame JPEG is "
+"already in CONVERTED/, so you do not merge visual_media_review for Create "
+"Dataset."
+msgstr ""
+"Als Trainingsdaten für „Create Dataset“ dienen ausschließlich JPEG-Dateien, "
+"die sich im Ordner „CONVERTED/“ der jeweiligen Klasse befinden. Der Schritt "
+"„Deduplicate“ verschiebt Bilder, die an der Grenze zur Kategorie „small“ "
+"liegen, aus dem Ordner „CONVERTED/“ in den Ordner „small_images_review/“ der"
+" jeweiligen Klasse (und entfernt dabei sehr kleine Bilder). Dateien, die "
+"sich ausschließlich im Verzeichnis „small_images_review“ befinden, werden "
+"von „Create Dataset“ nicht verwendet, es sei denn, Sie kopieren oder "
+"verschieben sie zurück in das Verzeichnis „CONVERTED/“. Das Verzeichnis "
+"„visual_media_review“ enthält Duplikate von Video- und GIF-Bildausschnitten "
+"zur Überprüfung; das kanonische JPEG-Bild befindet sich bereits in "
+"„CONVERTED/“, daher sollten Sie „visual_media_review“ nicht für „Create "
+"Dataset“ zusammenführen."
 
-#: ui/pages/pipeline_config_page.py:453
-msgid "Select models directory"
-msgstr "Wählen Sie das Modellverzeichnis aus."
+#: ui/pages/data_page.py:299
+msgid ""
+"Upscale is optional. It enlarges images from the review tree; outputs go "
+"under <review-dir>/upscaled_small_images/. Default review dir when empty is "
+"<raw-data-dir>/small_images_review (one subfolder per class)—set Review dir "
+"explicitly if deduplicate placed files under "
+"raw_data/<class>/small_images_review/ instead. Create Dataset still reads "
+"only from CONVERTED/; copy any upscaled files you want trained into the "
+"right CONVERTED/ folder before Create Dataset. If you skip upscale, accept "
+"that images left only in small_images_review stay out of the split unless "
+"you return them to CONVERTED/ manually."
+msgstr ""
+"Die Hochskalierung ist optional. Sie vergrößert Bilder aus dem "
+"Überprüfungsverzeichnis; die Ergebnisse werden unter <review-"
+"dir>/upscaled_small_images/ gespeichert. Das Standard-"
+"Überprüfungsverzeichnis lautet, sofern es leer ist, <raw-data-"
+"dir>/small_images_review (ein Unterordner pro Klasse) – legen Sie das "
+"Überprüfungsverzeichnis explizit fest, wenn Sie stattdessen doppelte Dateien"
+" unter raw_data/<class>/small_images_review/ ablegen möchten. „Create "
+"Dataset“ liest weiterhin nur aus dem Ordner „CONVERTED/“; kopieren Sie alle "
+"hochskalierten Dateien, die Sie trainieren möchten, vor dem Ausführen von "
+"„Create Dataset“ in den entsprechenden Ordner „CONVERTED/“. Wenn Sie die "
+"Hochskalierung überspringen, müssen Sie damit rechnen, dass Bilder, die nur "
+"im Ordner „small_images_review“ verbleiben, nicht in die Aufteilung "
+"einbezogen werden, es sei denn, Sie verschieben sie manuell zurück in den "
+"Ordner „CONVERTED/“."
 
-#: ui/pages/pipeline_config_page.py:459
-msgid "Select logs directory"
-msgstr "Wählen Sie das Protokolle-Verzeichnis"
+#: ui/pages/data_page.py:669
+msgid ""
+"Scope note: Deduplicate only processes files inside each class folder's "
+"CONVERTED directory (raw_data/<class>/CONVERTED). Other folders, including "
+"IMAGES and root-level utility directories, are not scanned."
+msgstr ""
+"Hinweis zum Anwendungsbereich: Die Deduplizierung erfolgt nur für Dateien im"
+" Verzeichnis „CONVERTED“ der jeweiligen Klassenordner "
+"(raw_data/<class>/CONVERTED). Andere Ordner, einschließlich „IMAGES“ und "
+"Dienstprogrammverzeichnisse auf der obersten Ebene, werden nicht durchsucht."
 
-#: ui/pages/pipeline_config_page.py:465
-msgid "Select timing data directory"
-msgstr "Wählen Sie das Zeitdatenverzeichnis aus"
+#: ui/pages/data_page.py:779
+msgid ""
+"Pick the subcommand, then type any arguments for ``mb data <subcommand> …`` "
+"(line breaks are fine). The active pipeline config path is passed as "
+"``--config`` when you do not include it below. Cancellation is not applied "
+"to this path—use Ctrl+C in a terminal if you need to stop a long job."
+msgstr ""
+"Wählen Sie den Unterbefehl aus und geben Sie dann beliebige Argumente für "
+"„mb data <Unterbefehl> …“ ein (Zeilenumbrüche sind zulässig). Der aktive "
+"Konfigurationspfad der Pipeline wird als „--config“ übergeben, sofern Sie "
+"ihn unten nicht angeben. Dieser Pfad kann nicht abgebrochen werden – "
+"verwenden Sie Strg+C im Terminal, wenn Sie einen langwierigen Auftrag "
+"beenden müssen."
 
-#: ui/pages/train_page.py:335
-msgid "[warn] Unsupported framework for architecture list: {fw}"
-msgstr "[warn] Nicht unterstütztes Framework für die Architekturliste: {fw}"
+#: ui/pages/data_page.py:786
+msgid "Command"
+msgstr "Befehl"
 
-#: ui/pages/train_page.py:382
-msgid "Unknown architecture: {a}"
-msgstr "Unbekannte Architektur: {a}"
+#: ui/pages/data_page.py:788
+msgid "Arguments (optional)"
+msgstr "Argumente (optional)"
+
+#: ui/pages/data_page.py:805
+msgid "Could not parse arguments (check quotes and line breaks): {err}"
+msgstr ""
+"Argumente konnten nicht analysiert werden (bitte Anführungszeichen und "
+"Zeilenumbrüche überprüfen): {err}"
+
+#: ui/pages/data_page.py:825
+msgid ""
+"Normalize images to JPEG under each class’s CONVERTED/ folder. Video/GIF "
+"extracts: the frame JPEG is written to CONVERTED/ and a duplicate copy to "
+"visual_media_review/ for inspection only. Point Raw data dir at the same "
+"tree on an internal or external drive; outputs stay beside sources."
+msgstr ""
+"Bilder werden im Ordner „CONVERTED/“ der jeweiligen Klasse in das JPEG-"
+"Format konvertiert. Bei Video- und GIF-Ausschnitten wird das Einzelbild als "
+"JPEG in den Ordner „CONVERTED/“ geschrieben und eine Kopie davon "
+"ausschließlich zu Überprüfungszwecken in den Ordner „visual_media_review/“ "
+"gespeichert. Verweisen Sie das Verzeichnis für Rohdaten auf denselben "
+"Ordnerbaum auf einem internen oder externen Laufwerk; die Ausgabedateien "
+"bleiben neben den Quelldateien gespeichert."
+
+#: ui/pages/data_page.py:831
+msgid ""
+"Remove duplicates and quarantine very small images from class CONVERTED/ "
+"folders only (raw_data/<class>/CONVERTED); other folders are ignored. "
+"Borderline-small files move to each class’s small_images_review/—Create "
+"Dataset does not read that folder unless you copy back into CONVERTED/."
+msgstr ""
+"Entferne Duplikate und verschiebe sehr kleine Bilder ausschließlich aus den "
+"Ordnern der Klasse „CONVERTED/“ (raw_data/<class>/CONVERTED); andere Ordner "
+"werden ignoriert. Dateien, die grenzwertig klein sind, werden in den Ordner "
+"„small_images_review/“ der jeweiligen Klasse verschoben – „Create Dataset“ "
+"liest diesen Ordner nur, wenn du die Dateien zurück in den Ordner "
+"„CONVERTED/“ kopierst."
+
+#: ui/pages/data_page.py:837
+msgid ""
+"Optional: enlarge undersized images from the review area. Outputs go under "
+"upscaled_small_images/; Create Dataset still uses CONVERTED/ only—merge "
+"copies there if needed. Default review dir when empty is "
+"raw_data/small_images_review (class subfolders); override Review dir if your"
+" review files live under raw_data/<class>/small_images_review/."
+msgstr ""
+"Optional: Vergrößern Sie zu kleine Bilder aus dem Überprüfungsbereich. Die "
+"Ergebnisse werden unter „upscaled_small_images/“ gespeichert; „Create "
+"Dataset“ verwendet weiterhin nur „CONVERTED/“ – führen Sie die Kopien dort "
+"bei Bedarf zusammen. Das Standardverzeichnis für die Überprüfung ist, sofern"
+" es leer ist, „raw_data/small_images_review“ (Unterordner der Klassen); "
+"überschreiben Sie das Verzeichnis „Review“, wenn sich Ihre "
+"Überprüfungsdateien unter „raw_data/<class>/small_images_review/“ befinden."
+
+#: ui/pages/data_page.py:843
+msgid ""
+"After initial Convert (and any JPEG extension repair if needed), optionally "
+"Dedup/Upscale: copies from each class’s CONVERTED/ into train/ and test/ "
+"under the output data directory. Does not pull from small_images_review, "
+"upscaled_small_images, or visual_media_review. A good place to put the final"
+" dataset on your main drive while raw data stays external."
+msgstr ""
+"Nach der ersten Konvertierung (und gegebenenfalls einer Reparatur der JPEG-"
+"Erweiterung) erfolgt optional eine Deduplizierung/Hochskalierung: Dabei "
+"werden Kopien aus dem Ordner „CONVERTED/“ jeder Klasse in die Ordner "
+"„train/“ und „test/“ im Ausgabeverzeichnis kopiert. Es werden keine Daten "
+"aus den Ordnern „small_images_review“, „upscaled_small_images“ oder "
+"„visual_media_review“ übernommen. Dies ist ein geeigneter Ort, um den "
+"endgültigen Datensatz auf Ihrem Hauptlaufwerk abzulegen, während die "
+"Rohdaten auf einem externen Speichermedium verbleiben."
+
+#: ui/pages/data_page.py:849
+msgid ""
+"Choose a data subcommand and optional ``mb data …`` arguments in the text "
+"box (same flags as the CLI)."
+msgstr ""
+"Wählen Sie einen Datenunterbefehl und die optionalen ``mb data …`` Argumente"
+" im Textfeld (gleiche Flags wie die CLI)."
+
+#: ui/pages/data_page.py:873
+msgid ""
+"Convert walks class folders, writes CONVERTED/ JPEGs, and records a unified "
+"snapshot. For image classification, videos and multi-frame GIFs may yield a "
+"random frame JPEG in CONVERTED/ plus a duplicate in visual_media_review/ for"
+" review only. Very large images are downscaled (max edge 4000px)."
+msgstr ""
+"„Convert“ durchsucht die Klassenordner, speichert die konvertierten JPEGs im"
+" Ordner „CONVERTED/“ und erstellt einen einheitlichen Snapshot. Bei der "
+"Bildklassifizierung können Videos und GIFs mit mehreren Bildern ein JPEG "
+"eines zufällig ausgewählten Bildes im Ordner „CONVERTED/“ sowie ein Duplikat"
+" im Ordner „visual_media_review/“ ergeben, das ausschließlich zur "
+"Überprüfung dient. Sehr große Bilder werden verkleinert (maximale Breite "
+"4000 Pixel)."
+
+#: ui/pages/data_page.py:879
+msgid ""
+"Deduplicate scans only class CONVERTED/ folders, removes duplicate images, "
+"and handles tiny dimensions: removes very small images and moves borderline-"
+"small ones to each class’s small_images_review/ for optional upscale. Create"
+" Dataset sources CONVERTED/ JPEGs only."
+msgstr ""
+"„Deduplicate“ durchsucht nur die Ordner der Klasse „CONVERTED/“, entfernt "
+"doppelte Bilder und verarbeitet Bilder mit sehr kleinen Abmessungen: Es "
+"entfernt sehr kleine Bilder und verschiebt solche, die knapp unter der "
+"Grenze liegen, in den Ordner „small_images_review/“ der jeweiligen Klasse, "
+"wo sie optional hochskaliert werden können. Erstelle Datensatzquellen "
+"ausschließlich aus den JPEGs im Ordner „CONVERTED/“."
+
+#: ui/pages/data_page.py:884
+msgid ""
+"Optional: reads the small-image review tree and writes upscaled copies under"
+" upscaled_small_images/. Create Dataset does not read that output—copy "
+"wanted files into CONVERTED/ before create-dataset if they should appear in "
+"train/test."
+msgstr ""
+"Optional: Liest den Verzeichnisbaum „small-image“ und schreibt hochskalierte"
+" Kopien in den Ordner „upscaled_small_images/“. Der Befehl „Create Dataset“ "
+"berücksichtigt diese Ausgabe nicht – kopieren Sie die gewünschten Dateien "
+"vor dem Ausführen von „create-dataset“ in den Ordner „CONVERTED/“, wenn sie "
+"in den Ordnern „train“ und „test“ erscheinen sollen."
+
+#: ui/pages/data_page.py:889
+msgid ""
+"Prerequisite: Convert has been run (CONVERTED/ + snapshot). JPEG extension "
+"repair updates that snapshot for repaired files—you do not need another full"
+" Convert for snapshot alignment. Copies only from each class’s CONVERTED/ "
+"(not small_images_review or visual_media_review). Writes train/ and test/ to"
+" the output data dir. Set output on a spacious internal disk if raw data "
+"lives on external storage."
+msgstr ""
+"Voraussetzung: „Convert“ wurde bereits ausgeführt (Verzeichnis „CONVERTED/“ "
+"+ Snapshot). Die Reparatur der JPEG-Erweiterung aktualisiert diesen Snapshot"
+" für die reparierten Dateien – ein weiterer vollständiger „Convert“-Lauf zur"
+" Snapshot-Anpassung ist nicht erforderlich. Es werden nur Kopien aus dem "
+"Verzeichnis „CONVERTED/“ jeder Klasse kopiert (nicht aus "
+"„small_images_review“ oder „visual_media_review“). Die Verzeichnisse "
+"„train/“ und „test/“ werden in das Ausgabeverzeichnis geschrieben. Legen Sie"
+" das Ausgabeverzeichnis auf einer großzügig dimensionierten internen "
+"Festplatte an, wenn sich die Rohdaten auf einem externen Speicher befinden."
+
+#: ui/pages/data_page.py:896
+msgid ""
+"Runs ``mb data <subcommand>`` with the optional argument text you provide "
+"(parsed like the shell). The GUI injects ``--config`` when it is not already"
+" present."
+msgstr ""
+"Führt „mb data <Unterbefehl>“ mit dem von Ihnen angegebenen optionalen "
+"Argumenttext aus (der wie in der Shell interpretiert wird). Die GUI fügt "
+"„--config“ hinzu, falls dieses noch nicht vorhanden ist."
+
+#: ui/pages/data_page.py:913
+msgid ""
+"Storage: convert reads and writes under the raw data path you choose "
+"(including on removable drives). Create Dataset copies into the output data "
+"directory—often set that to your main disk. Large images: convert downscales"
+" long edges; tiny images: deduplicate moves small files to "
+"small_images_review/. JPEG extension mismatches: run fix-jpeg-extension-"
+"mismatch (updates CONVERTED/ and the unified snapshot for affected files; no"
+" extra Convert pass required for that). Create Dataset globs JPEGs from each"
+" class’s CONVERTED/ only. visual_media_review/ is a duplicate of video/GIF "
+"frame outputs for human review—not a second input. After deduplicate, files "
+"that remain only under small_images_review/ (or only under "
+"upscaled_small_images/ after upscale) are not used unless you copy the ones "
+"you want back into CONVERTED/. Full discussion: docs/DATA_PIPELINE.md."
+msgstr ""
+"Speicherung: Konvertieren Sie Lese- und Schreibvorgänge über den von Ihnen "
+"gewählten Rohdatenpfad (einschließlich auf Wechseldatenträgern). Erstellen "
+"Sie Kopien des Datensatzes im Ausgabeverzeichnis – legen Sie dieses häufig "
+"auf Ihrer Hauptfestplatte an. Große Bilder: Konvertieren Sie Bilder mit "
+"einer Verkleinerung der langen Kanten; kleine Bilder: Deduplizieren Sie "
+"kleine Dateien und verschieben Sie sie in den Ordner „small_images_review/“."
+" Nicht übereinstimmende JPEG-Erweiterungen: Führen Sie „fix-jpeg-extension-"
+"mismatch“ aus (aktualisiert den Ordner „CONVERTED/“ und den einheitlichen "
+"Snapshot für die betroffenen Dateien; hierfür ist kein zusätzlicher "
+"„Convert“-Durchlauf erforderlich). Erstellen Sie den Datensatz „globs“ "
+"ausschließlich aus den JPEG-Dateien im Ordner „CONVERTED/“ der jeweiligen "
+"Klasse. „visual_media_review/“ ist ein Duplikat der Video-/GIF-Frame-"
+"Ausgaben für die manuelle Überprüfung – kein zweiter Eingabepfad. Nach der "
+"Deduplizierung werden Dateien, die nur noch unter „small_images_review/“ "
+"(oder nach der Hochskalierung nur noch unter „upscaled_small_images/“) "
+"verbleiben, nicht verwendet, es sei denn, Sie kopieren die gewünschten "
+"Dateien zurück in den Ordner „CONVERTED/“. Ausführliche Erläuterung: "
+"docs/DATA_PIPELINE.md."
+
+#: ui/pages/data_page.py:979 ui/pages/data_page.py:995
+#: ui/pages/train_page.py:345
+msgid "No snapshot found"
+msgstr "Kein Schnappschuss gefunden"
+
+#: ui/pages/data_page.py:980 ui/pages/train_page.py:346
+msgid ""
+"No snapshot_*.json files were found under:\n"
+"{path}"
+msgstr ""
+"Unter folgendem Pfad wurden keine Dateien mit der Endung „snapshot_*.json“ gefunden:\n"
+"{path}"
+
+#: ui/pages/data_page.py:996
+msgid ""
+"No snapshot_*.json files were found in the search paths for the current "
+"directories."
+msgstr ""
+"In den Suchpfaden der aktuellen Verzeichnisse wurden keine Dateien mit dem "
+"Namen „snapshot_*.json“ gefunden."
+
+#: ui/pages/data_page.py:1011
+msgid ""
+"Optional. Leave empty to start a new conversion run and write a new snapshot file.\n"
+"\n"
+"If set, the job resumes that run: a unified snapshot file must exist and load correctly, named:\n"
+"  snapshot_<run_id>.json\n"
+"placed directly under the raw data directory:\n"
+"  {raw}\n"
+"Example: snapshot_20260408_abc123.json"
+msgstr ""
+"Optional. Lassen Sie das Feld leer, um einen neuen Konvertierungsdurchlauf zu starten und eine neue Snapshot-Datei zu erstellen.\n"
+"\n"
+"Wenn dieses Feld gesetzt ist, wird der Job an diesem Durchlauf fortgesetzt: Es muss eine einheitliche Snapshot-Datei vorhanden sein, die korrekt geladen werden kann und folgenden Namen trägt:\n"
+"  snapshot_<run_id>.json\n"
+"die sich direkt im Verzeichnis für Rohdaten befindet:\n"
+"  {raw}\n"
+"Beispiel: snapshot_20260408_abc123.json"
+
+#: ui/pages/data_page.py:1026
+msgid ""
+"  (Raw data directory must exist to list class folders; until then, search "
+"still includes the raw dir, its parent, and the output data dir.)"
+msgstr ""
+"  (Das Verzeichnis mit den Rohdaten muss vorhanden sein, damit die "
+"Klassenordner aufgelistet werden können; bis dahin umfasst die Suche "
+"weiterhin das Rohdatenverzeichnis, dessen übergeordnetes Verzeichnis und das"
+" Ausgabedatenverzeichnis.)"
+
+#: ui/pages/data_page.py:1031
+msgid ""
+"Optional. Leave empty to use the latest unified snapshot found along the search order below.\n"
+"\n"
+"If set, the file must exist, load correctly, and be named:\n"
+"  snapshot_<run_id>.json\n"
+"The job searches these directories in order (first match wins):\n"
+"{paths}\n"
+"Output data directory (for context): {data_dir}"
+msgstr ""
+"Optional. Lassen Sie das Feld leer, um den neuesten einheitlichen Snapshot zu verwenden, der gemäß der unten angegebenen Suchreihenfolge gefunden wird.\n"
+"\n"
+"Falls angegeben, muss die Datei vorhanden sein, korrekt geladen werden und folgenden Namen tragen:\n"
+"  snapshot_<run_id>.json\n"
+"Der Job durchsucht diese Verzeichnisse der Reihe nach (der erste Treffer gewinnt):\n"
+"{paths}\n"
+"Ausgabedatenverzeichnis (als Kontext): {data_dir}"
+
+#: ui/pages/data_page.py:1045
+msgid ""
+"Optional. Same Run ID as Convert / Create Dataset (shared across the Data page). Leave empty to load the latest loadable snapshot under:\n"
+"  {raw}\n"
+"\n"
+"If set, the file must exist and be named:\n"
+"  snapshot_<run_id>.json\n"
+"in that directory. Used when opening the duplicate resolver from disk; deduplicate Run does not require a Run ID."
+msgstr ""
+"Optional. Gleiche Lauf-ID wie bei „Konvertieren/Datensatz erstellen“ (gilt für die gesamte Seite „Daten“). Lassen Sie das Feld leer, um den neuesten ladbaren Snapshot unter folgendem Pfad zu laden:\n"
+"  {raw}\n"
+"\n"
+"Falls angegeben, muss die Datei vorhanden sein und folgenden Namen tragen:\n"
+"  snapshot_<run_id>.json\n"
+"in diesem Verzeichnis. Wird verwendet, wenn der Duplikatslöser von der Festplatte geöffnet wird; für den Lauf-Deduplizierer ist keine Lauf-ID erforderlich."
+
+#: ui/pages/data_page.py:1148
+msgid ""
+"Raw data directory must exist when a Run ID is set (snapshot is loaded from "
+"there)."
+msgstr ""
+"Das Verzeichnis für die Rohdaten muss vorhanden sein, wenn eine Lauf-ID "
+"festgelegt wird (der Snapshot wird von dort geladen)."
+
+#: ui/pages/data_page.py:1152
+msgid ""
+"No loadable unified snapshot for Run ID {rid!r}. Expected {name} under:\n"
+"  {dir}"
+msgstr ""
+"Es ist kein einheitlicher Snapshot für die Lauf-ID {rid!r} verfügbar. Erwartet wird {name} unter:\n"
+"  {dir}"
+
+#: ui/pages/data_page.py:1186
+msgid ""
+"No loadable unified snapshot for Run ID {rid!r} in the search paths (see the"
+" Run ID field tooltip for locations checked)."
+msgstr ""
+"In den Suchpfaden wurde kein ladbarer einheitlicher Snapshot für die Lauf-ID"
+" {rid!r} gefunden (die überprüften Speicherorte finden Sie im Tooltip des "
+"Felds „Lauf-ID“)."
+
+#: ui/pages/data_page.py:1252 ui/pages/data_page.py:1277
+msgid "Skipped (free-space estimate not run)."
+msgstr "Übersprungen (Freiraumschätzung nicht durchgeführt)."
+
+#: ui/pages/data_page.py:1373
+msgid "Checking free space…"
+msgstr "Überprüfung des freien Platzes…"
+
+#: ui/pages/data_page.py:1377
+msgid "Converting…"
+msgstr "Übersetzend…"
+
+#: ui/pages/data_page.py:1379
+msgid "Creating dataset…"
+msgstr "Dataset erstellen…"
+
+#: ui/pages/data_page.py:1450
+msgid "Running: {line}"
+msgstr "Laufend: {line}"
+
+#: ui/pages/data_page.py:1545
+msgid "[dedup] No loadable snapshot found for duplicate resolver."
+msgstr ""
+"[dedup] Es wurde kein ladbarer Snapshot für den Duplikats-Resolver gefunden."
+
+#: ui/pages/data_page.py:1548
+msgid "[dedup] No potential duplicates were recorded in the snapshot."
+msgstr "[dedup] Im Snapshot wurden keine potenziellen Duplikate festgestellt."
+
+#: ui/pages/data_page.py:1553
+msgid "Duplicates found"
+msgstr "Duplikate gefunden"
+
+#: ui/pages/data_page.py:1554
+msgid "Open duplicate resolver window now?"
+msgstr "Möchten Sie jetzt das Fenster zum Auflösen von Duplikaten öffnen?"
+
+#: ui/pages/data_page.py:1562
+msgid "Invalid raw data directory"
+msgstr "Ungültiges Verzeichnis für Rohdaten"
+
+#: ui/pages/data_page.py:1563
+msgid ""
+"Raw data directory does not exist:\n"
+"{path}"
+msgstr ""
+"Das Verzeichnis für die Rohdaten existiert nicht:\n"
+"{path}"
+
+#: ui/pages/data_page.py:1574
+msgid "No snapshot"
+msgstr "Kein Snapshot"
+
+#: ui/pages/data_page.py:1576
+msgid ""
+"No loadable unified snapshot was found under:\n"
+"{path}\n"
+"\n"
+"Expected snapshot_<run_id>.json (leave Run ID empty for the latest file tried in sorted name order)."
+msgstr ""
+"Unter folgendem Pfad wurde kein ladbarer einheitlicher Snapshot gefunden:\n"
+"{path}\n"
+"\n"
+"Erwartet wurde die Datei „snapshot_<run_id>.json“ (lassen Sie das Feld „Run ID“ leer, um die zuletzt in sortierter Reihenfolge getestete Datei zu verwenden)."
+
+#: ui/pages/data_page.py:1585
+msgid "Nothing to review"
+msgstr "Nichts zu übersetzen"
+
+#: ui/pages/data_page.py:1587
+msgid ""
+"A snapshot loaded, but it does not list any cross-class duplicate groups for"
+" the resolver. Run Deduplicate with list-only if you have not yet, or pick "
+"another Run ID."
+msgstr ""
+"Ein Snapshot wurde geladen, es werden jedoch keine klassenübergreifenden "
+"Duplikatsgruppen für den Resolver angezeigt. Führen Sie „Deduplicate“ mit "
+"der Option „list-only“ aus, falls Sie dies noch nicht getan haben, oder "
+"wählen Sie eine andere Ausführungs-ID aus."
+
+#: ui/pages/export_page.py:70 ui/pages/export_page.py:107
+msgid "Dataset directory"
+msgstr "Datenbestandverzeichnis"
+
+#: ui/pages/export_page.py:73 ui/pages/export_page.py:110
+msgid "Generate architecture stub"
+msgstr "Generiere Architekturstub"
+
+#: ui/pages/export_page.py:81 ui/pages/export_page.py:121
+msgid "Validate Export"
+msgstr "Export validieren"
+
+#: ui/pages/export_page.py:82 ui/pages/export_page.py:122
+msgid "Run Export"
+msgstr "Export ausführen"
+
+#: ui/pages/export_page.py:100
+msgid ""
+"Export a deployment bundle (SafeTensors + manifest) after "
+"conversion/training."
+msgstr ""
+"Exportieren Sie nach der Konvertierung/dem Training ein Bereitstellungs-"
+"Bundle (SafeTensors + Manifest)."
+
+#: ui/pages/export_page.py:117
+msgid ""
+"Class names are auto-resolved from snapshot or dataset directory. Tip: leave"
+" architecture/num classes/image size on Auto to use defaults."
+msgstr ""
+"Klassenbezeichnungen werden automatisch aus dem Snapshot- oder "
+"Datensatzverzeichnis ermittelt. Tipp: Lassen Sie die Einstellungen für "
+"„Architektur“, „Anzahl der Klassen“ und „Bildgröße“ auf „Auto“ stehen, um "
+"die Standardeinstellungen zu verwenden."
+
+#: ui/pages/export_page.py:123
+msgid "Export validation and execution messages will appear here."
+msgstr ""
+"Hier werden Meldungen zur Validierung und Ausführung des Exports angezeigt."
+
+#: ui/pages/export_page.py:194
+msgid "Model files (*.pth *.pt);;All files (*.*)"
+msgstr "Model-Dateien (*.pth *.pt);;Alle Dateien (*.*)"
+
+#: ui/pages/export_page.py:215
+msgid "Input model parent directory does not exist."
+msgstr "Das übergeordnete Verzeichnis des Eingabemodells existiert nicht."
+
+#: ui/pages/export_page.py:296
+msgid "[ok] export inputs valid (arch={arch}, classes={n})"
+msgstr "[ok] Export-Eingaben gültig (arch={arch}, classes={n})"
+
+#: ui/pages/export_page.py:297 ui/pages/export_page.py:298
+msgid "auto"
+msgstr "Auto"
+
+#: ui/pages/export_page.py:309
+msgid "[run] mb export bundle"
+msgstr "[run] mb export bundle"
+
+#: ui/pages/export_page.py:320
+msgid "Export bundle"
+msgstr "Export Bundle"
+
+#: ui/pages/export_page.py:324
+msgid "Cancelled before export started"
+msgstr "Abgebrochene vor dem Export begann"
+
+#: ui/pages/export_page.py:328
+msgid "[stopped] Export cancelled before completion."
+msgstr "[abgebrochen] Der Export wurde vor dem Abschluss abgebrochen."
+
+#: ui/pages/export_page.py:337
+msgid "[done] Export succeeded."
+msgstr "[fertig] Der Export war erfolgreich."
+
+#: ui/pages/export_page.py:344
+msgid "[info] Architecture stub not generated (option disabled)."
+msgstr "[Info] Architektur-Stub wurde nicht generiert (Option deaktiviert)."
+
+#: ui/pages/export_page.py:361
+msgid "Export failed"
+msgstr "Der Export ist gescheitert"
+
+#: ui/pages/export_page.py:362
+msgid ""
+"Model export reported an error. See Details for the underlying message."
+msgstr ""
+"Beim Exportieren des Modells ist ein Fehler aufgetreten. Die entsprechende "
+"Meldung finden Sie unter „Details“."
+
+#: ui/pages/home_page.py:115
+msgid "- Model conversion to ONNX / SafeTensors"
+msgstr "- Modellkonvertierung in ONNX / SafeTensors"
+
+#: ui/pages/home_page.py:116
+msgid "- Model bundle export (manifest + deployment artifacts)"
+msgstr "- Export des Modell-Bundles (Manifest + Bereitstellungsartefakte)"
+
+#: ui/pages/home_page.py:122
+msgid "Open Export Page"
+msgstr "Öffne die Export-Seite"
+
+#: ui/pages/pipeline_config_page.py:346
+msgid "Same as test anchor"
+msgstr "Gleich wie Testanker"
+
+#: ui/pages/pipeline_config_page.py:354
+msgid "Default create-dataset seed"
+msgstr "Standard create-dataset Samen"
+
+#: ui/pages/train_page.py:203
+msgid ""
+"Set Run ID from the newest snapshot_*.json under the data directory (by file"
+" modification time)."
+msgstr ""
+"Legen Sie die Lauf-ID anhand der neuesten Datei „snapshot_*.json“ im "
+"Verzeichnis „data“ fest (nach dem Datum der letzten Änderung)."
+
+#: ui/pages/train_page.py:498
+msgid "[error] Could not auto-save pipeline config; training cancelled."
+msgstr ""
+"[Fehler] Die Pipeline-Konfiguration konnte nicht automatisch gespeichert "
+"werden; Training abgebrochen."
