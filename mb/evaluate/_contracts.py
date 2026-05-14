@@ -17,7 +17,7 @@ from mb.models.types import FrameworkType, ModelType
 
 @dataclass(frozen=True)
 class MetricsRequest:
-    """Inputs for ``mb evaluate metrics`` (extensible per :attr:`model_type`)."""
+    """Inputs for ``mb evaluate metrics`` / ``misclassified`` (extensible per :attr:`model_type`)."""
 
     model_path: Path
     data_dir: Path
@@ -61,4 +61,46 @@ class ClassificationMetricsReport:
             "per_class_correct": list(self.per_class_correct),
             "per_class_total": list(self.per_class_total),
             "confusion_matrix": [list(row) for row in self.confusion_matrix],
+        }
+
+
+@dataclass
+class MisclassifiedSample:
+    """One image whose predicted class differs from the on-disk folder label."""
+
+    path: str
+    true_label: str
+    predicted_label: str
+    confidence: float
+
+
+@dataclass
+class MisclassifiedListing:
+    """Result of ``mb evaluate misclassified`` for image classification."""
+
+    model_type: ModelType
+    framework: FrameworkType
+    model_path: Path
+    data_dir: Path
+    n_scanned: int
+    n_misclassified: int
+    samples: list[MisclassifiedSample] = field(default_factory=list)
+
+    def to_jsonable(self) -> dict[str, Any]:
+        return {
+            "model_type": self.model_type.value,
+            "framework": self.framework.value,
+            "model_path": str(self.model_path),
+            "data_dir": str(self.data_dir),
+            "n_scanned": self.n_scanned,
+            "n_misclassified": self.n_misclassified,
+            "samples": [
+                {
+                    "path": s.path,
+                    "true_label": s.true_label,
+                    "predicted_label": s.predicted_label,
+                    "confidence": s.confidence,
+                }
+                for s in self.samples
+            ],
         }

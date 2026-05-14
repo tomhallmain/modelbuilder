@@ -801,16 +801,89 @@ def create_parser() -> argparse.ArgumentParser:
 
     evaluate_misclassified_parser = evaluate_subparsers.add_parser(
         EvaluateSubcommand.MISCLASSIFIED.value,
-        help=_("List or export images the model disagrees with on disk labels (stub)"),
+        help=_("List images whose predicted class differs from the folder label"),
         description=_(
-            "Helps find label noise, outliers, and borderline samples by comparing predictions "
-            "to the class folder each file lives under."
+            "Compares model predictions to ImageFolder-style on-disk class folders to surface "
+            "label noise and borderline samples. Image classification only."
         ),
+    )
+    evaluate_misclassified_parser.add_argument(
+        "--model",
+        type=Path,
+        required=True,
+        help=_("Path to trained model file (.pth / .pt / .h5 / .keras)"),
+    )
+    evaluate_misclassified_parser.add_argument(
+        "--data-dir",
+        type=Path,
+        required=True,
+        help=_("ImageFolder root (e.g. .../test with one subfolder per class)"),
+    )
+    evaluate_misclassified_parser.add_argument(
+        "--framework",
+        choices=[FrameworkType.PYTORCH.value, FrameworkType.KERAS.value],
+        default=None,
+        help=_("Training framework (default: infer from file extension)"),
+    )
+    evaluate_misclassified_parser.add_argument(
+        "--architecture",
+        type=str,
+        default=None,
+        help=_("Model architecture id (required for PyTorch .pth checkpoints, e.g. resnet34)"),
+    )
+    evaluate_misclassified_parser.add_argument(
+        "--num-classes",
+        type=int,
+        default=None,
+        help=_("Override class count (default: infer from directory layout)"),
+    )
+    evaluate_misclassified_parser.add_argument(
+        "--model-type",
+        choices=_MODEL_TYPE_CLI_CHOICES,
+        default=ModelType.IMAGE_CLASSIFICATION.value,
+        help=_("Pipeline model type (default: image_classification)"),
+    )
+    evaluate_misclassified_parser.add_argument(
+        "--image-size",
+        type=int,
+        default=224,
+        help=_("Square input size (default: 224)"),
+    )
+    evaluate_misclassified_parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=32,
+        help=_("Batch size (default: 32)"),
+    )
+    evaluate_misclassified_parser.add_argument(
+        "--num-workers",
+        type=int,
+        default=0,
+        help=_("DataLoader workers for PyTorch (default: 0)"),
+    )
+    evaluate_misclassified_parser.add_argument(
+        "--device",
+        type=str,
+        default=None,
+        help=_("PyTorch device override, e.g. cuda or cpu (default: auto)"),
+    )
+    evaluate_misclassified_parser.add_argument(
+        "--max-report",
+        type=int,
+        default=None,
+        metavar="N",
+        help=_("Cap printed / exported misclassified rows (default: no cap; totals still full)"),
+    )
+    evaluate_misclassified_parser.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help=_("Optional CSV path (still prints a summary to stdout)"),
     )
     evaluate_misclassified_parser.add_argument(
         "--dry-run",
         action="store_true",
-        help=_("Parse options only; do not run evaluation (reserved for future use)"),
+        help=_("Validate arguments and exit without running inference"),
     )
 
     evaluate_subparsers.add_parser(
@@ -1350,14 +1423,11 @@ def handle_evaluate_metrics(args) -> int:
 
 
 def handle_evaluate_misclassified(args) -> int:
-    """Handle ``mb evaluate misclassified`` (stub until evaluation backends are wired)."""
-    if args.dry_run:
-        logger.info(_("Dry-run requested; no evaluation will be performed."))
-        return 0
-    logger.info(
-        _("Misclassified-sample listing is not implemented yet; this is a CLI skeleton.")
-    )
-    return 0
+    """Handle ``mb evaluate misclassified``."""
+    reload_pipeline_config(getattr(args, "config", None), force=True)
+    from mb.evaluate.misclassified import run_evaluate_misclassified_cli
+
+    return run_evaluate_misclassified_cli(args)
 
 
 _EVALUATE_HANDLERS = {

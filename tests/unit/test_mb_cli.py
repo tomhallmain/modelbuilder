@@ -127,12 +127,14 @@ def test_main_top_level_help_lists_commands(capsys: pytest.CaptureFixture[str]) 
     assert "evaluate" in out
 
 
-@pytest.mark.parametrize(
-    "sub",
-    (EvaluateSubcommand.MISCLASSIFIED.value, EvaluateSubcommand.COMPARE.value),
-)
-def test_evaluate_subcommands_stub_return_zero(sub: str) -> None:
-    assert main(["evaluate", sub]) == 0
+def test_evaluate_compare_stub_return_zero() -> None:
+    assert main(["evaluate", EvaluateSubcommand.COMPARE.value]) == 0
+
+
+def test_evaluate_misclassified_requires_model_and_data_dir() -> None:
+    with pytest.raises(SystemExit) as exc:
+        main(["evaluate", EvaluateSubcommand.MISCLASSIFIED.value])
+    assert exc.value.code != 0
 
 
 def test_evaluate_help_lists_subcommands(capsys: pytest.CaptureFixture[str]) -> None:
