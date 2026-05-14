@@ -715,8 +715,8 @@ def create_parser() -> argparse.ArgumentParser:
         ModelBuilderTaskType.EVALUATE.value,
         help=_("Evaluate trained models or datasets"),
         description=_(
-            "Run evaluation workflows against trained checkpoints or prepared datasets. "
-            "Subcommands will expand as metrics and backends are integrated."
+            "Score a trained classifier on your train/test tree, surface likely labeling mistakes, "
+            "or compare two checkpoints on the same data. Subcommand implementations are still stubs."
         ),
     )
     evaluate_subparsers = evaluate_parser.add_subparsers(
@@ -726,42 +726,30 @@ def create_parser() -> argparse.ArgumentParser:
     )
     _evaluate_cmd_specs: tuple[tuple[EvaluateSubcommand, str, str], ...] = (
         (
-            EvaluateSubcommand.RUN,
-            _("Run metrics evaluation on a held-out split (stub)"),
+            EvaluateSubcommand.METRICS,
+            _("Compute classification metrics on a labeled split (stub)"),
             _(
-                "Classification metrics, confusion summaries, and related aggregates "
-                "against a prepared train/test directory or snapshot."
+                "Accuracy, per-class precision/recall where applicable, and confusion summaries "
+                "over a directory layout that matches training (e.g. train/ and test/ class folders)."
             ),
         ),
         (
-            EvaluateSubcommand.BENCHMARK,
-            _("Benchmark inference throughput and latency (stub)"),
-            _("Time forward passes and memory use for deployment-style batch inference."),
-        ),
-        (
-            EvaluateSubcommand.REPORT,
-            _("Export an evaluation report bundle (stub)"),
-            _("Machine- or human-readable summaries for CI, dashboards, or handoff."),
+            EvaluateSubcommand.MISCLASSIFIED,
+            _("List or export images the model disagrees with on disk labels (stub)"),
+            _(
+                "Helps find label noise, outliers, and borderline samples by comparing predictions "
+                "to the class folder each file lives under."
+            ),
         ),
         (
             EvaluateSubcommand.COMPARE,
             _("Compare two models on the same evaluation data (stub)"),
-            _("Side-by-side metrics for checkpoints, exported bundles, or prior runs."),
-        ),
-        (
-            EvaluateSubcommand.CALIBRATE,
-            _("Calibration and reliability analysis (stub)"),
-            _("Reliability diagrams, ECE, and threshold or temperature tuning on validation outputs."),
-        ),
-        (
-            EvaluateSubcommand.EXPLAIN,
-            _("Interpretability and error analysis (stub)"),
-            _("Saliency-style diagnostics and curated failure galleries for debugging."),
+            _("Side-by-side metrics for two checkpoints or bundles evaluated on identical inputs."),
         ),
     )
     for _ev_sub, _help, _desc in _evaluate_cmd_specs:
         _evp = evaluate_subparsers.add_parser(_ev_sub.value, help=_help, description=_desc)
-        if _ev_sub is EvaluateSubcommand.RUN:
+        if _ev_sub in (EvaluateSubcommand.METRICS, EvaluateSubcommand.MISCLASSIFIED):
             _evp.add_argument(
                 "--dry-run",
                 action="store_true",
@@ -1288,24 +1276,34 @@ def handle_evaluate_placeholder(_args, *, subcommand: EvaluateSubcommand) -> int
     return 0
 
 
-def handle_evaluate_run(args) -> int:
-    """Handle ``mb evaluate run`` (skeleton until evaluation backends are wired)."""
+def handle_evaluate_metrics(args) -> int:
+    """Handle ``mb evaluate metrics`` (stub until evaluation backends are wired)."""
     if args.dry_run:
         logger.info(_("Dry-run requested; no evaluation will be performed."))
         return 0
     logger.info(
-        _("Evaluation CLI is not implemented yet; this is a skeleton for upcoming subcommands.")
+        _("Metrics evaluation is not implemented yet; this is a CLI skeleton.")
+    )
+    return 0
+
+
+def handle_evaluate_misclassified(args) -> int:
+    """Handle ``mb evaluate misclassified`` (stub until evaluation backends are wired)."""
+    if args.dry_run:
+        logger.info(_("Dry-run requested; no evaluation will be performed."))
+        return 0
+    logger.info(
+        _("Misclassified-sample listing is not implemented yet; this is a CLI skeleton.")
     )
     return 0
 
 
 _EVALUATE_HANDLERS = {
-    EvaluateSubcommand.RUN: handle_evaluate_run,
-    **{
-        s: partial(handle_evaluate_placeholder, subcommand=s)
-        for s in EvaluateSubcommand
-        if s is not EvaluateSubcommand.RUN
-    },
+    EvaluateSubcommand.METRICS: handle_evaluate_metrics,
+    EvaluateSubcommand.MISCLASSIFIED: handle_evaluate_misclassified,
+    EvaluateSubcommand.COMPARE: partial(
+        handle_evaluate_placeholder, subcommand=EvaluateSubcommand.COMPARE
+    ),
 }
 
 

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
 
+from mb.models.types import EvaluateSubcommand
 from mb.utils.translations import _
 
 
@@ -36,4 +37,9 @@ class EvaluatePage(QWidget):
                 "and backends are connected."
             )
         )
-        self._hint.setText(_("For now, use the terminal: {cmd}").format(cmd="mb evaluate run"))
+        self._hint.setText(
+            _("For now, use the terminal: {metrics} or {mis}").format(
+                metrics=f"mb evaluate {EvaluateSubcommand.METRICS.value}",
+                mis=f"mb evaluate {EvaluateSubcommand.MISCLASSIFIED.value}",
+            )
+        )

@@ -137,7 +137,7 @@ def test_evaluate_help_lists_subcommands(capsys: pytest.CaptureFixture[str]) -> 
         main(["evaluate", "--help"])
     assert exc.value.code == 0
     out = capsys.readouterr().out
-    for name in ("run", "benchmark", "report", "compare", "calibrate", "explain"):
+    for name in ("metrics", "misclassified", "compare"):
         assert name in out
 
 

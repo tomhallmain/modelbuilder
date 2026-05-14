@@ -183,20 +183,25 @@ class ExportSubcommand(str, Enum):
 
 class EvaluateSubcommand(str, Enum):
     """
-    ``mb evaluate <subcommand>`` — high-level evaluation workflows.
+    ``mb evaluate <subcommand>`` for image-classification checkpoints against prepared data.
 
-    Covers typical near-term needs for trained image classifiers: metrics on a split,
-    inference benchmarking, exported reports, model comparison, calibration analysis,
-    and interpretability / failure-mode inspection. Implementations are mostly stubs
-    until evaluation backends are wired.
+    * **metrics** — aggregate quality on a labeled split (accuracy, per-class rates, confusion).
+    * **misclassified** — enumerate (or export) samples the model labels differently from the
+      dataset folder, including obvious label noise and borderline cases for manual review.
+    * **compare** — contrast two trained artifacts on the same evaluation set.
+
+    **Future (design only, not CLI values yet):** *benchmark* — timed / throughput inference
+    passes for deployment sizing; *calibrate* — reliability of predicted probabilities (e.g. ECE)
+    and optional small post-hoc adjustments, distinct from misclassification review. Add
+    enum members and parsers when those flows are specified.
+
+    Implementations live under ``mb.evaluate``; CLI handlers in ``mb.cli`` call into that
+    package. Implementations are stubs until evaluation backends are wired.
     """
 
-    RUN = "run"
-    BENCHMARK = "benchmark"
-    REPORT = "report"
+    METRICS = "metrics"
+    MISCLASSIFIED = "misclassified"
     COMPARE = "compare"
-    CALIBRATE = "calibrate"
-    EXPLAIN = "explain"
 
     @classmethod
     def try_from(cls, raw: object) -> EvaluateSubcommand | None:
