@@ -18,6 +18,7 @@ from mb.pipeline_config import (
     reload_pipeline_config,
     resolve_create_dataset_cli,
 )
+from mb.utils.constants import ModelBuilderTaskType
 from mb.utils.logging_setup import setup_logging
 from mb.utils.translations import _
 
@@ -90,7 +91,7 @@ def create_parser() -> argparse.ArgumentParser:
     
     # Data subcommands
     data_parser = subparsers.add_parser(
-        "data",
+        ModelBuilderTaskType.DATA.value,
         help=_("Data processing operations"),
         description=_("Data processing operations for preparing image datasets"),
     )
@@ -102,7 +103,7 @@ def create_parser() -> argparse.ArgumentParser:
     
     # mb data gather
     gather_parser = data_subparsers.add_parser(
-        "gather",
+        ModelBuildStepCommand.GATHER.value,
         help=_("Gather images from source directories"),
         description=_(
             "Gather images from source directories into a target directory, "
@@ -169,7 +170,7 @@ def create_parser() -> argparse.ArgumentParser:
 
     # mb data convert
     convert_parser = data_subparsers.add_parser(
-        "convert",
+        ModelBuildStepCommand.CONVERT.value,
         help=_("Convert images to specified format"),
         description=_(
             "Convert images in the raw data directory to a specified format (e.g., JPEG). "
@@ -220,7 +221,7 @@ def create_parser() -> argparse.ArgumentParser:
 
     # mb data deduplicate
     dedup_parser = data_subparsers.add_parser(
-        "deduplicate",
+        ModelBuildStepCommand.DEDUPLICATE.value,
         help=_("Remove duplicate images"),
         description=_(
             "Remove duplicate images within and across class directories. "
@@ -256,7 +257,7 @@ def create_parser() -> argparse.ArgumentParser:
     
     # mb data upscale
     upscale_parser = data_subparsers.add_parser(
-        "upscale",
+        ModelBuildStepCommand.UPSCALE.value,
         help=_("Upscale small images"),
         description=_(
             "Upscale images that are smaller than a minimum dimension threshold. "
@@ -281,7 +282,7 @@ def create_parser() -> argparse.ArgumentParser:
     
     # mb data create-dataset
     dataset_parser = data_subparsers.add_parser(
-        "create-dataset",
+        ModelBuildStepCommand.CREATE_DATASET.value,
         help=_("Create train/test dataset splits"),
         description=_(
             "Create training and test dataset splits from raw data. "
@@ -372,7 +373,7 @@ def create_parser() -> argparse.ArgumentParser:
 
     # mb data fix-jpeg-extension-mismatch
     fix_jpeg_parser = data_subparsers.add_parser(
-        "fix-jpeg-extension-mismatch",
+        ModelBuildStepCommand.FIX_JPEG_EXTENSION_MISMATCH.value,
         help=_("Rename mislabeled .jpg sources and rebuild CONVERTED JPEGs"),
         description=_(
             "Finds non-JPEG bytes under .jpg/.jpeg names in class source trees (same discovery as convert), "
@@ -454,7 +455,7 @@ def create_parser() -> argparse.ArgumentParser:
 
     # mb data estimate-space
     estimate_space_parser = data_subparsers.add_parser(
-        "estimate-space",
+        ModelBuildStepCommand.ESTIMATE_SPACE.value,
         help=_("Estimate disk space needed for convert or create-dataset"),
         description=_(
             "Walks source files (same rules as convert/dataset) and compares a rough byte estimate "
@@ -463,7 +464,10 @@ def create_parser() -> argparse.ArgumentParser:
     )
     estimate_space_parser.add_argument(
         "--operation",
-        choices=["convert", "create-dataset"],
+        choices=[
+            ModelBuildStepCommand.CONVERT.value,
+            ModelBuildStepCommand.CREATE_DATASET.value,
+        ],
         required=True,
         help=_("Which step to estimate for"),
     )
@@ -481,7 +485,7 @@ def create_parser() -> argparse.ArgumentParser:
 
     # Training command
     train_parser = subparsers.add_parser(
-        "train",
+        ModelBuilderTaskType.TRAIN.value,
         help=_("Train a model"),
         description=_(
             "Train a machine learning model using the specified framework and architecture. "
@@ -579,7 +583,7 @@ def create_parser() -> argparse.ArgumentParser:
     
     # Convert command
     convert_model_parser = subparsers.add_parser(
-        "convert",
+        ModelBuilderTaskType.CONVERT.value,
         help=_("Convert model between formats"),
         description=_(
             "Convert a trained model between different formats. "
@@ -627,7 +631,7 @@ def create_parser() -> argparse.ArgumentParser:
     
     # Info command
     info_parser = subparsers.add_parser(
-        "info",
+        ModelBuilderTaskType.INFO.value,
         help=_("Show information about models or datasets"),
         description=_(
             "Display information about trained models or datasets, including metadata, "
@@ -674,7 +678,7 @@ def create_parser() -> argparse.ArgumentParser:
 
     # Export command
     export_parser = subparsers.add_parser(
-        "export",
+        ModelBuilderTaskType.EXPORT.value,
         help=_("Export model bundle artifacts"),
         description=_(
             "Export deployment bundle artifacts such as safetensors weights and metadata manifests."
@@ -707,7 +711,7 @@ def create_parser() -> argparse.ArgumentParser:
 
     # Evaluate command (skeleton; more subcommands expected later)
     evaluate_parser = subparsers.add_parser(
-        "evaluate",
+        ModelBuilderTaskType.EVALUATE.value,
         help=_("Evaluate trained models or datasets"),
         description=_(
             "Run evaluation workflows against trained checkpoints or prepared datasets. "
@@ -961,7 +965,7 @@ def handle_data_estimate_space(args):
     try:
         reload_pipeline_config(getattr(args, "config", None), force=True)
         mt = ModelType.from_pipeline_value(get_pipeline_config().get("model.default_type"))
-        if args.operation == "convert":
+        if args.operation == ModelBuildStepCommand.CONVERT.value:
             from mb.space_estimate import run_convert_estimate
 
             report = run_convert_estimate(args.raw_data_dir, mt)
@@ -1275,7 +1279,7 @@ def main(args: Optional[list] = None) -> int:
         return 1
     
     try:
-        if parsed_args.command == "data":
+        if parsed_args.command == ModelBuilderTaskType.DATA.value:
             raw_cmd = parsed_args.data_command
             if not raw_cmd:
                 logger.error(_("No data subcommand specified"))
@@ -1296,13 +1300,13 @@ def main(args: Optional[list] = None) -> int:
             }
             return _data_handlers[step](parsed_args)
         
-        elif parsed_args.command == "train":
+        elif parsed_args.command == ModelBuilderTaskType.TRAIN.value:
             return handle_train(parsed_args)
         
-        elif parsed_args.command == "convert":
+        elif parsed_args.command == ModelBuilderTaskType.CONVERT.value:
             return handle_convert(parsed_args)
         
-        elif parsed_args.command == "info":
+        elif parsed_args.command == ModelBuilderTaskType.INFO.value:
             raw_info = parsed_args.info_command
             if not raw_info:
                 logger.error(_("No info subcommand specified"))
@@ -1316,7 +1320,7 @@ def main(args: Optional[list] = None) -> int:
                 return handle_info_model(parsed_args)
             return handle_info_dataset(parsed_args)
 
-        elif parsed_args.command == "export":
+        elif parsed_args.command == ModelBuilderTaskType.EXPORT.value:
             raw_export = parsed_args.export_command
             if not raw_export:
                 logger.error(_("No export subcommand specified"))
@@ -1330,7 +1334,7 @@ def main(args: Optional[list] = None) -> int:
             logger.error(_("Unhandled export subcommand: {cmd}").format(cmd=sub.value))
             return 1
 
-        elif parsed_args.command == "evaluate":
+        elif parsed_args.command == ModelBuilderTaskType.EVALUATE.value:
             raw_ev = parsed_args.evaluate_command
             if not raw_ev:
                 logger.error(_("No evaluate subcommand specified"))
@@ -1360,13 +1364,12 @@ def run_data_subcommand_cli(subcommand: str, argv: Optional[List[str]] = None) -
     """
     Run ``mb data <subcommand>`` for ``python -m mb.data.<module>`` entry points.
 
-    *subcommand* is a :class:`~mb.models.types.ModelBuildStepCommand` value string
-    (``gather``, ``convert``, ``deduplicate``, ``upscale``, ``create-dataset``,
-    ``fix-jpeg-extension-mismatch``, ``estimate-space``, …). *argv* defaults to ``sys.argv[1:]``.
+    *subcommand* must match a :class:`~mb.models.types.ModelBuildStepCommand` ``.value``
+    (for example :attr:`~mb.models.types.ModelBuildStepCommand.GATHER`). *argv* defaults to ``sys.argv[1:]``.
     """
     if argv is None:
         argv = sys.argv[1:]
-    return main(["data", subcommand, *argv])
+    return main([ModelBuilderTaskType.DATA.value, subcommand, *argv])
 
 
 if __name__ == "__main__":

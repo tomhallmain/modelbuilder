@@ -14,6 +14,7 @@ from PySide6.QtCore import QTimer
 
 from utils.app_info_cache import app_info_cache
 from utils.config import get_application_config
+from mb.utils.constants import ModelBuilderTaskType
 from mb.utils.logging_setup import get_logger
 
 if TYPE_CHECKING:
@@ -24,7 +25,17 @@ logger = get_logger("cache_controller")
 GUI_FORM_STATE_META_KEY = "gui_form_state"
 
 # Order matches :attr:`MainWindow.NAV_PAGE_SPECS` (page widget list).
-_PAGE_KEYS = ("home", "data", "train", "convert", "export", "evaluate", "config", "pipeline", "info")
+_PAGE_KEYS = (
+    "home",
+    ModelBuilderTaskType.DATA.value,
+    ModelBuilderTaskType.TRAIN.value,
+    ModelBuilderTaskType.CONVERT.value,
+    ModelBuilderTaskType.EXPORT.value,
+    ModelBuilderTaskType.EVALUATE.value,
+    "config",
+    "pipeline",
+    ModelBuilderTaskType.INFO.value,
+)
 
 
 class CacheController:

@@ -56,7 +56,7 @@ from utils.notification_manager import notification_manager
 
 class MainWindow(QMainWindow):
     #: (Page class, English gettext msgid for sidebar). Order mirrors
-    #: :attr:`mb.utils.constants.ModelBuilderTaskType.nav_row_index` (Data/Train/Convert/Export/Evaluate rows).
+    #: :attr:`mb.utils.constants.ModelBuilderTaskType.nav_row_index` (Data/Train/Convert/Export/Evaluate/Info rows).
     NAV_PAGE_SPECS: ClassVar[list[tuple[Type[QWidget], str]]] = [
         (HomePage, "Home"),
         (DataPage, "Data"),

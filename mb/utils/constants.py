@@ -32,7 +32,7 @@ class DatasetSplitMode(str, Enum):
 
 class ModelBuilderTaskType(str, Enum):
     """
-    Categories of long-running work started from the desktop shell.
+    Top-level ``mb`` commands and matching primary shell pages where applicable.
 
     Values are persisted in recent-run history. :meth:`nav_row_index` matches
     the order of :attr:`ui.main_window.MainWindow.NAV_PAGE_SPECS` (Home at 0).
@@ -43,6 +43,7 @@ class ModelBuilderTaskType(str, Enum):
     CONVERT = "convert"
     EXPORT = "export"
     EVALUATE = "evaluate"
+    INFO = "info"
 
     @property
     def nav_row_index(self) -> int:
@@ -57,6 +58,7 @@ _MODEL_BUILDER_TASK_NAV_ROW: dict[ModelBuilderTaskType, int] = {
     ModelBuilderTaskType.CONVERT: 3,
     ModelBuilderTaskType.EXPORT: 4,
     ModelBuilderTaskType.EVALUATE: 5,
+    ModelBuilderTaskType.INFO: 8,
 }
 
 
