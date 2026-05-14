@@ -75,6 +75,18 @@ class MisclassifiedSample:
 
 
 @dataclass
+class DisagreementSample:
+    """One image where model A and model B disagree on the predicted class."""
+
+    path: str
+    true_label: str
+    predicted_a: str
+    predicted_b: str
+    confidence_a: float
+    confidence_b: float
+
+
+@dataclass
 class MisclassifiedListing:
     """Result of ``mb evaluate misclassified`` for image classification."""
 
@@ -102,5 +114,81 @@ class MisclassifiedListing:
                     "confidence": s.confidence,
                 }
                 for s in self.samples
+            ],
+        }
+
+
+@dataclass(frozen=True)
+class CompareRequest:
+    """Inputs for ``mb evaluate compare`` (paired checkpoints on one split)."""
+
+    model_path_a: Path
+    model_path_b: Path
+    data_dir: Path
+    model_type: ModelType
+    framework_a: Optional[FrameworkType] = None
+    framework_b: Optional[FrameworkType] = None
+    architecture: Optional[str] = None
+    architecture_b: Optional[str] = None
+    num_classes: Optional[int] = None
+    image_size: int = 224
+    batch_size: int = 32
+    num_workers: int = 0
+    device: Optional[str] = None
+    max_disagreement_report: Optional[int] = None
+
+
+@dataclass
+class ClassificationCompareReport:
+    """Paired image-classification comparison on one ImageFolder split."""
+
+    model_type: ModelType
+    framework_a: FrameworkType
+    framework_b: FrameworkType
+    model_path_a: Path
+    model_path_b: Path
+    data_dir: Path
+    n_samples: int
+    class_names: list[str]
+    accuracy_a_percent: float
+    accuracy_b_percent: float
+    avg_loss_a: Optional[float] = None
+    avg_loss_b: Optional[float] = None
+    both_correct: int = 0
+    only_a_correct: int = 0
+    only_b_correct: int = 0
+    both_wrong: int = 0
+    pred_disagreement: int = 0
+    disagreement_samples: list[DisagreementSample] = field(default_factory=list)
+
+    def to_jsonable(self) -> dict[str, Any]:
+        return {
+            "model_type": self.model_type.value,
+            "framework_a": self.framework_a.value,
+            "framework_b": self.framework_b.value,
+            "model_path_a": str(self.model_path_a),
+            "model_path_b": str(self.model_path_b),
+            "data_dir": str(self.data_dir),
+            "n_samples": self.n_samples,
+            "class_names": list(self.class_names),
+            "accuracy_a_percent": self.accuracy_a_percent,
+            "accuracy_b_percent": self.accuracy_b_percent,
+            "avg_loss_a": self.avg_loss_a,
+            "avg_loss_b": self.avg_loss_b,
+            "both_correct": self.both_correct,
+            "only_a_correct": self.only_a_correct,
+            "only_b_correct": self.only_b_correct,
+            "both_wrong": self.both_wrong,
+            "pred_disagreement": self.pred_disagreement,
+            "disagreement_samples": [
+                {
+                    "path": s.path,
+                    "true_label": s.true_label,
+                    "predicted_a": s.predicted_a,
+                    "predicted_b": s.predicted_b,
+                    "confidence_a": s.confidence_a,
+                    "confidence_b": s.confidence_b,
+                }
+                for s in self.disagreement_samples
             ],
         }

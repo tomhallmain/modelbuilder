@@ -127,8 +127,10 @@ def test_main_top_level_help_lists_commands(capsys: pytest.CaptureFixture[str]) 
     assert "evaluate" in out
 
 
-def test_evaluate_compare_stub_return_zero() -> None:
-    assert main(["evaluate", EvaluateSubcommand.COMPARE.value]) == 0
+def test_evaluate_compare_requires_models_and_data_dir() -> None:
+    with pytest.raises(SystemExit) as exc:
+        main(["evaluate", EvaluateSubcommand.COMPARE.value])
+    assert exc.value.code != 0
 
 
 def test_evaluate_misclassified_requires_model_and_data_dir() -> None:
