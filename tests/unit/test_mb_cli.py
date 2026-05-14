@@ -127,7 +127,10 @@ def test_main_top_level_help_lists_commands(capsys: pytest.CaptureFixture[str]) 
     assert "evaluate" in out
 
 
-@pytest.mark.parametrize("sub", [e.value for e in EvaluateSubcommand])
+@pytest.mark.parametrize(
+    "sub",
+    (EvaluateSubcommand.MISCLASSIFIED.value, EvaluateSubcommand.COMPARE.value),
+)
 def test_evaluate_subcommands_stub_return_zero(sub: str) -> None:
     assert main(["evaluate", sub]) == 0
 

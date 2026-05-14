@@ -716,7 +716,7 @@ def create_parser() -> argparse.ArgumentParser:
         help=_("Evaluate trained models or datasets"),
         description=_(
             "Score a trained classifier on your train/test tree, surface likely labeling mistakes, "
-            "or compare two checkpoints on the same data. Subcommand implementations are still stubs."
+            "or compare two checkpoints on the same data."
         ),
     )
     evaluate_subparsers = evaluate_parser.add_subparsers(
@@ -724,37 +724,102 @@ def create_parser() -> argparse.ArgumentParser:
         help=_("Evaluate subcommands"),
         metavar="SUBCOMMAND",
     )
-    _evaluate_cmd_specs: tuple[tuple[EvaluateSubcommand, str, str], ...] = (
-        (
-            EvaluateSubcommand.METRICS,
-            _("Compute classification metrics on a labeled split (stub)"),
-            _(
-                "Accuracy, per-class precision/recall where applicable, and confusion summaries "
-                "over a directory layout that matches training (e.g. train/ and test/ class folders)."
-            ),
-        ),
-        (
-            EvaluateSubcommand.MISCLASSIFIED,
-            _("List or export images the model disagrees with on disk labels (stub)"),
-            _(
-                "Helps find label noise, outliers, and borderline samples by comparing predictions "
-                "to the class folder each file lives under."
-            ),
-        ),
-        (
-            EvaluateSubcommand.COMPARE,
-            _("Compare two models on the same evaluation data (stub)"),
-            _("Side-by-side metrics for two checkpoints or bundles evaluated on identical inputs."),
+
+    evaluate_metrics_parser = evaluate_subparsers.add_parser(
+        EvaluateSubcommand.METRICS.value,
+        help=_("Compute classification metrics on a labeled split"),
+        description=_(
+            "Accuracy, confusion matrix, and per-class counts on an ImageFolder-style directory "
+            "(class-named subfolders of images). PyTorch requires --architecture and a .pth/.pt file."
         ),
     )
-    for _ev_sub, _help, _desc in _evaluate_cmd_specs:
-        _evp = evaluate_subparsers.add_parser(_ev_sub.value, help=_help, description=_desc)
-        if _ev_sub in (EvaluateSubcommand.METRICS, EvaluateSubcommand.MISCLASSIFIED):
-            _evp.add_argument(
-                "--dry-run",
-                action="store_true",
-                help=_("Parse options only; do not run evaluation (reserved for future use)"),
-            )
+    evaluate_metrics_parser.add_argument(
+        "--model",
+        type=Path,
+        required=True,
+        help=_("Path to trained model file (.pth / .pt / .h5 / .keras)"),
+    )
+    evaluate_metrics_parser.add_argument(
+        "--data-dir",
+        type=Path,
+        required=True,
+        help=_("ImageFolder root (e.g. .../test with one subfolder per class)"),
+    )
+    evaluate_metrics_parser.add_argument(
+        "--framework",
+        choices=[FrameworkType.PYTORCH.value, FrameworkType.KERAS.value],
+        default=None,
+        help=_("Training framework (default: infer from file extension)"),
+    )
+    evaluate_metrics_parser.add_argument(
+        "--architecture",
+        type=str,
+        default=None,
+        help=_("Model architecture id (required for PyTorch .pth checkpoints, e.g. resnet34)"),
+    )
+    evaluate_metrics_parser.add_argument(
+        "--num-classes",
+        type=int,
+        default=None,
+        help=_("Override class count (default: infer from directory layout)"),
+    )
+    evaluate_metrics_parser.add_argument(
+        "--model-type",
+        choices=_MODEL_TYPE_CLI_CHOICES,
+        default=ModelType.IMAGE_CLASSIFICATION.value,
+        help=_("Pipeline model type (default: image_classification)"),
+    )
+    evaluate_metrics_parser.add_argument(
+        "--image-size",
+        type=int,
+        default=224,
+        help=_("Square input size (default: 224)"),
+    )
+    evaluate_metrics_parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=32,
+        help=_("Batch size (default: 32)"),
+    )
+    evaluate_metrics_parser.add_argument(
+        "--num-workers",
+        type=int,
+        default=0,
+        help=_("DataLoader workers for PyTorch (default: 0)"),
+    )
+    evaluate_metrics_parser.add_argument(
+        "--device",
+        type=str,
+        default=None,
+        help=_("PyTorch device override, e.g. cuda or cpu (default: auto)"),
+    )
+    evaluate_metrics_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help=_("Validate arguments and exit without running inference"),
+    )
+
+    evaluate_misclassified_parser = evaluate_subparsers.add_parser(
+        EvaluateSubcommand.MISCLASSIFIED.value,
+        help=_("List or export images the model disagrees with on disk labels (stub)"),
+        description=_(
+            "Helps find label noise, outliers, and borderline samples by comparing predictions "
+            "to the class folder each file lives under."
+        ),
+    )
+    evaluate_misclassified_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help=_("Parse options only; do not run evaluation (reserved for future use)"),
+    )
+
+    evaluate_subparsers.add_parser(
+        EvaluateSubcommand.COMPARE.value,
+        help=_("Compare two models on the same evaluation data (stub)"),
+        description=_(
+            "Side-by-side metrics for two checkpoints or bundles evaluated on identical inputs."
+        ),
+    )
 
     return parser
 
@@ -1277,14 +1342,11 @@ def handle_evaluate_placeholder(_args, *, subcommand: EvaluateSubcommand) -> int
 
 
 def handle_evaluate_metrics(args) -> int:
-    """Handle ``mb evaluate metrics`` (stub until evaluation backends are wired)."""
-    if args.dry_run:
-        logger.info(_("Dry-run requested; no evaluation will be performed."))
-        return 0
-    logger.info(
-        _("Metrics evaluation is not implemented yet; this is a CLI skeleton.")
-    )
-    return 0
+    """Handle ``mb evaluate metrics``."""
+    reload_pipeline_config(getattr(args, "config", None), force=True)
+    from mb.evaluate.metrics import run_evaluate_metrics_cli
+
+    return run_evaluate_metrics_cli(args)
 
 
 def handle_evaluate_misclassified(args) -> int:
