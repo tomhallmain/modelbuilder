@@ -1,21 +1,21 @@
-"""Tests for ``mb.evaluate.metrics`` and CLI ``evaluate metrics``."""
+"""Tests for ``mb.evaluate.misclassified`` and CLI ``evaluate misclassified``."""
 
 from __future__ import annotations
 
 from argparse import Namespace
-from pathlib import Path
 
 import pytest
 
 from mb.cli import main
-from mb.evaluate.metrics import build_metrics_request, run_metrics
+from mb.evaluate.metrics import build_metrics_request
+from mb.evaluate.misclassified import run_misclassified
 from mb.models.types import FrameworkType, ModelType
 from mb.utils.constants import ModelBuilderTaskType
 
 from tests.test_utils import default_pipeline_config_path
 
 
-def test_evaluate_metrics_dry_run_requires_arch_for_pytorch(tmp_path: Path) -> None:
+def test_evaluate_misclassified_dry_run_ok_pytorch(tmp_path: Path) -> None:
     model = tmp_path / "w.pt"
     model.write_bytes(b"")
     data = tmp_path / "data"
@@ -26,30 +26,7 @@ def test_evaluate_metrics_dry_run_requires_arch_for_pytorch(tmp_path: Path) -> N
                 "--config",
                 str(default_pipeline_config_path()),
                 str(ModelBuilderTaskType.EVALUATE.value),
-                "metrics",
-                "--dry-run",
-                "--model",
-                str(model),
-                "--data-dir",
-                str(data),
-            ]
-        )
-        == 1
-    )
-
-
-def test_evaluate_metrics_dry_run_ok_pytorch(tmp_path: Path) -> None:
-    model = tmp_path / "w.pt"
-    model.write_bytes(b"")
-    data = tmp_path / "data"
-    data.mkdir()
-    assert (
-        main(
-            [
-                "--config",
-                str(default_pipeline_config_path()),
-                str(ModelBuilderTaskType.EVALUATE.value),
-                "metrics",
+                "misclassified",
                 "--dry-run",
                 "--model",
                 str(model),
@@ -63,10 +40,10 @@ def test_evaluate_metrics_dry_run_ok_pytorch(tmp_path: Path) -> None:
     )
 
 
-def test_run_metrics_object_detection_not_implemented(tmp_path: Path) -> None:
-    model = tmp_path / "m.pth"
+def test_run_misclassified_object_detection_not_implemented(tmp_path: Path) -> None:
+    model = tmp_path / "m2.pth"
     model.write_bytes(b"")
-    data = tmp_path / "data"
+    data = tmp_path / "data2"
     data.mkdir()
     (data / "a").mkdir()
     ns = Namespace(
@@ -83,4 +60,4 @@ def test_run_metrics_object_detection_not_implemented(tmp_path: Path) -> None:
     )
     req = build_metrics_request(ns)
     with pytest.raises(NotImplementedError):
-        run_metrics(req)
+        run_misclassified(req)
