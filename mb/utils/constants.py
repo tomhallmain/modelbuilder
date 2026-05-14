@@ -42,6 +42,7 @@ class ModelBuilderTaskType(str, Enum):
     TRAIN = "train"
     CONVERT = "convert"
     EXPORT = "export"
+    EVALUATE = "evaluate"
 
     @property
     def nav_row_index(self) -> int:
@@ -49,12 +50,13 @@ class ModelBuilderTaskType(str, Enum):
         return _MODEL_BUILDER_TASK_NAV_ROW[self]
 
 
-# Must stay in sync with MainWindow.NAV_PAGE_SPECS (Home, Data, Train, Convert, Export, …).
+# Must stay in sync with MainWindow.NAV_PAGE_SPECS (Home, Data, Train, Convert, Export, Evaluate, …).
 _MODEL_BUILDER_TASK_NAV_ROW: dict[ModelBuilderTaskType, int] = {
     ModelBuilderTaskType.DATA: 1,
     ModelBuilderTaskType.TRAIN: 2,
     ModelBuilderTaskType.CONVERT: 3,
     ModelBuilderTaskType.EXPORT: 4,
+    ModelBuilderTaskType.EVALUATE: 5,
 }
 
 

@@ -124,6 +124,11 @@ def test_main_top_level_help_lists_commands(capsys: pytest.CaptureFixture[str]) 
     assert "data" in out
     assert "train" in out
     assert "convert" in out
+    assert "evaluate" in out
+
+
+def test_evaluate_run_skeleton_returns_zero() -> None:
+    assert main(["evaluate", "run"]) == 0
 
 
 def test_data_help_lists_subcommands(capsys: pytest.CaptureFixture[str]) -> None:

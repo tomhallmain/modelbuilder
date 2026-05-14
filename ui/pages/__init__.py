@@ -3,6 +3,7 @@
 from ui.pages.config_page import ConfigPage
 from ui.pages.convert_page import ConvertPage
 from ui.pages.data_page import DataPage
+from ui.pages.evaluate_page import EvaluatePage
 from ui.pages.export_page import ExportPage
 from ui.pages.home_page import HomePage
 from ui.pages.info_page import InfoPage
@@ -15,6 +16,7 @@ __all__ = [
     "TrainPage",
     "ConvertPage",
     "ExportPage",
+    "EvaluatePage",
     "ConfigPage",
     "PipelineConfigPage",
     "InfoPage",

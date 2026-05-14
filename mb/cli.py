@@ -34,6 +34,7 @@ from mb.training.run_args import TrainingRunArgs, load_training_run_args_json
 from mb.models.types import (
     ArchitectureType,
     ConversionTargetFormat,
+    EvaluateSubcommand,
     ExportSubcommand,
     FrameworkType,
     InfoSubcommand,
@@ -703,7 +704,31 @@ def create_parser() -> argparse.ArgumentParser:
         help=_("Do not emit model_architecture.py stub"),
     )
     export_bundle_parser.add_argument("--run-id", type=str, help=_("Optional run ID to include in manifest"))
-    
+
+    # Evaluate command (skeleton; more subcommands expected later)
+    evaluate_parser = subparsers.add_parser(
+        "evaluate",
+        help=_("Evaluate trained models or datasets"),
+        description=_(
+            "Run evaluation workflows against trained checkpoints or prepared datasets. "
+            "Subcommands will expand as metrics and backends are integrated."
+        ),
+    )
+    evaluate_subparsers = evaluate_parser.add_subparsers(
+        dest="evaluate_command",
+        help=_("Evaluate subcommands"),
+        metavar="SUBCOMMAND",
+    )
+    evaluate_run_parser = evaluate_subparsers.add_parser(
+        EvaluateSubcommand.RUN.value,
+        help=_("Placeholder entry point for future evaluation flows"),
+    )
+    evaluate_run_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help=_("Parse options only; do not run evaluation (reserved for future use)"),
+    )
+
     return parser
 
 
@@ -1216,6 +1241,17 @@ def handle_export_bundle(args) -> int:
         return 1
 
 
+def handle_evaluate_run(args) -> int:
+    """Handle ``mb evaluate run`` (skeleton until evaluation backends are wired)."""
+    if args.dry_run:
+        logger.info(_("Dry-run requested; no evaluation will be performed."))
+        return 0
+    logger.info(
+        _("Evaluation CLI is not implemented yet; this is a skeleton for upcoming subcommands.")
+    )
+    return 0
+
+
 def main(args: Optional[list] = None) -> int:
     """
     Main entry point for the CLI.
@@ -1293,7 +1329,21 @@ def main(args: Optional[list] = None) -> int:
                 return handle_export_bundle(parsed_args)
             logger.error(_("Unhandled export subcommand: {cmd}").format(cmd=sub.value))
             return 1
-        
+
+        elif parsed_args.command == "evaluate":
+            raw_ev = parsed_args.evaluate_command
+            if not raw_ev:
+                logger.error(_("No evaluate subcommand specified"))
+                return 1
+            ev_sub = EvaluateSubcommand.try_from(raw_ev)
+            if ev_sub is None:
+                logger.error(_("Unknown evaluate subcommand: {cmd}").format(cmd=raw_ev))
+                return 1
+            if ev_sub == EvaluateSubcommand.RUN:
+                return handle_evaluate_run(parsed_args)
+            logger.error(_("Unhandled evaluate subcommand: {cmd}").format(cmd=ev_sub.value))
+            return 1
+
         else:
             logger.error(_("Unknown command: {cmd}").format(cmd=parsed_args.command))
             return 1

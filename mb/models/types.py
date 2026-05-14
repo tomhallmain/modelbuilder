@@ -177,6 +177,22 @@ class ExportSubcommand(str, Enum):
             return None
 
 
+class EvaluateSubcommand(str, Enum):
+    """``mb evaluate <subcommand>`` (model / dataset evaluation; subcommands TBD)."""
+
+    RUN = "run"
+
+    @classmethod
+    def try_from(cls, raw: object) -> EvaluateSubcommand | None:
+        if raw is None:
+            return None
+        s = str(raw).strip().lower()
+        try:
+            return cls(s)
+        except ValueError:
+            return None
+
+
 class ConversionTargetFormat(str, Enum):
     """``mb convert --target`` output format."""
 
