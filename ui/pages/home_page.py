@@ -121,7 +121,9 @@ class HomePage(QWidget):
         )
         self._bullet_convert.setText(_("- Model conversion to ONNX / SafeTensors"))
         self._bullet_export.setText(_("- Model bundle export (manifest + deployment artifacts)"))
-        self._bullet_evaluate.setText(_("- Evaluation workflows (CLI skeleton: {cmd})").format(cmd="mb evaluate"))
+        self._bullet_evaluate.setText(
+            _("- Evaluation: metrics, misclassified, compare (shared paths with Train / Convert / Pipeline)")
+        )
         self._bullet_config.setText(_("- App shell (App) and ML defaults (Pipeline)"))
         self._quick.setTitle(_("Quick actions"))
         self._btn_data.setText(_("Open Data Page"))

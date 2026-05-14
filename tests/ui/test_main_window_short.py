@@ -8,9 +8,10 @@ from __future__ import annotations
 
 import pytest
 from PySide6.QtCore import QTimer
-from PySide6.QtWidgets import QApplication, QMessageBox, QStackedWidget
+from PySide6.QtWidgets import QApplication, QMessageBox, QStackedWidget, QTabWidget
 
 from mb import __version__ as MB_VERSION
+from mb.models.types import EvaluateSubcommand
 from mb.utils.translations import _
 from ui.main_window import MainWindow
 from ui.pages import (
@@ -58,6 +59,17 @@ def test_navigation_switches_stacked_pages(qtbot, main_window: MainWindow) -> No
     for row in range(nav.count()):
         nav.setCurrentRow(row)
         assert stack.currentIndex() == row
+
+
+@pytest.mark.ui
+def test_evaluate_page_tab_count(qtbot, main_window: MainWindow) -> None:
+    stack = main_nav_stacked_widget(main_window)
+    ev_row = next(i for i, (cls, _) in enumerate(MainWindow.NAV_PAGE_SPECS) if cls.__name__ == "EvaluatePage")
+    scroll = stack.widget(ev_row)
+    inner = scroll.widget()
+    tabs = inner.findChild(QTabWidget)
+    assert tabs is not None
+    assert tabs.count() == len(tuple(EvaluateSubcommand))
 
 
 @pytest.mark.ui
