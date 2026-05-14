@@ -15,7 +15,7 @@ from unittest.mock import patch
 import pytest
 
 from mb.cli import create_parser, main
-from mb.models.types import ArchitectureType, FrameworkType
+from mb.models.types import ArchitectureType, EvaluateSubcommand, FrameworkType
 from mb.training.run_args import TrainingRunArgs
 
 from tests.test_utils import default_pipeline_config_path, repo_root
@@ -127,8 +127,18 @@ def test_main_top_level_help_lists_commands(capsys: pytest.CaptureFixture[str]) 
     assert "evaluate" in out
 
 
-def test_evaluate_run_skeleton_returns_zero() -> None:
-    assert main(["evaluate", "run"]) == 0
+@pytest.mark.parametrize("sub", [e.value for e in EvaluateSubcommand])
+def test_evaluate_subcommands_stub_return_zero(sub: str) -> None:
+    assert main(["evaluate", sub]) == 0
+
+
+def test_evaluate_help_lists_subcommands(capsys: pytest.CaptureFixture[str]) -> None:
+    with pytest.raises(SystemExit) as exc:
+        main(["evaluate", "--help"])
+    assert exc.value.code == 0
+    out = capsys.readouterr().out
+    for name in ("run", "benchmark", "report", "compare", "calibrate", "explain"):
+        assert name in out
 
 
 def test_data_help_lists_subcommands(capsys: pytest.CaptureFixture[str]) -> None:

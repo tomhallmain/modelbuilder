@@ -145,7 +145,11 @@ class ArchitectureType(str, Enum):
 
 
 class InfoSubcommand(str, Enum):
-    """``mb info <subcommand>`` (model vs dataset)."""
+    """
+    ``mb info <subcommand>`` — inspect a checkpoint or a prepared dataset layout.
+
+    Values are the CLI spellings registered under ``mb info``.
+    """
 
     MODEL = "model"
     DATASET = "dataset"
@@ -178,9 +182,21 @@ class ExportSubcommand(str, Enum):
 
 
 class EvaluateSubcommand(str, Enum):
-    """``mb evaluate <subcommand>`` (model / dataset evaluation; subcommands TBD)."""
+    """
+    ``mb evaluate <subcommand>`` — high-level evaluation workflows.
+
+    Covers typical near-term needs for trained image classifiers: metrics on a split,
+    inference benchmarking, exported reports, model comparison, calibration analysis,
+    and interpretability / failure-mode inspection. Implementations are mostly stubs
+    until evaluation backends are wired.
+    """
 
     RUN = "run"
+    BENCHMARK = "benchmark"
+    REPORT = "report"
+    COMPARE = "compare"
+    CALIBRATE = "calibrate"
+    EXPLAIN = "explain"
 
     @classmethod
     def try_from(cls, raw: object) -> EvaluateSubcommand | None:

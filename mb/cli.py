@@ -6,6 +6,7 @@ This module provides the main CLI entry point and subcommand structure.
 
 import argparse
 import sys
+from functools import partial
 from pathlib import Path
 from typing import List, Optional
 import logging
@@ -646,7 +647,7 @@ def create_parser() -> argparse.ArgumentParser:
     
     # mb info model
     info_model_parser = info_subparsers.add_parser(
-        "model",
+        InfoSubcommand.MODEL.value,
         help=_("Show model information"),
         description=_(
             "Display detailed information about a trained model, including architecture, "
@@ -662,7 +663,7 @@ def create_parser() -> argparse.ArgumentParser:
     
     # mb info dataset
     info_dataset_parser = info_subparsers.add_parser(
-        "dataset",
+        InfoSubcommand.DATASET.value,
         help=_("Show dataset information"),
         description=_(
             "Display statistics about a dataset, including class distributions, "
@@ -723,15 +724,49 @@ def create_parser() -> argparse.ArgumentParser:
         help=_("Evaluate subcommands"),
         metavar="SUBCOMMAND",
     )
-    evaluate_run_parser = evaluate_subparsers.add_parser(
-        EvaluateSubcommand.RUN.value,
-        help=_("Placeholder entry point for future evaluation flows"),
+    _evaluate_cmd_specs: tuple[tuple[EvaluateSubcommand, str, str], ...] = (
+        (
+            EvaluateSubcommand.RUN,
+            _("Run metrics evaluation on a held-out split (stub)"),
+            _(
+                "Classification metrics, confusion summaries, and related aggregates "
+                "against a prepared train/test directory or snapshot."
+            ),
+        ),
+        (
+            EvaluateSubcommand.BENCHMARK,
+            _("Benchmark inference throughput and latency (stub)"),
+            _("Time forward passes and memory use for deployment-style batch inference."),
+        ),
+        (
+            EvaluateSubcommand.REPORT,
+            _("Export an evaluation report bundle (stub)"),
+            _("Machine- or human-readable summaries for CI, dashboards, or handoff."),
+        ),
+        (
+            EvaluateSubcommand.COMPARE,
+            _("Compare two models on the same evaluation data (stub)"),
+            _("Side-by-side metrics for checkpoints, exported bundles, or prior runs."),
+        ),
+        (
+            EvaluateSubcommand.CALIBRATE,
+            _("Calibration and reliability analysis (stub)"),
+            _("Reliability diagrams, ECE, and threshold or temperature tuning on validation outputs."),
+        ),
+        (
+            EvaluateSubcommand.EXPLAIN,
+            _("Interpretability and error analysis (stub)"),
+            _("Saliency-style diagnostics and curated failure galleries for debugging."),
+        ),
     )
-    evaluate_run_parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help=_("Parse options only; do not run evaluation (reserved for future use)"),
-    )
+    for _ev_sub, _help, _desc in _evaluate_cmd_specs:
+        _evp = evaluate_subparsers.add_parser(_ev_sub.value, help=_help, description=_desc)
+        if _ev_sub is EvaluateSubcommand.RUN:
+            _evp.add_argument(
+                "--dry-run",
+                action="store_true",
+                help=_("Parse options only; do not run evaluation (reserved for future use)"),
+            )
 
     return parser
 
@@ -1245,6 +1280,14 @@ def handle_export_bundle(args) -> int:
         return 1
 
 
+def handle_evaluate_placeholder(_args, *, subcommand: EvaluateSubcommand) -> int:
+    """Reserved handlers for ``mb evaluate`` subcommands not yet implemented."""
+    logger.info(
+        _("Evaluate subcommand {cmd} is not implemented yet.").format(cmd=subcommand.value)
+    )
+    return 0
+
+
 def handle_evaluate_run(args) -> int:
     """Handle ``mb evaluate run`` (skeleton until evaluation backends are wired)."""
     if args.dry_run:
@@ -1254,6 +1297,16 @@ def handle_evaluate_run(args) -> int:
         _("Evaluation CLI is not implemented yet; this is a skeleton for upcoming subcommands.")
     )
     return 0
+
+
+_EVALUATE_HANDLERS = {
+    EvaluateSubcommand.RUN: handle_evaluate_run,
+    **{
+        s: partial(handle_evaluate_placeholder, subcommand=s)
+        for s in EvaluateSubcommand
+        if s is not EvaluateSubcommand.RUN
+    },
+}
 
 
 def main(args: Optional[list] = None) -> int:
@@ -1311,9 +1364,8 @@ def main(args: Optional[list] = None) -> int:
             if not raw_info:
                 logger.error(_("No info subcommand specified"))
                 return 1
-            try:
-                info_sub = InfoSubcommand(raw_info)
-            except ValueError:
+            info_sub = InfoSubcommand.try_from(raw_info)
+            if info_sub is None:
                 logger.error(_("Unknown info subcommand: {cmd}").format(cmd=raw_info))
                 return 1
             if info_sub == InfoSubcommand.MODEL:
@@ -1343,10 +1395,7 @@ def main(args: Optional[list] = None) -> int:
             if ev_sub is None:
                 logger.error(_("Unknown evaluate subcommand: {cmd}").format(cmd=raw_ev))
                 return 1
-            if ev_sub == EvaluateSubcommand.RUN:
-                return handle_evaluate_run(parsed_args)
-            logger.error(_("Unhandled evaluate subcommand: {cmd}").format(cmd=ev_sub.value))
-            return 1
+            return _EVALUATE_HANDLERS[ev_sub](parsed_args)
 
         else:
             logger.error(_("Unknown command: {cmd}").format(cmd=parsed_args.command))
