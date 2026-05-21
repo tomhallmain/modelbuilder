@@ -2,8 +2,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
-"POT-Creation-Date: 2026-04-30 17:17-0400\n"
-"PO-Revision-Date: 2026-04-30 17:17-0400\n"
+"POT-Creation-Date: 2026-05-21 17:46-0400\n"
+"PO-Revision-Date: 2026-05-21 17:46-0400\n"
 "Last-Translator: Translator Name <translator@example.com>\n"
 "Language-Team: de Team <<EMAIL>>\n"
 "Language: de\n"
@@ -12,41 +12,41 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: mb/cli.py:59
+#: mb/cli/__init__.py:54
 msgid "Model Builder - A unified CLI for building ML models"
 msgstr ""
 "Modellbauer - Eine einheitliche Befehlszeilenschnittstelle zum Erstellen von"
 " ML-Modellen"
 
-#: mb/cli.py:74
+#: mb/cli/__init__.py:66
 msgid "Path to configuration file (YAML)"
 msgstr "Pfad zur Konfigurationsdatei (YAML)"
 
-#: mb/cli.py:80
+#: mb/cli/__init__.py:71
 msgid "Enable verbose logging"
 msgstr "Ausführliche Protokollierung aktivieren"
 
-#: mb/cli.py:86
+#: mb/cli/__init__.py:75
 msgid "Available commands"
 msgstr "Verfügbare Befehle"
 
-#: mb/cli.py:93
+#: mb/cli/parsing/data.py:18
 msgid "Data processing operations"
 msgstr "Datenverarbeitungsvorgänge"
 
-#: mb/cli.py:94
+#: mb/cli/parsing/data.py:19
 msgid "Data processing operations for preparing image datasets"
 msgstr "Datenverarbeitungsaufgaben zur Vorbereitung von Bild-Datensätzen"
 
-#: mb/cli.py:98
+#: mb/cli/parsing/data.py:23
 msgid "Data subcommands"
 msgstr "Datenunterbefehle"
 
-#: mb/cli.py:105
+#: mb/cli/parsing/data.py:30
 msgid "Gather images from source directories"
 msgstr "Bilder aus den Quellenordnern sammeln"
 
-#: mb/cli.py:107
+#: mb/cli/parsing/data.py:32
 msgid ""
 "Gather images from source directories into a target directory, with "
 "deduplication and optional weighting by subdirectory."
@@ -54,15 +54,15 @@ msgstr ""
 "Bilder aus Quellverzeichnissen in ein Zielverzeichnis zusammenführen, mit "
 "Duplikatsbereinigung und optionaler Gewichtung nach Unterverzeichnissen."
 
-#: mb/cli.py:115
+#: mb/cli/parsing/data.py:40
 msgid "Source directory containing images"
 msgstr "Quelldirectory enthält Images"
 
-#: mb/cli.py:121
+#: mb/cli/parsing/data.py:46
 msgid "Subdirectories to process"
 msgstr "Unterverzeichnisse zu verarbeiten"
 
-#: mb/cli.py:128
+#: mb/cli/parsing/data.py:53
 msgid ""
 "Target number of images to gather (default: from pipeline "
 "data.gather.default_target_count). Treated as a limit, not an exact "
@@ -72,7 +72,7 @@ msgstr ""
 "„data.gather.default_target_count“). Wird als Obergrenze betrachtet, nicht "
 "als exakte Vorgabe."
 
-#: mb/cli.py:136
+#: mb/cli/parsing/data.py:61
 msgid ""
 "Target directory for gathered images (default: from pipeline "
 "data.gather.default_target_dir)"
@@ -80,7 +80,7 @@ msgstr ""
 "Zielverzeichnis für die gesammelten Bilder (Standard: aus der Pipeline "
 "„data.gather.default_target_dir“)"
 
-#: mb/cli.py:142
+#: mb/cli/parsing/data.py:67
 msgid ""
 "Rejected directory for manually rejected images (default: "
 "data.gather.default_rejected_dir)"
@@ -88,7 +88,7 @@ msgstr ""
 "Verzeichnis für manuell abgelehnte Bilder (Standard: "
 "data.gather.default_rejected_dir)"
 
-#: mb/cli.py:148
+#: mb/cli/parsing/data.py:73
 msgid ""
 "Relative weights for subdirectories: \"subdir1:weight1,subdir2:weight2\" "
 "(e.g. \"neutral:4,drawing:1\" ≈ 80%%/20%%, or \"neutral:0.8,drawing:0.2\"). "
@@ -99,14 +99,14 @@ msgstr ""
 "Die Gewichte werden automatisch normiert; es können beliebige positive "
 "Zahlen verwendet werden."
 
-#: mb/cli.py:157
+#: mb/cli/parsing/data.py:82
 msgid ""
 "Root directory for raw data (default: data.raw_data_dir in pipeline config)"
 msgstr ""
 "Stammverzeichnis für Rohdaten (Standard: „data.raw_data_dir“ in der "
 "Pipeline-Konfiguration)"
 
-#: mb/cli.py:164
+#: mb/cli/parsing/data.py:89
 msgid ""
 "Pipeline model type (default: model.default_type). When "
 "image_classification, gather also considers configured video extensions."
@@ -115,11 +115,11 @@ msgstr ""
 "Bildklassifizierung berücksichtigt „gather“ auch konfigurierte "
 "Videoerweiterungen."
 
-#: mb/cli.py:172
+#: mb/cli/parsing/data.py:97
 msgid "Convert images to specified format"
 msgstr "Bilder in das/zum angegebenen Format konvertieren"
 
-#: mb/cli.py:174
+#: mb/cli/parsing/data.py:99
 msgid ""
 "Convert images in the raw data directory to a specified format (e.g., JPEG)."
 " Large images are automatically resized to prevent memory issues."
@@ -128,11 +128,12 @@ msgstr ""
 "(z.B. JPEG). Große Bilder werden automatisch resize um Speicherprobleme zu "
 "verhindern."
 
-#: mb/cli.py:182 mb/cli.py:269 mb/cli.py:295 mb/cli.py:473
+#: mb/cli/parsing/data.py:107 mb/cli/parsing/data.py:194
+#: mb/cli/parsing/data.py:220 mb/cli/parsing/data.py:401
 msgid "Raw data directory (default: raw_data)"
 msgstr "Rohdatenverzeichnis (Standard: raw_data)"
 
-#: mb/cli.py:189
+#: mb/cli/parsing/data.py:114
 msgid ""
 "Target format for converted outputs (default: jpeg). The converter is "
 "currently JPEG-oriented; non-default values may be ignored until "
@@ -143,7 +144,7 @@ msgstr ""
 "werden möglicherweise ignoriert, bis die entsprechende Funktion "
 "implementiert ist."
 
-#: mb/cli.py:198
+#: mb/cli/parsing/data.py:123
 msgid ""
 "Pipeline model type (default: model.default_type). When "
 "image_classification, videos and multi-frame GIFs get a random frame as "
@@ -153,7 +154,7 @@ msgstr ""
 "„image_classification“, Videos und GIFs mit mehreren Bildern wird ein "
 "zufälliges Bild als JPEG verwendet."
 
-#: mb/cli.py:206
+#: mb/cli/parsing/data.py:131
 msgid ""
 "Allow convert to run even if the raw-data drive appears to have insufficient"
 " free space (heuristic estimate; not recommended)."
@@ -162,11 +163,20 @@ msgstr ""
 "genügend freien Speicherplatz verfügt (heuristische Schätzung; nicht "
 "empfohlen)."
 
-#: mb/cli.py:223
+#: mb/cli/parsing/data.py:140
+msgid ""
+"Unified snapshot run ID to update (snapshot_<run_id>.json under raw data). "
+"Omit to start a new snapshot with a new run ID."
+msgstr ""
+"Einheitliche Snapshot-Lauf-ID für die Aktualisierung (snapshot_<run_id>.json"
+" im Rohdatenordner). Weglassen, um einen neuen Snapshot mit einer neuen "
+"Lauf-ID zu starten."
+
+#: mb/cli/parsing/data.py:148
 msgid "Remove duplicate images"
 msgstr "Doppelbilder entfernen"
 
-#: mb/cli.py:225
+#: mb/cli/parsing/data.py:150
 msgid ""
 "Remove duplicate images within and across class directories. Uses perceptual"
 " hashing to identify duplicates and moves them to a review directory."
@@ -175,7 +185,7 @@ msgstr ""
 "Nutzt Perceptual Hashing, um Duplikate zu identifizieren, und verschiebt "
 "diese in ein Überprüfungsverzeichnis."
 
-#: mb/cli.py:234
+#: mb/cli/parsing/data.py:159
 msgid ""
 "Root raw data directory containing class subdirectories (default: raw_data)."
 " Typical layouts include multiple class folders under this root."
@@ -184,11 +194,28 @@ msgstr ""
 "Klassen enthält (Standard: raw_data). Typischerweise befinden sich unter "
 "diesem Stammverzeichnis mehrere Ordner für die einzelnen Klassen."
 
-#: mb/cli.py:259
+#: mb/cli/parsing/data.py:167
+msgid ""
+"Scan and print duplicate groups as indented JSON (no removals). Useful for "
+"manual review workflows."
+msgstr ""
+"Gruppen von Duplikaten als eingerücktes JSON scannen und drucken (ohne "
+"Löschungen). Nützlich für manuelle Überprüfungsabläufe."
+
+#: mb/cli/parsing/data.py:176
+msgid ""
+"Optional unified snapshot run ID to update with deduplication metadata. If "
+"omitted, the latest loadable snapshot under raw data is used when available."
+msgstr ""
+"Optionale einheitliche Snapshot-Lauf-ID zur Aktualisierung mit Metadaten zur"
+" Deduplizierung. Wird diese Angabe weggelassen, wird der aktuellste ladbare "
+"Snapshot unter den Rohdaten verwendet, sofern verfügbar."
+
+#: mb/cli/parsing/data.py:184
 msgid "Upscale small images"
 msgstr "Kleine Bilder hochskalieren"
 
-#: mb/cli.py:261
+#: mb/cli/parsing/data.py:186
 msgid ""
 "Upscale images that are smaller than a minimum dimension threshold. Small "
 "images are moved to a review directory for manual inspection before "
@@ -198,7 +225,7 @@ msgstr ""
 "vergrößert. Kleine Bilder werden vor der Vergrößerung zur manuellen "
 "Überprüfung in ein Überprüfungsverzeichnis verschoben."
 
-#: mb/cli.py:275
+#: mb/cli/parsing/data.py:200
 msgid ""
 "Review directory containing small images to upscale (default: <raw-data-"
 "dir>/small_images_review). Upscaled outputs go under <review-"
@@ -208,11 +235,11 @@ msgstr ""
 "(Standard: <raw-data-dir>/small_images_review). Die hochskalierten "
 "Ergebnisse werden unter <review-dir>/upscaled_small_images abgelegt."
 
-#: mb/cli.py:284
+#: mb/cli/parsing/data.py:209
 msgid "Create train/test dataset splits"
 msgstr "Erstelle Training-/Test-Datensatz-Zerteilungen"
 
-#: mb/cli.py:286
+#: mb/cli/parsing/data.py:211
 msgid ""
 "Create training and test dataset splits from raw data. Validates images, "
 "removes corrupted files, filters by size, and creates balanced train/test "
@@ -222,30 +249,58 @@ msgstr ""
 "removes corrupted files, filters by size, and creates balanced train/test "
 "splits with hash-based filenames."
 
-#: mb/cli.py:301
+#: mb/cli/parsing/data.py:226
 msgid "Output data directory (default: data)"
 msgstr "Ausgabeverzeichnis (Standard: data)"
 
-#: mb/cli.py:280
+#: mb/cli/parsing/data.py:233
 msgid ""
-"Number of items per class in the test split (default: 1000). For image "
-"classification this is test images per class."
+"Number of items per class in the test split when mode is fixed; also the "
+"anchor for dataset-weighted mode (default: data.test_per_class from pipeline"
+" YAML)."
 msgstr ""
-"Anzahl der Elemente pro Klasse in der Testaufteilung (Standard: 1000). Bei "
-"der Bildklassifizierung handelt es sich dabei um Testbilder pro Klasse."
+"Anzahl der Elemente pro Klasse bei der Aufteilung des Tests, wenn der Modus "
+"feststeht; dient zudem als Anker für den datensatzgewichteten Modus "
+"(Standard: `data.test_per_class` aus der Pipeline-YAML)."
 
-#: mb/cli.py:287
-msgid "Random seed for reproducibility"
-msgstr "Zufallsschub für die Wiederherstellbarkeit"
+#: mb/cli/parsing/data.py:242
+msgid ""
+"fixed = test_per_class images per class; dataset-weighted = modulated counts"
+" from class size vs total (default: data.test_split_mode in pipeline YAML, "
+"else fixed)."
+msgstr ""
+"fixed = test_per_class Bilder pro Klasse; dataset-weighted = modulierte "
+"Zählwerte, basierend auf dem Verhältnis von Klassengröße zu Gesamtgröße "
+"(Standard: data.test_split_mode in der Pipeline-YAML, andernfalls fixed)."
 
-#: mb/cli.py:342 mb/cli.py:563
+#: mb/cli/parsing/data.py:251
+msgid ""
+"With dataset-weighted mode: classes with fewer images than this use a "
+"proportional test count; larger classes use anchor + anchor×(class_share). "
+"Omit to use --test-per-class as the threshold (default: pipeline "
+"data.test_small_class_threshold)."
+msgstr ""
+"Im datensatzgewichteten Modus: Klassen mit weniger Bildern als dieser Wert "
+"verwenden eine proportionale Testanzahl; größere Klassen verwenden „Anker + "
+"Anker × (Klassenanteil)“. Weglassen, um „--test-per-class“ als Schwellenwert"
+" zu verwenden (Standard: pipeline data.test_small_class_threshold)."
+
+#: mb/cli/parsing/data.py:261
+msgid ""
+"Random seed for reproducibility (default: data.seed from pipeline YAML when "
+"set, else non-deterministic)"
+msgstr ""
+"Zufallszahl für die Reproduzierbarkeit (Standard: „data.seed“ aus der "
+"Pipeline-YAML-Datei, sofern festgelegt; andernfalls nicht deterministisch)"
+
+#: mb/cli/parsing/data.py:267 mb/cli/parsing/train.py:94
 msgid ""
 "Run ID of unified snapshot to update (auto-detects latest if not provided)"
 msgstr ""
 "Run-ID von einem einheitlichen Snapshot zum Anzupdaten (Automatisch den "
 "neuesten ermitteln, wenn keiner angegeben ist)."
 
-#: mb/cli.py:348
+#: mb/cli/parsing/data.py:273
 msgid ""
 "Balance the training set to the smallest class size (default: off, keeps "
 "natural proportions)."
@@ -253,7 +308,7 @@ msgstr ""
 "Das Trainingsset an die kleinste Klassengröße anpassen (Standard: "
 "deaktiviert, behält die natürlichen Proportionen bei)."
 
-#: mb/cli.py:355
+#: mb/cli/parsing/data.py:280
 msgid ""
 "Maximum training items per class (no limit if omitted; keeps natural "
 "proportions below the cap)."
@@ -262,13 +317,13 @@ msgstr ""
 "nicht angegeben; die natürlichen Proportionen bleiben unterhalb der "
 "Obergrenze)."
 
-#: mb/cli.py:361
+#: mb/cli/parsing/data.py:286
 msgid "Allow running on external/removable storage (not recommended)"
 msgstr ""
 "Ermöglichen das Laufenlassen auf externen/entfernungsschreibbaren "
 "Speichermedien (nicht empfohlen)"
 
-#: mb/cli.py:367
+#: mb/cli/parsing/data.py:292
 msgid ""
 "Allow create-dataset even if the output data drive appears to have "
 "insufficient free space (heuristic estimate; not recommended)."
@@ -277,12 +332,112 @@ msgstr ""
 "über genügend freien Speicherplatz verfügt (heuristische Schätzung; nicht "
 "empfohlen)."
 
-#: mb/cli.py:457
+#: mb/cli/parsing/data.py:300
+msgid "Rename mislabeled .jpg sources and rebuild CONVERTED JPEGs"
+msgstr ""
+"Falsch benannte .jpg-Quelldateien umbenennen und die konvertierten JPEGs neu"
+" erstellen"
+
+#: mb/cli/parsing/data.py:302
+msgid ""
+"Finds non-JPEG bytes under .jpg/.jpeg names in class source trees (same "
+"discovery as convert), writes corrected JPEGs, and removes stale copies "
+"under CONVERTED and small_images_review only after a successful write. "
+"Animated GIFs use the same random-frame + visual_media_review layout as "
+"convert when the model type is image_classification."
+msgstr ""
+"Sucht in den Quellcode-Verzeichnissen der Klassen nach Nicht-JPEG-Bytes "
+"unter .jpg/.jpeg-Dateinamen (gleiche Erkennung wie bei „convert“), schreibt "
+"korrigierte JPEGs und entfernt veraltete Kopien unter „CONVERTED“ und "
+"„small_images_review“ erst nach erfolgreichem Speichern. Animierte GIFs "
+"verwenden dasselbe Layout aus „random-frame“ und „visual_media_review“ wie "
+"„convert“, wenn der Modelltyp „image_classification“ ist."
+
+#: mb/cli/parsing/data.py:313
+msgid ""
+"Raw data directory (default: data.raw_data_dir from the pipeline config "
+"after --config; same as gather/convert when omitted)."
+msgstr ""
+"Verzeichnis für Rohdaten (Standard: „data.raw_data_dir“ aus der Pipeline-"
+"Konfiguration nach „--config“; entspricht „gather/convert“, wenn nicht "
+"angegeben)."
+
+#: mb/cli/parsing/data.py:320
+msgid "Log planned repairs only; do not rename files or write outputs."
+msgstr ""
+"Nur geplante Reparaturen protokollieren; Dateien nicht umbenennen und keine "
+"Ausgaben schreiben."
+
+#: mb/cli/parsing/data.py:327
+msgid ""
+"Print newline-delimited JSON (stdout): dry-run or live repair. By default "
+"only actionable mismatches are listed; use -v to include policy-skipped "
+"PNG/WebP/BMP/TIFF under .jpg. Live repair emits one line per successful fix "
+"when applicable."
+msgstr ""
+"JSON mit Zeilenumbrüchen ausgeben (stdout): Testlauf oder Live-Reparatur. "
+"Standardmäßig werden nur behebbare Abweichungen aufgelistet; verwende -v, um"
+" von der Richtlinie übersprungene PNG-/WebP-/BMP-/TIFF-Dateien unter .jpg "
+"einzubeziehen. Bei der Live-Reparatur wird gegebenenfalls eine Zeile pro "
+"erfolgreicher Korrektur ausgegeben."
+
+#: mb/cli/parsing/data.py:336
+msgid ""
+"With --dry-run and --json: include Pillow format and GIF metadata in each "
+"JSON object."
+msgstr ""
+"Mit den Optionen --dry-run und --json: Füge das Pillow-Format und die GIF-"
+"Metadaten in jedes JSON-Objekt ein."
+
+#: mb/cli/parsing/data.py:343
+msgid ""
+"With --dry-run: omit verbose per-file log lines (use with --json for "
+"machine-readable output only)."
+msgstr ""
+"Mit --dry-run: Ausführliche Protokollzeilen pro Datei werden weggelassen "
+"(nur in Verbindung mit --json für maschinenlesbare Ausgabe verwenden)."
+
+#: mb/cli/parsing/data.py:352
+msgid ""
+"With --json: include policy-skipped static-format mismatches in JSON output."
+" In text mode: log each policy-skipped file and class progress for every "
+"folder; with live repair, log each skipped file. Useless with --quiet. "
+"Separate from top-level mb -v (global logging)."
+msgstr ""
+"Mit --json: Unstimmigkeiten im statischen Format, die aufgrund von "
+"Richtlinien übersprungen wurden, in die JSON-Ausgabe aufnehmen. Im "
+"Textmodus: Für jeden Ordner den Fortschritt für jede übersprungene Datei und"
+" Klasse protokollieren; bei der Live-Reparatur jede übersprungene Datei "
+"protokollieren. Bei Verwendung von --quiet ohne Wirkung. Unabhängig von der "
+"obersten Option mb -v (globale Protokollierung)."
+
+#: mb/cli/parsing/data.py:362
+msgid ""
+"Also rename/repair mislabeled .jpg/.jpeg whose bytes are PNG, WebP, BMP, or "
+"TIFF. By default those are counted and summarized per class only (GIF and "
+"animated-IC cases are always repaired)."
+msgstr ""
+"Benenne außerdem falsch beschriftete .jpg/.jpeg-Dateien um bzw. repariere "
+"sie, deren Byte-Inhalt aus PNG, WebP, BMP oder TIFF besteht. Standardmäßig "
+"werden diese nur nach Dateityp gezählt und zusammengefasst (GIF- und "
+"animierte IC-Dateien werden immer repariert)."
+
+#: mb/cli/parsing/data.py:370
+msgid "Pipeline model type (default: model.default_type)."
+msgstr "Pipeline-Modelltyp (Standard: model.default_type)."
+
+#: mb/cli/parsing/data.py:376
+msgid "RNG seed for random GIF frame selection (optional)."
+msgstr ""
+"RNG-Zaehler für die zufällige Auswahl von GIF-Bildschirmausschnitten "
+"(optional)."
+
+#: mb/cli/parsing/data.py:382
 msgid "Estimate disk space needed for convert or create-dataset"
 msgstr ""
 "Schätzung des für „convert“ oder „create-dataset“ benötigten Speicherplatzes"
 
-#: mb/cli.py:459
+#: mb/cli/parsing/data.py:384
 msgid ""
 "Walks source files (same rules as convert/dataset) and compares a rough byte"
 " estimate to free space on the target volume. Exits non-zero if the estimate"
@@ -293,19 +448,19 @@ msgstr ""
 "auf dem Zielvolume. Gibt einen Wert ungleich Null zurück, wenn die Schätzung"
 " den freien Speicherplatz übersteigt."
 
-#: mb/cli.py:467
+#: mb/cli/parsing/data.py:395
 msgid "Which step to estimate for"
 msgstr "Welcher Schritt zur Schätzung für"
 
-#: mb/cli.py:478
+#: mb/cli/parsing/data.py:406
 msgid "Output data directory (required when operation is create-dataset)"
 msgstr "Ausgabeverzeichnis (erforderlich bei der Operation „create-dataset“)"
 
-#: mb/cli.py:484
+#: mb/cli/parsing/train.py:15
 msgid "Train a model"
 msgstr "Trainieren Sie ein Modell"
 
-#: mb/cli.py:486
+#: mb/cli/parsing/train.py:17
 msgid ""
 "Train a machine learning model using the specified framework and "
 "architecture. Supports transfer learning with frozen/unfrozen training "
@@ -315,79 +470,79 @@ msgstr ""
 "angegebenen Frameworks und der angegebenen Architektur. Unterstützt "
 "Transferlernen mit „gefrorenen“ und „nicht gefrorenen“ Trainingsphasen."
 
-#: mb/cli.py:494
+#: mb/cli/parsing/train.py:25
 msgid "Model type (default: image_classification)"
 msgstr "Modelltyp (Standardwert: image_classification)"
 
-#: mb/cli.py:499
+#: mb/cli/parsing/train.py:30
 msgid "Framework to use (default: from config)"
 msgstr "Rahmenwerk zum verwenden (Standard: aus der Konfiguration)"
 
-#: mb/cli.py:503
+#: mb/cli/parsing/train.py:34
 msgid "Model architecture (e.g., resnet34)"
 msgstr "Modellarchitektur (z. B. ResNet34)"
 
-#: mb/cli.py:508
+#: mb/cli/parsing/train.py:39
 msgid "Data directory (default: from config)"
 msgstr ""
 "Datenverzeichnis (voreausgewählter Wert: Standard: aus der Konfiguration)"
 
-#: mb/cli.py:513
+#: mb/cli/parsing/train.py:44
 msgid "Output directory for models (default: from config)"
 msgstr "Ausgabeverzeichnis für Modelle (Standard: aus der Konfiguration)"
 
-#: mb/cli.py:518
+#: mb/cli/parsing/train.py:49
 msgid "Number of frozen training epochs (default: from config)"
 msgstr ""
 "Anzahl der frohenen Trainingsepochen (Standardwert: aus der Konfiguration)"
 
-#: mb/cli.py:523
+#: mb/cli/parsing/train.py:54
 msgid "Number of unfrozen training epochs (default: from config)"
 msgstr ""
 "Anzahl von unschlossenen Trainingsepochen (Standardmäßig: vom Config "
 "Defaults)"
 
-#: mb/cli.py:528
+#: mb/cli/parsing/train.py:59
 msgid "Learning rate for frozen phase (default: from config)"
 msgstr "Lernrate für die frorene Phase (voredefiniert: aus der Konfiguration)"
 
-#: mb/cli.py:533
+#: mb/cli/parsing/train.py:64
 msgid "Maximum learning rate for unfrozen phase (default: from config)"
 msgstr ""
 "Maximaler Lernrate für die nichtgefrorene Phase (Standard: aus der "
 "Konfiguration)"
 
-#: mb/cli.py:538
+#: mb/cli/parsing/train.py:69
 msgid "Minimum learning rate for unfrozen phase (default: from config)"
 msgstr ""
 "Minimale Lernrate für die nicht gefrorene Phase (Standard: aus der "
 "Konfiguration)"
 
-#: mb/cli.py:543
+#: mb/cli/parsing/train.py:74
 msgid "Batch size (default: from config or auto-detect)"
 msgstr ""
 "Batchgröße (Standard: aus der Konfiguration oder automatisch ermittelt "
 "werden)"
 
-#: mb/cli.py:548
+#: mb/cli/parsing/train.py:79
 msgid "Image size (default: 224)"
 msgstr "Bildgröße (Standard: 224)"
 
-#: mb/cli.py:553
+#: mb/cli/parsing/train.py:84
 msgid "Number of data loading workers (default: from config)"
 msgstr "Anzahl der Datenvorlader (Standard: aus der Konfiguration)"
 
-#: mb/cli.py:558
+#: mb/cli/parsing/train.py:89
 msgid "Path to checkpoint to resume training from"
 msgstr "Pfad zum Checkpunkt um die Training fortzusetzen von"
 
-#: mb/cli.py:568
+#: mb/cli/parsing/train.py:99
 msgid "Skip updating the unified snapshot with training data"
 msgstr ""
 "Überspringen Sie die Aktualisierung der einheitlichen Momentaufnahme mit den"
 " Trainingdaten."
 
-#: mb/cli.py:575
+#: mb/cli/parsing/train.py:106
 msgid ""
 "Load TrainingRunArgs from JSON (see mb.training.run_args); other train flags"
 " are ignored"
@@ -395,11 +550,11 @@ msgstr ""
 "Laden von TrainingRunArgs aus JSON (siehe mb.training.run_args); andere "
 "Train-Flaggen werden ignoriert."
 
-#: mb/cli.py:582
+#: mb/cli/parsing/model_convert.py:15
 msgid "Convert model between formats"
 msgstr "Modell zwischen den Formaten konvertieren"
 
-#: mb/cli.py:584
+#: mb/cli/parsing/model_convert.py:17
 msgid ""
 "Convert a trained model between different formats. Supports PyTorch -> ONNX,"
 " PyTorch -> SafeTensors, and Keras -> ONNX."
@@ -407,23 +562,23 @@ msgstr ""
 "Konvertieren Sie ein trainiertes Modell zwischen verschiedenen Formaten. "
 "Unterstützt PyTorch -> ONNX, PyTorch -> SafeTensors und Keras -> ONNX."
 
-#: mb/cli.py:592
+#: mb/cli/parsing/model_convert.py:25
 msgid "Input model file"
 msgstr "Eingabemodell-Datei"
 
-#: mb/cli.py:598
+#: mb/cli/parsing/model_convert.py:31
 msgid "Output model file"
 msgstr "Ausgabedatei des Modells"
 
-#: mb/cli.py:603
+#: mb/cli/parsing/model_convert.py:36
 msgid "Source framework (auto-detected if not specified)"
 msgstr "Quellrahmenwerk (wird automatisch erkannt, sofern nicht angegeben)"
 
-#: mb/cli.py:609
+#: mb/cli/parsing/model_convert.py:42
 msgid "Target format (onnx or safetensors)"
 msgstr "Zielformat (ONNX oder safetensors)"
 
-#: mb/cli.py:613
+#: mb/cli/parsing/model_convert.py:46
 msgid ""
 "Model architecture (required for PyTorch -> ONNX conversion, e.g., "
 "'resnet34')"
@@ -431,21 +586,21 @@ msgstr ""
 "Modellarchitektur (erforderlich für die Konvertierung von PyTorch -> ONNX, "
 "z. B., 'resnet34')"
 
-#: mb/cli.py:618
+#: mb/cli/parsing/model_convert.py:51
 msgid "Number of output classes (required for PyTorch -> ONNX conversion)"
 msgstr ""
 "Anzahl der Ausgabeklassen (erforderlich für die Konvertierung von PyTorch ->"
 " ONNX)"
 
-#: mb/cli.py:624
+#: mb/cli/parsing/model_convert.py:57
 msgid "Input image size (default: 224, used for ONNX conversion)"
 msgstr "Eingabebildgröße (Standard: 224, genutzt für die ONNX-Konvertierung)"
 
-#: mb/cli.py:630
+#: mb/cli/parsing/info.py:15
 msgid "Show information about models or datasets"
 msgstr "Zeigen Sie Informationen zu Modellen oder Datensätzen."
 
-#: mb/cli.py:632
+#: mb/cli/parsing/info.py:17
 msgid ""
 "Display information about trained models or datasets, including metadata, "
 "architecture details, and dataset statistics."
@@ -453,15 +608,15 @@ msgstr ""
 "Zeigen Sie Informationen zu trainierten Modellen oder Datensätzen an, "
 "darunter Metadaten, Details zur Architektur und Statistiken zum Datensatz."
 
-#: mb/cli.py:638
+#: mb/cli/parsing/info.py:23
 msgid "Info subcommands"
 msgstr "Info Unterbefehle"
 
-#: mb/cli.py:645
+#: mb/cli/parsing/info.py:30
 msgid "Show model information"
 msgstr "Zeige Modellinformation an"
 
-#: mb/cli.py:647
+#: mb/cli/parsing/info.py:32
 msgid ""
 "Display detailed information about a trained model, including architecture, "
 "framework, number of parameters, and training metadata."
@@ -469,15 +624,15 @@ msgstr ""
 "Zeige detaillierte Informationen zu einem trainierten Modell an, darunter "
 "Architektur, Framework, Anzahl der Parameter und Trainingsmetadaten."
 
-#: mb/cli.py:655
+#: mb/cli/parsing/info.py:40
 msgid "Path to model file"
 msgstr "Pfad zur Modelldatei"
 
-#: mb/cli.py:661
+#: mb/cli/parsing/info.py:46
 msgid "Show dataset information"
 msgstr "Datensatzinformation anzeigen"
 
-#: mb/cli.py:663
+#: mb/cli/parsing/info.py:48
 msgid ""
 "Display statistics about a dataset, including class distributions, image "
 "counts, and data directory structure."
@@ -485,134 +640,243 @@ msgstr ""
 "Zeigen Sie Statistiken über einem Dataset an, einschließlich "
 "Klassenverteilungen, Bildanzahlen und Datenverzeichnisstruktur."
 
-#: mb/cli.py:671
+#: mb/cli/parsing/info.py:56
 msgid "Path to data directory"
 msgstr "Pfad zum Datenvierzchnis"
 
-#: mb/cli.py:716
+#: mb/cli/parsing/export.py:15
+msgid "Export model bundle artifacts"
+msgstr "Exportieren Sie die Modellbündel-Artefakte"
+
+#: mb/cli/parsing/export.py:17
+msgid ""
+"Export deployment bundle artifacts such as safetensors weights and metadata "
+"manifests."
+msgstr ""
+"Exportieren Sie Artefakte des Bereitstellungs-Bundles, wie beispielsweise "
+"Safetensors-Gewichtungen und Metadaten-Manifeste."
+
+#: mb/cli/parsing/export.py:22
+msgid "Export subcommands"
+msgstr "Export-Unterbefehle"
+
+#: mb/cli/parsing/export.py:28
+msgid ""
+"Export a model bundle (safetensors + manifest + optional architecture stub)"
+msgstr ""
+"Ein Modellpaket exportieren (Sicherheitssensoren + Manifest + optionaler "
+"Architektur-Stub)"
+
+#: mb/cli/parsing/export.py:30
+msgid "Input model file (.pth/.pt)"
+msgstr "Eingabedatei des Modells (.pth/.pt)"
+
+#: mb/cli/parsing/export.py:31
+msgid "Output bundle directory"
+msgstr "Bundle-Ausgabeverzeichnis"
+
+#: mb/cli/parsing/export.py:32
+msgid "Model architecture id (e.g. resnet34)"
+msgstr "Modellarchitektur-ID (z. B. resnet34)"
+
+#: mb/cli/parsing/export.py:33
+msgid "Number of output classes"
+msgstr "Anzahl von Ausgabetypen"
+
+#: mb/cli/parsing/export.py:34
+msgid "Optional ordered class names"
+msgstr "Optionale geordnete Klassen-Namen"
+
+#: mb/cli/parsing/export.py:35
+msgid "Optional data dir to infer class names from train/"
+msgstr ""
+"Optionales Datenverzeichnis, aus dem Klassennamen aus „train/“ abgeleitet "
+"werden"
+
+#: mb/cli/parsing/export.py:36
+msgid "Expected input image size (defaults to pipeline)"
+msgstr "Erwartete Größe des Eingabebildes (Standard: Pipeline)"
+
+#: mb/cli/parsing/export.py:37
+msgid "Optional snapshot JSON path"
+msgstr "Optionales Snap-JSON-Pfad"
+
+#: mb/cli/parsing/export.py:41
+msgid "Do not emit model_architecture.py stub"
+msgstr "Den Stub „model_architecture.py“ nicht ausgeben"
+
+#: mb/cli/parsing/export.py:43
+msgid "Optional run ID to include in manifest"
+msgstr "Optionale Ausführungs-ID zum Einbinden im Manifest"
+
+#: mb/cli/__init__.py:88
 msgid "Please specify valid subdirectories using --subdirs argument"
 msgstr ""
 "Bitte bestimmen Sie gültige Unterordner mithilfe des --subdirs-Arguments."
 
-#: mb/cli.py:725
+#: mb/cli/__init__.py:97
 msgid "Invalid weight format: {pair}. Expected format: subdir:weight"
 msgstr "Ungültiger Gewichtsformat: {pair}. Erwarteter Format: subdir:gewicht."
 
-#: mb/cli.py:735
+#: mb/cli/__init__.py:107
 msgid "Weight must be non-negative: {subdir}={weight}"
 msgstr "Das Gewicht muss nicht negativ sein: {subdir}={weight}"
 
-#: mb/cli.py:746
+#: mb/cli/__init__.py:118
 msgid "Subdirectories in weights not found in --subdirs: {weights}"
 msgstr ""
 "Unterverzeichnisse in „weights“, die nicht in --subdirs: {weights} enthalten"
 " sind"
 
-#: mb/cli.py:845
+#: mb/cli/__init__.py:217
 msgid "Process terminated due to external storage detection."
 msgstr "Prozess wurde beendet aufgrund der externen Speichermedium-Detektion."
 
-#: mb/cli.py:947
+#: mb/cli/__init__.py:271
+msgid "--pillow and --quiet require --dry-run"
+msgstr "--Kissen und --still erfordern --trockenläufen"
+
+#: mb/cli/__init__.py:274
+msgid "--pillow requires --json"
+msgstr "--pillow erfordert --json"
+
+#: mb/cli/__init__.py:319
 msgid "--data-dir is required when operation is create-dataset"
 msgstr ""
 "--data-dir ist erforderlich, wenn die Operation 'create-dataset' ausgeführt "
 "wird."
 
-#: mb/cli.py:979
+#: mb/cli/__init__.py:351
 msgid "Unsupported model type from config: {t}"
 msgstr "Nicht unterstützter Modelltyp aus der Konfiguration: {t}"
 
-#: mb/cli.py:984 mb/cli.py:1034
+#: mb/cli/__init__.py:356 mb/cli/__init__.py:406
 msgid "Data directory does not exist: {path}"
 msgstr "Datenverzeichnis existiert nicht: {path}"
 
-#: mb/cli.py:996 mb/cli.py:1071
+#: mb/cli/__init__.py:368 mb/cli/__init__.py:443
 msgid "Architecture '{arch}' not supported for framework '{fw}'"
 msgstr ""
 "Die Architektur '{arch}' wird für das Framework '{fw}' nicht unterstützt."
 
-#: mb/cli.py:1007 mb/cli.py:1093
+#: mb/cli/__init__.py:379 mb/cli/__init__.py:465
 msgid "Training completed successfully. Model saved to: {path}"
 msgstr ""
 "Das Training ist erfolgreich abgeschlossen worden. Modell gespeichert unter:"
 " {path}"
 
-#: mb/cli.py:1015 ui/pages/train_page.py:439
+#: mb/cli/__init__.py:387 ui/pages/train_page.py:439
 msgid "Unsupported framework: {fw}"
 msgstr "Nicht unterstützter Framework: {fw}"
 
-#: mb/cli.py:1020
+#: mb/cli/__init__.py:392
 msgid "Unsupported model type: {t}"
 msgstr "Nicht unterstützter Modelltyp: {t}"
 
-#: mb/cli.py:1028
+#: mb/cli/__init__.py:400
 msgid "Unsupported architecture: {arch}"
 msgstr "Nicht unterstützte Architektur: {arch}"
 
-#: mb/cli.py:1098
+#: mb/cli/__init__.py:470
 msgid "Training failed: {err}"
 msgstr "Training verwarf sich: {err}"
 
-#: mb/cli.py:1109 mb/cli.py:1189
+#: mb/cli/__init__.py:481 mb/cli/__init__.py:561
 msgid "Input model file not found: {path}"
 msgstr "Eingabedatei nicht gefunden: {path}"
 
-#: mb/cli.py:1118
+#: mb/cli/__init__.py:490
 msgid "Could not detect source framework. Please specify --framework"
 msgstr ""
 "Das Source-Rahmenwerk konnte nicht erkannt werden. Bitte angeben Sie "
 "--Rahmenwerk"
 
-#: mb/cli.py:1124
+#: mb/cli/__init__.py:496
 msgid "PyTorch -> ONNX conversion requires --architecture and --num-classes"
 msgstr ""
 "PyTorch -> ONNX-Konvertierung erfordert --Architektur und --Anzahl-Klassen"
 
-#: mb/cli.py:1143
+#: mb/cli/__init__.py:515
 msgid "Conversion completed successfully: {path}"
 msgstr "Konvertierung abgeschlossen erfolgreich: {path}"
 
-#: mb/cli.py:1147 ui/pages/convert_page.py:344
+#: mb/cli/__init__.py:519 ui/pages/convert_page.py:344
 msgid "Conversion failed"
 msgstr "Konvertierung fehlgeschlagen"
 
-#: mb/cli.py:1151
+#: mb/cli/__init__.py:523
 msgid "Conversion error: {err}"
 msgstr "Konvertierungfehler: {err}"
 
-#: mb/cli.py:1160 ui/pages/info_page.py:184
+#: mb/cli/__init__.py:532 ui/pages/info_page.py:184
 msgid "Model path not found: {path}"
 msgstr "Modellpfad nicht gefunden: {path}"
 
-#: mb/cli.py:1174 ui/pages/info_page.py:198
+#: mb/cli/__init__.py:546 mb/evaluate/compare.py:157
+#: mb/evaluate/compare.py:193 mb/evaluate/metrics.py:88
+#: mb/evaluate/metrics.py:108 mb/evaluate/misclassified.py:84
+#: mb/evaluate/misclassified.py:104 ui/pages/info_page.py:198
 msgid "Data directory not found: {path}"
 msgstr "Datenverzeichnis nicht gefunden: {path}"
 
-#: mb/cli.py:1245
+#: mb/cli/__init__.py:580
+msgid "Bundle export completed: {path}"
+msgstr "Bundle-Export abgeschlossen: {path}"
+
+#: mb/cli/__init__.py:581 ui/pages/export_page.py:338
+msgid "Weights: {path}"
+msgstr "Gewichte: {path}"
+
+#: mb/cli/__init__.py:582 ui/pages/export_page.py:339
+msgid "Manifest: {path}"
+msgstr "Manifest: {path}"
+
+#: mb/cli/__init__.py:584 ui/pages/export_page.py:342
+msgid "Architecture stub: {path}"
+msgstr "Architekturstub: {path}"
+
+#: mb/cli/__init__.py:587
+msgid "Export failed: {err}"
+msgstr "Export fehlgeschlagen: {err}"
+
+#: mb/cli/__init__.py:648
 msgid "No data subcommand specified"
 msgstr "Kein Datensubcommand angegeben"
 
-#: mb/cli.py:1250
+#: mb/cli/__init__.py:653
 msgid "Unknown data subcommand: {cmd}"
 msgstr "Unbekannter Datensatz-Befehl: {cmd}"
 
-#: mb/cli.py:1272
+#: mb/cli/__init__.py:675
 msgid "No info subcommand specified"
 msgstr "Kein info-Unterbefehl angegeben"
 
-#: mb/cli.py:1277
+#: mb/cli/__init__.py:679
 msgid "Unknown info subcommand: {cmd}"
 msgstr "Unbekannter Info-Unterbefehl: {cmd}"
 
-#: mb/cli.py:1298 ui/pages/data_page.py:1210 ui/pages/data_page.py:1433
+#: mb/cli/__init__.py:688
+msgid "No export subcommand specified"
+msgstr "Kein Export-Unterbefehl angegeben"
+
+#: mb/cli/__init__.py:692
+msgid "Unknown export subcommand: {cmd}"
+msgstr "Unbekannter Export-Unterbefehl: {cmd}"
+
+#: mb/cli/__init__.py:696
+msgid "Unhandled export subcommand: {cmd}"
+msgstr "Unbehandelter Export-Unterbefehl: {cmd}"
+
+#: mb/cli/__init__.py:711 ui/pages/data_page.py:1210
+#: ui/pages/data_page.py:1433
 msgid "Unknown command: {cmd}"
 msgstr "Unbekannter Befehl: {cmd}"
 
-#: mb/cli.py:1302
+#: mb/cli/__init__.py:715
 msgid "Interrupted by user"
 msgstr "Unterbrochen von Benutzer"
 
-#: mb/cli.py:1305
+#: mb/cli/__init__.py:718
 msgid "Error: {err}"
 msgstr "Fehler: {err}"
 
@@ -727,11 +991,11 @@ msgstr "Weitert man mit der Gleichlaufbetriebsoperation? (Y/N): "
 msgid "Operation cancelled by user."
 msgstr "Operation abgestoppt vom Benutzer."
 
-#: mb/utils/constants.py:78
+#: mb/utils/constants.py:82
 msgid "System"
 msgstr "System"
 
-#: mb/utils/constants.py:97
+#: mb/utils/constants.py:101
 msgid "Access Password Administration"
 msgstr "Zugang Passwort Verwaltung"
 
@@ -739,11 +1003,11 @@ msgstr "Zugang Passwort Verwaltung"
 msgid ""
 "No runs recorded yet.\n"
 "\n"
-"Completed and failed jobs from Data, Train, and Convert are listed here."
+"Completed and failed jobs from Data, Train, Convert, and Export are listed here."
 msgstr ""
-"Keine Aufträge aufgezeichnet.\n"
+"Es wurden noch keine Durchläufe verzeichnet.\n"
 "\n"
-"Abgeschlossene und fehlgeschlagene Jobs aus Data, Train und Convert werden hier aufgelistet."
+"Hier werden abgeschlossene und fehlgeschlagene Aufträge aus den Bereichen „Daten“, „Trainieren“, „Konvertieren“ und „Exportieren“ aufgelistet."
 
 #: mb/utils/recent_run_history.py:140
 msgid "—"
@@ -757,27 +1021,27 @@ msgstr "OK"
 msgid "fail"
 msgstr "scheitern"
 
-#: ui/app.py:28 ui/main_window.py:83 ui/main_window.py:119
+#: ui/app.py:28 ui/main_window.py:85 ui/main_window.py:121
 msgid "Model Builder"
 msgstr "Modellbauwerks"
 
-#: ui/main_window.py:264
+#: ui/main_window.py:266
 msgid "File"
 msgstr "Datei"
 
-#: ui/main_window.py:265
+#: ui/main_window.py:267
 msgid "Set workspace folder…"
 msgstr "Arbeitsordner festlegen…"
 
-#: ui/main_window.py:268
+#: ui/main_window.py:270
 msgid "Set config file…"
 msgstr "Konfigurationsdatei festlegen…"
 
-#: ui/main_window.py:271
+#: ui/main_window.py:273
 msgid "Open application settings (YAML)…"
 msgstr "Anwendungseinstellungen (YAML) öffnen…"
 
-#: ui/main_window.py:275
+#: ui/main_window.py:277
 msgid ""
 "Desktop shell options (toasts, cache interval, …); see "
 "mb/config/application.example.yaml. Reload the app or use Set config file "
@@ -787,37 +1051,37 @@ msgstr ""
 "mb/config/application.example.yaml. Lade die App neu oder verwende "
 "„Konfigurationsdatei für Pipeline-YAML festlegen“."
 
-#: ui/main_window.py:281
+#: ui/main_window.py:283
 msgid "Exit"
 msgstr "Beenden"
 
-#: ui/main_window.py:286
+#: ui/main_window.py:288
 msgid "Help"
 msgstr "Hilfe"
 
-#: ui/main_window.py:287 ui/main_window.py:355
+#: ui/main_window.py:289 ui/main_window.py:357
 msgid "About Model Builder"
 msgstr "Über den Modellerbauer"
 
-#: ui/main_window.py:299
+#: ui/main_window.py:301
 msgid " | Config: {path}"
 msgstr " | Konfiguration: {path}"
 
-#: ui/main_window.py:303
+#: ui/main_window.py:305
 msgid "Workspace: {root}{cfg}"
 msgstr "Arbeitsplatz: {root}{cfg}"
 
-#: ui/main_window.py:304
+#: ui/main_window.py:306
 msgid "No workspace folder set — use File → Set workspace folder"
 msgstr ""
 "Kein Arbeitsverzeichnis festgelegt — Benutze Datei → Arbeitsverzeichnis "
 "setzen"
 
-#: ui/main_window.py:315
+#: ui/main_window.py:317
 msgid "Application settings"
 msgstr "Anwendungssettings"
 
-#: ui/main_window.py:316
+#: ui/main_window.py:318
 msgid ""
 "File not found:\n"
 "{path}"
@@ -825,23 +1089,23 @@ msgstr ""
 "Datei nicht gefunden:\n"
 "{path}"
 
-#: ui/main_window.py:325
+#: ui/main_window.py:327
 msgid "Workspace root folder"
 msgstr "Arbeitsbereichs-Rootverzeichnis"
 
-#: ui/main_window.py:341
+#: ui/main_window.py:343
 msgid "Optional YAML config"
 msgstr "Optionale YAML-Config"
 
-#: ui/main_window.py:343
+#: ui/main_window.py:345
 msgid "YAML (*.yaml *.yml);;All files (*.*)"
 msgstr "YAML (*.yaml *.yml);;Alle Dateien (*.*)"
 
-#: ui/main_window.py:367
+#: ui/main_window.py:369
 msgid "Background task"
 msgstr "Hintergrundtask"
 
-#: ui/main_window.py:369
+#: ui/main_window.py:371
 msgid ""
 "A background task is still running. Closing now may leave partial outputs "
 "(checkpoints, datasets, copies). Exit anyway?"
@@ -867,19 +1131,104 @@ msgid "OK"
 msgstr "OK"
 
 #: ui/lib/directory_line_edit_row.py:29 ui/pages/convert_page.py:201
-#: ui/pages/data_page.py:957 ui/pages/export_page.py:197
-#: ui/pages/info_page.py:152 ui/pages/train_page.py:379
+#: ui/pages/data_page.py:957 ui/pages/evaluate_page.py:372
+#: ui/pages/export_page.py:197 ui/pages/info_page.py:152
+#: ui/pages/train_page.py:379
 msgid "Select directory"
 msgstr "Verzeichnis auswählen"
 
 #: ui/lib/directory_line_edit_row.py:30 ui/pages/convert_page.py:142
 #: ui/pages/convert_page.py:190 ui/pages/data_page.py:325
-#: ui/pages/data_page.py:946 ui/pages/export_page.py:129
+#: ui/pages/data_page.py:946 ui/pages/evaluate_page.py:195
+#: ui/pages/evaluate_page.py:356 ui/pages/export_page.py:129
 #: ui/pages/export_page.py:181 ui/pages/info_page.py:67
 #: ui/pages/info_page.py:141 ui/pages/train_page.py:216
 #: ui/pages/train_page.py:321
 msgid "Browse..."
 msgstr "Durchsuchen..."
+
+#: ui/lib/duplicates_resolver_window.py:33
+msgid "Duplicate Resolver"
+msgstr "Duplikationsauflöser"
+
+#: ui/lib/duplicates_resolver_window.py:40
+msgid ""
+"Review potential duplicates from snapshot metadata. Select one path and copy"
+" it, or remove the non-selected peer when exactly two files remain in a "
+"group."
+msgstr ""
+"Überprüfen Sie die Metadaten der Snapshots auf mögliche Duplikate. Wählen "
+"Sie einen Pfad aus und kopieren Sie ihn, oder entfernen Sie den nicht "
+"ausgewählten Eintrag, sobald genau zwei Dateien in einer Gruppe verbleiben."
+
+#: ui/lib/duplicates_resolver_window.py:59
+msgid "Close"
+msgstr "Schließen"
+
+#: ui/lib/duplicates_resolver_window.py:76
+#: ui/lib/duplicates_resolver_window.py:157
+#: ui/lib/duplicates_resolver_window.py:164
+msgid "{gid} ({count} files)"
+msgstr "{gid} ({count} Dateien)"
+
+#: ui/lib/duplicates_resolver_window.py:91
+msgid "Copy selected path"
+msgstr "Kopieren ausgewählten Pfad"
+
+#: ui/lib/duplicates_resolver_window.py:93
+msgid "Remove non-selected peer"
+msgstr "Nicht ausgewählten _PEER_ entfernen"
+
+#: ui/lib/duplicates_resolver_window.py:111
+#: ui/lib/duplicates_resolver_window.py:129
+msgid "No selection"
+msgstr "Keine Auswahl"
+
+#: ui/lib/duplicates_resolver_window.py:111
+msgid "Select a file path first."
+msgstr "Wählen Sie einen Dateipfad zuerst aus."
+
+#: ui/lib/duplicates_resolver_window.py:115
+#: ui/lib/duplicates_resolver_window.py:143
+#: ui/lib/duplicates_resolver_window.py:149
+msgid "Unavailable"
+msgstr "Nicht verfügbar"
+
+#: ui/lib/duplicates_resolver_window.py:115
+msgid "Selected item has no path."
+msgstr "Ausgewählten Objekt hat keinen Pfad."
+
+#: ui/lib/duplicates_resolver_window.py:123
+msgid "Action not allowed"
+msgstr "Die Aktion ist nicht erlaubt"
+
+#: ui/lib/duplicates_resolver_window.py:124
+msgid "This action requires exactly two files in the group."
+msgstr "Für diese Aktion sind genau zwei Dateien in der Gruppe erforderlich."
+
+#: ui/lib/duplicates_resolver_window.py:129
+msgid "Select the file you want to keep."
+msgstr "Wählen Sie die Datei aus, die Sie behalten möchten."
+
+#: ui/lib/duplicates_resolver_window.py:143
+msgid "Could not resolve peer file path."
+msgstr "Der Dateipfad des Peers konnte nicht aufgelöst werden."
+
+#: ui/lib/duplicates_resolver_window.py:149
+msgid "Peer file path is empty."
+msgstr "Der Dateipfad des Peers ist leer."
+
+#: ui/lib/duplicates_resolver_window.py:152 ui/pages/info_page.py:183
+msgid "Missing file"
+msgstr "Fehlender Datei"
+
+#: ui/lib/duplicates_resolver_window.py:152
+msgid ""
+"Peer file no longer exists:\n"
+"{p}"
+msgstr ""
+"Die Datei des Peers existiert nicht mehr:\n"
+"{p}"
 
 #: ui/lib/fast_directory_picker_qt.py:217
 #: ui/lib/fast_directory_picker_qt.py:278
@@ -1096,6 +1445,12 @@ msgstr "Verbleibende geschätzte Zeit: {eta}"
 msgid "Elapsed: {t}"
 msgstr "Verstrichen: {t}"
 
+#: ui/lib/training_progress_dialog.py:69
+#: ui/lib/training_progress_dialog.py:100
+#: ui/lib/training_progress_dialog.py:148
+msgid "Current epoch ETA: —"
+msgstr "Aktuelle Epoche ETA: —"
+
 #: ui/lib/training_progress_dialog.py:99
 #: ui/lib/training_progress_dialog.py:109
 msgid "ETA unknown"
@@ -1108,6 +1463,16 @@ msgstr "Estimierten verbleibenden Zeit: fast fertig"
 #: ui/lib/training_progress_dialog.py:134
 msgid "Estimated time remaining: calculating…"
 msgstr "Verbleibende Zeit Schätzung: berechnend..."
+
+#: ui/lib/training_progress_dialog.py:161
+#: ui/lib/training_progress_dialog.py:166
+#: ui/lib/training_progress_dialog.py:171
+msgid "Current epoch ETA: calculating…"
+msgstr "Aktuelle Epoche ETA: Berechnung läuft…"
+
+#: ui/lib/training_progress_dialog.py:177
+msgid "Current epoch ETA: {eta}"
+msgstr "Aktuelle Epoche ETA: {eta}"
 
 #: ui/lib/training_progress_dialog.py:200
 msgid "Cancel training"
@@ -1327,17 +1692,20 @@ msgid "Target format"
 msgstr "Zielformat"
 
 #: ui/pages/convert_page.py:86 ui/pages/convert_page.py:125
+#: ui/pages/evaluate_page.py:100 ui/pages/evaluate_page.py:144
 #: ui/pages/export_page.py:68 ui/pages/export_page.py:105
 #: ui/pages/train_page.py:84 ui/pages/train_page.py:166
 msgid "Architecture"
 msgstr "Architektur"
 
 #: ui/pages/convert_page.py:87 ui/pages/convert_page.py:126
+#: ui/pages/evaluate_page.py:101 ui/pages/evaluate_page.py:145
 #: ui/pages/export_page.py:69 ui/pages/export_page.py:106
 msgid "Num classes"
 msgstr "Num Klassen"
 
 #: ui/pages/convert_page.py:88 ui/pages/convert_page.py:127
+#: ui/pages/evaluate_page.py:102 ui/pages/evaluate_page.py:146
 #: ui/pages/export_page.py:71 ui/pages/export_page.py:108
 #: ui/pages/train_page.py:125 ui/pages/train_page.py:189
 msgid "Image size"
@@ -1435,19 +1803,31 @@ msgstr ""
 "Die Modellkonvertierung hat einen Fehler gemeldet. Siehe Details für die "
 "zugrundeliegende Nachricht."
 
-#: ui/pages/data_page.py:106
+#: ui/pages/data_page.py:156
 msgid ""
 "Typical order: Gather → Convert → Deduplicate (optional) → Upscale "
 "(optional) → Create Dataset. If class folders are already under your raw "
-"data root, skip Gather and start at Convert. See docs/DATA_PIPELINE.md for "
-"storage on external drives and large vs small images."
+"data root, skip Gather and start at Convert. If sources were mislabeled as "
+".jpg, run fix-jpeg-extension-mismatch before Create Dataset (it repairs "
+"CONVERTED/ and updates the unified snapshot—no separate full Convert needed "
+"for that). Create Dataset reads training JPEGs from each class’s CONVERTED/ "
+"folder only—not from small_images_review, upscaled_small_images, or "
+"visual_media_review. See docs/DATA_PIPELINE.md for storage on external "
+"drives and large vs small images."
 msgstr ""
-"Typischer Ablauf: Sammeln → Konvertieren → Deduplizieren (optional) → "
+"Typische Reihenfolge: Sammeln → Konvertieren → Deduplizieren (optional) → "
 "Hochskalieren (optional) → Datensatz erstellen. Wenn sich Klassenordner "
-"bereits im Stammverzeichnis Ihrer Rohdaten befinden, überspringen Sie den "
-"Schritt „Sammeln“ und beginnen Sie mit „Konvertieren“. Informationen zur "
+"bereits im Stammverzeichnis Ihrer Rohdaten befinden, überspringen Sie "
+"„Sammeln“ und beginnen Sie mit „Konvertieren“. Wenn Quellen "
+"fälschlicherweise als .jpg gekennzeichnet wurden, führen Sie vor dem "
+"Erstellen des Datensatzes „fix-jpeg-extension-mismatch“ aus (dies repariert "
+"CONVERTED/ und aktualisiert den einheitlichen Snapshot – dafür ist keine "
+"separate vollständige Konvertierung erforderlich).  „Create Dataset“ liest "
+"Trainings-JPEGs ausschließlich aus dem Ordner „CONVERTED/“ der jeweiligen "
+"Klasse – nicht aus den Ordnern „small_images_review“, "
+"„upscaled_small_images“ oder „visual_media_review“. Informationen zur "
 "Speicherung auf externen Laufwerken sowie zu großen und kleinen Bildern "
-"finden Sie in der Datei docs/DATA_PIPELINE.md."
+"findest du in der Datei „docs/DATA_PIPELINE.md“."
 
 #: ui/pages/data_page.py:165
 msgid "Gather"
@@ -1469,6 +1849,10 @@ msgstr "Hochwertig"
 msgid "Create Dataset"
 msgstr "Datensatz erstellen"
 
+#: ui/pages/data_page.py:170
+msgid "Wildcard"
+msgstr "Wildcard"
+
 #: ui/pages/data_page.py:171
 msgid "Validate Inputs"
 msgstr "Validiere Eingaben"
@@ -1481,17 +1865,28 @@ msgstr "führen Sie den Datenbefehl aus"
 msgid "Validation and run results will appear here."
 msgstr "Die Validierungs- und Ausführungsergebnisse werden hier angezeigt."
 
+#: ui/pages/data_page.py:176
+msgid ""
+"Example:\n"
+"--dry-run --json\n"
+"--raw-data-dir C:\\path\\to\\raw_data"
+msgstr ""
+"Example:\n"
+"--dry-run --json\n"
+"--raw-data-dir C:\\Pfad\\zu\\Rohdaten"
+
 #: ui/pages/data_page.py:183 ui/pages/data_page.py:1233
 msgid "Latest space check"
 msgstr "Aktuelle Raumkontrolle"
 
-#: ui/pages/data_page.py:126
+#: ui/pages/data_page.py:188
 msgid ""
-"No space estimate yet. It appears here when you run Convert or Create "
-"Dataset (before the command starts)."
+"No space estimate yet. It updates after the disk-space check finishes (first"
+" phase of Convert or Create Dataset)."
 msgstr ""
-"Keine Platzschätzung vorhanden. Es erscheint hier, wenn Sie Konvertieren "
-"oder Datasets erstellen (bevor der Befehl startet)."
+"Es liegt noch keine Schätzung des Speicherplatzbedarfs vor. Diese wird "
+"angezeigt, sobald die Überprüfung des Speicherplatzes abgeschlossen ist "
+"(erste Phase von „Konvertieren“ oder „Datensatz erstellen“)."
 
 #: ui/pages/data_page.py:195 ui/pages/data_page.py:598
 msgid "Source dir"
@@ -1529,6 +1924,26 @@ msgstr "Rohdatenverzeichnis"
 msgid "Format (jpeg/jpg)"
 msgstr "Format (jpeg/jpg)"
 
+#: ui/pages/data_page.py:206 ui/pages/data_page.py:231
+#: ui/pages/data_page.py:624 ui/pages/data_page.py:751
+#: ui/pages/export_page.py:72 ui/pages/export_page.py:109
+#: ui/pages/train_page.py:88 ui/pages/train_page.py:170
+msgid "Run ID (optional)"
+msgstr "Lauf-ID (optional)"
+
+#: ui/pages/data_page.py:210 ui/pages/data_page.py:654
+msgid "Snapshot Run ID (optional)"
+msgstr "Schnappschusslauf-ID (optional)"
+
+#: ui/pages/data_page.py:214 ui/pages/data_page.py:644
+msgid ""
+"Review cross-class duplicates only: same-class CONVERTED duplicates are "
+"removed automatically; JSON + resolver list cross-class groups after run"
+msgstr ""
+"Nur klassenübergreifende Duplikate prüfen: Duplikate derselben Klasse, die "
+"konvertiert wurden, werden automatisch entfernt; JSON + Resolver listet nach"
+" der Ausführung klassenübergreifende Gruppen auf"
+
 #: ui/pages/data_page.py:220 ui/pages/data_page.py:702
 msgid "Review dir (optional)"
 msgstr "Überprüfung des Verzeichnisses (optional)"
@@ -1537,42 +1952,23 @@ msgstr "Überprüfung des Verzeichnisses (optional)"
 msgid "Output data dir"
 msgstr "Ausgabedatenverzeichnis"
 
+#: ui/pages/data_page.py:227 ui/pages/data_page.py:740
+msgid "Test items per class"
+msgstr "Testaufgaben pro Klasse"
+
 #: ui/pages/data_page.py:228 ui/pages/data_page.py:744
 #: ui/pages/pipeline_config_page.py:342
 msgid "Test split mode"
 msgstr "Test-Split-Modus"
-
-#: ui/pages/data_page.py:742 ui/pages/pipeline_config_page.py:340
-msgid "Fixed count per class"
-msgstr "Feste Anzahl pro Klasse"
-
-#: ui/pages/data_page.py:743 ui/pages/pipeline_config_page.py:341
-msgid "Dataset-weighted (modulated)"
-msgstr "Datensatzgewichtet (moduliert)"
 
 #: ui/pages/data_page.py:229 ui/pages/data_page.py:749
 #: ui/pages/pipeline_config_page.py:348
 msgid "Small-class threshold (weighted)"
 msgstr "Schwellwert kleine Klasse (gewichtet)"
 
-#: ui/pages/data_page.py:747
-msgid "Same as test per class"
-msgstr "Wie Testanzahl pro Klasse"
-
-#: ui/pages/data_page.py:227 ui/pages/data_page.py:740
-msgid "Test items per class"
-msgstr "Testaufgaben pro Klasse"
-
 #: ui/pages/data_page.py:230 ui/pages/data_page.py:750
 msgid "Seed (optional)"
 msgstr "Kerne (optional)"
-
-#: ui/pages/data_page.py:206 ui/pages/data_page.py:231
-#: ui/pages/data_page.py:624 ui/pages/data_page.py:751
-#: ui/pages/export_page.py:72 ui/pages/export_page.py:109
-#: ui/pages/train_page.py:88 ui/pages/train_page.py:170
-msgid "Run ID (optional)"
-msgstr "Lauf-ID (optional)"
 
 #: ui/pages/data_page.py:232 ui/pages/data_page.py:752
 msgid "Max train per class"
@@ -1591,16 +1987,198 @@ msgstr "Balance Schulungset zu kleinsten Klasse"
 msgid "Allow external/removable storage"
 msgstr "Externe/Wechselspeicher zulassen"
 
+#: ui/pages/data_page.py:243
+msgid ""
+"Before Create Dataset: (1) Raw data must use one folder per class under the "
+"raw data root (run Gather first if you do not already have that layout). (2)"
+" Run Convert so each class has normalized JPEGs under CONVERTED/ and the "
+"unified snapshot matches your sources. (3) If any files had the wrong "
+"extension for their actual image bytes, run mb data fix-jpeg-extension-"
+"mismatch (or the Wildcard tab with that subcommand)—it rewrites CONVERTED/ "
+"and patches the unified snapshot for those files; you do not need a second "
+"full Convert just to refresh the snapshot. (4) Optional: Deduplicate may "
+"move borderline-small files out of CONVERTED/ into each class’s "
+"small_images_review/; Upscale is optional. Create Dataset reads JPEGs from "
+"CONVERTED/ only—put any images you still want trained back under CONVERTED/ "
+"(from small_images_review or from upscaled_small_images after upscale) "
+"before Create Dataset. (5) Choose an output data directory with enough free "
+"space; check “Allow external/removable storage” when writing to removable "
+"drives."
+msgstr ""
+"Vor dem Erstellen des Datensatzes: (1) Die Rohdaten müssen in einem eigenen "
+"Ordner pro Klasse unter dem Stammverzeichnis der Rohdaten abgelegt sein "
+"(führen Sie zunächst „Gather“ aus, falls Sie diese Struktur noch nicht "
+"haben). (2) Führen Sie „Convert“ aus, damit jede Klasse normalisierte JPEGs "
+"unter „CONVERTED/“ enthält und der einheitliche Snapshot mit Ihren Quellen "
+"übereinstimmt. (3) Falls Dateien eine falsche Dateiendung für ihre "
+"tatsächlichen Bilddaten hatten, führen Sie den Befehl „mb data fix-jpeg-"
+"extension-mismatch“ (oder die Registerkarte „Wildcard“ mit diesem "
+"Unterbefehl) aus – dadurch wird der Ordner „CONVERTED/“ neu geschrieben und "
+"der einheitliche Snapshot für diese Dateien korrigiert; Sie benötigen keinen"
+" zweiten vollständigen Konvertierungsvorgang, nur um den Snapshot zu "
+"aktualisieren. (4) Optional: Bei der Deduplizierung werden Dateien, die "
+"grenzwertig klein sind, möglicherweise aus dem Ordner „CONVERTED/“ in den "
+"Ordner „small_images_review/“ der jeweiligen Klasse verschoben; die "
+"Hochskalierung ist optional. „Create Dataset“ liest JPEGs ausschließlich aus"
+" dem Ordner „CONVERTED/“ – verschieben Sie alle Bilder, die Sie noch "
+"trainieren möchten, vor dem Ausführen von „Create Dataset“ zurück in den "
+"Ordner „CONVERTED/“ (aus „small_images_review“ oder aus "
+"„upscaled_small_images“ nach der Hochskalierung). (5) Wählen Sie ein "
+"Ausgabeverzeichnis mit ausreichend freiem Speicherplatz; aktivieren Sie "
+"„Externen/Wechselspeicher zulassen“, wenn Sie auf Wechseldatenträger "
+"schreiben."
+
+#: ui/pages/data_page.py:263 ui/pages/data_page.py:264
+#: ui/pages/data_page.py:265 ui/pages/train_page.py:200
+msgid "Latest"
+msgstr "Neueste"
+
+#: ui/pages/data_page.py:267
+msgid ""
+"Set Run ID from the newest snapshot_*.json file under the shared raw data "
+"directory (by file modification time)."
+msgstr ""
+"Legen Sie die Lauf-ID anhand der neuesten Datei „snapshot_*.json“ im "
+"Verzeichnis für gemeinsam genutzte Rohdaten fest (nach dem Änderungsdatum "
+"der Datei)."
+
+#: ui/pages/data_page.py:274
+msgid ""
+"Set Run ID from the newest snapshot_*.json found across the same search "
+"paths as manual Run ID entry (raw dir, its parent, output data dir, and "
+"class folders)."
+msgstr ""
+"Die Lauf-ID wird anhand der neuesten Datei „snapshot_*.json“ festgelegt, die"
+" in denselben Suchpfaden gefunden wird wie bei der manuellen Eingabe der "
+"Lauf-ID (Rohdatenverzeichnis, dessen übergeordnetes Verzeichnis, "
+"Ausgabedatenverzeichnis und Klassenordner)."
+
+#: ui/pages/data_page.py:279
+msgid "Open duplicate resolver from snapshot…"
+msgstr "Öffne Duplikationslöser aus dem Schnappschuss…"
+
+#: ui/pages/data_page.py:283
+msgid ""
+"If the resolver did not open after a list-only run (for example after a UI "
+"crash), use the button above to load duplicate groups from the snapshot on "
+"disk."
+msgstr ""
+"Falls sich der Resolver nach einem „List-only“-Durchlauf nicht geöffnet hat "
+"(beispielsweise nach einem Absturz der Benutzeroberfläche), laden Sie über "
+"die Schaltfläche oben doppelte Gruppen aus dem Snapshot auf der Festplatte."
+
+#: ui/pages/data_page.py:289
+msgid ""
+"Training sources for Create Dataset are JPEGs under each class’s CONVERTED/ "
+"only. Deduplicate moves borderline-small images from CONVERTED/ into that "
+"class’s small_images_review/ (and removes very small ones). Files that stay "
+"only in small_images_review are not used by Create Dataset unless you copy "
+"or move them back into CONVERTED/. visual_media_review holds duplicate "
+"copies of video/GIF frame extracts for review; the canonical frame JPEG is "
+"already in CONVERTED/, so you do not merge visual_media_review for Create "
+"Dataset."
+msgstr ""
+"Als Trainingsdaten für „Create Dataset“ dienen ausschließlich JPEG-Dateien, "
+"die sich im Ordner „CONVERTED/“ der jeweiligen Klasse befinden. Der Schritt "
+"„Deduplicate“ verschiebt Bilder, die an der Grenze zur Kategorie „small“ "
+"liegen, aus dem Ordner „CONVERTED/“ in den Ordner „small_images_review/“ der"
+" jeweiligen Klasse (und entfernt dabei sehr kleine Bilder). Dateien, die "
+"sich ausschließlich im Verzeichnis „small_images_review“ befinden, werden "
+"von „Create Dataset“ nicht verwendet, es sei denn, Sie kopieren oder "
+"verschieben sie zurück in das Verzeichnis „CONVERTED/“. Das Verzeichnis "
+"„visual_media_review“ enthält Duplikate von Video- und GIF-Bildausschnitten "
+"zur Überprüfung; das kanonische JPEG-Bild befindet sich bereits in "
+"„CONVERTED/“, daher sollten Sie „visual_media_review“ nicht für „Create "
+"Dataset“ zusammenführen."
+
+#: ui/pages/data_page.py:299
+msgid ""
+"Upscale is optional. It enlarges images from the review tree; outputs go "
+"under <review-dir>/upscaled_small_images/. Default review dir when empty is "
+"<raw-data-dir>/small_images_review (one subfolder per class)—set Review dir "
+"explicitly if deduplicate placed files under "
+"raw_data/<class>/small_images_review/ instead. Create Dataset still reads "
+"only from CONVERTED/; copy any upscaled files you want trained into the "
+"right CONVERTED/ folder before Create Dataset. If you skip upscale, accept "
+"that images left only in small_images_review stay out of the split unless "
+"you return them to CONVERTED/ manually."
+msgstr ""
+"Die Hochskalierung ist optional. Sie vergrößert Bilder aus dem "
+"Überprüfungsverzeichnis; die Ergebnisse werden unter <review-"
+"dir>/upscaled_small_images/ gespeichert. Das Standard-"
+"Überprüfungsverzeichnis lautet, sofern es leer ist, <raw-data-"
+"dir>/small_images_review (ein Unterordner pro Klasse) – legen Sie das "
+"Überprüfungsverzeichnis explizit fest, wenn Sie stattdessen doppelte Dateien"
+" unter raw_data/<class>/small_images_review/ ablegen möchten. „Create "
+"Dataset“ liest weiterhin nur aus dem Ordner „CONVERTED/“; kopieren Sie alle "
+"hochskalierten Dateien, die Sie trainieren möchten, vor dem Ausführen von "
+"„Create Dataset“ in den entsprechenden Ordner „CONVERTED/“. Wenn Sie die "
+"Hochskalierung überspringen, müssen Sie damit rechnen, dass Bilder, die nur "
+"im Ordner „small_images_review“ verbleiben, nicht in die Aufteilung "
+"einbezogen werden, es sei denn, Sie verschieben sie manuell zurück in den "
+"Ordner „CONVERTED/“."
+
 #: ui/pages/data_page.py:626
 msgid "Skip free-space check (not recommended; use if you accept the risk)"
 msgstr ""
 "Freiraumprüfung überspringen (nicht empfohlen; nur verwenden, wenn Sie das "
 "Risiko in Kauf nehmen)"
 
+#: ui/pages/data_page.py:669
+msgid ""
+"Scope note: Deduplicate only processes files inside each class folder's "
+"CONVERTED directory (raw_data/<class>/CONVERTED). Other folders, including "
+"IMAGES and root-level utility directories, are not scanned."
+msgstr ""
+"Hinweis zum Anwendungsbereich: Die Deduplizierung erfolgt nur für Dateien im"
+" Verzeichnis „CONVERTED“ der jeweiligen Klassenordner "
+"(raw_data/<class>/CONVERTED). Andere Ordner, einschließlich „IMAGES“ und "
+"Dienstprogrammverzeichnisse auf der obersten Ebene, werden nicht durchsucht."
+
+#: ui/pages/data_page.py:742 ui/pages/pipeline_config_page.py:340
+msgid "Fixed count per class"
+msgstr "Feste Anzahl pro Klasse"
+
+#: ui/pages/data_page.py:743 ui/pages/pipeline_config_page.py:341
+msgid "Dataset-weighted (modulated)"
+msgstr "Datensatzgewichtet (moduliert)"
+
+#: ui/pages/data_page.py:747
+msgid "Same as test per class"
+msgstr "Wie Testanzahl pro Klasse"
+
 #: ui/pages/data_page.py:756
 msgid "Skip free-space check on output drive (not recommended)"
 msgstr ""
 "Freiraumprüfung auf dem Ausgabelaufwerk überspringen (nicht empfohlen)"
+
+#: ui/pages/data_page.py:779
+msgid ""
+"Pick the subcommand, then type any arguments for ``mb data <subcommand> …`` "
+"(line breaks are fine). The active pipeline config path is passed as "
+"``--config`` when you do not include it below. Cancellation is not applied "
+"to this path—use Ctrl+C in a terminal if you need to stop a long job."
+msgstr ""
+"Wählen Sie den Unterbefehl aus und geben Sie dann beliebige Argumente für "
+"„mb data <Unterbefehl> …“ ein (Zeilenumbrüche sind zulässig). Der aktive "
+"Konfigurationspfad der Pipeline wird als „--config“ übergeben, sofern Sie "
+"ihn unten nicht angeben. Dieser Pfad kann nicht abgebrochen werden – "
+"verwenden Sie Strg+C im Terminal, wenn Sie einen langwierigen Auftrag "
+"beenden müssen."
+
+#: ui/pages/data_page.py:786
+msgid "Command"
+msgstr "Befehl"
+
+#: ui/pages/data_page.py:788
+msgid "Arguments (optional)"
+msgstr "Argumente (optional)"
+
+#: ui/pages/data_page.py:805
+msgid "Could not parse arguments (check quotes and line breaks): {err}"
+msgstr ""
+"Argumente konnten nicht analysiert werden (bitte Anführungszeichen und "
+"Zeilenumbrüche überprüfen): {err}"
 
 #: ui/pages/data_page.py:821
 msgid ""
@@ -1613,46 +2191,75 @@ msgstr ""
 "diese Registerkarte, wenn Ihre Daten bereits in einzelnen Ordnern pro Klasse"
 " organisiert sind."
 
-#: ui/pages/data_page.py:413
+#: ui/pages/data_page.py:825
 msgid ""
-"Normalize images to JPEG under each class’s CONVERTED/ folder. Point Raw "
-"data dir at the same tree on an internal or external drive; outputs stay "
-"beside sources."
+"Normalize images to JPEG under each class’s CONVERTED/ folder. Video/GIF "
+"extracts: the frame JPEG is written to CONVERTED/ and a duplicate copy to "
+"visual_media_review/ for inspection only. Point Raw data dir at the same "
+"tree on an internal or external drive; outputs stay beside sources."
 msgstr ""
-"Normalisieren Sie die Bilder im Ordner „CONVERTED/“ der jeweiligen Klasse in"
-" das JPEG-Format. Verweisen Sie das Verzeichnis für die Rohdaten auf "
-"denselben Ordnerbaum auf einem internen oder externen Laufwerk; die "
-"Ausgabedateien bleiben neben den Quelldateien gespeichert."
+"Bilder werden im Ordner „CONVERTED/“ der jeweiligen Klasse in das JPEG-"
+"Format konvertiert. Bei Video- und GIF-Ausschnitten wird das Einzelbild als "
+"JPEG in den Ordner „CONVERTED/“ geschrieben und eine Kopie davon "
+"ausschließlich zu Überprüfungszwecken in den Ordner „visual_media_review/“ "
+"gespeichert. Verweisen Sie das Verzeichnis für Rohdaten auf denselben "
+"Ordnerbaum auf einem internen oder externen Laufwerk; die Ausgabedateien "
+"bleiben neben den Quelldateien gespeichert."
 
-#: ui/pages/data_page.py:417
+#: ui/pages/data_page.py:831
 msgid ""
-"Remove duplicates and quarantine very small images (by pixel size) to "
-"small_images_review/ under the raw root."
+"Remove duplicates and quarantine very small images from class CONVERTED/ "
+"folders only (raw_data/<class>/CONVERTED); other folders are ignored. "
+"Borderline-small files move to each class’s small_images_review/—Create "
+"Dataset does not read that folder unless you copy back into CONVERTED/."
 msgstr ""
-"Entferne Duplikate und verschiebe sehr kleine Bilder (nach Pixelgröße) in "
-"den Ordner „small_images_review/“ im Stammverzeichnis von „raw“."
+"Entferne Duplikate und verschiebe sehr kleine Bilder ausschließlich aus den "
+"Ordnern der Klasse „CONVERTED/“ (raw_data/<class>/CONVERTED); andere Ordner "
+"werden ignoriert. Dateien, die grenzwertig klein sind, werden in den Ordner "
+"„small_images_review/“ der jeweiligen Klasse verschoben – „Create Dataset“ "
+"liest diesen Ordner nur, wenn du die Dateien zurück in den Ordner "
+"„CONVERTED/“ kopierst."
 
-#: ui/pages/data_page.py:420
+#: ui/pages/data_page.py:837
 msgid ""
-"Upscale images previously moved to the small-image review area (after "
-"deduplicate). Default review dir is raw_data/small_images_review when left "
-"empty."
+"Optional: enlarge undersized images from the review area. Outputs go under "
+"upscaled_small_images/; Create Dataset still uses CONVERTED/ only—merge "
+"copies there if needed. Default review dir when empty is "
+"raw_data/small_images_review (class subfolders); override Review dir if your"
+" review files live under raw_data/<class>/small_images_review/."
 msgstr ""
-"Hochskalierte Bilder werden nun (nach der Deduplizierung) in den Bereich zur"
-" Überprüfung kleiner Bilder verschoben. Das Standardverzeichnis für die "
-"Überprüfung ist „raw_data/small_images_review“, wenn das Feld leer gelassen "
-"wird."
+"Optional: Vergrößern Sie zu kleine Bilder aus dem Überprüfungsbereich. Die "
+"Ergebnisse werden unter „upscaled_small_images/“ gespeichert; „Create "
+"Dataset“ verwendet weiterhin nur „CONVERTED/“ – führen Sie die Kopien dort "
+"bei Bedarf zusammen. Das Standardverzeichnis für die Überprüfung ist, sofern"
+" es leer ist, „raw_data/small_images_review“ (Unterordner der Klassen); "
+"überschreiben Sie das Verzeichnis „Review“, wenn sich Ihre "
+"Überprüfungsdateien unter „raw_data/<class>/small_images_review/“ befinden."
 
-#: ui/pages/data_page.py:424
+#: ui/pages/data_page.py:843
 msgid ""
-"Build train/ and test/ under the output data directory from the raw tree. A "
-"good place to put the final dataset on your main drive while raw data stays "
-"external."
+"After initial Convert (and any JPEG extension repair if needed), optionally "
+"Dedup/Upscale: copies from each class’s CONVERTED/ into train/ and test/ "
+"under the output data directory. Does not pull from small_images_review, "
+"upscaled_small_images, or visual_media_review. A good place to put the final"
+" dataset on your main drive while raw data stays external."
 msgstr ""
-"Erstellen Sie die Verzeichnisse „train/“ und „test/“ im Ausgabeverzeichnis "
-"des Rohdatenbaums. Es empfiehlt sich, den endgültigen Datensatz auf Ihrem "
-"Hauptlaufwerk zu speichern, während die Rohdaten auf einem externen "
-"Speichermedium verbleiben."
+"Nach der ersten Konvertierung (und gegebenenfalls einer Reparatur der JPEG-"
+"Erweiterung) erfolgt optional eine Deduplizierung/Hochskalierung: Dabei "
+"werden Kopien aus dem Ordner „CONVERTED/“ jeder Klasse in die Ordner "
+"„train/“ und „test/“ im Ausgabeverzeichnis kopiert. Es werden keine Daten "
+"aus den Ordnern „small_images_review“, „upscaled_small_images“ oder "
+"„visual_media_review“ übernommen. Dies ist ein geeigneter Ort, um den "
+"endgültigen Datensatz auf Ihrem Hauptlaufwerk abzulegen, während die "
+"Rohdaten auf einem externen Speichermedium verbleiben."
+
+#: ui/pages/data_page.py:849
+msgid ""
+"Choose a data subcommand and optional ``mb data …`` arguments in the text "
+"box (same flags as the CLI)."
+msgstr ""
+"Wählen Sie einen Datenunterbefehl und die optionalen ``mb data …`` Argumente"
+" im Textfeld (gleiche Flags wie die CLI)."
 
 #: ui/pages/data_page.py:869
 msgid ""
@@ -1666,71 +2273,201 @@ msgstr ""
 "Stammverzeichnis der Pipeline fest, das von späteren Schritten verwendet "
 "wird."
 
-#: ui/pages/data_page.py:447
+#: ui/pages/data_page.py:873
 msgid ""
 "Convert walks class folders, writes CONVERTED/ JPEGs, and records a unified "
 "snapshot. For image classification, videos and multi-frame GIFs may yield a "
-"random frame JPEG. Very large images are downscaled (max edge 4000px)."
+"random frame JPEG in CONVERTED/ plus a duplicate in visual_media_review/ for"
+" review only. Very large images are downscaled (max edge 4000px)."
 msgstr ""
-"„Convert“ durchsucht die Ordner der Klasse, speichert die konvertierten "
-"JPEGs und erstellt einen einheitlichen Schnappschuss. Bei der "
-"Bildklassifizierung können Videos und GIFs mit mehreren Bildern zu einem "
-"JPEG mit einem zufällig ausgewählten Bild führen. Sehr große Bilder werden "
-"verkleinert (maximale Breite 4000 Pixel)."
+"„Convert“ durchsucht die Klassenordner, speichert die konvertierten JPEGs im"
+" Ordner „CONVERTED/“ und erstellt einen einheitlichen Snapshot. Bei der "
+"Bildklassifizierung können Videos und GIFs mit mehreren Bildern ein JPEG "
+"eines zufällig ausgewählten Bildes im Ordner „CONVERTED/“ sowie ein Duplikat"
+" im Ordner „visual_media_review/“ ergeben, das ausschließlich zur "
+"Überprüfung dient. Sehr große Bilder werden verkleinert (maximale Breite "
+"4000 Pixel)."
 
-#: ui/pages/data_page.py:452
+#: ui/pages/data_page.py:879
 msgid ""
-"Deduplicate removes duplicate images and handles tiny dimensions: removes "
-"very small images and moves borderline-small ones to small_images_review/ "
-"for manual review before upscale."
+"Deduplicate scans only class CONVERTED/ folders, removes duplicate images, "
+"and handles tiny dimensions: removes very small images and moves borderline-"
+"small ones to each class’s small_images_review/ for optional upscale. Create"
+" Dataset sources CONVERTED/ JPEGs only."
 msgstr ""
-"„Deduplicate“ entfernt doppelte Bilder und behandelt Bilder mit sehr kleinen"
-" Abmessungen: Es entfernt sehr kleine Bilder und verschiebt solche, die "
-"grenzwertig klein sind, zur manuellen Überprüfung vor der Hochskalierung in "
-"den Ordner „small_images_review/“."
+"„Deduplicate“ durchsucht nur die Ordner der Klasse „CONVERTED/“, entfernt "
+"doppelte Bilder und verarbeitet Bilder mit sehr kleinen Abmessungen: Es "
+"entfernt sehr kleine Bilder und verschiebt solche, die knapp unter der "
+"Grenze liegen, in den Ordner „small_images_review/“ der jeweiligen Klasse, "
+"wo sie optional hochskaliert werden können. Erstelle Datensatzquellen "
+"ausschließlich aus den JPEGs im Ordner „CONVERTED/“."
 
-#: ui/pages/data_page.py:456
+#: ui/pages/data_page.py:884
 msgid ""
-"Upscale processes the review tree produced by deduplicate for undersized "
-"images you choose to keep."
+"Optional: reads the small-image review tree and writes upscaled copies under"
+" upscaled_small_images/. Create Dataset does not read that output—copy "
+"wanted files into CONVERTED/ before create-dataset if they should appear in "
+"train/test."
 msgstr ""
-"„Upscale“ verarbeitet den von „deduplicate“ erstellten Überprüfungsbaum für "
-"die Bilder mit zu geringer Auflösung, die Sie behalten möchten."
+"Optional: Liest den Verzeichnisbaum „small-image“ und schreibt hochskalierte"
+" Kopien in den Ordner „upscaled_small_images/“. Der Befehl „Create Dataset“ "
+"berücksichtigt diese Ausgabe nicht – kopieren Sie die gewünschten Dateien "
+"vor dem Ausführen von „create-dataset“ in den Ordner „CONVERTED/“, wenn sie "
+"in den Ordnern „train“ und „test“ erscheinen sollen."
 
-#: ui/pages/data_page.py:459
+#: ui/pages/data_page.py:889
 msgid ""
-"Create-dataset reads from raw data (including CONVERTED/) and writes the "
-"train/test split to the output data dir. Set output on a spacious internal "
-"disk if raw data lives on external storage."
+"Prerequisite: Convert has been run (CONVERTED/ + snapshot). JPEG extension "
+"repair updates that snapshot for repaired files—you do not need another full"
+" Convert for snapshot alignment. Copies only from each class’s CONVERTED/ "
+"(not small_images_review or visual_media_review). Writes train/ and test/ to"
+" the output data dir. Set output on a spacious internal disk if raw data "
+"lives on external storage."
 msgstr ""
-"„Create-dataset“ liest Rohdaten (einschließlich „CONVERTED/“) ein und "
-"schreibt die Aufteilung in Trainings- und Testdaten in das "
-"Ausgabeverzeichnis. Legen Sie das Ausgabeverzeichnis auf einer großzügig "
-"dimensionierten internen Festplatte an, falls sich die Rohdaten auf einem "
-"externen Speicher befinden."
+"Voraussetzung: „Convert“ wurde bereits ausgeführt (Verzeichnis „CONVERTED/“ "
+"+ Snapshot). Die Reparatur der JPEG-Erweiterung aktualisiert diesen Snapshot"
+" für die reparierten Dateien – ein weiterer vollständiger „Convert“-Lauf zur"
+" Snapshot-Anpassung ist nicht erforderlich. Es werden nur Kopien aus dem "
+"Verzeichnis „CONVERTED/“ jeder Klasse kopiert (nicht aus "
+"„small_images_review“ oder „visual_media_review“). Die Verzeichnisse "
+"„train/“ und „test/“ werden in das Ausgabeverzeichnis geschrieben. Legen Sie"
+" das Ausgabeverzeichnis auf einer großzügig dimensionierten internen "
+"Festplatte an, wenn sich die Rohdaten auf einem externen Speicher befinden."
 
-#: ui/pages/data_page.py:474
+#: ui/pages/data_page.py:896
+msgid ""
+"Runs ``mb data <subcommand>`` with the optional argument text you provide "
+"(parsed like the shell). The GUI injects ``--config`` when it is not already"
+" present."
+msgstr ""
+"Führt „mb data <Unterbefehl>“ mit dem von Ihnen angegebenen optionalen "
+"Argumenttext aus (der wie in der Shell interpretiert wird). Die GUI fügt "
+"„--config“ hinzu, falls dieses noch nicht vorhanden ist."
+
+#: ui/pages/data_page.py:913
 msgid ""
 "Storage: convert reads and writes under the raw data path you choose "
 "(including on removable drives). Create Dataset copies into the output data "
 "directory—often set that to your main disk. Large images: convert downscales"
 " long edges; tiny images: deduplicate moves small files to "
-"small_images_review/. Full discussion: docs/DATA_PIPELINE.md."
+"small_images_review/. JPEG extension mismatches: run fix-jpeg-extension-"
+"mismatch (updates CONVERTED/ and the unified snapshot for affected files; no"
+" extra Convert pass required for that). Create Dataset globs JPEGs from each"
+" class’s CONVERTED/ only. visual_media_review/ is a duplicate of video/GIF "
+"frame outputs for human review—not a second input. After deduplicate, files "
+"that remain only under small_images_review/ (or only under "
+"upscaled_small_images/ after upscale) are not used unless you copy the ones "
+"you want back into CONVERTED/. Full discussion: docs/DATA_PIPELINE.md."
 msgstr ""
-"Speicherung: „convert“ liest und schreibt über den von Ihnen gewählten "
-"Rohdatenpfad (auch auf Wechseldatenträgern). „Create Dataset“ erstellt "
-"Kopien im Ausgabeverzeichnis – legen Sie dieses Verzeichnis am besten auf "
-"Ihrer Hauptfestplatte an. Große Bilder: „convert“ verkleinert die langen "
-"Seiten; kleine Bilder: „deduplicate“ verschiebt kleine Dateien in den Ordner"
-" „small_images_review/“. Ausführliche Erläuterung: docs/DATA_PIPELINE.md."
+"Speicherung: Konvertieren Sie Lese- und Schreibvorgänge über den von Ihnen "
+"gewählten Rohdatenpfad (einschließlich auf Wechseldatenträgern). Erstellen "
+"Sie Kopien des Datensatzes im Ausgabeverzeichnis – legen Sie dieses häufig "
+"auf Ihrer Hauptfestplatte an. Große Bilder: Konvertieren Sie Bilder mit "
+"einer Verkleinerung der langen Kanten; kleine Bilder: Deduplizieren Sie "
+"kleine Dateien und verschieben Sie sie in den Ordner „small_images_review/“."
+" Nicht übereinstimmende JPEG-Erweiterungen: Führen Sie „fix-jpeg-extension-"
+"mismatch“ aus (aktualisiert den Ordner „CONVERTED/“ und den einheitlichen "
+"Snapshot für die betroffenen Dateien; hierfür ist kein zusätzlicher "
+"„Convert“-Durchlauf erforderlich). Erstellen Sie den Datensatz „globs“ "
+"ausschließlich aus den JPEG-Dateien im Ordner „CONVERTED/“ der jeweiligen "
+"Klasse. „visual_media_review/“ ist ein Duplikat der Video-/GIF-Frame-"
+"Ausgaben für die manuelle Überprüfung – kein zweiter Eingabepfad. Nach der "
+"Deduplizierung werden Dateien, die nur noch unter „small_images_review/“ "
+"(oder nach der Hochskalierung nur noch unter „upscaled_small_images/“) "
+"verbleiben, nicht verwendet, es sei denn, Sie kopieren die gewünschten "
+"Dateien zurück in den Ordner „CONVERTED/“. Ausführliche Erläuterung: "
+"docs/DATA_PIPELINE.md."
 
-#: ui/pages/data_page.py:965
+#: ui/pages/data_page.py:965 ui/pages/evaluate_page.py:367
 msgid "Select file"
 msgstr "Datei auswählen"
 
 #: ui/pages/data_page.py:967
 msgid "All files (*.*)"
 msgstr "Alle Dateien (*.*)"
+
+#: ui/pages/data_page.py:979 ui/pages/data_page.py:995
+#: ui/pages/train_page.py:345
+msgid "No snapshot found"
+msgstr "Kein Schnappschuss gefunden"
+
+#: ui/pages/data_page.py:980 ui/pages/train_page.py:346
+msgid ""
+"No snapshot_*.json files were found under:\n"
+"{path}"
+msgstr ""
+"Unter folgendem Pfad wurden keine Dateien mit der Endung „snapshot_*.json“ gefunden:\n"
+"{path}"
+
+#: ui/pages/data_page.py:996
+msgid ""
+"No snapshot_*.json files were found in the search paths for the current "
+"directories."
+msgstr ""
+"In den Suchpfaden der aktuellen Verzeichnisse wurden keine Dateien mit dem "
+"Namen „snapshot_*.json“ gefunden."
+
+#: ui/pages/data_page.py:1011
+msgid ""
+"Optional. Leave empty to start a new conversion run and write a new snapshot file.\n"
+"\n"
+"If set, the job resumes that run: a unified snapshot file must exist and load correctly, named:\n"
+"  snapshot_<run_id>.json\n"
+"placed directly under the raw data directory:\n"
+"  {raw}\n"
+"Example: snapshot_20260408_abc123.json"
+msgstr ""
+"Optional. Lassen Sie das Feld leer, um einen neuen Konvertierungsdurchlauf zu starten und eine neue Snapshot-Datei zu erstellen.\n"
+"\n"
+"Wenn dieses Feld gesetzt ist, wird der Job an diesem Durchlauf fortgesetzt: Es muss eine einheitliche Snapshot-Datei vorhanden sein, die korrekt geladen werden kann und folgenden Namen trägt:\n"
+"  snapshot_<run_id>.json\n"
+"die sich direkt im Verzeichnis für Rohdaten befindet:\n"
+"  {raw}\n"
+"Beispiel: snapshot_20260408_abc123.json"
+
+#: ui/pages/data_page.py:1026
+msgid ""
+"  (Raw data directory must exist to list class folders; until then, search "
+"still includes the raw dir, its parent, and the output data dir.)"
+msgstr ""
+"  (Das Verzeichnis mit den Rohdaten muss vorhanden sein, damit die "
+"Klassenordner aufgelistet werden können; bis dahin umfasst die Suche "
+"weiterhin das Rohdatenverzeichnis, dessen übergeordnetes Verzeichnis und das"
+" Ausgabedatenverzeichnis.)"
+
+#: ui/pages/data_page.py:1031
+msgid ""
+"Optional. Leave empty to use the latest unified snapshot found along the search order below.\n"
+"\n"
+"If set, the file must exist, load correctly, and be named:\n"
+"  snapshot_<run_id>.json\n"
+"The job searches these directories in order (first match wins):\n"
+"{paths}\n"
+"Output data directory (for context): {data_dir}"
+msgstr ""
+"Optional. Lassen Sie das Feld leer, um den neuesten einheitlichen Snapshot zu verwenden, der gemäß der unten angegebenen Suchreihenfolge gefunden wird.\n"
+"\n"
+"Falls angegeben, muss die Datei vorhanden sein, korrekt geladen werden und folgenden Namen tragen:\n"
+"  snapshot_<run_id>.json\n"
+"Der Job durchsucht diese Verzeichnisse der Reihe nach (der erste Treffer gewinnt):\n"
+"{paths}\n"
+"Ausgabedatenverzeichnis (als Kontext): {data_dir}"
+
+#: ui/pages/data_page.py:1045
+msgid ""
+"Optional. Same Run ID as Convert / Create Dataset (shared across the Data page). Leave empty to load the latest loadable snapshot under:\n"
+"  {raw}\n"
+"\n"
+"If set, the file must exist and be named:\n"
+"  snapshot_<run_id>.json\n"
+"in that directory. Used when opening the duplicate resolver from disk; deduplicate Run does not require a Run ID."
+msgstr ""
+"Optional. Gleiche Lauf-ID wie bei „Konvertieren/Datensatz erstellen“ (gilt für die gesamte Seite „Daten“). Lassen Sie das Feld leer, um den neuesten ladbaren Snapshot unter folgendem Pfad zu laden:\n"
+"  {raw}\n"
+"\n"
+"Falls angegeben, muss die Datei vorhanden sein und folgenden Namen tragen:\n"
+"  snapshot_<run_id>.json\n"
+"in diesem Verzeichnis. Wird verwendet, wenn der Duplikatslöser von der Festplatte geöffnet wird; für den Lauf-Deduplizierer ist keine Lauf-ID erforderlich."
 
 #: ui/pages/data_page.py:1099
 msgid "[ok] {cmd}: inputs look valid"
@@ -1756,9 +2493,38 @@ msgstr "Unterordner-Gewichte müssen im Unterordner:Gewicht-Format sein."
 msgid "Format must be jpeg or jpg."
 msgstr "Das Format muss jpeg oder jpg sein."
 
+#: ui/pages/data_page.py:1148
+msgid ""
+"Raw data directory must exist when a Run ID is set (snapshot is loaded from "
+"there)."
+msgstr ""
+"Das Verzeichnis für die Rohdaten muss vorhanden sein, wenn eine Lauf-ID "
+"festgelegt wird (der Snapshot wird von dort geladen)."
+
+#: ui/pages/data_page.py:1152
+msgid ""
+"No loadable unified snapshot for Run ID {rid!r}. Expected {name} under:\n"
+"  {dir}"
+msgstr ""
+"Es ist kein einheitlicher Snapshot für die Lauf-ID {rid!r} verfügbar. Erwartet wird {name} unter:\n"
+"  {dir}"
+
 #: ui/pages/data_page.py:1179
 msgid "Raw data dir does not exist."
 msgstr "Das Raw Data-Verzeichnis existiert nicht."
+
+#: ui/pages/data_page.py:1186
+msgid ""
+"No loadable unified snapshot for Run ID {rid!r} in the search paths (see the"
+" Run ID field tooltip for locations checked)."
+msgstr ""
+"In den Suchpfaden wurde kein ladbarer einheitlicher Snapshot für die Lauf-ID"
+" {rid!r} gefunden (die überprüften Speicherorte finden Sie im Tooltip des "
+"Felds „Lauf-ID“)."
+
+#: ui/pages/data_page.py:1252 ui/pages/data_page.py:1277
+msgid "Skipped (free-space estimate not run)."
+msgstr "Übersprungen (Freiraumschätzung nicht durchgeführt)."
 
 #: ui/pages/data_page.py:1260 ui/pages/data_page.py:1288
 msgid "Insufficient disk space (estimate)"
@@ -1803,6 +2569,22 @@ msgstr ""
 msgid "Data: {cmd}"
 msgstr "Daten: {cmd}"
 
+#: ui/pages/data_page.py:1373
+msgid "Checking free space…"
+msgstr "Überprüfung des freien Platzes…"
+
+#: ui/pages/data_page.py:1377
+msgid "Converting…"
+msgstr "Übersetzend…"
+
+#: ui/pages/data_page.py:1379
+msgid "Creating dataset…"
+msgstr "Dataset erstellen…"
+
+#: ui/pages/data_page.py:1450
+msgid "Running: {line}"
+msgstr "Laufend: {line}"
+
 #: ui/pages/data_page.py:1459
 msgid "[done] Data command completed successfully."
 msgstr "[fertig] Der Datenbefehl wurde erfolgreich ausgeführt."
@@ -1831,7 +2613,164 @@ msgstr ""
 "Eine Pipeline-Schritt im Bereich der Datenverarbeitung hat einen Fehler "
 "gemeldet. Siehe Details für die vollständige Meldung."
 
-#: ui/pages/home_page.py:107
+#: ui/pages/data_page.py:1545
+msgid "[dedup] No loadable snapshot found for duplicate resolver."
+msgstr ""
+"[dedup] Es wurde kein ladbarer Snapshot für den Duplikats-Resolver gefunden."
+
+#: ui/pages/data_page.py:1548
+msgid "[dedup] No potential duplicates were recorded in the snapshot."
+msgstr "[dedup] Im Snapshot wurden keine potenziellen Duplikate festgestellt."
+
+#: ui/pages/data_page.py:1553
+msgid "Duplicates found"
+msgstr "Duplikate gefunden"
+
+#: ui/pages/data_page.py:1554
+msgid "Open duplicate resolver window now?"
+msgstr "Möchten Sie jetzt das Fenster zum Auflösen von Duplikaten öffnen?"
+
+#: ui/pages/data_page.py:1562
+msgid "Invalid raw data directory"
+msgstr "Ungültiges Verzeichnis für Rohdaten"
+
+#: ui/pages/data_page.py:1563
+msgid ""
+"Raw data directory does not exist:\n"
+"{path}"
+msgstr ""
+"Das Verzeichnis für die Rohdaten existiert nicht:\n"
+"{path}"
+
+#: ui/pages/data_page.py:1574
+msgid "No snapshot"
+msgstr "Kein Snapshot"
+
+#: ui/pages/data_page.py:1576
+msgid ""
+"No loadable unified snapshot was found under:\n"
+"{path}\n"
+"\n"
+"Expected snapshot_<run_id>.json (leave Run ID empty for the latest file tried in sorted name order)."
+msgstr ""
+"Unter folgendem Pfad wurde kein ladbarer einheitlicher Snapshot gefunden:\n"
+"{path}\n"
+"\n"
+"Erwartet wurde die Datei „snapshot_<run_id>.json“ (lassen Sie das Feld „Run ID“ leer, um die zuletzt in sortierter Reihenfolge getestete Datei zu verwenden)."
+
+#: ui/pages/data_page.py:1585
+msgid "Nothing to review"
+msgstr "Nichts zu übersetzen"
+
+#: ui/pages/data_page.py:1587
+msgid ""
+"A snapshot loaded, but it does not list any cross-class duplicate groups for"
+" the resolver. Run Deduplicate with list-only if you have not yet, or pick "
+"another Run ID."
+msgstr ""
+"Ein Snapshot wurde geladen, es werden jedoch keine klassenübergreifenden "
+"Duplikatsgruppen für den Resolver angezeigt. Führen Sie „Deduplicate“ mit "
+"der Option „list-only“ aus, falls Sie dies noch nicht getan haben, oder "
+"wählen Sie eine andere Ausführungs-ID aus."
+
+#: ui/pages/evaluate_page.py:82 ui/pages/evaluate_page.py:152
+#: ui/pages/export_page.py:57 ui/pages/export_page.py:61
+#: ui/pages/export_page.py:113 ui/pages/export_page.py:114
+#: ui/pages/train_page.py:111 ui/pages/train_page.py:193
+msgid "Auto"
+msgstr "Auto"
+
+#: ui/pages/export_page.py:70 ui/pages/export_page.py:107
+msgid "Dataset directory"
+msgstr "Datenbestandverzeichnis"
+
+#: ui/pages/export_page.py:73 ui/pages/export_page.py:110
+msgid "Generate architecture stub"
+msgstr "Generiere Architekturstub"
+
+#: ui/pages/export_page.py:81 ui/pages/export_page.py:121
+msgid "Validate Export"
+msgstr "Export validieren"
+
+#: ui/pages/export_page.py:82 ui/pages/export_page.py:122
+msgid "Run Export"
+msgstr "Export ausführen"
+
+#: ui/pages/export_page.py:100
+msgid ""
+"Export a deployment bundle (SafeTensors + manifest) after "
+"conversion/training."
+msgstr ""
+"Exportieren Sie nach der Konvertierung/dem Training ein Bereitstellungs-"
+"Bundle (SafeTensors + Manifest)."
+
+#: ui/pages/export_page.py:117
+msgid ""
+"Class names are auto-resolved from snapshot or dataset directory. Tip: leave"
+" architecture/num classes/image size on Auto to use defaults."
+msgstr ""
+"Klassenbezeichnungen werden automatisch aus dem Snapshot- oder "
+"Datensatzverzeichnis ermittelt. Tipp: Lassen Sie die Einstellungen für "
+"„Architektur“, „Anzahl der Klassen“ und „Bildgröße“ auf „Auto“ stehen, um "
+"die Standardeinstellungen zu verwenden."
+
+#: ui/pages/export_page.py:123
+msgid "Export validation and execution messages will appear here."
+msgstr ""
+"Hier werden Meldungen zur Validierung und Ausführung des Exports angezeigt."
+
+#: ui/pages/export_page.py:194
+msgid "Model files (*.pth *.pt);;All files (*.*)"
+msgstr "Model-Dateien (*.pth *.pt);;Alle Dateien (*.*)"
+
+#: ui/pages/export_page.py:215
+msgid "Input model parent directory does not exist."
+msgstr "Das übergeordnete Verzeichnis des Eingabemodells existiert nicht."
+
+#: ui/pages/export_page.py:296
+msgid "[ok] export inputs valid (arch={arch}, classes={n})"
+msgstr "[ok] Export-Eingaben gültig (arch={arch}, classes={n})"
+
+#: ui/pages/export_page.py:297 ui/pages/export_page.py:298
+msgid "auto"
+msgstr "Auto"
+
+#: ui/pages/export_page.py:309
+msgid "[run] mb export bundle"
+msgstr "[run] mb export bundle"
+
+#: ui/pages/export_page.py:320
+msgid "Export bundle"
+msgstr "Export Bundle"
+
+#: ui/pages/export_page.py:324
+msgid "Cancelled before export started"
+msgstr "Abgebrochene vor dem Export begann"
+
+#: ui/pages/export_page.py:328
+msgid "[stopped] Export cancelled before completion."
+msgstr "[abgebrochen] Der Export wurde vor dem Abschluss abgebrochen."
+
+#: ui/pages/export_page.py:337
+msgid "[done] Export succeeded."
+msgstr "[fertig] Der Export war erfolgreich."
+
+#: ui/pages/export_page.py:344
+msgid "[info] Architecture stub not generated (option disabled)."
+msgstr "[Info] Architektur-Stub wurde nicht generiert (Option deaktiviert)."
+
+#: ui/pages/export_page.py:361
+msgid "Export failed"
+msgstr "Der Export ist gescheitert"
+
+#: ui/pages/export_page.py:362
+msgid ""
+"Model export reported an error. See Details for the underlying message."
+msgstr ""
+"Beim Exportieren des Modells ist ein Fehler aufgetreten. Die entsprechende "
+"Meldung finden Sie unter „Details“."
+
+#: ui/pages/home_page.py:114
 msgid ""
 "Model Builder desktop shell for data prep, training, conversion, and info "
 "tools."
@@ -1839,57 +2778,65 @@ msgstr ""
 "Modellbauer Desktop-Shell für Datenvorbereitung, Training, Konvertierung und"
 " Informationswerkzeuge."
 
-#: ui/pages/home_page.py:110
+#: ui/pages/home_page.py:117
 msgid "Current scope"
 msgstr "Aktueller Umfang"
 
-#: ui/pages/home_page.py:111
+#: ui/pages/home_page.py:118
 msgid "- Data pipeline: gather, convert, dedupe, upscale, create dataset"
 msgstr ""
 "- Datenpipeline: sammeln, konvertieren, deduplizieren, upskalieren, "
 "Datensatz erstellen"
 
-#: ui/pages/home_page.py:113
+#: ui/pages/home_page.py:120
 msgid "- Training: in-process or detached (CLI: {cmd})"
 msgstr "- Training: im Prozess oder abgekoppelt (CLI: {cmd})"
 
-#: ui/pages/home_page.py:108
-msgid "- Model conversion and dataset / model inspection (Info)"
-msgstr "- Modellkonvertierung und Datensätte-/Modellaufsicht (Info)"
+#: ui/pages/home_page.py:122
+msgid "- Model conversion to ONNX / SafeTensors"
+msgstr "- Modellkonvertierung in ONNX / SafeTensors"
 
-#: ui/pages/home_page.py:117
+#: ui/pages/home_page.py:123
+msgid "- Model bundle export (manifest + deployment artifacts)"
+msgstr "- Export des Modell-Bundles (Manifest + Bereitstellungsartefakte)"
+
+#: ui/pages/home_page.py:127
 msgid "- App shell (App) and ML defaults (Pipeline)"
 msgstr "- App-Shell (App) und ML-Defaults (Pipeline)"
 
-#: ui/pages/home_page.py:118
+#: ui/pages/home_page.py:128
 msgid "Quick actions"
 msgstr "Schnelle Aktionen"
 
-#: ui/pages/home_page.py:119
+#: ui/pages/home_page.py:129
 msgid "Open Data Page"
 msgstr "Öffentliche-Daten-Seite"
 
-#: ui/pages/home_page.py:120
+#: ui/pages/home_page.py:130
 msgid "Open Train Page"
 msgstr "Öffne Schienen-Seite"
 
-#: ui/pages/home_page.py:121
+#: ui/pages/home_page.py:131
 msgid "Open Convert Page"
 msgstr "Öffne Konvertierung-Seite"
 
-#: ui/pages/home_page.py:123
+#: ui/pages/home_page.py:132
+msgid "Open Export Page"
+msgstr "Öffne die Export-Seite"
+
+#: ui/pages/home_page.py:134
 msgid "Latest unified snapshot"
 msgstr "Aktueller einheitlicher Snapshot"
 
-#: ui/pages/home_page.py:124 ui/pages/home_page.py:126
+#: ui/pages/home_page.py:135 ui/pages/home_page.py:137
 msgid "Loading…"
 msgstr "Laden…"
 
-#: ui/pages/home_page.py:125
+#: ui/pages/home_page.py:136
 msgid "Recent run history"
 msgstr "Letzter Auftragsverlauf"
 
-#: ui/pages/home_page.py:149
+#: ui/pages/home_page.py:160
 msgid ""
 "No snapshot_*.json found under the configured raw data or data directories.\n"
 "(Run convert and create-dataset to create one.)"
@@ -1944,10 +2891,6 @@ msgstr "Modellpfad erforderlich"
 #: ui/pages/info_page.py:173
 msgid "Please provide a model path."
 msgstr "Bitte geben Sie den Modellpfad an."
-
-#: ui/lib/duplicates_resolver_window.py:152 ui/pages/info_page.py:183
-msgid "Missing file"
-msgstr "Fehlender Datei"
 
 #: ui/pages/info_page.py:188 ui/pages/info_page.py:202
 msgid "Invalid path"
@@ -2082,6 +3025,7 @@ msgstr "Ungefroren LR (max)"
 msgid "Unfrozen LR (min)"
 msgstr "Ungefroren LR (min)"
 
+#: ui/pages/evaluate_page.py:104 ui/pages/evaluate_page.py:148
 #: ui/pages/pipeline_config_page.py:208 ui/pages/pipeline_config_page.py:456
 msgid "DataLoader workers"
 msgstr "DataLoader-Prozesse"
@@ -2186,6 +3130,14 @@ msgstr "Wählen Sie das Rohdatenverzeichnis aus."
 msgid "Select dataset directory"
 msgstr "Wählen Sie das Dataset-Verzeichnis aus."
 
+#: ui/pages/pipeline_config_page.py:346
+msgid "Same as test anchor"
+msgstr "Gleich wie Testanker"
+
+#: ui/pages/pipeline_config_page.py:354
+msgid "Default create-dataset seed"
+msgstr "Standard create-dataset Samen"
+
 #: ui/pages/pipeline_config_page.py:362
 msgid ""
 "Leave empty for the model-type default batch size (omitted from saved YAML)."
@@ -2227,10 +3179,6 @@ msgstr "Wählen Sie das Modellverzeichnis aus."
 #: ui/pages/pipeline_config_page.py:483
 msgid "Select logs directory"
 msgstr "Wählen Sie das Protokolle-Verzeichnis"
-
-#: ui/pages/pipeline_config_page.py:465
-msgid "Select timing data directory"
-msgstr "Wählen Sie das Zeitdatenverzeichnis aus"
 
 #: ui/pages/pipeline_config_page.py:661
 msgid ""
@@ -2284,10 +3232,12 @@ msgstr ""
 msgid "Skip unified snapshot update"
 msgstr "Aktualisierung des einheitlichen Momentaufnahme überspringen"
 
+#: ui/pages/evaluate_page.py:97 ui/pages/evaluate_page.py:141
 #: ui/pages/train_page.py:82 ui/pages/train_page.py:164
 msgid "Model type"
 msgstr "Modellart"
 
+#: ui/pages/evaluate_page.py:99 ui/pages/evaluate_page.py:143
 #: ui/pages/train_page.py:83 ui/pages/train_page.py:165
 msgid "Framework"
 msgstr "Rahmenwerk"
@@ -2307,12 +3257,6 @@ msgstr ""
 "Das Training in einem separaten Prozess ausführen (bleibt auch nach dem "
 "Schließen dieser App erhalten; siehe Protokolldatei)"
 
-#: ui/pages/export_page.py:57 ui/pages/export_page.py:61
-#: ui/pages/export_page.py:113 ui/pages/export_page.py:114
-#: ui/pages/train_page.py:111 ui/pages/train_page.py:193
-msgid "Auto"
-msgstr "Auto"
-
 #: ui/pages/train_page.py:117 ui/pages/train_page.py:194
 msgid "Config default"
 msgstr "Standard-Konfiguration"
@@ -2329,6 +3273,7 @@ msgstr "Aufgetaute LR-Max"
 msgid "Unfrozen LR min"
 msgstr "Aufgetaute LR-Min"
 
+#: ui/pages/evaluate_page.py:103 ui/pages/evaluate_page.py:147
 #: ui/pages/train_page.py:124 ui/pages/train_page.py:188
 msgid "Batch size"
 msgstr "Losgröße"
@@ -2365,6 +3310,14 @@ msgstr "Kernkonfiguration"
 #: ui/pages/train_page.py:179
 msgid "Hyperparameters"
 msgstr "Hyperparameter"
+
+#: ui/pages/train_page.py:203
+msgid ""
+"Set Run ID from the newest snapshot_*.json under the data directory (by file"
+" modification time)."
+msgstr ""
+"Legen Sie die Lauf-ID anhand der neuesten Datei „snapshot_*.json“ im "
+"Verzeichnis „data“ fest (nach dem Datum der letzten Änderung)."
 
 #: ui/pages/train_page.py:370
 msgid "Select checkpoint file"
@@ -2413,6 +3366,12 @@ msgstr "Der Pfad zum Kontrollpunkt für die Wiederaufnahme existiert nicht."
 #: ui/pages/train_page.py:483
 msgid "[ok] training inputs look valid"
 msgstr "[ok] Trainingseinträge sind gültig"
+
+#: ui/pages/train_page.py:498
+msgid "[error] Could not auto-save pipeline config; training cancelled."
+msgstr ""
+"[Fehler] Die Pipeline-Konfiguration konnte nicht automatisch gespeichert "
+"werden; Training abgebrochen."
 
 #: ui/pages/train_page.py:515
 msgid "[detached] PID {pid} — log: {log} — args JSON: {args}"
@@ -2490,1097 +3449,737 @@ msgstr ""
 msgid " etc."
 msgstr " u.a."
 
-#: mb/cli.py:215
+#: mb/cli/__init__.py:702
+msgid "No evaluate subcommand specified"
+msgstr "Es wurde kein „evaluate“-Unterbefehl angegeben"
+
+#: mb/cli/__init__.py:706
+msgid "Unknown evaluate subcommand: {cmd}"
+msgstr "Unbekannter Unterbefehl: {cmd}"
+
+#: mb/cli/parsing/evaluate.py:16
+msgid "Evaluate trained models or datasets"
+msgstr "Trainierte Modelle oder Datensätze auswerten"
+
+#: mb/cli/parsing/evaluate.py:18
 msgid ""
-"Unified snapshot run ID to update (snapshot_<run_id>.json under raw data). "
-"Omit to start a new snapshot with a new run ID."
+"Score a trained classifier on your train/test tree, surface likely labeling "
+"mistakes, or compare two checkpoints on the same data."
 msgstr ""
-"Einheitliche Snapshot-Lauf-ID für die Aktualisierung (snapshot_<run_id>.json"
-" im Rohdatenordner). Weglassen, um einen neuen Snapshot mit einer neuen "
-"Lauf-ID zu starten."
+"Bewerten Sie einen trainierten Klassifikator anhand Ihres "
+"Trainings-/Testbaums, decken Sie mögliche Fehler bei der Klassifizierung auf"
+" oder vergleichen Sie zwei Checkpoints anhand derselben Daten."
 
-#: mb/cli.py:242
+#: mb/cli/parsing/evaluate.py:24
+msgid "Evaluate subcommands"
+msgstr "Unterbefehle bewerten"
+
+#: mb/cli/parsing/evaluate.py:30
+msgid "Compute classification metrics on a labeled split"
+msgstr "Berechnen Sie Klassifikationsmetriken auf einem beschrifteten Split"
+
+#: mb/cli/parsing/evaluate.py:32
 msgid ""
-"Scan and print duplicate groups as indented JSON (no removals). Useful for "
-"manual review workflows."
+"Accuracy, confusion matrix, and per-class counts on an ImageFolder-style "
+"directory (class-named subfolders of images). PyTorch requires "
+"--architecture and a .pth/.pt file."
 msgstr ""
-"Gruppen von Duplikaten als eingerücktes JSON scannen und drucken (ohne "
-"Löschungen). Nützlich für manuelle Überprüfungsabläufe."
+"Trefferquote, Verwechslungsmatrix und Anzahl pro Klasse in einem Verzeichnis"
+" im ImageFolder-Stil (Unterordner mit Bildern, die nach Klassen benannt "
+"sind). PyTorch benötigt die Option --architecture sowie eine .pth- oder .pt-"
+"Datei."
 
-#: mb/cli.py:251
+#: mb/cli/parsing/evaluate.py:40 mb/cli/parsing/evaluate.py:114
+msgid "Path to trained model file (.pth / .pt / .h5 / .keras)"
+msgstr "Pfad zur Datei des trainierten Modells (.pth / .pt / .h5 / .keras)"
+
+#: mb/cli/parsing/evaluate.py:46 mb/cli/parsing/evaluate.py:120
+#: mb/cli/parsing/evaluate.py:215
+msgid "ImageFolder root (e.g. .../test with one subfolder per class)"
+msgstr ""
+"Stammverzeichnis des Bildordners (z. B. .../test mit einem Unterordner pro "
+"Klasse)"
+
+#: mb/cli/parsing/evaluate.py:52 mb/cli/parsing/evaluate.py:126
+msgid "Training framework (default: infer from file extension)"
+msgstr "Trainingsrahmen (Standard: aus der Dateiendung ableiten)"
+
+#: mb/cli/parsing/evaluate.py:58 mb/cli/parsing/evaluate.py:132
 msgid ""
-"Optional unified snapshot run ID to update with deduplication metadata. If "
-"omitted, the latest loadable snapshot under raw data is used when available."
+"Model architecture id (required for PyTorch .pth checkpoints, e.g. resnet34)"
 msgstr ""
-"Optionale einheitliche Snapshot-Lauf-ID zur Aktualisierung mit Metadaten zur"
-" Deduplizierung. Wird diese Angabe weggelassen, wird der aktuellste ladbare "
-"Snapshot unter den Rohdaten verwendet, sofern verfügbar."
+"Modellarchitektur-ID (erforderlich für PyTorch-.pth-Checkpoints, z. B. "
+"resnet34)"
 
-#: mb/cli.py:308
+#: mb/cli/parsing/evaluate.py:64 mb/cli/parsing/evaluate.py:138
+#: mb/cli/parsing/evaluate.py:245
+msgid "Override class count (default: infer from directory layout)"
+msgstr ""
+"Anzahl der Überschreibungsklassen (Standard: aus der Verzeichnisstruktur "
+"ableiten)"
+
+#: mb/cli/parsing/evaluate.py:70 mb/cli/parsing/evaluate.py:144
+#: mb/cli/parsing/evaluate.py:251
+msgid "Pipeline model type (default: image_classification)"
+msgstr "Pipeline-Modelltyp (Standard: image_classification)"
+
+#: mb/cli/parsing/evaluate.py:76 mb/cli/parsing/evaluate.py:150
+#: mb/cli/parsing/evaluate.py:257
+msgid "Square input size (default: 224)"
+msgstr "Quadratische Eingabegröße (Standard: 224)"
+
+#: mb/cli/parsing/evaluate.py:82 mb/cli/parsing/evaluate.py:156
+#: mb/cli/parsing/evaluate.py:263
+msgid "Batch size (default: 32)"
+msgstr "Batchesize (Standard: 32)"
+
+#: mb/cli/parsing/evaluate.py:88 mb/cli/parsing/evaluate.py:162
+#: mb/cli/parsing/evaluate.py:269
+msgid "DataLoader workers for PyTorch (default: 0)"
+msgstr "DataLoader-Arbeiter für PyTorch (Standard: 0)"
+
+#: mb/cli/parsing/evaluate.py:94 mb/cli/parsing/evaluate.py:168
+#: mb/cli/parsing/evaluate.py:275
+msgid "PyTorch device override, e.g. cuda or cpu (default: auto)"
+msgstr "PyTorch-Geräteübersteuerung, z. B. CUDA oder CPU (Standard: „auto“)"
+
+#: mb/cli/parsing/evaluate.py:99 mb/cli/parsing/evaluate.py:186
+#: mb/cli/parsing/evaluate.py:296
+msgid "Validate arguments and exit without running inference"
+msgstr "Argumente validieren und beenden, ohne die Inferenz auszuführen"
+
+#: mb/cli/parsing/evaluate.py:104
+msgid "List images whose predicted class differs from the folder label"
+msgstr "Liste der Bilder, deren vorhergesagte Klasse vom Ordnerlabel abweicht"
+
+#: mb/cli/parsing/evaluate.py:106
 msgid ""
-"Number of items per class in the test split when mode is fixed; also the "
-"anchor for dataset-weighted mode (default: data.test_per_class from pipeline"
-" YAML)."
+"Compares model predictions to ImageFolder-style on-disk class folders to "
+"surface label noise and borderline samples. Image classification only."
 msgstr ""
-"Anzahl der Elemente pro Klasse bei der Aufteilung des Tests, wenn der Modus "
-"feststeht; dient zudem als Anker für den datensatzgewichteten Modus "
-"(Standard: `data.test_per_class` aus der Pipeline-YAML)."
+"Vergleicht Modellvorhersagen mit auf der Festplatte gespeicherten "
+"Klassenordnern im ImageFolder-Stil, um Label-Rauschen und Grenzfälle "
+"aufzudecken. Nur für die Bildklassifizierung."
 
-#: mb/cli.py:317
+#: mb/cli/parsing/evaluate.py:175
 msgid ""
-"fixed = test_per_class images per class; dataset-weighted = modulated counts"
-" from class size vs total (default: data.test_split_mode in pipeline YAML, "
-"else fixed)."
+"Cap printed / exported misclassified rows (default: no cap; totals still "
+"full)"
 msgstr ""
-"fixed = test_per_class Bilder pro Klasse; dataset-weighted = modulierte "
-"Zählwerte, basierend auf dem Verhältnis von Klassengröße zu Gesamtgröße "
-"(Standard: data.test_split_mode in der Pipeline-YAML, andernfalls fixed)."
+"Grenze für abgedruckte / exportierte fehlerhaft klassifizierte Zeilen "
+"(Standard: keine Grenze; Gesamtmenge bleibt vollständig)"
 
-#: mb/cli.py:326
+#: mb/cli/parsing/evaluate.py:181
+msgid "Optional CSV path (still prints a summary to stdout)"
+msgstr ""
+"Optionaler CSV-Pfad (zeigt den Zusammenfassung trotzdem auf stdout an)"
+
+#: mb/cli/parsing/evaluate.py:191
 msgid ""
-"With dataset-weighted mode: classes with fewer images than this use a "
-"proportional test count; larger classes use anchor + anchor×(class_share). "
-"Omit to use --test-per-class as the threshold (default: pipeline "
-"data.test_small_class_threshold)."
+"Compare two models on the same labeled split (paired outcomes & "
+"disagreements)"
 msgstr ""
-"Im datensatzgewichteten Modus: Klassen mit weniger Bildern als dieser Wert "
-"verwenden eine proportionale Testanzahl; größere Klassen verwenden „Anker + "
-"Anker × (Klassenanteil)“. Weglassen, um „--test-per-class“ als Schwellenwert"
-" zu verwenden (Standard: pipeline data.test_small_class_threshold)."
+"Vergleiche zwei Modelle anhand derselben beschrifteten Aufteilung (gepaarte "
+"Ergebnisse und Diskrepanzen)"
 
-#: mb/cli.py:336
+#: mb/cli/parsing/evaluate.py:193
 msgid ""
-"Random seed for reproducibility (default: data.seed from pipeline YAML when "
-"set, else non-deterministic)"
+"Runs both checkpoints on the same ImageFolder split in lockstep: top-1 "
+"accuracy each, a 2×2-style breakdown (both correct, only A, only B, both "
+"wrong vs folder labels), and how often A and B disagree on the predicted "
+"class. PyTorch and Keras supported when both files use the same framework."
 msgstr ""
-"Zufallszahl für die Reproduzierbarkeit (Standard: „data.seed“ aus der "
-"Pipeline-YAML-Datei, sofern festgelegt; andernfalls nicht deterministisch)"
+"Führt beide Prüfpunkte auf demselben ImageFolder im Gleichschritt durch: "
+"jeweils die Genauigkeit der Top-1-Vorhersage, eine Aufschlüsselung im "
+"2×2-Format (beide richtig, nur A, nur B, beide falsch im Vergleich zu den "
+"Ordnerbezeichnungen) und die Häufigkeit, mit der A und B bei der "
+"vorhergesagten Klasse voneinander abweichen. PyTorch und Keras werden "
+"unterstützt, wenn beide Dateien dasselbe Framework verwenden."
 
-#: mb/cli.py:375
-msgid "Rename mislabeled .jpg sources and rebuild CONVERTED JPEGs"
-msgstr ""
-"Falsch benannte .jpg-Quelldateien umbenennen und die konvertierten JPEGs neu"
-" erstellen"
+#: mb/cli/parsing/evaluate.py:203
+msgid "Path to first model file (.pth / .pt / .h5 / .keras)"
+msgstr "Pfad zur ersten Modell-Datei (.pth / .pt / .h5 / .keras)"
 
-#: mb/cli.py:377
+#: mb/cli/parsing/evaluate.py:209
+msgid "Path to second model file (.pth / .pt / .h5 / .keras)"
+msgstr "Pfad zur zweiten Modelldatei (.pth / .pt / .h5 / .keras)"
+
+#: mb/cli/parsing/evaluate.py:221
 msgid ""
-"Finds non-JPEG bytes under .jpg/.jpeg names in class source trees (same "
-"discovery as convert), writes corrected JPEGs, and removes stale copies "
-"under CONVERTED and small_images_review only after a successful write. "
-"Animated GIFs use the same random-frame + visual_media_review layout as "
-"convert when the model type is image_classification."
+"Training framework hint for both models (default: infer from each file)"
 msgstr ""
-"Sucht in den Quellcode-Verzeichnissen der Klassen nach Nicht-JPEG-Bytes "
-"unter .jpg/.jpeg-Dateinamen (gleiche Erkennung wie bei „convert“), schreibt "
-"korrigierte JPEGs und entfernt veraltete Kopien unter „CONVERTED“ und "
-"„small_images_review“ erst nach erfolgreichem Speichern. Animierte GIFs "
-"verwenden dasselbe Layout aus „random-frame“ und „visual_media_review“ wie "
-"„convert“, wenn der Modelltyp „image_classification“ ist."
+"Hinweis zum Trainingsrahmen für beide Modelle (Standard: aus jeder Datei "
+"ableiten)"
 
-#: mb/cli.py:388
+#: mb/cli/parsing/evaluate.py:227
 msgid ""
-"Raw data directory (default: data.raw_data_dir from the pipeline config "
-"after --config; same as gather/convert when omitted)."
+"Optional framework hint for model B only (default: same as --framework)"
 msgstr ""
-"Verzeichnis für Rohdaten (Standard: „data.raw_data_dir“ aus der Pipeline-"
-"Konfiguration nach „--config“; entspricht „gather/convert“, wenn nicht "
-"angegeben)."
+"Optionaler Rahmenhinweis nur für Modell B (Standard: wie bei --framework)"
 
-#: mb/cli.py:395
-msgid "Log planned repairs only; do not rename files or write outputs."
-msgstr ""
-"Nur geplante Reparaturen protokollieren; Dateien nicht umbenennen und keine "
-"Ausgaben schreiben."
+#: mb/cli/parsing/evaluate.py:233
+msgid "Model architecture id for PyTorch model A (e.g. resnet34)"
+msgstr "Modellarchitektur-ID für das PyTorch-Modell A (z. B. resnet34)"
 
-#: mb/cli.py:402
+#: mb/cli/parsing/evaluate.py:239
 msgid ""
-"Print newline-delimited JSON (stdout): dry-run or live repair. By default "
-"only actionable mismatches are listed; use -v to include policy-skipped "
-"PNG/WebP/BMP/TIFF under .jpg. Live repair emits one line per successful fix "
-"when applicable."
+"Architecture for PyTorch model B when it differs from model A (default: "
+"--architecture)"
 msgstr ""
-"JSON mit Zeilenumbrüchen ausgeben (stdout): Testlauf oder Live-Reparatur. "
-"Standardmäßig werden nur behebbare Abweichungen aufgelistet; verwende -v, um"
-" von der Richtlinie übersprungene PNG-/WebP-/BMP-/TIFF-Dateien unter .jpg "
-"einzubeziehen. Bei der Live-Reparatur wird gegebenenfalls eine Zeile pro "
-"erfolgreicher Korrektur ausgegeben."
+"Architektur für das PyTorch-Modell B, wenn es sich von Modell A "
+"unterscheidet (Standard: --architecture)"
 
-#: mb/cli.py:411
+#: mb/cli/parsing/evaluate.py:283
 msgid ""
-"With --dry-run and --json: include Pillow format and GIF metadata in each "
-"JSON object."
+"Cap printed / exported rows where A and B disagree on class (default: no "
+"cap; totals still full)"
 msgstr ""
-"Mit den Optionen --dry-run und --json: Füge das Pillow-Format und die GIF-"
-"Metadaten in jedes JSON-Objekt ein."
+"Zeilen, bei denen A und B hinsichtlich der Klasse nicht übereinstimmen, "
+"werden ausgeblendet bzw. exportiert (Standard: keine Ausblendung; Summen "
+"werden weiterhin vollständig angezeigt)"
 
-#: mb/cli.py:418
+#: mb/cli/parsing/evaluate.py:291
 msgid ""
-"With --dry-run: omit verbose per-file log lines (use with --json for "
-"machine-readable output only)."
+"Optional TSV path for disagreement rows (summary still prints to stdout)"
 msgstr ""
-"Mit --dry-run: Ausführliche Protokollzeilen pro Datei werden weggelassen "
-"(nur in Verbindung mit --json für maschinenlesbare Ausgabe verwenden)."
+"Optionaler TSV-Pfad für Zeilen mit Abweichungen (die Zusammenfassung wird "
+"weiterhin auf stdout ausgegeben)"
 
-#: mb/cli.py:427
+#: mb/evaluate/_weights.py:29
+msgid "PyTorch file did not contain a dictionary checkpoint or state_dict."
+msgstr ""
+"Die PyTorch-Datei enthielt weder einen „dictionary checkpoint“ noch ein "
+"„state_dict“."
+
+#: mb/evaluate/_weights.py:39
 msgid ""
-"With --json: include policy-skipped static-format mismatches in JSON output."
-" In text mode: log each policy-skipped file and class progress for every "
-"folder; with live repair, log each skipped file. Useless with --quiet. "
-"Separate from top-level mb -v (global logging)."
+"Unrecognized PyTorch checkpoint layout (expected state_dict keys or "
+"model_state_dict)."
 msgstr ""
-"Mit --json: Unstimmigkeiten im statischen Format, die aufgrund von "
-"Richtlinien übersprungen wurden, in die JSON-Ausgabe aufnehmen. Im "
-"Textmodus: Für jeden Ordner den Fortschritt für jede übersprungene Datei und"
-" Klasse protokollieren; bei der Live-Reparatur jede übersprungene Datei "
-"protokollieren. Bei Verwendung von --quiet ohne Wirkung. Unabhängig von der "
-"obersten Option mb -v (globale Protokollierung)."
+"Unbekanntes PyTorch-Checkpoint-Layout (erwartet wurden "
+"„state_dict“-Schlüssel oder „model_state_dict“)."
 
-#: mb/cli.py:437
+#: mb/evaluate/compare.py:34
+msgid "Object detection compare is not implemented yet."
+msgstr "Objekterkennung vergleichen ist nicht implementiert."
+
+#: mb/evaluate/compare.py:35
+msgid "Unsupported model type for compare: {t}"
+msgstr "Ununterstützter Modelltyp für die Vergleichung: {t}"
+
+#: mb/evaluate/compare.py:42
+msgid "Model A: {path} ({fw})"
+msgstr "Modell A: {path} ({fw})"
+
+#: mb/evaluate/compare.py:43
+msgid "Model B: {path} ({fw})"
+msgstr "Modell B: {path} ({fw})"
+
+#: mb/evaluate/compare.py:44 mb/evaluate/metrics.py:42
+#: mb/evaluate/misclassified.py:49
+msgid "Data: {path}"
+msgstr "Daten: {path}"
+
+#: mb/evaluate/compare.py:45 mb/evaluate/metrics.py:44
+msgid "Samples: {n}"
+msgstr "Beispiele: {n}"
+
+#: mb/evaluate/compare.py:46
+msgid "Top-1 accuracy A: {acc:.2f}%"
+msgstr "Top-1 Genauigkeit A: {acc:.2f}%"
+
+#: mb/evaluate/compare.py:47
+msgid "Top-1 accuracy B: {acc:.2f}%"
+msgstr "Top-1 Genauigkeit B: {acc:.2f}%"
+
+#: mb/evaluate/compare.py:50
+msgid "Average loss A: {loss:.4f}"
+msgstr "Durchschnittliche Verluste A: {loss:.4f}"
+
+#: mb/evaluate/compare.py:52
+msgid "Average loss B: {loss:.4f}"
+msgstr "Durchschnittliche Verluste B: {loss:.4f}"
+
+#: mb/evaluate/compare.py:54
+msgid "Paired outcomes vs folder label (each row is one image):"
+msgstr ""
+"Gepaarte Ergebnisse im Vergleich zur Ordnerbezeichnung (jede Zeile "
+"entspricht einem Bild):"
+
+#: mb/evaluate/compare.py:56
+msgid "  both correct: {n} ({pct:.1f}%)"
+msgstr "  beides richtig: {n} ({pct:.1f} %)"
+
+#: mb/evaluate/compare.py:59
+msgid "  only A correct: {n} ({pct:.1f}%)"
+msgstr "  only A correct: {n} ({pct:.1f}%)"
+
+#: mb/evaluate/compare.py:64
+msgid "  only B correct: {n} ({pct:.1f}%)"
+msgstr "  Nur B ist richtig: {n} ({pct:.1f} %)"
+
+#: mb/evaluate/compare.py:69
+msgid "  both wrong: {n} ({pct:.1f}%)"
+msgstr "  beides falsch: {n} ({pct:.1f} %)"
+
+#: mb/evaluate/compare.py:73
+msgid "Prediction disagreement (A class ≠ B class): {n} ({pct:.1f}%)"
+msgstr ""
+"Diskrepanz bei der Vorhersage (Klasse A ≠ Klasse B): {n} ({pct:.1f} %)"
+
+#: mb/evaluate/compare.py:79
 msgid ""
-"Also rename/repair mislabeled .jpg/.jpeg whose bytes are PNG, WebP, BMP, or "
-"TIFF. By default those are counted and summarized per class only (GIF and "
-"animated-IC cases are always repaired)."
+"Note: disagreement counts images where A and B pick different classes; when "
+"both match the folder label, that still counts as both correct above."
 msgstr ""
-"Benenne außerdem falsch beschriftete .jpg/.jpeg-Dateien um bzw. repariere "
-"sie, deren Byte-Inhalt aus PNG, WebP, BMP oder TIFF besteht. Standardmäßig "
-"werden diese nur nach Dateityp gezählt und zusammengefasst (GIF- und "
-"animierte IC-Dateien werden immer repariert)."
+"Hinweis: Als „Uneinigkeit“ gelten Fälle, in denen A und B unterschiedliche "
+"Klassen auswählen; wenn beide die Ordnerbezeichnung übereinstimmen, gilt "
+"dies weiterhin als „beide richtig“."
 
-#: mb/cli.py:445
-msgid "Pipeline model type (default: model.default_type)."
-msgstr "Pipeline-Modelltyp (Standard: model.default_type)."
+#: mb/evaluate/compare.py:84
+msgid "Disagreement rows printed: {k}"
+msgstr "Missstimmung Zeilen Druck: {k}"
 
-#: mb/cli.py:451
-msgid "RNG seed for random GIF frame selection (optional)."
-msgstr ""
-"RNG-Zaehler für die zufällige Auswahl von GIF-Bildschirmausschnitten "
-"(optional)."
-
-#: mb/cli.py:677
-msgid "Export model bundle artifacts"
-msgstr "Exportieren Sie die Modellbündel-Artefakte"
-
-#: mb/cli.py:679
+#: mb/evaluate/compare.py:87
 msgid ""
-"Export deployment bundle artifacts such as safetensors weights and metadata "
-"manifests."
+"(Use --max-disagreement-report to print more; counts above are for the full "
+"split.)"
 msgstr ""
-"Exportieren Sie Artefakte des Bereitstellungs-Bundles, wie beispielsweise "
-"Safetensors-Gewichtungen und Metadaten-Manifeste."
+"(Verwenden Sie --max-disagreement-report, um weitere Informationen "
+"anzuzeigen; die oben genannten Zahlen beziehen sich auf die vollständige "
+"Aufteilung.)"
 
-#: mb/cli.py:684
-msgid "Export subcommands"
-msgstr "Export-Unterbefehle"
+#: mb/evaluate/compare.py:151 mb/evaluate/compare.py:187
+msgid "Model A file not found: {path}"
+msgstr "Modell A Datei nicht gefunden: {path}"
 
-#: mb/cli.py:690
+#: mb/evaluate/compare.py:154 mb/evaluate/compare.py:190
+msgid "Model B file not found: {path}"
+msgstr "Modell B-Datei nicht gefunden: {path}"
+
+#: mb/evaluate/compare.py:164
+msgid "--architecture is required for PyTorch model A in dry-run validation."
+msgstr ""
+"--architecture ist für das PyTorch-Modell A bei der Trockenlauf-Validierung "
+"erforderlich."
+
+#: mb/evaluate/compare.py:170
 msgid ""
-"Export a model bundle (safetensors + manifest + optional architecture stub)"
+"Model B is PyTorch: provide --architecture-b or share --architecture in dry-"
+"run."
 msgstr ""
-"Ein Modellpaket exportieren (Sicherheitssensoren + Manifest + optionaler "
-"Architektur-Stub)"
+"Modell B ist PyTorch: geben Sie --architecture-b oder teilen Sie "
+"--architecture in einem Trockenlauf."
 
-#: mb/cli.py:692
-msgid "Input model file (.pth/.pt)"
-msgstr "Eingabedatei des Modells (.pth/.pt)"
-
-#: mb/cli.py:693
-msgid "Output bundle directory"
-msgstr "Bundle-Ausgabeverzeichnis"
-
-#: mb/cli.py:694
-msgid "Model architecture id (e.g. resnet34)"
-msgstr "Modellarchitektur-ID (z. B. resnet34)"
-
-#: mb/cli.py:695
-msgid "Number of output classes"
-msgstr "Anzahl von Ausgabetypen"
-
-#: mb/cli.py:696
-msgid "Optional ordered class names"
-msgstr "Optionale geordnete Klassen-Namen"
-
-#: mb/cli.py:697
-msgid "Optional data dir to infer class names from train/"
-msgstr ""
-"Optionales Datenverzeichnis, aus dem Klassennamen aus „train/“ abgeleitet "
-"werden"
-
-#: mb/cli.py:698
-msgid "Expected input image size (defaults to pipeline)"
-msgstr "Erwartete Größe des Eingabebildes (Standard: Pipeline)"
-
-#: mb/cli.py:699
-msgid "Optional snapshot JSON path"
-msgstr "Optionales Snap-JSON-Pfad"
-
-#: mb/cli.py:703
-msgid "Do not emit model_architecture.py stub"
-msgstr "Den Stub „model_architecture.py“ nicht ausgeben"
-
-#: mb/cli.py:705
-msgid "Optional run ID to include in manifest"
-msgstr "Optionale Ausführungs-ID zum Einbinden im Manifest"
-
-#: mb/cli.py:899
-msgid "--pillow and --quiet require --dry-run"
-msgstr "--Kissen und --still erfordern --trockenläufen"
-
-#: mb/cli.py:902
-msgid "--pillow requires --json"
-msgstr "--pillow erfordert --json"
-
-#: mb/cli.py:1208
-msgid "Bundle export completed: {path}"
-msgstr "Bundle-Export abgeschlossen: {path}"
-
-#: mb/cli.py:1209 ui/pages/export_page.py:338
-msgid "Weights: {path}"
-msgstr "Gewichte: {path}"
-
-#: mb/cli.py:1210 ui/pages/export_page.py:339
-msgid "Manifest: {path}"
-msgstr "Manifest: {path}"
-
-#: mb/cli.py:1212 ui/pages/export_page.py:342
-msgid "Architecture stub: {path}"
-msgstr "Architekturstub: {path}"
-
-#: mb/cli.py:1215
-msgid "Export failed: {err}"
-msgstr "Export fehlgeschlagen: {err}"
-
-#: mb/cli.py:1286
-msgid "No export subcommand specified"
-msgstr "Kein Export-Unterbefehl angegeben"
-
-#: mb/cli.py:1290
-msgid "Unknown export subcommand: {cmd}"
-msgstr "Unbekannter Export-Unterbefehl: {cmd}"
-
-#: mb/cli.py:1294
-msgid "Unhandled export subcommand: {cmd}"
-msgstr "Unbehandelter Export-Unterbefehl: {cmd}"
-
-#: mb/utils/recent_run_history.py:134
+#: mb/evaluate/compare.py:174
 msgid ""
-"No runs recorded yet.\n"
-"\n"
-"Completed and failed jobs from Data, Train, Convert, and Export are listed here."
+"Dry-run OK: would compare models {a} and {b} on {data} (frameworks "
+"{fa}/{fb})"
 msgstr ""
-"Es wurden noch keine Durchläufe verzeichnet.\n"
-"\n"
-"Hier werden abgeschlossene und fehlgeschlagene Aufträge aus den Bereichen „Daten“, „Trainieren“, „Konvertieren“ und „Exportieren“ aufgelistet."
+"Testlauf erfolgreich: Modelle {a} und {b} sollen anhand der Daten {data} "
+"verglichen werden (Frameworks {fa}/{fb})"
 
-#: ui/lib/duplicates_resolver_window.py:33
-msgid "Duplicate Resolver"
-msgstr "Duplikationsauflöser"
+#: mb/evaluate/compare.py:182
+msgid "--max-disagreement-report must be at least 1 when provided."
+msgstr ""
+"--max-disagreement-report muss mindestens 1 sein, wenn es angegeben ist."
 
-#: ui/lib/duplicates_resolver_window.py:40
+#: mb/evaluate/compare.py:197
 msgid ""
-"Review potential duplicates from snapshot metadata. Select one path and copy"
-" it, or remove the non-selected peer when exactly two files remain in a "
-"group."
+"Compare evaluation failed for model type {mt} (subcommand {sub}). Use two "
+"checkpoints of the same framework on the same ImageFolder split; PyTorch "
+"needs --architecture (A) and optionally --architecture-b. Underlying error: "
+"{err}"
 msgstr ""
-"Überprüfen Sie die Metadaten der Snapshots auf mögliche Duplikate. Wählen "
-"Sie einen Pfad aus und kopieren Sie ihn, oder entfernen Sie den nicht "
-"ausgewählten Eintrag, sobald genau zwei Dateien in einer Gruppe verbleiben."
+"Der Vergleich der Auswertung für den Modelltyp {mt} (Unterbefehl {sub}) ist "
+"fehlgeschlagen. Verwenden Sie zwei Checkpoints desselben Frameworks auf "
+"derselben ImageFolder-Aufteilung; PyTorch benötigt --architecture (A) und "
+"optional --architecture-b. Grundlegender Fehler: {err}"
 
-#: ui/lib/duplicates_resolver_window.py:59
-msgid "Close"
-msgstr "Schließen"
+#: mb/evaluate/compare.py:214
+msgid "Import error during compare: {err}"
+msgstr "Importfehler während der Vergleich: {err}"
 
-#: ui/lib/duplicates_resolver_window.py:76
-#: ui/lib/duplicates_resolver_window.py:157
-#: ui/lib/duplicates_resolver_window.py:164
-msgid "{gid} ({count} files)"
-msgstr "{gid} ({count} Dateien)"
+#: mb/evaluate/compare.py:227
+msgid "Wrote {n} disagreement rows to {path}"
+msgstr "hat {n} Diskrepanzenzeilen an {Pfad} geschrieben"
 
-#: ui/lib/duplicates_resolver_window.py:91
-msgid "Copy selected path"
-msgstr "Kopieren ausgewählten Pfad"
+#: mb/evaluate/metrics.py:34
+msgid "Object detection metrics are not implemented yet."
+msgstr "Metriken zur Objekterkennung sind noch nicht implementiert."
 
-#: ui/lib/duplicates_resolver_window.py:93
-msgid "Remove non-selected peer"
-msgstr "Nicht ausgewählten _PEER_ entfernen"
+#: mb/evaluate/metrics.py:35
+msgid "Unsupported model type for metrics: {t}"
+msgstr "Ununterstützener Modelltyp für Metriken: {t}"
 
-#: ui/lib/duplicates_resolver_window.py:111
-#: ui/lib/duplicates_resolver_window.py:129
-msgid "No selection"
-msgstr "Keine Auswahl"
+#: mb/evaluate/metrics.py:41 mb/evaluate/misclassified.py:48
+msgid "Model: {path}"
+msgstr "Modell: {Pfad}"
 
-#: ui/lib/duplicates_resolver_window.py:111
-msgid "Select a file path first."
-msgstr "Wählen Sie einen Dateipfad zuerst aus."
+#: mb/evaluate/metrics.py:43 mb/evaluate/misclassified.py:50
+msgid "Framework: {fw}"
+msgstr "Rahmenwerk: {fw}"
 
-#: ui/lib/duplicates_resolver_window.py:115
-#: ui/lib/duplicates_resolver_window.py:143
-#: ui/lib/duplicates_resolver_window.py:149
-msgid "Unavailable"
-msgstr "Nicht verfügbar"
+#: mb/evaluate/metrics.py:45
+msgid "Top-1 accuracy: {acc:.2f}%"
+msgstr "Top-1 Genauigkeit: {acc:.2f}%"
 
-#: ui/lib/duplicates_resolver_window.py:115
-msgid "Selected item has no path."
-msgstr "Ausgewählten Objekt hat keinen Pfad."
+#: mb/evaluate/metrics.py:48
+msgid "Average loss: {loss:.4f}"
+msgstr "Durchschnittlicher Verlust: {loss:.4f}"
 
-#: ui/lib/duplicates_resolver_window.py:123
-msgid "Action not allowed"
-msgstr "Die Aktion ist nicht erlaubt"
+#: mb/evaluate/metrics.py:50
+msgid "Per-class correct / total:"
+msgstr "Pro-Klassen richtig / gesamt:"
 
-#: ui/lib/duplicates_resolver_window.py:124
-msgid "This action requires exactly two files in the group."
-msgstr "Für diese Aktion sind genau zwei Dateien in der Gruppe erforderlich."
+#: mb/evaluate/metrics.py:55
+msgid "Confusion matrix (rows=true class, cols=predicted):"
+msgstr ""
+"Verwechslungsmatrix (Zeilen = tatsächliche Klasse, Spalten = vorhergesagte "
+"Klasse):"
 
-#: ui/lib/duplicates_resolver_window.py:129
-msgid "Select the file you want to keep."
-msgstr "Wählen Sie die Datei aus, die Sie behalten möchten."
+#: mb/evaluate/metrics.py:84 mb/evaluate/metrics.py:105
+#: mb/evaluate/misclassified.py:80 mb/evaluate/misclassified.py:101
+msgid "Model file not found: {path}"
+msgstr "Modelldatei nicht gefunden: {path}"
 
-#: ui/lib/duplicates_resolver_window.py:143
-msgid "Could not resolve peer file path."
-msgstr "Der Dateipfad des Peers konnte nicht aufgelöst werden."
+#: mb/evaluate/metrics.py:94 mb/evaluate/misclassified.py:90
+msgid "--architecture is required for PyTorch models in dry-run validation."
+msgstr ""
+"--architecture ist für PyTorch-Modelle bei der Trockenlauf-Validierung "
+"erforderlich."
 
-#: ui/lib/duplicates_resolver_window.py:149
-msgid "Peer file path is empty."
-msgstr "Der Dateipfad des Peers ist leer."
+#: mb/evaluate/metrics.py:97
+msgid "Dry-run OK: would score model {model} on {data} (framework={fw})"
+msgstr ""
+"Testlauf erfolgreich: Würde das Modell {model} auf {data} anwenden "
+"(Framework={fw})"
 
-#: ui/lib/duplicates_resolver_window.py:152
+#: mb/evaluate/metrics.py:120
+msgid "Import error during evaluation: {err}"
+msgstr "Importfehler während der Auswertung: {err}"
+
+#: mb/evaluate/metrics.py:123
+msgid "Evaluation failed: {err}"
+msgstr "Evaluierung fehlgeschlagen: {err}"
+
+#: mb/evaluate/misclassified.py:41
+msgid "Object detection misclassified listing is not implemented yet."
+msgstr ""
+"Die Funktion zur Erkennung falsch klassifizierter Einträge ist noch nicht "
+"implementiert."
+
+#: mb/evaluate/misclassified.py:42
+msgid "Unsupported model type for misclassified: {t}"
+msgstr "Nichtunterstützter Modelltyp für fehlklassifizierte: {t}"
+
+#: mb/evaluate/misclassified.py:51
+msgid "Scanned images: {n}"
+msgstr "Gescannte Bilder: {n}"
+
+#: mb/evaluate/misclassified.py:52
+msgid "Misclassified (total): {m}"
+msgstr "Falsch klassifiziert (gesamt): {m}"
+
+#: mb/evaluate/misclassified.py:53
+msgid "Rows printed: {k}"
+msgstr ""
+
+#: mb/evaluate/misclassified.py:57
 msgid ""
-"Peer file no longer exists:\n"
-"{p}"
+"(Increase --max-report to print more rows; totals above are for the full "
+"split.)"
 msgstr ""
-"Die Datei des Peers existiert nicht mehr:\n"
-"{p}"
+"(Erhöhen Sie den Wert von --max-report, um mehr Zeilen anzuzeigen; die oben "
+"angegebenen Summen beziehen sich auf die gesamte Aufteilung.)"
 
-#: ui/lib/training_progress_dialog.py:69
-#: ui/lib/training_progress_dialog.py:100
-#: ui/lib/training_progress_dialog.py:148
-msgid "Current epoch ETA: —"
-msgstr "Aktuelle Epoche ETA: —"
-
-#: ui/lib/training_progress_dialog.py:161
-#: ui/lib/training_progress_dialog.py:166
-#: ui/lib/training_progress_dialog.py:171
-msgid "Current epoch ETA: calculating…"
-msgstr "Aktuelle Epoche ETA: Berechnung läuft…"
-
-#: ui/lib/training_progress_dialog.py:177
-msgid "Current epoch ETA: {eta}"
-msgstr "Aktuelle Epoche ETA: {eta}"
-
-#: ui/pages/data_page.py:156
+#: mb/evaluate/misclassified.py:93
 msgid ""
-"Typical order: Gather → Convert → Deduplicate (optional) → Upscale "
-"(optional) → Create Dataset. If class folders are already under your raw "
-"data root, skip Gather and start at Convert. If sources were mislabeled as "
-".jpg, run fix-jpeg-extension-mismatch before Create Dataset (it repairs "
-"CONVERTED/ and updates the unified snapshot—no separate full Convert needed "
-"for that). Create Dataset reads training JPEGs from each class’s CONVERTED/ "
-"folder only—not from small_images_review, upscaled_small_images, or "
-"visual_media_review. See docs/DATA_PIPELINE.md for storage on external "
-"drives and large vs small images."
+"Dry-run OK: would list misclassified for model {model} on {data} "
+"(framework={fw})"
 msgstr ""
-"Typische Reihenfolge: Sammeln → Konvertieren → Deduplizieren (optional) → "
-"Hochskalieren (optional) → Datensatz erstellen. Wenn sich Klassenordner "
-"bereits im Stammverzeichnis Ihrer Rohdaten befinden, überspringen Sie "
-"„Sammeln“ und beginnen Sie mit „Konvertieren“. Wenn Quellen "
-"fälschlicherweise als .jpg gekennzeichnet wurden, führen Sie vor dem "
-"Erstellen des Datensatzes „fix-jpeg-extension-mismatch“ aus (dies repariert "
-"CONVERTED/ und aktualisiert den einheitlichen Snapshot – dafür ist keine "
-"separate vollständige Konvertierung erforderlich).  „Create Dataset“ liest "
-"Trainings-JPEGs ausschließlich aus dem Ordner „CONVERTED/“ der jeweiligen "
-"Klasse – nicht aus den Ordnern „small_images_review“, "
-"„upscaled_small_images“ oder „visual_media_review“. Informationen zur "
-"Speicherung auf externen Laufwerken sowie zu großen und kleinen Bildern "
-"findest du in der Datei „docs/DATA_PIPELINE.md“."
+"Testlauf erfolgreich: Liste der falsch klassifizierten Einträge für das "
+"Modell {model} in {data} (Framework={fw})"
 
-#: ui/pages/data_page.py:170
-msgid "Wildcard"
-msgstr "Wildcard"
+#: mb/evaluate/misclassified.py:110
+msgid "--max-report must be at least 1 when provided."
+msgstr "--max-report muss mindestens 1 sein, wenn angegeben."
 
-#: ui/pages/data_page.py:176
+#: mb/evaluate/misclassified.py:114
 msgid ""
-"Example:\n"
-"--dry-run --json\n"
-"--raw-data-dir C:\\path\\to\\raw_data"
+"Misclassified evaluation failed for model type {mt} (subcommand {sub}). This"
+" flow only supports image classification checkpoints that match the dataset "
+"layout, --architecture (PyTorch), and class counts. Underlying error: {err}"
 msgstr ""
-"Example:\n"
-"--dry-run --json\n"
-"--raw-data-dir C:\\Pfad\\zu\\Rohdaten"
+"Die Bewertung der Fehlklassifizierung für den Modelltyp {mt} (Unterbefehl "
+"{sub}) ist fehlgeschlagen. Dieser Ablauf unterstützt nur Checkpoints für die"
+" Bildklassifizierung, die mit dem Layout des Datensatzes, der Architektur "
+"(PyTorch) und der Anzahl der Klassen übereinstimmen. Grundlegender Fehler: "
+"{err}"
 
-#: ui/pages/data_page.py:188
+#: mb/evaluate/misclassified.py:131
+msgid "Import error during misclassified evaluation: {err}"
+msgstr "Importfehler während der verfehlten Bewertung: {err}"
+
+#: mb/evaluate/misclassified.py:142
+msgid "Wrote {n} rows to {path}"
+msgstr "Schrieb {n} Zeilen zu {Pfad}"
+
+#: mb/evaluate/classification/image_compare.py:29
 msgid ""
-"No space estimate yet. It updates after the disk-space check finishes (first"
-" phase of Convert or Create Dataset)."
+"Compare requires both checkpoints to use the same framework (got {a} vs "
+"{b}). Mixed PyTorch / Keras is not supported yet."
 msgstr ""
-"Es liegt noch keine Schätzung des Speicherplatzbedarfs vor. Diese wird "
-"angezeigt, sobald die Überprüfung des Speicherplatzes abgeschlossen ist "
-"(erste Phase von „Konvertieren“ oder „Datensatz erstellen“)."
+"Für den Vergleich müssen beide Checkpoints dasselbe Framework verwenden "
+"(entweder {a} oder {b}). Eine gemischte Verwendung von PyTorch und Keras "
+"wird derzeit noch nicht unterstützt."
 
-#: ui/pages/data_page.py:210 ui/pages/data_page.py:654
-msgid "Snapshot Run ID (optional)"
-msgstr "Schnappschusslauf-ID (optional)"
+#: mb/evaluate/classification/image_compare.py:45
+msgid "--architecture is required for PyTorch compare (model A)."
+msgstr "--architecture ist für den PyTorch-Vergleich (Modell A) erforderlich."
 
-#: ui/pages/data_page.py:214 ui/pages/data_page.py:644
+#: mb/evaluate/classification/image_compare.py:48
 msgid ""
-"Review cross-class duplicates only: same-class CONVERTED duplicates are "
-"removed automatically; JSON + resolver list cross-class groups after run"
+"Model B needs --architecture-b or the same --architecture when B is PyTorch."
 msgstr ""
-"Nur klassenübergreifende Duplikate prüfen: Duplikate derselben Klasse, die "
-"konvertiert wurden, werden automatisch entfernt; JSON + Resolver listet nach"
-" der Ausführung klassenübergreifende Gruppen auf"
+"Modell B benötigt --architecture-b oder dieselbe --architecture, wenn B "
+"PyTorch ist."
 
-#: ui/pages/data_page.py:243
+#: mb/evaluate/classification/image_compare.py:58
+#: mb/evaluate/classification/image_compare.py:192
+#: mb/evaluate/classification/image_metrics.py:84
+#: mb/evaluate/classification/image_metrics.py:159
+#: mb/evaluate/classification/image_misclassified.py:39
+#: mb/evaluate/classification/image_misclassified.py:123
+msgid "--num-classes ({n}) does not match directory class count ({c})."
+msgstr ""
+"--num-classes ({n}) stimmt nicht mit der Anzahl der Klassen im Verzeichnis "
+"({c}) überein."
+
+#: mb/evaluate/classification/image_compare.py:175
+msgid "TensorFlow is required for Keras compare: {err}"
+msgstr "TensorFlow wird für die Keras-Vergleich erfordert: {err}"
+
+#: mb/evaluate/classification/image_compare.py:186
+#: mb/evaluate/classification/image_metrics.py:42
+#: mb/evaluate/classification/image_metrics.py:153
+#: mb/evaluate/classification/image_misclassified.py:117
+msgid "No images found under {path}"
+msgstr "Keine Bilder unter {pfad} gefunden"
+
+#: mb/evaluate/classification/image_compare.py:283
+msgid "Unsupported framework for compare: {fw}"
+msgstr "Nicht unterstütztes Framework für den Vergleich: {fw}"
+
+#: mb/evaluate/classification/image_metrics.py:59
+msgid "Could not detect model framework from {path}"
+msgstr "Konnte kein Modellrahmen aus {Pfad} ermitteln"
+
+#: mb/evaluate/classification/image_metrics.py:63
+msgid "Framework {fw} is not supported for metrics (use PyTorch or Keras)."
+msgstr ""
+"Das Framework {fw} wird für Metriken nicht unterstützt (verwenden Sie "
+"PyTorch oder Keras)."
+
+#: mb/evaluate/classification/image_metrics.py:75
+msgid "--architecture is required for PyTorch metrics evaluation."
+msgstr ""
+"--Die Architektur ist für die PyTorch-Metriken-Auswertung erforderlich."
+
+#: mb/evaluate/classification/image_metrics.py:142
+msgid "TensorFlow is required for Keras metrics: {err}"
+msgstr "TensorFlow ist für die Keras-Metriken erforderlich: {err}"
+
+#: mb/evaluate/classification/image_metrics.py:203
+msgid "Unsupported framework for metrics: {fw}"
+msgstr "Nichtunterstützter Framework für Metriken: {fw}"
+
+#: mb/evaluate/classification/image_misclassified.py:30
+msgid "--architecture is required for PyTorch misclassified listing."
+msgstr ""
+"--architecture ist für die Auflistung von Fehlklassifizierungen in PyTorch "
+"erforderlich."
+
+#: mb/evaluate/classification/image_misclassified.py:106
+msgid "TensorFlow is required for Keras misclassified listing: {err}"
+msgstr "Für Keras ist TensorFlow erforderlich. Fehlermeldung: {err}"
+
+#: mb/evaluate/classification/image_misclassified.py:171
+msgid "Unsupported framework for misclassified: {fw}"
+msgstr "Nicht unterstütztes Framework für fehlklassifizierte: {fw}"
+
+#: ui/pages/evaluate_page.py:75 ui/pages/evaluate_page.py:153
+msgid "Infer from file"
+msgstr "Dateien von Dateien analysieren"
+
+#: ui/pages/evaluate_page.py:94 ui/pages/evaluate_page.py:155
+msgid "optional, e.g. cuda or cpu"
+msgstr "optional, z.B. cuda oder cpu"
+
+#: ui/pages/evaluate_page.py:96 ui/pages/evaluate_page.py:140
+msgid "Eval data dir (ImageFolder)"
+msgstr "Eval Datenverzeichnis (ImageFolder)"
+
+#: ui/pages/evaluate_page.py:98 ui/pages/evaluate_page.py:142
+msgid "Model checkpoint"
+msgstr "Modell-Checkpoint"
+
+#: ui/pages/evaluate_page.py:105 ui/pages/evaluate_page.py:149
+msgid "Device"
+msgstr "Gerät"
+
+#: ui/pages/evaluate_page.py:132
 msgid ""
-"Before Create Dataset: (1) Raw data must use one folder per class under the "
-"raw data root (run Gather first if you do not already have that layout). (2)"
-" Run Convert so each class has normalized JPEGs under CONVERTED/ and the "
-"unified snapshot matches your sources. (3) If any files had the wrong "
-"extension for their actual image bytes, run mb data fix-jpeg-extension-"
-"mismatch (or the Wildcard tab with that subcommand)—it rewrites CONVERTED/ "
-"and patches the unified snapshot for those files; you do not need a second "
-"full Convert just to refresh the snapshot. (4) Optional: Deduplicate may "
-"move borderline-small files out of CONVERTED/ into each class’s "
-"small_images_review/; Upscale is optional. Create Dataset reads JPEGs from "
-"CONVERTED/ only—put any images you still want trained back under CONVERTED/ "
-"(from small_images_review or from upscaled_small_images after upscale) "
-"before Create Dataset. (5) Choose an output data directory with enough free "
-"space; check “Allow external/removable storage” when writing to removable "
-"drives."
+"Score checkpoints on a labeled split, list disagreements with folder labels,"
+" or compare two models in one pass (CLI: {cmd})."
 msgstr ""
-"Vor dem Erstellen des Datensatzes: (1) Die Rohdaten müssen in einem eigenen "
-"Ordner pro Klasse unter dem Stammverzeichnis der Rohdaten abgelegt sein "
-"(führen Sie zunächst „Gather“ aus, falls Sie diese Struktur noch nicht "
-"haben). (2) Führen Sie „Convert“ aus, damit jede Klasse normalisierte JPEGs "
-"unter „CONVERTED/“ enthält und der einheitliche Snapshot mit Ihren Quellen "
-"übereinstimmt. (3) Falls Dateien eine falsche Dateiendung für ihre "
-"tatsächlichen Bilddaten hatten, führen Sie den Befehl „mb data fix-jpeg-"
-"extension-mismatch“ (oder die Registerkarte „Wildcard“ mit diesem "
-"Unterbefehl) aus – dadurch wird der Ordner „CONVERTED/“ neu geschrieben und "
-"der einheitliche Snapshot für diese Dateien korrigiert; Sie benötigen keinen"
-" zweiten vollständigen Konvertierungsvorgang, nur um den Snapshot zu "
-"aktualisieren. (4) Optional: Bei der Deduplizierung werden Dateien, die "
-"grenzwertig klein sind, möglicherweise aus dem Ordner „CONVERTED/“ in den "
-"Ordner „small_images_review/“ der jeweiligen Klasse verschoben; die "
-"Hochskalierung ist optional. „Create Dataset“ liest JPEGs ausschließlich aus"
-" dem Ordner „CONVERTED/“ – verschieben Sie alle Bilder, die Sie noch "
-"trainieren möchten, vor dem Ausführen von „Create Dataset“ zurück in den "
-"Ordner „CONVERTED/“ (aus „small_images_review“ oder aus "
-"„upscaled_small_images“ nach der Hochskalierung). (5) Wählen Sie ein "
-"Ausgabeverzeichnis mit ausreichend freiem Speicherplatz; aktivieren Sie "
-"„Externen/Wechselspeicher zulassen“, wenn Sie auf Wechseldatenträger "
-"schreiben."
+"Überprüfen Sie Kontrollpunkte in einem beschrifteten Split, listen Sie "
+"Abweichungen bei Ordnerbezeichnungen auf oder vergleichen Sie zwei Modelle "
+"in einem Durchgang (CLI: {cmd})."
 
-#: ui/pages/data_page.py:263 ui/pages/data_page.py:264
-#: ui/pages/data_page.py:265 ui/pages/train_page.py:200
-msgid "Latest"
-msgstr "Neueste"
+#: ui/pages/evaluate_page.py:136
+msgid "Shared with metrics / misclassified"
+msgstr "Mit Metriken geteilt / falsch klassifiziert"
 
-#: ui/pages/data_page.py:267
+#: ui/pages/evaluate_page.py:154 ui/pages/evaluate_page.py:424
+msgid "Same as primary"
+msgstr "Gleiches wie primär"
+
+#: ui/pages/evaluate_page.py:156
+msgid "Metrics"
+msgstr "Metriken"
+
+#: ui/pages/evaluate_page.py:157
+msgid "Misclassified"
+msgstr "Falsch klassifiziert"
+
+#: ui/pages/evaluate_page.py:158
+msgid "Compare"
+msgstr "Vergleichen"
+
+#: ui/pages/evaluate_page.py:162 ui/pages/evaluate_page.py:402
+msgid "Max rows (0 = no cap)"
+msgstr "Max Zeilen (0 = keine Begrenzung)"
+
+#: ui/pages/evaluate_page.py:162 ui/pages/evaluate_page.py:403
+msgid "Output CSV"
+msgstr "Ausgabe CSV"
+
+#: ui/pages/evaluate_page.py:166 ui/pages/evaluate_page.py:433
+msgid "Model A"
+msgstr "Modell A"
+
+#: ui/pages/evaluate_page.py:167 ui/pages/evaluate_page.py:434
+msgid "Model B"
+msgstr "Modell B"
+
+#: ui/pages/evaluate_page.py:168 ui/pages/evaluate_page.py:435
+msgid "Framework B"
+msgstr "Framework B"
+
+#: ui/pages/evaluate_page.py:169 ui/pages/evaluate_page.py:436
+msgid "Architecture B"
+msgstr "Architektur B"
+
+#: ui/pages/evaluate_page.py:170 ui/pages/evaluate_page.py:437
+msgid "Max disagreement rows (0 = no cap)"
+msgstr "Max ungleichwichten Zeilen (0 = keine Begrenzung)"
+
+#: ui/pages/evaluate_page.py:171 ui/pages/evaluate_page.py:438
+msgid "Output TSV"
+msgstr "Ausgabe TSV"
+
+#: ui/pages/evaluate_page.py:174 ui/pages/evaluate_page.py:175
+#: ui/pages/evaluate_page.py:399 ui/pages/evaluate_page.py:430
+msgid "No cap"
+msgstr "Kein Problem"
+
+#: ui/pages/evaluate_page.py:176 ui/pages/evaluate_page.py:178
+#: ui/pages/evaluate_page.py:180
+msgid "Validate (dry-run)"
+msgstr "Validieren (dry-run)"
+
+#: ui/pages/evaluate_page.py:177
+msgid "Run metrics"
+msgstr "Laufmetriken"
+
+#: ui/pages/evaluate_page.py:179
+msgid "Run misclassified"
+msgstr "Fehlerhaft klassifiziert"
+
+#: ui/pages/evaluate_page.py:181
+msgid "Run compare"
+msgstr "Führen Sie den Vergleich durch"
+
+#: ui/pages/evaluate_page.py:182
+msgid "Evaluation output will appear here."
+msgstr "Die Auswertausgabe wird hier erscheinen."
+
+#: ui/pages/evaluate_page.py:201
+msgid "[info] Adjust paths and choose a tab, then Validate or Run."
+msgstr ""
+"[Info] Passen Sie die Pfade an, wählen Sie eine Registerkarte aus und "
+"klicken Sie dann auf „Überprüfen“ oder „Ausführen“."
+
+#: ui/pages/evaluate_page.py:369
+msgid "Models (*.pth *.pt *.h5 *.keras);;All files (*.*)"
+msgstr "Modelle (*.pth *.pt *.h5 *.keras);;Alle Dateien (*.*)"
+
+#: ui/pages/evaluate_page.py:444
 msgid ""
-"Set Run ID from the newest snapshot_*.json file under the shared raw data "
-"directory (by file modification time)."
+"Compare uses the same eval directory, image size, batch, workers, and device"
+" as above. Model A uses the shared architecture; set architecture B if "
+"checkpoint B differs."
 msgstr ""
-"Legen Sie die Lauf-ID anhand der neuesten Datei „snapshot_*.json“ im "
-"Verzeichnis für gemeinsam genutzte Rohdaten fest (nach dem Änderungsdatum "
-"der Datei)."
+"„Compare“ verwendet dasselbe „eval“-Verzeichnis, dieselbe Bildgröße, "
+"denselben Batch, dieselbe Anzahl an Workern und dasselbe Gerät wie oben. "
+"Modell A nutzt die gemeinsame Architektur; wählen Sie Architektur B, falls "
+"sich Checkpoint B unterscheidet."
 
-#: ui/pages/data_page.py:274
+#: ui/pages/evaluate_page.py:561 ui/pages/evaluate_page.py:575
+msgid "Evaluate"
+msgstr "bewerten"
+
+#: ui/pages/evaluate_page.py:564
+msgid "[run] {cmd}"
+msgstr "[führt] {Befehl}"
+
+#: ui/pages/evaluate_page.py:578
+msgid "Running…"
+msgstr "Läuft…"
+
+#: ui/pages/evaluate_page.py:589
+msgid "[done]"
+msgstr "{fertig}"
+
+#: ui/pages/evaluate_page.py:598
+msgid "[done] Exit code 0."
+msgstr "[erledigt] Ab Fehlercode 0."
+
+#: ui/pages/evaluate_page.py:605
+msgid "[failed] Exit code {c}."
+msgstr "[fehlgeschlagen] Ausgangscode {c}."
+
+#: ui/pages/evaluate_page.py:614
+msgid "[error] {m}"
+msgstr "[Fehler] {m}"
+
+#: ui/pages/evaluate_page.py:623
+msgid "Evaluate failed"
+msgstr "Auswertung fehlgeschlagen"
+
+#: ui/pages/evaluate_page.py:624
+msgid "The evaluation task reported an error."
+msgstr "Die Beurteilungsaufgabe meldete einen Fehler."
+
+#: ui/pages/home_page.py:125
 msgid ""
-"Set Run ID from the newest snapshot_*.json found across the same search "
-"paths as manual Run ID entry (raw dir, its parent, output data dir, and "
-"class folders)."
+"- Evaluation: metrics, misclassified, compare (shared paths with Train / "
+"Convert / Pipeline)"
 msgstr ""
-"Die Lauf-ID wird anhand der neuesten Datei „snapshot_*.json“ festgelegt, die"
-" in denselben Suchpfaden gefunden wird wie bei der manuellen Eingabe der "
-"Lauf-ID (Rohdatenverzeichnis, dessen übergeordnetes Verzeichnis, "
-"Ausgabedatenverzeichnis und Klassenordner)."
-
-#: ui/pages/data_page.py:279
-msgid "Open duplicate resolver from snapshot…"
-msgstr "Öffne Duplikationslöser aus dem Schnappschuss…"
-
-#: ui/pages/data_page.py:283
-msgid ""
-"If the resolver did not open after a list-only run (for example after a UI "
-"crash), use the button above to load duplicate groups from the snapshot on "
-"disk."
-msgstr ""
-"Falls sich der Resolver nach einem „List-only“-Durchlauf nicht geöffnet hat "
-"(beispielsweise nach einem Absturz der Benutzeroberfläche), laden Sie über "
-"die Schaltfläche oben doppelte Gruppen aus dem Snapshot auf der Festplatte."
-
-#: ui/pages/data_page.py:289
-msgid ""
-"Training sources for Create Dataset are JPEGs under each class’s CONVERTED/ "
-"only. Deduplicate moves borderline-small images from CONVERTED/ into that "
-"class’s small_images_review/ (and removes very small ones). Files that stay "
-"only in small_images_review are not used by Create Dataset unless you copy "
-"or move them back into CONVERTED/. visual_media_review holds duplicate "
-"copies of video/GIF frame extracts for review; the canonical frame JPEG is "
-"already in CONVERTED/, so you do not merge visual_media_review for Create "
-"Dataset."
-msgstr ""
-"Als Trainingsdaten für „Create Dataset“ dienen ausschließlich JPEG-Dateien, "
-"die sich im Ordner „CONVERTED/“ der jeweiligen Klasse befinden. Der Schritt "
-"„Deduplicate“ verschiebt Bilder, die an der Grenze zur Kategorie „small“ "
-"liegen, aus dem Ordner „CONVERTED/“ in den Ordner „small_images_review/“ der"
-" jeweiligen Klasse (und entfernt dabei sehr kleine Bilder). Dateien, die "
-"sich ausschließlich im Verzeichnis „small_images_review“ befinden, werden "
-"von „Create Dataset“ nicht verwendet, es sei denn, Sie kopieren oder "
-"verschieben sie zurück in das Verzeichnis „CONVERTED/“. Das Verzeichnis "
-"„visual_media_review“ enthält Duplikate von Video- und GIF-Bildausschnitten "
-"zur Überprüfung; das kanonische JPEG-Bild befindet sich bereits in "
-"„CONVERTED/“, daher sollten Sie „visual_media_review“ nicht für „Create "
-"Dataset“ zusammenführen."
-
-#: ui/pages/data_page.py:299
-msgid ""
-"Upscale is optional. It enlarges images from the review tree; outputs go "
-"under <review-dir>/upscaled_small_images/. Default review dir when empty is "
-"<raw-data-dir>/small_images_review (one subfolder per class)—set Review dir "
-"explicitly if deduplicate placed files under "
-"raw_data/<class>/small_images_review/ instead. Create Dataset still reads "
-"only from CONVERTED/; copy any upscaled files you want trained into the "
-"right CONVERTED/ folder before Create Dataset. If you skip upscale, accept "
-"that images left only in small_images_review stay out of the split unless "
-"you return them to CONVERTED/ manually."
-msgstr ""
-"Die Hochskalierung ist optional. Sie vergrößert Bilder aus dem "
-"Überprüfungsverzeichnis; die Ergebnisse werden unter <review-"
-"dir>/upscaled_small_images/ gespeichert. Das Standard-"
-"Überprüfungsverzeichnis lautet, sofern es leer ist, <raw-data-"
-"dir>/small_images_review (ein Unterordner pro Klasse) – legen Sie das "
-"Überprüfungsverzeichnis explizit fest, wenn Sie stattdessen doppelte Dateien"
-" unter raw_data/<class>/small_images_review/ ablegen möchten. „Create "
-"Dataset“ liest weiterhin nur aus dem Ordner „CONVERTED/“; kopieren Sie alle "
-"hochskalierten Dateien, die Sie trainieren möchten, vor dem Ausführen von "
-"„Create Dataset“ in den entsprechenden Ordner „CONVERTED/“. Wenn Sie die "
-"Hochskalierung überspringen, müssen Sie damit rechnen, dass Bilder, die nur "
-"im Ordner „small_images_review“ verbleiben, nicht in die Aufteilung "
-"einbezogen werden, es sei denn, Sie verschieben sie manuell zurück in den "
-"Ordner „CONVERTED/“."
-
-#: ui/pages/data_page.py:669
-msgid ""
-"Scope note: Deduplicate only processes files inside each class folder's "
-"CONVERTED directory (raw_data/<class>/CONVERTED). Other folders, including "
-"IMAGES and root-level utility directories, are not scanned."
-msgstr ""
-"Hinweis zum Anwendungsbereich: Die Deduplizierung erfolgt nur für Dateien im"
-" Verzeichnis „CONVERTED“ der jeweiligen Klassenordner "
-"(raw_data/<class>/CONVERTED). Andere Ordner, einschließlich „IMAGES“ und "
-"Dienstprogrammverzeichnisse auf der obersten Ebene, werden nicht durchsucht."
-
-#: ui/pages/data_page.py:779
-msgid ""
-"Pick the subcommand, then type any arguments for ``mb data <subcommand> …`` "
-"(line breaks are fine). The active pipeline config path is passed as "
-"``--config`` when you do not include it below. Cancellation is not applied "
-"to this path—use Ctrl+C in a terminal if you need to stop a long job."
-msgstr ""
-"Wählen Sie den Unterbefehl aus und geben Sie dann beliebige Argumente für "
-"„mb data <Unterbefehl> …“ ein (Zeilenumbrüche sind zulässig). Der aktive "
-"Konfigurationspfad der Pipeline wird als „--config“ übergeben, sofern Sie "
-"ihn unten nicht angeben. Dieser Pfad kann nicht abgebrochen werden – "
-"verwenden Sie Strg+C im Terminal, wenn Sie einen langwierigen Auftrag "
-"beenden müssen."
-
-#: ui/pages/data_page.py:786
-msgid "Command"
-msgstr "Befehl"
-
-#: ui/pages/data_page.py:788
-msgid "Arguments (optional)"
-msgstr "Argumente (optional)"
-
-#: ui/pages/data_page.py:805
-msgid "Could not parse arguments (check quotes and line breaks): {err}"
-msgstr ""
-"Argumente konnten nicht analysiert werden (bitte Anführungszeichen und "
-"Zeilenumbrüche überprüfen): {err}"
-
-#: ui/pages/data_page.py:825
-msgid ""
-"Normalize images to JPEG under each class’s CONVERTED/ folder. Video/GIF "
-"extracts: the frame JPEG is written to CONVERTED/ and a duplicate copy to "
-"visual_media_review/ for inspection only. Point Raw data dir at the same "
-"tree on an internal or external drive; outputs stay beside sources."
-msgstr ""
-"Bilder werden im Ordner „CONVERTED/“ der jeweiligen Klasse in das JPEG-"
-"Format konvertiert. Bei Video- und GIF-Ausschnitten wird das Einzelbild als "
-"JPEG in den Ordner „CONVERTED/“ geschrieben und eine Kopie davon "
-"ausschließlich zu Überprüfungszwecken in den Ordner „visual_media_review/“ "
-"gespeichert. Verweisen Sie das Verzeichnis für Rohdaten auf denselben "
-"Ordnerbaum auf einem internen oder externen Laufwerk; die Ausgabedateien "
-"bleiben neben den Quelldateien gespeichert."
-
-#: ui/pages/data_page.py:831
-msgid ""
-"Remove duplicates and quarantine very small images from class CONVERTED/ "
-"folders only (raw_data/<class>/CONVERTED); other folders are ignored. "
-"Borderline-small files move to each class’s small_images_review/—Create "
-"Dataset does not read that folder unless you copy back into CONVERTED/."
-msgstr ""
-"Entferne Duplikate und verschiebe sehr kleine Bilder ausschließlich aus den "
-"Ordnern der Klasse „CONVERTED/“ (raw_data/<class>/CONVERTED); andere Ordner "
-"werden ignoriert. Dateien, die grenzwertig klein sind, werden in den Ordner "
-"„small_images_review/“ der jeweiligen Klasse verschoben – „Create Dataset“ "
-"liest diesen Ordner nur, wenn du die Dateien zurück in den Ordner "
-"„CONVERTED/“ kopierst."
-
-#: ui/pages/data_page.py:837
-msgid ""
-"Optional: enlarge undersized images from the review area. Outputs go under "
-"upscaled_small_images/; Create Dataset still uses CONVERTED/ only—merge "
-"copies there if needed. Default review dir when empty is "
-"raw_data/small_images_review (class subfolders); override Review dir if your"
-" review files live under raw_data/<class>/small_images_review/."
-msgstr ""
-"Optional: Vergrößern Sie zu kleine Bilder aus dem Überprüfungsbereich. Die "
-"Ergebnisse werden unter „upscaled_small_images/“ gespeichert; „Create "
-"Dataset“ verwendet weiterhin nur „CONVERTED/“ – führen Sie die Kopien dort "
-"bei Bedarf zusammen. Das Standardverzeichnis für die Überprüfung ist, sofern"
-" es leer ist, „raw_data/small_images_review“ (Unterordner der Klassen); "
-"überschreiben Sie das Verzeichnis „Review“, wenn sich Ihre "
-"Überprüfungsdateien unter „raw_data/<class>/small_images_review/“ befinden."
-
-#: ui/pages/data_page.py:843
-msgid ""
-"After initial Convert (and any JPEG extension repair if needed), optionally "
-"Dedup/Upscale: copies from each class’s CONVERTED/ into train/ and test/ "
-"under the output data directory. Does not pull from small_images_review, "
-"upscaled_small_images, or visual_media_review. A good place to put the final"
-" dataset on your main drive while raw data stays external."
-msgstr ""
-"Nach der ersten Konvertierung (und gegebenenfalls einer Reparatur der JPEG-"
-"Erweiterung) erfolgt optional eine Deduplizierung/Hochskalierung: Dabei "
-"werden Kopien aus dem Ordner „CONVERTED/“ jeder Klasse in die Ordner "
-"„train/“ und „test/“ im Ausgabeverzeichnis kopiert. Es werden keine Daten "
-"aus den Ordnern „small_images_review“, „upscaled_small_images“ oder "
-"„visual_media_review“ übernommen. Dies ist ein geeigneter Ort, um den "
-"endgültigen Datensatz auf Ihrem Hauptlaufwerk abzulegen, während die "
-"Rohdaten auf einem externen Speichermedium verbleiben."
-
-#: ui/pages/data_page.py:849
-msgid ""
-"Choose a data subcommand and optional ``mb data …`` arguments in the text "
-"box (same flags as the CLI)."
-msgstr ""
-"Wählen Sie einen Datenunterbefehl und die optionalen ``mb data …`` Argumente"
-" im Textfeld (gleiche Flags wie die CLI)."
-
-#: ui/pages/data_page.py:873
-msgid ""
-"Convert walks class folders, writes CONVERTED/ JPEGs, and records a unified "
-"snapshot. For image classification, videos and multi-frame GIFs may yield a "
-"random frame JPEG in CONVERTED/ plus a duplicate in visual_media_review/ for"
-" review only. Very large images are downscaled (max edge 4000px)."
-msgstr ""
-"„Convert“ durchsucht die Klassenordner, speichert die konvertierten JPEGs im"
-" Ordner „CONVERTED/“ und erstellt einen einheitlichen Snapshot. Bei der "
-"Bildklassifizierung können Videos und GIFs mit mehreren Bildern ein JPEG "
-"eines zufällig ausgewählten Bildes im Ordner „CONVERTED/“ sowie ein Duplikat"
-" im Ordner „visual_media_review/“ ergeben, das ausschließlich zur "
-"Überprüfung dient. Sehr große Bilder werden verkleinert (maximale Breite "
-"4000 Pixel)."
-
-#: ui/pages/data_page.py:879
-msgid ""
-"Deduplicate scans only class CONVERTED/ folders, removes duplicate images, "
-"and handles tiny dimensions: removes very small images and moves borderline-"
-"small ones to each class’s small_images_review/ for optional upscale. Create"
-" Dataset sources CONVERTED/ JPEGs only."
-msgstr ""
-"„Deduplicate“ durchsucht nur die Ordner der Klasse „CONVERTED/“, entfernt "
-"doppelte Bilder und verarbeitet Bilder mit sehr kleinen Abmessungen: Es "
-"entfernt sehr kleine Bilder und verschiebt solche, die knapp unter der "
-"Grenze liegen, in den Ordner „small_images_review/“ der jeweiligen Klasse, "
-"wo sie optional hochskaliert werden können. Erstelle Datensatzquellen "
-"ausschließlich aus den JPEGs im Ordner „CONVERTED/“."
-
-#: ui/pages/data_page.py:884
-msgid ""
-"Optional: reads the small-image review tree and writes upscaled copies under"
-" upscaled_small_images/. Create Dataset does not read that output—copy "
-"wanted files into CONVERTED/ before create-dataset if they should appear in "
-"train/test."
-msgstr ""
-"Optional: Liest den Verzeichnisbaum „small-image“ und schreibt hochskalierte"
-" Kopien in den Ordner „upscaled_small_images/“. Der Befehl „Create Dataset“ "
-"berücksichtigt diese Ausgabe nicht – kopieren Sie die gewünschten Dateien "
-"vor dem Ausführen von „create-dataset“ in den Ordner „CONVERTED/“, wenn sie "
-"in den Ordnern „train“ und „test“ erscheinen sollen."
-
-#: ui/pages/data_page.py:889
-msgid ""
-"Prerequisite: Convert has been run (CONVERTED/ + snapshot). JPEG extension "
-"repair updates that snapshot for repaired files—you do not need another full"
-" Convert for snapshot alignment. Copies only from each class’s CONVERTED/ "
-"(not small_images_review or visual_media_review). Writes train/ and test/ to"
-" the output data dir. Set output on a spacious internal disk if raw data "
-"lives on external storage."
-msgstr ""
-"Voraussetzung: „Convert“ wurde bereits ausgeführt (Verzeichnis „CONVERTED/“ "
-"+ Snapshot). Die Reparatur der JPEG-Erweiterung aktualisiert diesen Snapshot"
-" für die reparierten Dateien – ein weiterer vollständiger „Convert“-Lauf zur"
-" Snapshot-Anpassung ist nicht erforderlich. Es werden nur Kopien aus dem "
-"Verzeichnis „CONVERTED/“ jeder Klasse kopiert (nicht aus "
-"„small_images_review“ oder „visual_media_review“). Die Verzeichnisse "
-"„train/“ und „test/“ werden in das Ausgabeverzeichnis geschrieben. Legen Sie"
-" das Ausgabeverzeichnis auf einer großzügig dimensionierten internen "
-"Festplatte an, wenn sich die Rohdaten auf einem externen Speicher befinden."
-
-#: ui/pages/data_page.py:896
-msgid ""
-"Runs ``mb data <subcommand>`` with the optional argument text you provide "
-"(parsed like the shell). The GUI injects ``--config`` when it is not already"
-" present."
-msgstr ""
-"Führt „mb data <Unterbefehl>“ mit dem von Ihnen angegebenen optionalen "
-"Argumenttext aus (der wie in der Shell interpretiert wird). Die GUI fügt "
-"„--config“ hinzu, falls dieses noch nicht vorhanden ist."
-
-#: ui/pages/data_page.py:913
-msgid ""
-"Storage: convert reads and writes under the raw data path you choose "
-"(including on removable drives). Create Dataset copies into the output data "
-"directory—often set that to your main disk. Large images: convert downscales"
-" long edges; tiny images: deduplicate moves small files to "
-"small_images_review/. JPEG extension mismatches: run fix-jpeg-extension-"
-"mismatch (updates CONVERTED/ and the unified snapshot for affected files; no"
-" extra Convert pass required for that). Create Dataset globs JPEGs from each"
-" class’s CONVERTED/ only. visual_media_review/ is a duplicate of video/GIF "
-"frame outputs for human review—not a second input. After deduplicate, files "
-"that remain only under small_images_review/ (or only under "
-"upscaled_small_images/ after upscale) are not used unless you copy the ones "
-"you want back into CONVERTED/. Full discussion: docs/DATA_PIPELINE.md."
-msgstr ""
-"Speicherung: Konvertieren Sie Lese- und Schreibvorgänge über den von Ihnen "
-"gewählten Rohdatenpfad (einschließlich auf Wechseldatenträgern). Erstellen "
-"Sie Kopien des Datensatzes im Ausgabeverzeichnis – legen Sie dieses häufig "
-"auf Ihrer Hauptfestplatte an. Große Bilder: Konvertieren Sie Bilder mit "
-"einer Verkleinerung der langen Kanten; kleine Bilder: Deduplizieren Sie "
-"kleine Dateien und verschieben Sie sie in den Ordner „small_images_review/“."
-" Nicht übereinstimmende JPEG-Erweiterungen: Führen Sie „fix-jpeg-extension-"
-"mismatch“ aus (aktualisiert den Ordner „CONVERTED/“ und den einheitlichen "
-"Snapshot für die betroffenen Dateien; hierfür ist kein zusätzlicher "
-"„Convert“-Durchlauf erforderlich). Erstellen Sie den Datensatz „globs“ "
-"ausschließlich aus den JPEG-Dateien im Ordner „CONVERTED/“ der jeweiligen "
-"Klasse. „visual_media_review/“ ist ein Duplikat der Video-/GIF-Frame-"
-"Ausgaben für die manuelle Überprüfung – kein zweiter Eingabepfad. Nach der "
-"Deduplizierung werden Dateien, die nur noch unter „small_images_review/“ "
-"(oder nach der Hochskalierung nur noch unter „upscaled_small_images/“) "
-"verbleiben, nicht verwendet, es sei denn, Sie kopieren die gewünschten "
-"Dateien zurück in den Ordner „CONVERTED/“. Ausführliche Erläuterung: "
-"docs/DATA_PIPELINE.md."
-
-#: ui/pages/data_page.py:979 ui/pages/data_page.py:995
-#: ui/pages/train_page.py:345
-msgid "No snapshot found"
-msgstr "Kein Schnappschuss gefunden"
-
-#: ui/pages/data_page.py:980 ui/pages/train_page.py:346
-msgid ""
-"No snapshot_*.json files were found under:\n"
-"{path}"
-msgstr ""
-"Unter folgendem Pfad wurden keine Dateien mit der Endung „snapshot_*.json“ gefunden:\n"
-"{path}"
-
-#: ui/pages/data_page.py:996
-msgid ""
-"No snapshot_*.json files were found in the search paths for the current "
-"directories."
-msgstr ""
-"In den Suchpfaden der aktuellen Verzeichnisse wurden keine Dateien mit dem "
-"Namen „snapshot_*.json“ gefunden."
-
-#: ui/pages/data_page.py:1011
-msgid ""
-"Optional. Leave empty to start a new conversion run and write a new snapshot file.\n"
-"\n"
-"If set, the job resumes that run: a unified snapshot file must exist and load correctly, named:\n"
-"  snapshot_<run_id>.json\n"
-"placed directly under the raw data directory:\n"
-"  {raw}\n"
-"Example: snapshot_20260408_abc123.json"
-msgstr ""
-"Optional. Lassen Sie das Feld leer, um einen neuen Konvertierungsdurchlauf zu starten und eine neue Snapshot-Datei zu erstellen.\n"
-"\n"
-"Wenn dieses Feld gesetzt ist, wird der Job an diesem Durchlauf fortgesetzt: Es muss eine einheitliche Snapshot-Datei vorhanden sein, die korrekt geladen werden kann und folgenden Namen trägt:\n"
-"  snapshot_<run_id>.json\n"
-"die sich direkt im Verzeichnis für Rohdaten befindet:\n"
-"  {raw}\n"
-"Beispiel: snapshot_20260408_abc123.json"
-
-#: ui/pages/data_page.py:1026
-msgid ""
-"  (Raw data directory must exist to list class folders; until then, search "
-"still includes the raw dir, its parent, and the output data dir.)"
-msgstr ""
-"  (Das Verzeichnis mit den Rohdaten muss vorhanden sein, damit die "
-"Klassenordner aufgelistet werden können; bis dahin umfasst die Suche "
-"weiterhin das Rohdatenverzeichnis, dessen übergeordnetes Verzeichnis und das"
-" Ausgabedatenverzeichnis.)"
-
-#: ui/pages/data_page.py:1031
-msgid ""
-"Optional. Leave empty to use the latest unified snapshot found along the search order below.\n"
-"\n"
-"If set, the file must exist, load correctly, and be named:\n"
-"  snapshot_<run_id>.json\n"
-"The job searches these directories in order (first match wins):\n"
-"{paths}\n"
-"Output data directory (for context): {data_dir}"
-msgstr ""
-"Optional. Lassen Sie das Feld leer, um den neuesten einheitlichen Snapshot zu verwenden, der gemäß der unten angegebenen Suchreihenfolge gefunden wird.\n"
-"\n"
-"Falls angegeben, muss die Datei vorhanden sein, korrekt geladen werden und folgenden Namen tragen:\n"
-"  snapshot_<run_id>.json\n"
-"Der Job durchsucht diese Verzeichnisse der Reihe nach (der erste Treffer gewinnt):\n"
-"{paths}\n"
-"Ausgabedatenverzeichnis (als Kontext): {data_dir}"
-
-#: ui/pages/data_page.py:1045
-msgid ""
-"Optional. Same Run ID as Convert / Create Dataset (shared across the Data page). Leave empty to load the latest loadable snapshot under:\n"
-"  {raw}\n"
-"\n"
-"If set, the file must exist and be named:\n"
-"  snapshot_<run_id>.json\n"
-"in that directory. Used when opening the duplicate resolver from disk; deduplicate Run does not require a Run ID."
-msgstr ""
-"Optional. Gleiche Lauf-ID wie bei „Konvertieren/Datensatz erstellen“ (gilt für die gesamte Seite „Daten“). Lassen Sie das Feld leer, um den neuesten ladbaren Snapshot unter folgendem Pfad zu laden:\n"
-"  {raw}\n"
-"\n"
-"Falls angegeben, muss die Datei vorhanden sein und folgenden Namen tragen:\n"
-"  snapshot_<run_id>.json\n"
-"in diesem Verzeichnis. Wird verwendet, wenn der Duplikatslöser von der Festplatte geöffnet wird; für den Lauf-Deduplizierer ist keine Lauf-ID erforderlich."
-
-#: ui/pages/data_page.py:1148
-msgid ""
-"Raw data directory must exist when a Run ID is set (snapshot is loaded from "
-"there)."
-msgstr ""
-"Das Verzeichnis für die Rohdaten muss vorhanden sein, wenn eine Lauf-ID "
-"festgelegt wird (der Snapshot wird von dort geladen)."
-
-#: ui/pages/data_page.py:1152
-msgid ""
-"No loadable unified snapshot for Run ID {rid!r}. Expected {name} under:\n"
-"  {dir}"
-msgstr ""
-"Es ist kein einheitlicher Snapshot für die Lauf-ID {rid!r} verfügbar. Erwartet wird {name} unter:\n"
-"  {dir}"
-
-#: ui/pages/data_page.py:1186
-msgid ""
-"No loadable unified snapshot for Run ID {rid!r} in the search paths (see the"
-" Run ID field tooltip for locations checked)."
-msgstr ""
-"In den Suchpfaden wurde kein ladbarer einheitlicher Snapshot für die Lauf-ID"
-" {rid!r} gefunden (die überprüften Speicherorte finden Sie im Tooltip des "
-"Felds „Lauf-ID“)."
-
-#: ui/pages/data_page.py:1252 ui/pages/data_page.py:1277
-msgid "Skipped (free-space estimate not run)."
-msgstr "Übersprungen (Freiraumschätzung nicht durchgeführt)."
-
-#: ui/pages/data_page.py:1373
-msgid "Checking free space…"
-msgstr "Überprüfung des freien Platzes…"
-
-#: ui/pages/data_page.py:1377
-msgid "Converting…"
-msgstr "Übersetzend…"
-
-#: ui/pages/data_page.py:1379
-msgid "Creating dataset…"
-msgstr "Dataset erstellen…"
-
-#: ui/pages/data_page.py:1450
-msgid "Running: {line}"
-msgstr "Laufend: {line}"
-
-#: ui/pages/data_page.py:1545
-msgid "[dedup] No loadable snapshot found for duplicate resolver."
-msgstr ""
-"[dedup] Es wurde kein ladbarer Snapshot für den Duplikats-Resolver gefunden."
-
-#: ui/pages/data_page.py:1548
-msgid "[dedup] No potential duplicates were recorded in the snapshot."
-msgstr "[dedup] Im Snapshot wurden keine potenziellen Duplikate festgestellt."
-
-#: ui/pages/data_page.py:1553
-msgid "Duplicates found"
-msgstr "Duplikate gefunden"
-
-#: ui/pages/data_page.py:1554
-msgid "Open duplicate resolver window now?"
-msgstr "Möchten Sie jetzt das Fenster zum Auflösen von Duplikaten öffnen?"
-
-#: ui/pages/data_page.py:1562
-msgid "Invalid raw data directory"
-msgstr "Ungültiges Verzeichnis für Rohdaten"
-
-#: ui/pages/data_page.py:1563
-msgid ""
-"Raw data directory does not exist:\n"
-"{path}"
-msgstr ""
-"Das Verzeichnis für die Rohdaten existiert nicht:\n"
-"{path}"
-
-#: ui/pages/data_page.py:1574
-msgid "No snapshot"
-msgstr "Kein Snapshot"
-
-#: ui/pages/data_page.py:1576
-msgid ""
-"No loadable unified snapshot was found under:\n"
-"{path}\n"
-"\n"
-"Expected snapshot_<run_id>.json (leave Run ID empty for the latest file tried in sorted name order)."
-msgstr ""
-"Unter folgendem Pfad wurde kein ladbarer einheitlicher Snapshot gefunden:\n"
-"{path}\n"
-"\n"
-"Erwartet wurde die Datei „snapshot_<run_id>.json“ (lassen Sie das Feld „Run ID“ leer, um die zuletzt in sortierter Reihenfolge getestete Datei zu verwenden)."
-
-#: ui/pages/data_page.py:1585
-msgid "Nothing to review"
-msgstr "Nichts zu übersetzen"
-
-#: ui/pages/data_page.py:1587
-msgid ""
-"A snapshot loaded, but it does not list any cross-class duplicate groups for"
-" the resolver. Run Deduplicate with list-only if you have not yet, or pick "
-"another Run ID."
-msgstr ""
-"Ein Snapshot wurde geladen, es werden jedoch keine klassenübergreifenden "
-"Duplikatsgruppen für den Resolver angezeigt. Führen Sie „Deduplicate“ mit "
-"der Option „list-only“ aus, falls Sie dies noch nicht getan haben, oder "
-"wählen Sie eine andere Ausführungs-ID aus."
-
-#: ui/pages/export_page.py:70 ui/pages/export_page.py:107
-msgid "Dataset directory"
-msgstr "Datenbestandverzeichnis"
-
-#: ui/pages/export_page.py:73 ui/pages/export_page.py:110
-msgid "Generate architecture stub"
-msgstr "Generiere Architekturstub"
-
-#: ui/pages/export_page.py:81 ui/pages/export_page.py:121
-msgid "Validate Export"
-msgstr "Export validieren"
-
-#: ui/pages/export_page.py:82 ui/pages/export_page.py:122
-msgid "Run Export"
-msgstr "Export ausführen"
-
-#: ui/pages/export_page.py:100
-msgid ""
-"Export a deployment bundle (SafeTensors + manifest) after "
-"conversion/training."
-msgstr ""
-"Exportieren Sie nach der Konvertierung/dem Training ein Bereitstellungs-"
-"Bundle (SafeTensors + Manifest)."
-
-#: ui/pages/export_page.py:117
-msgid ""
-"Class names are auto-resolved from snapshot or dataset directory. Tip: leave"
-" architecture/num classes/image size on Auto to use defaults."
-msgstr ""
-"Klassenbezeichnungen werden automatisch aus dem Snapshot- oder "
-"Datensatzverzeichnis ermittelt. Tipp: Lassen Sie die Einstellungen für "
-"„Architektur“, „Anzahl der Klassen“ und „Bildgröße“ auf „Auto“ stehen, um "
-"die Standardeinstellungen zu verwenden."
-
-#: ui/pages/export_page.py:123
-msgid "Export validation and execution messages will appear here."
-msgstr ""
-"Hier werden Meldungen zur Validierung und Ausführung des Exports angezeigt."
-
-#: ui/pages/export_page.py:194
-msgid "Model files (*.pth *.pt);;All files (*.*)"
-msgstr "Model-Dateien (*.pth *.pt);;Alle Dateien (*.*)"
-
-#: ui/pages/export_page.py:215
-msgid "Input model parent directory does not exist."
-msgstr "Das übergeordnete Verzeichnis des Eingabemodells existiert nicht."
-
-#: ui/pages/export_page.py:296
-msgid "[ok] export inputs valid (arch={arch}, classes={n})"
-msgstr "[ok] Export-Eingaben gültig (arch={arch}, classes={n})"
-
-#: ui/pages/export_page.py:297 ui/pages/export_page.py:298
-msgid "auto"
-msgstr "Auto"
-
-#: ui/pages/export_page.py:309
-msgid "[run] mb export bundle"
-msgstr "[run] mb export bundle"
-
-#: ui/pages/export_page.py:320
-msgid "Export bundle"
-msgstr "Export Bundle"
-
-#: ui/pages/export_page.py:324
-msgid "Cancelled before export started"
-msgstr "Abgebrochene vor dem Export begann"
-
-#: ui/pages/export_page.py:328
-msgid "[stopped] Export cancelled before completion."
-msgstr "[abgebrochen] Der Export wurde vor dem Abschluss abgebrochen."
-
-#: ui/pages/export_page.py:337
-msgid "[done] Export succeeded."
-msgstr "[fertig] Der Export war erfolgreich."
-
-#: ui/pages/export_page.py:344
-msgid "[info] Architecture stub not generated (option disabled)."
-msgstr "[Info] Architektur-Stub wurde nicht generiert (Option deaktiviert)."
-
-#: ui/pages/export_page.py:361
-msgid "Export failed"
-msgstr "Der Export ist gescheitert"
-
-#: ui/pages/export_page.py:362
-msgid ""
-"Model export reported an error. See Details for the underlying message."
-msgstr ""
-"Beim Exportieren des Modells ist ein Fehler aufgetreten. Die entsprechende "
-"Meldung finden Sie unter „Details“."
-
-#: ui/pages/home_page.py:115
-msgid "- Model conversion to ONNX / SafeTensors"
-msgstr "- Modellkonvertierung in ONNX / SafeTensors"
-
-#: ui/pages/home_page.py:116
-msgid "- Model bundle export (manifest + deployment artifacts)"
-msgstr "- Export des Modell-Bundles (Manifest + Bereitstellungsartefakte)"
-
-#: ui/pages/home_page.py:122
-msgid "Open Export Page"
-msgstr "Öffne die Export-Seite"
-
-#: ui/pages/pipeline_config_page.py:346
-msgid "Same as test anchor"
-msgstr "Gleich wie Testanker"
-
-#: ui/pages/pipeline_config_page.py:354
-msgid "Default create-dataset seed"
-msgstr "Standard create-dataset Samen"
-
-#: ui/pages/train_page.py:203
-msgid ""
-"Set Run ID from the newest snapshot_*.json under the data directory (by file"
-" modification time)."
-msgstr ""
-"Legen Sie die Lauf-ID anhand der neuesten Datei „snapshot_*.json“ im "
-"Verzeichnis „data“ fest (nach dem Datum der letzten Änderung)."
-
-#: ui/pages/train_page.py:498
-msgid "[error] Could not auto-save pipeline config; training cancelled."
-msgstr ""
-"[Fehler] Die Pipeline-Konfiguration konnte nicht automatisch gespeichert "
-"werden; Training abgebrochen."
+"- Evaluation: Metriken, falsch klassifiziert, vergleichen (geteilte Pfade "
+"mit Train / Convert / Pipeline)"
+
+#: ui/pages/home_page.py:133
+msgid "Open Evaluate Page"
+msgstr "Öffne Bewertungsseite"
