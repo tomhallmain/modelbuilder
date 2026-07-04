@@ -398,17 +398,10 @@ class PyTorchTrainer(FrameworkTrainer):
             torch.save(model.state_dict(), path)
             logger.info(f"Saved PyTorch model to {path}")
         elif format == "onnx":
-            # Export to ONNX
+            from mb.conversion.converters import export_torch_module_to_onnx
+
             model.eval()
-            dummy_input = torch.randn(1, 3, 224, 224).to(self.device)
-            torch.onnx.export(
-                model,
-                dummy_input,
-                path,
-                input_names=['input'],
-                output_names=['output'],
-                dynamic_axes={'input': {0: 'batch_size'}, 'output': {0: 'batch_size'}}
-            )
+            export_torch_module_to_onnx(model, path, image_size=224)
             logger.info(f"Exported model to ONNX: {path}")
         else:
             raise ValueError(f"Unsupported format: {format}")

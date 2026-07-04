@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from mb.conversion.converters import convert_model
+from mb.conversion.converters import convert_model, inline_onnx_external_data
 from mb.export.bundle import export_bundle
 
 
@@ -17,6 +17,42 @@ def _write_tiny_pytorch_checkpoint(path: Path) -> None:
     state = {"model_state_dict": model.state_dict()}
     path.parent.mkdir(parents=True, exist_ok=True)
     torch.save(state, path)
+
+
+def test_inline_onnx_external_data_embeds_sidecar(tmp_path: Path) -> None:
+    onnx = pytest.importorskip("onnx", reason="requires onnx")
+    import numpy as np
+    from onnx import TensorProto, helper, numpy_helper
+
+    weights = np.arange(1000, dtype=np.float32)
+    init = numpy_helper.from_array(weights, name="W")
+    graph = helper.make_graph(
+        [helper.make_node("Identity", ["X"], ["Y"])],
+        "g",
+        [helper.make_tensor_value_info("X", TensorProto.FLOAT, [1])],
+        [helper.make_tensor_value_info("Y", TensorProto.FLOAT, [1])],
+        [init],
+    )
+    model = helper.make_model(graph, opset_imports=[helper.make_opsetid("", 11)])
+    path = tmp_path / "split.onnx"
+    data_name = "split.onnx.data"
+    onnx.save_model(
+        model,
+        str(path),
+        save_as_external_data=True,
+        all_tensors_to_one_file=True,
+        location=data_name,
+        size_threshold=0,
+    )
+    data_path = tmp_path / data_name
+    assert data_path.is_file()
+
+    assert inline_onnx_external_data(path) is True
+    assert not data_path.exists()
+
+    embedded = onnx.load(str(path), load_external_data=False)
+    assert not any(t.external_data for t in embedded.graph.initializer)
+    assert sum(len(t.raw_data) for t in embedded.graph.initializer) == weights.nbytes
 
 
 def test_convert_model_pytorch_to_safetensors(tmp_path: Path) -> None:

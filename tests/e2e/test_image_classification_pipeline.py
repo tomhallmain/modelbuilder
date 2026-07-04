@@ -108,3 +108,5 @@ def test_image_classification_train_pytorch_and_export_onnx(tmp_path: Path) -> N
     ]
     assert main(convert_argv) == 0
     assert onnx_path.is_file() and onnx_path.stat().st_size > 0
+    # Self-contained export: weights must not live only in a sidecar .data file.
+    assert not Path(str(onnx_path) + ".data").exists()

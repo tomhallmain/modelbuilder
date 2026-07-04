@@ -16,6 +16,125 @@ from mb.cancellation import check_cancel_event
 
 logger = logging.getLogger(__name__)
 
+# Protobuf messages top out near 2 GiB; leave headroom before keeping external data.
+_ONNX_EMBED_MAX_BYTES = 2 * 1024**3 - 64 * 1024**2
+
+
+def inline_onnx_external_data(output_path: Path) -> bool:
+    """
+    Fold sibling external-data weight files into *output_path* when small enough.
+
+    Recent ``torch.onnx.export`` defaults to ``external_data=True``, which writes
+    ``model.onnx`` plus ``model.onnx.data``. For models under the protobuf size
+    limit we prefer a single self-contained file.
+
+    Returns:
+        True if the ONNX file is self-contained after this call (or already was).
+    """
+    try:
+        import onnx
+        from onnx.external_data_helper import convert_model_from_external_data
+    except ImportError:
+        logger.warning("onnx package not available; cannot inline external ONNX data")
+        return False
+
+    output_path = Path(output_path)
+    try:
+        model = onnx.load(str(output_path), load_external_data=True)
+    except Exception as e:
+        logger.warning("Could not reload ONNX to inline external data: %s", e)
+        return False
+
+    external_files: set[Path] = set()
+    for init in model.graph.initializer:
+        for entry in init.external_data:
+            if entry.key == "location":
+                external_files.add((output_path.parent / entry.value).resolve())
+
+    if not external_files and not any(init.external_data for init in model.graph.initializer):
+        return True
+
+    convert_model_from_external_data(model)
+
+    weight_bytes = sum(len(t.raw_data) for t in model.graph.initializer if t.raw_data)
+    if weight_bytes > _ONNX_EMBED_MAX_BYTES:
+        logger.warning(
+            "ONNX weights (%s bytes) exceed the single-file protobuf limit; "
+            "keeping external data files",
+            f"{weight_bytes:,}",
+        )
+        return False
+
+    try:
+        onnx.save_model(model, str(output_path), save_as_external_data=False)
+    except Exception as e:
+        logger.warning("Failed to save self-contained ONNX: %s", e)
+        return False
+
+    for ext_path in external_files:
+        try:
+            if ext_path.is_file() and ext_path.resolve() != output_path.resolve():
+                ext_path.unlink()
+                logger.info("Removed external ONNX data file after inlining: %s", ext_path)
+        except OSError as e:
+            logger.warning("Could not remove external ONNX data file %s: %s", ext_path, e)
+
+    return True
+
+
+# New torch.onnx dynamo exporter implements opset 18+; requesting older versions
+# triggers a failed downgrade (noisy traceback) and leaves the model at 18 anyway.
+_DEFAULT_ONNX_OPSET = 18
+
+
+def export_torch_module_to_onnx(
+    model: Any,
+    output_path: Path,
+    *,
+    image_size: int = 224,
+    opset_version: int = _DEFAULT_ONNX_OPSET,
+    verbose: bool = False,
+) -> None:
+    """
+    Export a PyTorch module to a self-contained ONNX file when possible.
+
+    Newer PyTorch builds default to writing weights as external data; we request
+    an embedded export and then inline any sidecar ``*.onnx.data`` file.
+    """
+    import torch
+    import torch.onnx
+
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    device = next(model.parameters()).device
+    dummy_input = torch.randn(1, 3, image_size, image_size, device=device)
+    export_kwargs = {
+        "input_names": ["input"],
+        "output_names": ["output"],
+        "dynamic_axes": {
+            "input": {0: "batch_size"},
+            "output": {0: "batch_size"},
+        },
+        "opset_version": opset_version,
+        "do_constant_folding": True,
+        "verbose": verbose,
+    }
+
+    try:
+        torch.onnx.export(
+            model,
+            dummy_input,
+            str(output_path),
+            external_data=False,
+            **export_kwargs,
+        )
+    except TypeError:
+        # Older torch.onnx.export without external_data=
+        torch.onnx.export(model, dummy_input, str(output_path), **export_kwargs)
+
+    inline_onnx_external_data(output_path)
+
 
 def convert_pytorch_to_onnx(
     model_path: Path,
@@ -40,37 +159,19 @@ def convert_pytorch_to_onnx(
         True if conversion successful, False otherwise
     """
     try:
-        import torch
-        import torch.onnx
-        
         # Load PyTorch model
         from mb.models.frameworks.pytorch.trainer import PyTorchTrainer
         
         trainer = PyTorchTrainer()
         model = trainer.load_model(model_path, architecture, num_classes)
         model.eval()
-        
-        # Create dummy input
-        dummy_input = torch.randn(1, 3, image_size, image_size)
-        device = next(model.parameters()).device
-        dummy_input = dummy_input.to(device)
-        
-        # Export to ONNX
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        torch.onnx.export(
+
+        export_torch_module_to_onnx(
             model,
-            dummy_input,
-            str(output_path),
-            input_names=['input'],
-            output_names=['output'],
-            dynamic_axes={
-                'input': {0: 'batch_size'},
-                'output': {0: 'batch_size'}
-            },
-            opset_version=kwargs.get('opset_version', 11),
-            do_constant_folding=True,
-            verbose=kwargs.get('verbose', False)
+            output_path,
+            image_size=image_size,
+            opset_version=kwargs.get("opset_version", _DEFAULT_ONNX_OPSET),
+            verbose=kwargs.get("verbose", False),
         )
         
         logger.info(f"Successfully converted PyTorch model to ONNX: {output_path}")
