@@ -694,7 +694,10 @@ class ImageConverter:
 
             # Pre-conversion snapshot: still inputs only (video/GIF sources are hashed after frame JPEG exists)
             logger.info(f"Adding pre-conversion images to snapshot for {class_name}...")
-            for image_file in static_paths:
+            for i, image_file in enumerate(static_paths, 1):
+                if i % 1000 == 0:
+                    check_cancel_event(getattr(self, "_cancel_event", None))
+                    logger.info(f"Pre-conversion snapshot progress: {i}/{len(static_paths)} for {class_name}")
                 self.unified_snapshot.add_pre_conversion_image(image_file, self.raw_data_dir)
 
             self.process_files(static_paths, class_dir)
