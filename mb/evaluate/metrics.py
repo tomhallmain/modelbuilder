@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 from argparse import Namespace
 from pathlib import Path
+from typing import Optional, Tuple
 
 from mb.evaluate._contracts import ClassificationMetricsReport, MetricsRequest
 from mb.models.types import FrameworkType, ModelType
@@ -77,52 +78,67 @@ def build_metrics_request(args: Namespace) -> MetricsRequest:
     )
 
 
-def run_evaluate_metrics_cli(args: Namespace) -> int:
-    """CLI implementation for ``mb evaluate metrics`` (returns process exit code)."""
+def run_evaluate_metrics(args: Namespace) -> Tuple[int, Optional[ClassificationMetricsReport]]:
+    """
+    Core ``mb evaluate metrics`` logic: validate arguments and run metrics.
+
+    Returns ``(exit_code, report)``; ``report`` is ``None`` for dry-run or failure.
+    CLI callers should use :func:`run_evaluate_metrics_cli`, which also prints/logs the
+    result. Other callers (e.g. the Evaluate GUI page) can use this directly to get the
+    structured :class:`ClassificationMetricsReport` (e.g. for a confusion matrix viewer)
+    without re-running inference or scraping CLI stdout.
+    """
     if getattr(args, "dry_run", False):
         if not Path(args.model).expanduser().resolve().is_file():
             logger.error(_("Model file not found: {path}").format(path=args.model))
-            return 1
+            return 1, None
         data_dir = Path(args.data_dir).expanduser().resolve()
         if not data_dir.is_dir():
             logger.error(_("Data directory not found: {path}").format(path=data_dir))
-            return 1
+            return 1, None
         from mb.conversion.converters import detect_model_framework
 
         fw = detect_model_framework(Path(args.model).expanduser().resolve())
         if fw == "pytorch" and not getattr(args, "architecture", None):
             logger.error(_("--architecture is required for PyTorch models in dry-run validation."))
-            return 1
+            return 1, None
         logger.info(
             _("Dry-run OK: would score model {model} on {data} (framework={fw})").format(
                 model=args.model, data=args.data_dir, fw=fw or "?"
             )
         )
-        return 0
+        return 0, None
 
     req = build_metrics_request(args)
     if not req.model_path.is_file():
         logger.error(_("Model file not found: {path}").format(path=req.model_path))
-        return 1
+        return 1, None
     if not req.data_dir.is_dir():
         logger.error(_("Data directory not found: {path}").format(path=req.data_dir))
-        return 1
+        return 1, None
 
     try:
         report = run_metrics(req)
     except NotImplementedError as e:
         logger.error(str(e))
-        return 1
+        return 1, None
     except (RuntimeError, ValueError) as e:
         logger.error(str(e))
-        return 1
+        return 1, None
     except ImportError as e:
         logger.error(_("Import error during evaluation: {err}").format(err=e))
-        return 1
+        return 1, None
     except Exception as e:
         logger.error(_("Evaluation failed: {err}").format(err=e), exc_info=args.verbose)
-        return 1
+        return 1, None
 
-    print(format_classification_report(report))
-    logger.debug(json.dumps(report.to_jsonable()))
-    return 0
+    return 0, report
+
+
+def run_evaluate_metrics_cli(args: Namespace) -> int:
+    """CLI implementation for ``mb evaluate metrics`` (returns process exit code)."""
+    code, report = run_evaluate_metrics(args)
+    if report is not None:
+        print(format_classification_report(report))
+        logger.debug(json.dumps(report.to_jsonable()))
+    return code

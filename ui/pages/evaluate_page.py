@@ -5,8 +5,10 @@ from __future__ import annotations
 import io
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
+from typing import Optional, Tuple
 
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QColor, QFontDatabase
 from PySide6.QtWidgets import (
     QComboBox,
     QFormLayout,
@@ -16,14 +18,17 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QPushButton,
     QSpinBox,
+    QTableWidget,
+    QTableWidgetItem,
     QTabWidget,
     QTextEdit,
     QVBoxLayout,
     QWidget,
 )
 
+from mb.evaluate.metrics import ClassificationMetricsReport, format_classification_report, run_evaluate_metrics
 from mb.models.types import EvaluateSubcommand, FrameworkType, ModelType
-from mb.pipeline_config import get_pipeline_config
+from mb.pipeline_config import get_pipeline_config, reload_pipeline_config
 from mb.utils.constants import ModelBuilderTaskType
 from mb.utils.recent_run_history import append_recent_run
 from mb.utils.translations import _
@@ -114,6 +119,7 @@ class EvaluatePage(QWidget):
         self.output = QTextEdit()
         self.output.setReadOnly(True)
         self.output.setObjectName("evaluate_output_log")
+        self.output.setFont(QFontDatabase.systemFont(QFontDatabase.SystemFont.FixedFont))
         root.addWidget(self.output, 1)
 
         self.metrics_validate.clicked.connect(lambda: self._run_cli(EvaluateSubcommand.METRICS, dry_run=True))
@@ -175,6 +181,7 @@ class EvaluatePage(QWidget):
         self.cmp_max_dis.setSpecialValueText(_("No cap"))
         self.metrics_validate.setText(_("Validate (dry-run)"))
         self.metrics_run.setText(_("Run metrics"))
+        self.metrics_confusion_label.setText(_("Confusion matrix (rows = true class, cols = predicted)"))
         self.mis_validate.setText(_("Validate (dry-run)"))
         self.mis_run.setText(_("Run misclassified"))
         self.cmp_validate.setText(_("Validate (dry-run)"))
@@ -385,6 +392,17 @@ class EvaluatePage(QWidget):
         row.addWidget(self.metrics_run)
         row.addStretch(1)
         v.addLayout(row)
+
+        self.metrics_confusion_label = QLabel()
+        self.metrics_confusion_label.setWordWrap(True)
+        v.addWidget(self.metrics_confusion_label)
+        self.metrics_confusion_table = QTableWidget()
+        self.metrics_confusion_table.setObjectName("evaluate_metrics_confusion_table")
+        self.metrics_confusion_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.metrics_confusion_table.setSelectionMode(QTableWidget.SelectionMode.NoSelection)
+        v.addWidget(self.metrics_confusion_table, 1)
+        self._populate_confusion_matrix(None)
+
         v.addStretch(1)
         return tab
 
@@ -564,14 +582,27 @@ class EvaluatePage(QWidget):
         self._append(_("[run] {cmd}").format(cmd=" ".join(argv)))
         self._pending_eval_summary = label
         self._set_busy(True)
-        handle = start_task(
-            self._worker_evaluate_main,
-            self._on_eval_success,
-            self._on_eval_error,
-            lambda: self._set_busy(False),
-            argv,
-            pass_context=True,
-        )
+        # Stale from a previous real metrics run; cleared up front so a dry-run or a
+        # misclassified/compare run in between doesn't leave an unrelated matrix on screen.
+        self._populate_confusion_matrix(None)
+        if sub == EvaluateSubcommand.METRICS and not dry_run:
+            handle = start_task(
+                self._worker_metrics_report_main,
+                self._on_metrics_report_success,
+                self._on_eval_error,
+                lambda: self._set_busy(False),
+                argv,
+                pass_context=True,
+            )
+        else:
+            handle = start_task(
+                self._worker_evaluate_main,
+                self._on_eval_success,
+                self._on_eval_error,
+                lambda: self._set_busy(False),
+                argv,
+                pass_context=True,
+            )
         attach_progress_dialog(self, _("Evaluate"), handle, cancellable=False)
 
     def _worker_evaluate_main(self, ctx: LongTaskContext, argv: list[str]) -> tuple[int, str, str]:
@@ -583,6 +614,78 @@ class EvaluatePage(QWidget):
         with redirect_stdout(out_buf), redirect_stderr(err_buf):
             code = main(argv)
         return int(code), out_buf.getvalue(), err_buf.getvalue()
+
+    def _worker_metrics_report_main(
+        self, ctx: LongTaskContext, argv: list[str]
+    ) -> Tuple[int, str, Optional[ClassificationMetricsReport]]:
+        """
+        Real (non-dry-run) ``metrics`` runs go through :func:`run_evaluate_metrics` directly
+        (same parser + pipeline-config reload as ``mb.cli.main``) instead of ``main(argv)``, so
+        the confusion matrix viewer gets the structured report without a second inference pass
+        or scraping it back out of CLI stdout text.
+        """
+        ctx.progress(_("Running…"), None, True)
+        from mb.cli import create_parser
+
+        parser = create_parser()
+        parsed = parser.parse_args(argv)
+        reload_pipeline_config(getattr(parsed, "config", None), force=True)
+        code, report = run_evaluate_metrics(parsed)
+        text = format_classification_report(report) if report is not None else ""
+        return int(code), text, report
+
+    def _on_metrics_report_success(self, payload: object) -> None:
+        if not isinstance(payload, tuple) or len(payload) != 3:
+            self._append(_("[done]"))
+            return
+        code, text, report = payload
+        if text.strip():
+            self._append(text.rstrip())
+        ok = code == 0
+        self._populate_confusion_matrix(report if ok else None)
+        if ok:
+            self._append(_("[done] Exit code 0."))
+            append_recent_run(
+                ModelBuilderTaskType.EVALUATE,
+                getattr(self, "_pending_eval_summary", "mb evaluate"),
+                True,
+            )
+        else:
+            self._append(_("[failed] Exit code {c}.").format(c=code))
+            append_recent_run(
+                ModelBuilderTaskType.EVALUATE,
+                getattr(self, "_pending_eval_summary", "mb evaluate"),
+                False,
+                f"exit {code}",
+            )
+
+    def _populate_confusion_matrix(self, report: Optional[ClassificationMetricsReport]) -> None:
+        table = self.metrics_confusion_table
+        if report is None or not report.confusion_matrix:
+            table.clear()
+            table.setRowCount(0)
+            table.setColumnCount(0)
+            return
+        names = report.class_names
+        cm = report.confusion_matrix
+        table.setRowCount(len(names))
+        table.setColumnCount(len(names))
+        table.setHorizontalHeaderLabels(names)
+        table.setVerticalHeaderLabels(names)
+        max_val = max((v for row in cm for v in row), default=0)
+        for i, row in enumerate(cm):
+            for j, v in enumerate(row):
+                item = QTableWidgetItem(str(v))
+                item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+                item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)
+                if max_val > 0:
+                    intensity = int(255 * (v / max_val))
+                    if i == j:
+                        item.setBackground(QColor(255 - intensity, 255, 255 - intensity))
+                    else:
+                        item.setBackground(QColor(255, 255 - intensity, 255 - intensity))
+                table.setItem(i, j, item)
+        table.resizeColumnsToContents()
 
     def _on_eval_success(self, payload: object) -> None:
         if not isinstance(payload, tuple) or len(payload) != 3:
