@@ -19,12 +19,10 @@ def _write_tiny_pytorch_checkpoint(path: Path) -> None:
     torch.save(state, path)
 
 
-def test_inline_onnx_external_data_embeds_sidecar(tmp_path: Path) -> None:
-    onnx = pytest.importorskip("onnx", reason="requires onnx")
-    import numpy as np
+def _make_tiny_onnx_model(weights):
+    """Single-initializer identity-graph ONNX model wrapping *weights*."""
     from onnx import TensorProto, helper, numpy_helper
 
-    weights = np.arange(1000, dtype=np.float32)
     init = numpy_helper.from_array(weights, name="W")
     graph = helper.make_graph(
         [helper.make_node("Identity", ["X"], ["Y"])],
@@ -33,7 +31,15 @@ def test_inline_onnx_external_data_embeds_sidecar(tmp_path: Path) -> None:
         [helper.make_tensor_value_info("Y", TensorProto.FLOAT, [1])],
         [init],
     )
-    model = helper.make_model(graph, opset_imports=[helper.make_opsetid("", 11)])
+    return helper.make_model(graph, opset_imports=[helper.make_opsetid("", 11)])
+
+
+def test_inline_onnx_external_data_embeds_sidecar(tmp_path: Path) -> None:
+    onnx = pytest.importorskip("onnx", reason="requires onnx")
+    import numpy as np
+
+    weights = np.arange(1000, dtype=np.float32)
+    model = _make_tiny_onnx_model(weights)
     path = tmp_path / "split.onnx"
     data_name = "split.onnx.data"
     onnx.save_model(
@@ -53,6 +59,61 @@ def test_inline_onnx_external_data_embeds_sidecar(tmp_path: Path) -> None:
     embedded = onnx.load(str(path), load_external_data=False)
     assert not any(t.external_data for t in embedded.graph.initializer)
     assert sum(len(t.raw_data) for t in embedded.graph.initializer) == weights.nbytes
+
+
+def test_inline_onnx_external_data_keeps_external_when_too_large(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """When the embedded size would exceed the protobuf limit, leave the sidecar alone."""
+    onnx = pytest.importorskip("onnx", reason="requires onnx")
+    import numpy as np
+    from mb.conversion import converters as converters_module
+
+    weights = np.arange(1000, dtype=np.float32)
+    model = _make_tiny_onnx_model(weights)
+    path = tmp_path / "split.onnx"
+    data_name = "split.onnx.data"
+    onnx.save_model(
+        model,
+        str(path),
+        save_as_external_data=True,
+        all_tensors_to_one_file=True,
+        location=data_name,
+        size_threshold=0,
+    )
+    data_path = tmp_path / data_name
+    assert data_path.is_file()
+
+    # Avoid needing a multi-GB fixture: force the "too large to embed" branch directly.
+    monkeypatch.setattr(converters_module, "_ONNX_EMBED_MAX_BYTES", 10)
+
+    assert inline_onnx_external_data(path) is False
+
+    # Nothing should have been touched: sidecar still present, main file still split.
+    assert data_path.is_file()
+    reloaded = onnx.load(str(path), load_external_data=False)
+    assert any(t.external_data for t in reloaded.graph.initializer)
+
+
+def test_inline_onnx_external_data_noop_when_already_embedded(tmp_path: Path) -> None:
+    """A model with no external data at all should be reported OK and left untouched."""
+    onnx = pytest.importorskip("onnx", reason="requires onnx")
+    import numpy as np
+
+    weights = np.arange(1000, dtype=np.float32)
+    model = _make_tiny_onnx_model(weights)
+    path = tmp_path / "embedded.onnx"
+    onnx.save_model(model, str(path), save_as_external_data=False)
+    before_mtime_ns = path.stat().st_mtime_ns
+
+    assert inline_onnx_external_data(path) is True
+
+    # Early-return path: the file must not have been rewritten.
+    assert path.stat().st_mtime_ns == before_mtime_ns
+    assert list(tmp_path.iterdir()) == [path]
+    reloaded = onnx.load(str(path), load_external_data=False)
+    assert not any(t.external_data for t in reloaded.graph.initializer)
+    assert sum(len(t.raw_data) for t in reloaded.graph.initializer) == weights.nbytes
 
 
 def test_convert_model_pytorch_to_safetensors(tmp_path: Path) -> None:

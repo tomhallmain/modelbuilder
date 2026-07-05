@@ -7,8 +7,10 @@ This module provides functionality to convert models between different formats:
 - Keras (.h5) to ONNX
 """
 
+import gc
 import logging
 import threading
+import time
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -33,14 +35,18 @@ def inline_onnx_external_data(output_path: Path) -> bool:
     """
     try:
         import onnx
-        from onnx.external_data_helper import convert_model_from_external_data
+        from onnx.external_data_helper import load_external_data_for_model
     except ImportError:
         logger.warning("onnx package not available; cannot inline external ONNX data")
         return False
 
     output_path = Path(output_path)
     try:
-        model = onnx.load(str(output_path), load_external_data=True)
+        # load_external_data=False keeps each tensor's ``external_data`` (sidecar file
+        # location) metadata intact. Loading with load_external_data=True instead reads
+        # the bytes AND clears that metadata in the same call, so external_files below
+        # would always come up empty and we'd never find the sidecar file to remove.
+        model = onnx.load(str(output_path), load_external_data=False)
     except Exception as e:
         logger.warning("Could not reload ONNX to inline external data: %s", e)
         return False
@@ -51,10 +57,14 @@ def inline_onnx_external_data(output_path: Path) -> bool:
             if entry.key == "location":
                 external_files.add((output_path.parent / entry.value).resolve())
 
-    if not external_files and not any(init.external_data for init in model.graph.initializer):
+    if not external_files:
         return True
 
-    convert_model_from_external_data(model)
+    try:
+        load_external_data_for_model(model, str(output_path.parent))
+    except Exception as e:
+        logger.warning("Could not load external ONNX data: %s", e)
+        return False
 
     weight_bytes = sum(len(t.raw_data) for t in model.graph.initializer if t.raw_data)
     if weight_bytes > _ONNX_EMBED_MAX_BYTES:
@@ -71,15 +81,34 @@ def inline_onnx_external_data(output_path: Path) -> bool:
         logger.warning("Failed to save self-contained ONNX: %s", e)
         return False
 
+    # Drop our reference (and anything onnx/protobuf may still hold internally) before
+    # deleting the sidecar file: on Windows an open handle blocks unlink, and a handle
+    # from reading the external data can otherwise briefly outlive this point.
+    del model
+    gc.collect()
+
     for ext_path in external_files:
-        try:
-            if ext_path.is_file() and ext_path.resolve() != output_path.resolve():
-                ext_path.unlink()
-                logger.info("Removed external ONNX data file after inlining: %s", ext_path)
-        except OSError as e:
-            logger.warning("Could not remove external ONNX data file %s: %s", ext_path, e)
+        if not ext_path.is_file() or ext_path.resolve() == output_path.resolve():
+            continue
+        _unlink_with_retry(ext_path)
 
     return True
+
+
+def _unlink_with_retry(path: Path, *, attempts: int = 5, initial_delay: float = 0.1) -> None:
+    """Delete *path*, retrying briefly on Windows file-lock races (AV scan, lingering handle)."""
+    delay = initial_delay
+    for attempt in range(1, attempts + 1):
+        try:
+            path.unlink()
+            logger.info("Removed external ONNX data file after inlining: %s", path)
+            return
+        except OSError as e:
+            if attempt == attempts:
+                logger.warning("Could not remove external ONNX data file %s: %s", path, e)
+                return
+            time.sleep(delay)
+            delay *= 2
 
 
 # New torch.onnx dynamo exporter implements opset 18+; requesting older versions
