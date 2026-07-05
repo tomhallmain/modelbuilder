@@ -33,7 +33,9 @@ def _split_counts(total: int, n_classes: int) -> list[int]:
 
 def _random_rgb_image(width: int, height: int, seed: int) -> Image.Image:
     rng = random.Random(seed)
-    data = bytes(rng.randrange(256) for _ in range(width * height * 3))
+    # randbytes() generates the same uniform noise in C instead of one randrange() call
+    # per byte in Python -- a large chunk of this fixture's cost at thousands of images.
+    data = rng.randbytes(width * height * 3)
     return Image.frombytes("RGB", (width, height), data)
 
 
