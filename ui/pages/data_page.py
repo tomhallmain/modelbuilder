@@ -28,6 +28,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from mb.data.class_layout import clear_class_discovery_cache
 from mb.data.convert import ImageConverter
 from mb.data.dataset import DatasetCreator, unified_snapshot_search_paths_for_dataset
 from mb.data.deduplicate import ImageDeduplicator
@@ -1456,6 +1457,9 @@ class DataPage(QWidget):
         sub = getattr(self, "_pending_data_subcommand", None)
         snap = self._snapshot_path_after_successful_data_run() if success else None
         if success:
+            # Gather/Convert/etc. can add or remove class-folder directories under the
+            # shared raw data dir; drop the cached discovery so the next check reflects it.
+            clear_class_discovery_cache()
             self._append(_("[done] Data command completed successfully."))
             if snap:
                 self._append(f"[snapshot] {snap}")

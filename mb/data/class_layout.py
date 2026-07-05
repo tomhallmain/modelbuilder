@@ -8,8 +8,9 @@ directories containing that immediate child folder count as class (or gather) ro
 
 from __future__ import annotations
 
+import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from mb.utils.logging_setup import get_logger
 logger = get_logger(__name__)
@@ -33,6 +34,34 @@ _RAW_DATA_NON_CLASS_SUBDIRS: frozenset[str] = frozenset({"rejected", "small_imag
 
 # Under ``small_images_review``, skip the upscaler output tree when mirroring class folders.
 _REVIEW_NON_CATEGORY_SUBDIRS: frozenset[str] = frozenset({"upscaled_small_images"})
+
+# Cache for :func:`discover_class_names`, keyed on ``(root, explicit, qualifier)``.
+#
+# The cache does not expire based on how much wall-clock time elapses between calls —
+# two calls for the same root can legitimately be seconds (or more) apart (e.g. a
+# main-thread precheck followed by the same check re-run on a worker thread once it
+# starts, with slow unrelated work such as importing TensorFlow/PyTorch happening in
+# between). A fixed debounce window just turns into a guessing game against whatever
+# is slow that day. Instead, the scan result is treated as valid until something that
+# could plausibly change the class-folder layout happens, at which point the caller is
+# expected to invalidate it via :func:`clear_class_discovery_cache` (the UI does this
+# after a data command finishes). ``DISCOVERY_CACHE_MAX_AGE_SECONDS`` is only a safety
+# net bounding staleness if an invalidation is ever missed (e.g. the directory was
+# changed by something outside the app while it stayed open).
+DISCOVERY_CACHE_MAX_AGE_SECONDS = 300.0
+
+_DiscoveryCacheKey = Tuple[str, Optional[Tuple[str, ...]], Optional[str]]
+_discovery_cache: Dict[_DiscoveryCacheKey, Tuple[float, List[str]]] = {}
+
+
+def clear_class_discovery_cache() -> None:
+    """Drop all cached :func:`discover_class_names` results.
+
+    Call this after any operation that can change which directories under a given
+    root qualify as class folders (e.g. gather/convert creating new bucket dirs), and
+    in tests that need a guaranteed fresh scan.
+    """
+    _discovery_cache.clear()
 
 
 def normalize_qualifying_subdir(name: Optional[str]) -> Optional[str]:
@@ -65,10 +94,29 @@ def discover_class_names(
 
     If *explicit* is ``None`` or empty, list every immediate subdirectory of *root*
     that qualifies (sorted by name).
+
+    Results are cached per ``(root, explicit, class_qualifying_subdir)`` until
+    explicitly invalidated via :func:`clear_class_discovery_cache`, or until
+    :data:`DISCOVERY_CACHE_MAX_AGE_SECONDS` elapses as a staleness safety net. This
+    means repeated calls for the same root (e.g. from several UI widgets or code paths
+    reacting to the same change) reuse the last scan instead of re-walking the
+    filesystem and re-logging, regardless of how much unrelated wall-clock time passes
+    between them.
     """
-    logger.info(f"Discovering class names for root: {root}")
     root = Path(root)
     q = normalize_qualifying_subdir(class_qualifying_subdir)
+    cache_key: _DiscoveryCacheKey = (
+        str(root.resolve()) if root.exists() else str(root),
+        tuple(str(n).strip() for n in explicit) if explicit else None,
+        q,
+    )
+    now = time.monotonic()
+    cached = _discovery_cache.get(cache_key)
+    if cached is not None and (now - cached[0]) < DISCOVERY_CACHE_MAX_AGE_SECONDS:
+        logger.debug(f"Using cached class names for root: {root}")
+        return list(cached[1])
+
+    logger.info(f"Discovering class names for root: {root}")
 
     if explicit:
         out: List[str] = []
@@ -81,9 +129,11 @@ def discover_class_names(
                 continue
             if dir_qualifies_as_class(p, q):
                 out.append(name)
+        _discovery_cache[cache_key] = (now, out)
         return out
 
     if not root.is_dir():
+        _discovery_cache[cache_key] = (now, [])
         return []
 
     names: List[str] = []
@@ -92,6 +142,7 @@ def discover_class_names(
             continue
         if dir_qualifies_as_class(p, q):
             names.append(p.name)
+    _discovery_cache[cache_key] = (now, names)
     return names
 
 
@@ -107,7 +158,7 @@ def discover_raw_data_bucket_names(
     Uses the same rules as :func:`discover_class_names`, then drops known non-class
     directories (``rejected``, ``small_images_review``).
     """
-    logger.info(f"Discovering raw data bucket names for: {raw_data_root}")
+    logger.debug(f"Discovering raw data bucket names for: {raw_data_root}")
     names = discover_class_names(
         raw_data_root,
         explicit=explicit,
@@ -127,7 +178,7 @@ def discover_review_bucket_names(
 
     Same discovery as raw buckets, excluding ``upscaled_small_images``.
     """
-    logger.info(f"Discovering review bucket names for: {review_root}")
+    logger.debug(f"Discovering review bucket names for: {review_root}")
     names = discover_class_names(
         review_root,
         explicit=explicit,
