@@ -7,17 +7,21 @@ import textwrap
 import unittest
 from pathlib import Path
 
-from mb.models.types import ArchitectureType, FrameworkType
+from mb.models.types import ArchitectureType, FrameworkType, ModelType
 from argparse import Namespace
 
 from mb.pipeline_config import (
+    CliField,
     PipelineConfig,
     gather_pipeline_defaults,
     gather_subpath_for_display,
     gather_subpath_for_storage,
     reload_pipeline_config,
     resolve_create_dataset_cli,
+    resolve_data_cli,
+    resolve_fix_jpeg_raw_data_dir_cli,
     resolve_gather_path_under_raw,
+    resolve_model_type_cli,
 )
 from mb.utils.constants import DatasetSplitMode
 
@@ -141,6 +145,47 @@ class TestPipelineConfigLoad(unittest.TestCase):
             self.assertEqual(out2["test_per_class"], 10)
             self.assertEqual(out2["test_split_mode"], DatasetSplitMode.FIXED)
             self.assertEqual(out2["seed"], 1)
+
+    def test_resolve_data_cli_generic_engine(self) -> None:
+        """CliField/resolve_data_cli: CLI wins when set, pipeline_getter used otherwise."""
+        reload_pipeline_config(None, force=True)
+        fields = [
+            CliField("widget", "widget", pipeline_getter=lambda: "from-pipeline"),
+        ]
+        self.assertEqual(resolve_data_cli(Namespace(widget="from-cli"), fields), {"widget": "from-cli"})
+        self.assertEqual(resolve_data_cli(Namespace(widget=None), fields), {"widget": "from-pipeline"})
+        # Missing attribute entirely behaves like None (matches getattr(args, name, None)).
+        self.assertEqual(resolve_data_cli(Namespace(), fields), {"widget": "from-pipeline"})
+
+    def test_resolve_model_type_cli_merges_pipeline(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            yml = Path(td) / "mt.yaml"
+            yml.write_text("model:\n  default_type: image_classification\n", encoding="utf-8")
+            reload_pipeline_config(yml, force=True)
+
+            self.assertEqual(
+                resolve_model_type_cli(Namespace(model_type=None)), ModelType.IMAGE_CLASSIFICATION
+            )
+            self.assertEqual(
+                resolve_model_type_cli(Namespace(model_type="image_classification")),
+                ModelType.IMAGE_CLASSIFICATION,
+            )
+            # No model_type attribute at all (e.g. estimate-space has no CLI flag for it).
+            self.assertEqual(resolve_model_type_cli(Namespace()), ModelType.IMAGE_CLASSIFICATION)
+
+    def test_resolve_fix_jpeg_raw_data_dir_cli_falls_back_to_gather_default(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            raw = Path(td) / "external_raw"
+            yml = Path(td) / "pipe.yaml"
+            yml.write_text(f"data:\n  raw_data_dir: {raw}\n", encoding="utf-8")
+            reload_pipeline_config(yml, force=True)
+
+            self.assertEqual(resolve_fix_jpeg_raw_data_dir_cli(Namespace(raw_data_dir=None)), raw)
+
+            explicit = Path(td) / "explicit_raw"
+            self.assertEqual(
+                resolve_fix_jpeg_raw_data_dir_cli(Namespace(raw_data_dir=explicit)), explicit
+            )
 
 
 if __name__ == "__main__":

@@ -16,6 +16,8 @@ from mb.pipeline_config import (
     get_pipeline_config,
     reload_pipeline_config,
     resolve_create_dataset_cli,
+    resolve_fix_jpeg_raw_data_dir_cli,
+    resolve_model_type_cli,
 )
 from mb.utils.constants import ModelBuilderTaskType
 from mb.utils.logging_setup import setup_logging
@@ -122,9 +124,7 @@ def handle_data_gather(args):
                 return 1
         
         layout = data_class_layout_defaults()
-        mt = ModelType.from_pipeline_value(
-            getattr(args, "model_type", None) or get_pipeline_config().get("model.default_type")
-        )
+        mt = resolve_model_type_cli(args)
         # Create and run gatherer
         gatherer = ImageGatherer(
             source_dir=str(args.source_dir),
@@ -156,9 +156,7 @@ def handle_data_convert(args):
     # Today ImageConverter is JPEG-oriented; --format is accepted but not yet applied.
     try:
         reload_pipeline_config(getattr(args, "config", None), force=True)
-        mt = ModelType.from_pipeline_value(
-            getattr(args, "model_type", None) or get_pipeline_config().get("model.default_type")
-        )
+        mt = resolve_model_type_cli(args)
         converter = ImageConverter(raw_data_dir=args.raw_data_dir, model_type=mt)
         success = converter.run(
             skip_space_check=getattr(args, "skip_space_check", False),
@@ -255,13 +253,8 @@ def handle_data_fix_jpeg_extension_mismatch(args):
     try:
         reload_pipeline_config(getattr(args, "config", None), force=True)
         from mb.data.find_jpeg_extension_mismatches import repair_mislabeled_jpeg_extensions
-        from mb.pipeline_config import gather_pipeline_defaults
 
-        raw_data_dir = getattr(args, "raw_data_dir", None)
-        if raw_data_dir is None:
-            raw_data_dir = gather_pipeline_defaults()["raw_data_dir"]
-        else:
-            raw_data_dir = Path(raw_data_dir)
+        raw_data_dir = resolve_fix_jpeg_raw_data_dir_cli(args)
 
         dry_run = bool(getattr(args, "dry_run", False))
         report_json = bool(getattr(args, "report_json", False))
@@ -274,9 +267,7 @@ def handle_data_fix_jpeg_extension_mismatch(args):
             logger.error(_("--pillow requires --json"))
             return 1
 
-        mt = ModelType.from_pipeline_value(
-            getattr(args, "model_type", None) or get_pipeline_config().get("model.default_type")
-        )
+        mt = resolve_model_type_cli(args)
         seed = getattr(args, "seed", None)
         rng = random.Random(seed) if seed is not None else None
         ok, stats = repair_mislabeled_jpeg_extensions(
@@ -307,7 +298,7 @@ def handle_data_estimate_space(args):
     """Handle ``mb data estimate-space``."""
     try:
         reload_pipeline_config(getattr(args, "config", None), force=True)
-        mt = ModelType.from_pipeline_value(get_pipeline_config().get("model.default_type"))
+        mt = resolve_model_type_cli(args)
         if args.operation == ModelBuildStepCommand.CONVERT.value:
             from mb.space_estimate import run_convert_estimate
 

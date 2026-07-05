@@ -13,18 +13,21 @@ Default file: ``mb/config/default_pipeline.yaml`` (shipped with the package).
 ``data.*`` (see :func:`gather_pipeline_defaults`).
 
 After merge, :meth:`PipelineConfig._coerce_data_values` normalizes ``data.*`` types so a
-hand-edited YAML cannot break CLI commands (:func:`resolve_create_dataset_cli` merges
-pipeline defaults with ``mb data create-dataset`` flags).
+hand-edited YAML cannot break CLI commands. :func:`resolve_data_cli` merges an argparse
+``args`` namespace with the active pipeline config, field by field, for the ``mb data *``
+subcommands (see :func:`resolve_create_dataset_cli`, :func:`resolve_model_type_cli`,
+:func:`resolve_fix_jpeg_raw_data_dir_cli` built on it).
 """
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Sequence
 
 import yaml
 
-from mb.models.types import ArchitectureType, FrameworkType
+from mb.models.types import ArchitectureType, FrameworkType, ModelType
 from mb.utils.constants import DatasetSplitMode
 from mb.utils.logging_setup import get_logger
 
@@ -360,10 +363,83 @@ def get_pipeline_config(config_path: Optional[Path] = None) -> PipelineConfig:
     return _global_pipeline
 
 
-# TODO: Replace ad-hoc per-command merge helpers (e.g. :func:`resolve_create_dataset_cli`) with a
-# single :func:`resolve_cli` (or similar) that maps argparse namespaces → pipeline keys for *all*
-# ``mb`` subcommands, reusing :meth:`PipelineConfig._coerce_data_values` / shared validation so CLI,
-# GUI, and on-disk YAML stay one consistent surface.
+@dataclass
+class CliField:
+    """One CLI-argument <-> pipeline-config mapping consumed by :func:`resolve_data_cli`."""
+
+    name: str
+    cli_attr: str
+    pipeline_key: Optional[str] = None
+    pipeline_default: Any = None
+    # Overrides pipeline_key/pipeline_default when the pipeline-side value needs more
+    # than a plain dotted-key lookup (e.g. :func:`gather_pipeline_defaults`'s fallback
+    # chain for a legacy YAML key).
+    pipeline_getter: Optional[Callable[[], Any]] = None
+    # Runs on whichever value wins (CLI if not None, else the pipeline value); also
+    # receives the pipeline value as a fallback for graceful recovery from a bad CLI
+    # flag, mirroring how :meth:`PipelineConfig._coerce_data_values` recovers from bad YAML.
+    coerce: Callable[[Any, Any], Any] = staticmethod(lambda value, fallback: value)
+
+
+def resolve_data_cli(args: Any, fields: Sequence[CliField]) -> Dict[str, Any]:
+    """
+    Merge an argparse ``args`` namespace with the active pipeline config, per :class:`CliField`.
+
+    Shared engine behind the ``mb data *`` CLI-merge helpers (:func:`resolve_create_dataset_cli`,
+    :func:`resolve_model_type_cli`, :func:`resolve_fix_jpeg_raw_data_dir_cli`) -- deliberately
+    scoped to those subcommands, not a general "any ``mb`` subcommand" resolver. ``train`` /
+    ``convert`` / ``export`` / ``evaluate`` have their own enum-validation shapes that don't
+    fit this merge pattern.
+
+    Call after :func:`reload_pipeline_config` so the global config matches ``args.config``.
+    For each field: the CLI attribute wins when present and not ``None``; otherwise the
+    pipeline value is used (via ``pipeline_getter()`` if given, else
+    ``pipeline.get(pipeline_key, pipeline_default)``). Both the winning value and the
+    pipeline value are run through ``coerce``, so a malformed CLI flag falls back to the
+    pipeline's own (already-normalized) value rather than raising.
+    """
+    pc = get_pipeline_config()
+    out: Dict[str, Any] = {}
+    for f in fields:
+        if f.pipeline_getter is not None:
+            pipeline_value = f.pipeline_getter()
+        elif f.pipeline_key:
+            pipeline_value = pc.get(f.pipeline_key, f.pipeline_default)
+        else:
+            pipeline_value = f.pipeline_default
+        cli_value = getattr(args, f.cli_attr, None)
+        value = cli_value if cli_value is not None else pipeline_value
+        out[f.name] = f.coerce(value, pipeline_value)
+    return out
+
+
+def _coerce_min1_int(value: Any, fallback: Any) -> int:
+    try:
+        return max(1, int(float(value)))
+    except (TypeError, ValueError):
+        return max(1, int(fallback))
+
+
+def _coerce_optional_min1_int(value: Any, fallback: Any) -> Optional[int]:
+    if value is None or (isinstance(value, str) and not value.strip()):
+        return None
+    try:
+        return max(1, int(float(value)))
+    except (TypeError, ValueError):
+        return None
+
+
+def _coerce_optional_int(value: Any, fallback: Any) -> Optional[int]:
+    if value is None:
+        return None
+    try:
+        return int(float(value))
+    except (TypeError, ValueError):
+        return None
+
+
+def _coerce_split_mode(value: Any, fallback: Any) -> DatasetSplitMode:
+    return DatasetSplitMode.normalize(None if value is None else str(value).strip() or None)
 
 
 def resolve_create_dataset_cli(args: Any) -> Dict[str, Any]:
@@ -381,67 +457,57 @@ def resolve_create_dataset_cli(args: Any) -> Dict[str, Any]:
     Returns:
         ``test_per_class``, ``test_split_mode`` (``:class:`~mb.utils.constants.DatasetSplitMode``),
         ``test_small_class_threshold``, and ``seed`` (``None`` if unset).
-
-    .. note::
-
-        Interim helper until a generic :func:`resolve_cli` exists (see module TODO above).
     """
     from mb.data.dataset import DEFAULT_TEST_PER_CLASS
 
-    pc = get_pipeline_config()
-    d = pc.to_dict().get("data") or {}
-    if not isinstance(d, dict):
-        d = {}
+    fields = [
+        CliField(
+            "test_per_class",
+            "test_per_class",
+            "data.test_per_class",
+            DEFAULT_TEST_PER_CLASS,
+            coerce=_coerce_min1_int,
+        ),
+        CliField("test_split_mode", "test_split_mode", "data.test_split_mode", coerce=_coerce_split_mode),
+        CliField(
+            "test_small_class_threshold",
+            "test_small_class_threshold",
+            "data.test_small_class_threshold",
+            coerce=_coerce_optional_min1_int,
+        ),
+        CliField("seed", "seed", "data.seed", coerce=_coerce_optional_int),
+    ]
+    return resolve_data_cli(args, fields)
 
-    tpc = getattr(args, "test_per_class", None)
-    if tpc is None:
-        tpc = d.get("test_per_class", DEFAULT_TEST_PER_CLASS)
-    try:
-        test_per_class = max(1, int(float(tpc)))
-    except (TypeError, ValueError):
-        test_per_class = max(1, int(d.get("test_per_class", DEFAULT_TEST_PER_CLASS)))
 
-    tsm = getattr(args, "test_split_mode", None)
-    if tsm is None:
-        tsm = d.get("test_split_mode")
-    test_split_mode: DatasetSplitMode = DatasetSplitMode.normalize(
-        None if tsm is None else str(tsm).strip() or None
-    )
+def resolve_model_type_cli(args: Any) -> ModelType:
+    """
+    Merge ``--model-type`` (gather / data convert / fix-jpeg-extension-mismatch / estimate-space)
+    with ``model.default_type``. Unset or unrecognized values fall back to image
+    classification (see :meth:`ModelType.from_pipeline_value`).
+    """
+    fields = [
+        CliField(
+            "model_type",
+            "model_type",
+            "model.default_type",
+            coerce=lambda value, fallback: ModelType.from_pipeline_value(value),
+        ),
+    ]
+    return resolve_data_cli(args, fields)["model_type"]
 
-    tst = getattr(args, "test_small_class_threshold", None)
-    if tst is None:
-        tst = d.get("test_small_class_threshold")
-        if tst is not None:
-            try:
-                tst = max(1, int(float(tst)))
-            except (TypeError, ValueError):
-                tst = None
-    else:
-        try:
-            tst = max(1, int(float(tst)))
-        except (TypeError, ValueError):
-            tst = None
 
-    seed = getattr(args, "seed", None)
-    if seed is None:
-        sp = d.get("seed")
-        if sp is not None:
-            try:
-                seed = int(float(sp))
-            except (TypeError, ValueError):
-                seed = None
-    else:
-        try:
-            seed = int(seed)
-        except (TypeError, ValueError):
-            seed = None
-
-    return {
-        "test_per_class": test_per_class,
-        "test_split_mode": test_split_mode,
-        "test_small_class_threshold": tst,
-        "seed": seed,
-    }
+def resolve_fix_jpeg_raw_data_dir_cli(args: Any) -> Path:
+    """``--raw-data-dir`` for ``fix-jpeg-extension-mismatch``, defaulting like gather/convert."""
+    fields = [
+        CliField(
+            "raw_data_dir",
+            "raw_data_dir",
+            pipeline_getter=lambda: gather_pipeline_defaults()["raw_data_dir"],
+            coerce=lambda value, fallback: Path(value),
+        ),
+    ]
+    return resolve_data_cli(args, fields)["raw_data_dir"]
 
 
 def data_class_layout_defaults() -> Dict[str, Any]:
