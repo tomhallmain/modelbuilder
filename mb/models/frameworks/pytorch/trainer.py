@@ -12,7 +12,6 @@ from torch.optim.lr_scheduler import OneCycleLR, CosineAnnealingLR
 from pathlib import Path
 from typing import Any, Callable, Dict, Optional, Tuple, Union
 import json
-import logging
 import threading
 from datetime import datetime
 
@@ -23,8 +22,9 @@ from mb.models.frameworks.pytorch.data_loader import create_data_loaders
 from mb.models.frameworks.pytorch.architectures import create_resnet, create_efficientnet
 from mb.models.frameworks.registry import get_architecture, list_architectures
 from mb.models.types import ArchitectureType, FrameworkType
+from mb.utils.logging_setup import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class PyTorchTrainer(FrameworkTrainer):

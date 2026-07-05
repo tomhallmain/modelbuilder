@@ -8,15 +8,15 @@ This module provides functionality to convert models between different formats:
 """
 
 import gc
-import logging
 import threading
 import time
 from pathlib import Path
 from typing import Any, Dict, Optional
 
 from mb.cancellation import check_cancel_event
+from mb.utils.logging_setup import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 # Protobuf messages top out near 2 GiB; leave headroom before keeping external data.
 _ONNX_EMBED_MAX_BYTES = 2 * 1024**3 - 64 * 1024**2

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import logging
 import os
 import random
 import shlex
@@ -52,6 +51,7 @@ from mb.utils.snapshot import (
     find_loadable_unified_snapshot_path_for_run_id,
     run_id_from_latest_unified_snapshot,
 )
+from mb.utils.logging_setup import get_logger
 from mb.utils.translations import _
 from ui.lib.duplicates_resolver_window import DuplicatesResolverDialog
 from ui.lib.qt_log_bridge import QtLogBridge, tee_logger_to_qt
@@ -63,7 +63,7 @@ from ui.main_thread_bridge import MainThreadBridge
 from ui.task_context import LongTaskContext
 from ui.task_runner import start_task
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 # Tab index of the Wildcard command picker (see :meth:`DataPage._build_wildcard_tab`).
 WILDCARD_TAB_INDEX = 5

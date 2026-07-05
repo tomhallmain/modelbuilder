@@ -8,11 +8,11 @@ to their implementations across different frameworks.
 from __future__ import annotations
 
 from typing import Any, Callable, Dict, Optional, Union
-import logging
 
 from mb.models.types import ArchitectureType, FrameworkType
+from mb.utils.logging_setup import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 FrameworkKey = Union[FrameworkType, str]
 ArchitectureKey = Union[ArchitectureType, str]

@@ -9,14 +9,14 @@ existing dataset record.
 
 from pathlib import Path
 from typing import Callable, Optional
-import logging
 import threading
 
 from mb.cancellation import check_cancel_event
 from mb.data.file_types import configured_media_suffixes
+from mb.utils.logging_setup import get_logger
 from mb.utils.snapshot import UnifiedSnapshot, calculate_file_hash
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def update_training_snapshot(

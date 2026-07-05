@@ -8,15 +8,15 @@ Model-type dispatch lives in :func:`run_metrics`; image-classification backends 
 from __future__ import annotations
 
 import json
-import logging
 from argparse import Namespace
 from pathlib import Path
 
 from mb.evaluate._contracts import ClassificationMetricsReport, MetricsRequest
 from mb.models.types import FrameworkType, ModelType
+from mb.utils.logging_setup import get_logger
 from mb.utils.translations import _
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def run_metrics(request: MetricsRequest) -> ClassificationMetricsReport:

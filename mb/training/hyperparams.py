@@ -7,12 +7,12 @@ from various sources (config, CLI, defaults).
 
 from typing import Any, Dict, Optional, TYPE_CHECKING
 
-import logging
+from mb.utils.logging_setup import get_logger
 
 if TYPE_CHECKING:
     from mb.pipeline_config import PipelineConfig
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class HyperparameterManager:

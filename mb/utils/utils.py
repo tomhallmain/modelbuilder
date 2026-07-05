@@ -4,13 +4,14 @@ from __future__ import annotations
 
 import hashlib
 import locale
-import logging
 import sys
 from collections import defaultdict
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
 
-logger = logging.getLogger(__name__)
+from mb.utils.logging_setup import get_logger
+
+logger = get_logger(__name__)
 
 # Windows: one filename component normally ≤ 255; legacy full path ≤ 260 without ``\\?\`` prefix.
 _WIN_MAX_COMPONENT = 255

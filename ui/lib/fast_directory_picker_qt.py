@@ -34,11 +34,10 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-import logging
-
+from mb.utils.logging_setup import get_logger
 from mb.utils.translations import _
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def parse_qt_name_filter(name_filter: str) -> list[str] | None:

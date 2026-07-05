@@ -8,14 +8,14 @@ import torch
 import torch.nn as nn
 from torchvision import models
 from typing import Optional, Union
-import logging
 
 from mb.models.frameworks.registry import register_architecture
 from mb.models.types import ArchitectureType, FrameworkType
+from mb.utils.logging_setup import get_logger
 
 _FW = FrameworkType.PYTORCH
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def _architecture_str(architecture: Union[ArchitectureType, str]) -> str:

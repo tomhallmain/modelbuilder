@@ -9,14 +9,14 @@ from __future__ import annotations
 
 import csv
 import json
-import logging
 from argparse import Namespace
 from pathlib import Path
 from mb.evaluate._contracts import ClassificationCompareReport, CompareRequest
 from mb.models.types import EvaluateSubcommand, FrameworkType, ModelType
+from mb.utils.logging_setup import get_logger
 from mb.utils.translations import _
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def run_compare(request: CompareRequest) -> ClassificationCompareReport:

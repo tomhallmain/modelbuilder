@@ -9,10 +9,13 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Callable, Dict, Optional, Tuple, Union
 import json
-import logging
 import os
 import threading
 from datetime import datetime
+
+from mb.utils.logging_setup import get_logger
+
+logger = get_logger(__name__)
 
 # Before importing TensorFlow: cut C++ INFO/WARN noise (oneDNN, absl pre-init) on stderr.
 os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
@@ -24,7 +27,7 @@ try:
     TF_AVAILABLE = True
 except ImportError:
     TF_AVAILABLE = False
-    logging.getLogger(__name__).warning("TensorFlow not available. Keras trainer will not work.")
+    logger.warning("TensorFlow not available. Keras trainer will not work.")
 
 from mb.cancellation import check_cancel_event
 from mb.models.base import FrameworkTrainer
@@ -36,8 +39,6 @@ from mb.models.frameworks.keras.data_loader import create_data_generators
 from mb.models.frameworks.keras.architectures import create_resnet, create_efficientnet
 from mb.models.frameworks.registry import get_architecture, list_architectures
 from mb.models.types import ArchitectureType, FrameworkType
-
-logger = logging.getLogger(__name__)
 
 
 class KerasTrainer(FrameworkTrainer):

@@ -9,9 +9,10 @@ from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 from pathlib import Path
 from typing import Tuple, Optional
-import logging
 
-logger = logging.getLogger(__name__)
+from mb.utils.logging_setup import get_logger
+
+logger = get_logger(__name__)
 
 
 class ImageFolderDataset(Dataset):

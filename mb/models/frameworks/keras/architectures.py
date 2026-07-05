@@ -4,12 +4,12 @@ Keras/TensorFlow architecture definitions and registration.
 This module registers Keras model architectures with the global registry.
 """
 
-import logging
 from typing import Union
 
 from mb.models.types import ArchitectureType
+from mb.utils.logging_setup import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def _architecture_str(architecture: Union[ArchitectureType, str]) -> str:

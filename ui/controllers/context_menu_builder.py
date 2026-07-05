@@ -5,12 +5,13 @@ in Model Builder. Stub for import compatibility.
 
 from __future__ import annotations
 
-import logging
 from typing import Any
 
 from PySide6.QtCore import QPoint
 
-logger = logging.getLogger(__name__)
+from mb.utils.logging_setup import get_logger
+
+logger = get_logger(__name__)
 
 
 class ContextMenuBuilder:

@@ -20,7 +20,7 @@ from mb.pipeline_config import (
     resolve_model_type_cli,
 )
 from mb.utils.constants import ModelBuilderTaskType
-from mb.utils.logging_setup import setup_logging
+from mb.utils.logging_setup import get_logger, setup_logging
 from mb.utils.translations import _
 
 # Import data processing modules
@@ -44,7 +44,7 @@ from mb.models.types import (
     ModelType,
 )
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def create_parser() -> argparse.ArgumentParser:

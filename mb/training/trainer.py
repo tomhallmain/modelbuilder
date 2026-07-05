@@ -6,7 +6,6 @@ This module provides a framework-agnostic interface for training models.
 
 from pathlib import Path
 from typing import Any, Callable, Optional
-import logging
 import threading
 import time
 from datetime import datetime, timezone
@@ -19,6 +18,7 @@ from mb.training.hyperparams import get_training_hyperparams
 from mb.training.run_args import TrainingRunArgs
 from mb.training.snapshot_integration import update_training_snapshot
 from mb.utils.constants import ModelBuilderTaskType
+from mb.utils.logging_setup import get_logger
 from mb.utils.snapshot import (
     find_unified_snapshot,
     preload_gather_cache,
@@ -26,7 +26,7 @@ from mb.utils.snapshot import (
     set_step_errors_for_invocation,
 )
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class ModelTrainer:

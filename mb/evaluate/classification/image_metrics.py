@@ -7,7 +7,6 @@ Uses the same ImageFolder layout and transforms conventions as
 
 from __future__ import annotations
 
-import logging
 from pathlib import Path
 from typing import Optional
 
@@ -18,9 +17,10 @@ from mb.data.file_types import configured_media_suffixes
 from mb.evaluate._contracts import ClassificationMetricsReport, MetricsRequest
 from mb.evaluate._weights import extract_pytorch_state_dict
 from mb.models.types import FrameworkType, ModelType
+from mb.utils.logging_setup import get_logger
 from mb.utils.translations import _
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def _extensions_tuple() -> tuple[str, ...]:

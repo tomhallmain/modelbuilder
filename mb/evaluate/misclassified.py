@@ -9,7 +9,6 @@ that the checkpoint may not match this subcommand or the dataset layout.
 from __future__ import annotations
 
 import csv
-import logging
 from argparse import Namespace
 from pathlib import Path
 from typing import Optional
@@ -17,9 +16,10 @@ from typing import Optional
 from mb.evaluate._contracts import MisclassifiedListing, MetricsRequest
 from mb.evaluate.metrics import build_metrics_request
 from mb.models.types import EvaluateSubcommand, ModelType
+from mb.utils.logging_setup import get_logger
 from mb.utils.translations import _
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def run_misclassified(
