@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Union
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
@@ -23,10 +23,14 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from mb.models.generation_architectures import BaseGenerationArchitecture
 from mb.models.types import ArchitectureType, FrameworkType, ModelType
 from mb.pipeline_config import get_pipeline_config
+from mb.training.lora_diffusion_trainer import LoraTrainingConfig
 from mb.training.run_args import TrainingRunArgs
 from mb.utils.logging_setup import setup_logging
+from ui.controllers.model_type_field_visibility import apply_model_type_field_visibility
+from ui.controllers.train_page_controller import TrainPageFieldValues, build_training_request
 from ui.lib.fast_directory_picker_qt import get_existing_directory, get_open_file_name
 from ui.lib.qt_alert import qt_alert, qt_operation_error
 from mb.utils.constants import ModelBuilderTaskType
@@ -62,7 +66,8 @@ class TrainPage(QWidget):
         core_form = QFormLayout(core_group)
         self._core_form = core_form
         self.model_type = QComboBox()
-        self.model_type.addItems(["image_classification"])
+        for mt in ModelType:
+            self.model_type.addItem(mt.value)
         self.framework = QComboBox()
         # ``registered_values`` returns a set-like container; sort for deterministic UI order.
         self.framework.addItems(sorted(FrameworkType.registered_values()))
@@ -72,6 +77,15 @@ class TrainPage(QWidget):
         self.data_dir.setObjectName("train_data_dir_edit")
         self.output_dir = QLineEdit("data/models")
         self.output_dir.setObjectName("train_output_dir_edit")
+        self.batch_size = QSpinBox()
+        self.batch_size.setRange(0, 8192)
+        self.batch_size.setSpecialValueText(_("Auto"))
+        self.image_size = QSpinBox()
+        self.image_size.setRange(32, 4096)
+        self.image_size.setValue(224)
+        self.num_workers = QSpinBox()
+        self.num_workers.setRange(0, 128)
+        self.num_workers.setSpecialValueText(_("Config default"))
         self.resume_from = QLineEdit()
         self.run_id = QLineEdit()
         train_run_id_row, self.btn_run_id_latest = self._run_id_row(
@@ -84,7 +98,11 @@ class TrainPage(QWidget):
         core_form.addRow(_("Architecture"), self.architecture)
         core_form.addRow(_("Data dir"), self._path_row(self.data_dir, select_file=False))
         core_form.addRow(_("Output dir"), self._path_row(self.output_dir, select_file=False))
-        core_form.addRow(_("Resume checkpoint"), self._path_row(self.resume_from, select_file=True))
+        core_form.addRow(_("Batch size"), self.batch_size)
+        core_form.addRow(_("Image size"), self.image_size)
+        core_form.addRow(_("Num workers"), self.num_workers)
+        resume_from_row = self._path_row(self.resume_from, select_file=True)
+        core_form.addRow(_("Resume checkpoint"), resume_from_row)
         core_form.addRow(_("Run ID (optional)"), train_run_id_row)
         core_form.addRow("", self.skip_snapshot)
         self.train_subprocess = QCheckBox(
@@ -92,6 +110,18 @@ class TrainPage(QWidget):
         )
         core_form.addRow("", self.train_subprocess)
         root.addWidget(core_group)
+
+        # Rows only meaningful for image_classification (LoRA has no resume/snapshot/detached-
+        # subprocess support yet — mb train --train-args-json rejects image_generation_lora).
+        # QFormLayout.setRowVisible needs the exact widget passed to addRow — for wrapped rows
+        # (browse-button path rows, the run-id-with-"Latest"-button row) that's the wrapper,
+        # not the QLineEdit inside it.
+        self._classification_only_core_rows = (
+            resume_from_row,
+            train_run_id_row,
+            self.skip_snapshot,
+            self.train_subprocess,
+        )
 
         hp_group = QGroupBox()
         self._hp_group = hp_group
@@ -106,25 +136,42 @@ class TrainPage(QWidget):
         self.frozen_lr = self._lr_spin(0.001)
         self.unfrozen_lr_max = self._lr_spin(0.0003)
         self.unfrozen_lr_min = self._lr_spin(0.00001)
-        self.batch_size = QSpinBox()
-        self.batch_size.setRange(0, 8192)
-        self.batch_size.setSpecialValueText(_("Auto"))
-        self.image_size = QSpinBox()
-        self.image_size.setRange(32, 4096)
-        self.image_size.setValue(224)
-        self.num_workers = QSpinBox()
-        self.num_workers.setRange(0, 128)
-        self.num_workers.setSpecialValueText(_("Config default"))
 
         hp_form.addRow(_("Frozen epochs"), self.frozen_epochs)
         hp_form.addRow(_("Unfrozen epochs"), self.unfrozen_epochs)
         hp_form.addRow(_("Frozen LR"), self.frozen_lr)
         hp_form.addRow(_("Unfrozen LR max"), self.unfrozen_lr_max)
         hp_form.addRow(_("Unfrozen LR min"), self.unfrozen_lr_min)
-        hp_form.addRow(_("Batch size"), self.batch_size)
-        hp_form.addRow(_("Image size"), self.image_size)
-        hp_form.addRow(_("Num workers"), self.num_workers)
         root.addWidget(hp_group)
+
+        lora_group = QGroupBox()
+        self._lora_group = lora_group
+        lora_form = QFormLayout(lora_group)
+        self._lora_form = lora_form
+        self.base_model_architecture = QComboBox()
+        self.base_model_architecture.addItem(_("Auto-detect"), "")
+        for arch in BaseGenerationArchitecture:
+            self.base_model_architecture.addItem(arch.value, arch.value)
+        self.lora_rank = QSpinBox()
+        self.lora_rank.setRange(1, 1024)
+        self.lora_rank.setValue(16)
+        self.lora_alpha = QSpinBox()
+        self.lora_alpha.setRange(0, 1024)
+        self.lora_alpha.setSpecialValueText(_("Same as rank"))
+        self.learning_rate = self._lr_spin(1e-4)
+        self.max_train_steps = QSpinBox()
+        self.max_train_steps.setRange(1, 1_000_000)
+        self.max_train_steps.setValue(1000)
+        self.seed = QLineEdit()
+        self.seed.setPlaceholderText(_("optional, integer"))
+
+        lora_form.addRow(_("Base model architecture"), self.base_model_architecture)
+        lora_form.addRow(_("LoRA rank"), self.lora_rank)
+        lora_form.addRow(_("LoRA alpha"), self.lora_alpha)
+        lora_form.addRow(_("Learning rate"), self.learning_rate)
+        lora_form.addRow(_("Max train steps"), self.max_train_steps)
+        lora_form.addRow(_("Seed"), self.seed)
+        root.addWidget(lora_group)
 
         actions = QHBoxLayout()
         self.btn_validate = QPushButton(_("Validate Training Config"))
@@ -144,11 +191,17 @@ class TrainPage(QWidget):
         )
         root.addWidget(self.output, 1)
 
+        self.model_type.currentIndexChanged.connect(self._on_model_type_changed)
         self.framework.currentTextChanged.connect(self._refresh_architecture_hint)
         self.btn_validate.clicked.connect(self._validate_inputs)
         self.btn_start.clicked.connect(self._start_training)
 
         self.retranslate_ui(refresh_output=False)
+        # Visibility only here — MainWindow unconditionally calls _run_startup_validation()
+        # right after construction (post cache-restore), which refreshes the architecture
+        # hint and validates; doing that here too would construct the (potentially
+        # heavyweight, e.g. PyTorch/Keras) architecture-listing trainer redundantly.
+        self._apply_model_type_visibility()
 
     def retranslate_ui(self, *, refresh_output: bool = True) -> None:
         self._head.setText(f"<h2>{_('Train')}</h2>")
@@ -166,6 +219,9 @@ class TrainPage(QWidget):
                 _("Architecture"),
                 _("Data dir"),
                 _("Output dir"),
+                _("Batch size"),
+                _("Image size"),
+                _("Num workers"),
                 _("Resume checkpoint"),
                 _("Run ID (optional)"),
                 "",
@@ -176,7 +232,7 @@ class TrainPage(QWidget):
         self.train_subprocess.setText(
             _("Run training in a separate process (survives closing this app; see log file)")
         )
-        self._hp_group.setTitle(_("Hyperparameters"))
+        self._hp_group.setTitle(_("Hyperparameters (image classification)"))
         apply_qform_label_column(
             self._hp_form,
             [
@@ -185,11 +241,23 @@ class TrainPage(QWidget):
                 _("Frozen LR"),
                 _("Unfrozen LR max"),
                 _("Unfrozen LR min"),
-                _("Batch size"),
-                _("Image size"),
-                _("Num workers"),
             ],
         )
+        self._lora_group.setTitle(_("Hyperparameters (image generation LoRA)"))
+        apply_qform_label_column(
+            self._lora_form,
+            [
+                _("Base model architecture"),
+                _("LoRA rank"),
+                _("LoRA alpha"),
+                _("Learning rate"),
+                _("Max train steps"),
+                _("Seed"),
+            ],
+        )
+        self.base_model_architecture.setItemText(0, _("Auto-detect"))
+        self.lora_alpha.setSpecialValueText(_("Same as rank"))
+        self.seed.setPlaceholderText(_("optional, integer"))
         self.batch_size.setSpecialValueText(_("Auto"))
         self.num_workers.setSpecialValueText(_("Config default"))
         self.btn_validate.setText(_("Validate Training Config"))
@@ -245,6 +313,13 @@ class TrainPage(QWidget):
             "batch_size": int(self.batch_size.value()),
             "image_size": int(self.image_size.value()),
             "num_workers": int(self.num_workers.value()),
+            "base_model_architecture_idx": int(self.base_model_architecture.currentIndex()),
+            "base_model_architecture_data": self.base_model_architecture.currentData(),
+            "lora_rank": int(self.lora_rank.value()),
+            "lora_alpha": int(self.lora_alpha.value()),
+            "learning_rate": float(self.learning_rate.value()),
+            "max_train_steps": int(self.max_train_steps.value()),
+            "seed": self.seed.text(),
         }
 
     def restore_gui_state(self, state: dict) -> None:
@@ -308,10 +383,34 @@ class TrainPage(QWidget):
                 v = state.get(key)
                 if isinstance(v, int):
                     spin.setValue(v)
+            bma_data = state.get("base_model_architecture_data")
+            if isinstance(bma_data, str):
+                bix = self.base_model_architecture.findData(bma_data)
+                if bix >= 0:
+                    self.base_model_architecture.setCurrentIndex(bix)
+            else:
+                bmi = state.get("base_model_architecture_idx")
+                if isinstance(bmi, int) and 0 <= bmi < self.base_model_architecture.count():
+                    self.base_model_architecture.setCurrentIndex(bmi)
+            for key, spin in (
+                ("lora_rank", self.lora_rank),
+                ("lora_alpha", self.lora_alpha),
+                ("max_train_steps", self.max_train_steps),
+            ):
+                v = state.get(key)
+                if isinstance(v, int):
+                    spin.setValue(v)
+            lr = state.get("learning_rate")
+            if isinstance(lr, (int, float)):
+                self.learning_rate.setValue(float(lr))
+            self.seed.setText(str(state.get("seed", "")))
         except Exception:
             pass
         finally:
             self.framework.blockSignals(False)
+        # Visibility only — MainWindow calls _run_startup_validation() right after
+        # restore, which already refreshes the architecture hint and validates.
+        self._apply_model_type_visibility()
 
     def _path_row(self, edit: QLineEdit, select_file: bool = False) -> QWidget:
         row = QWidget()
@@ -390,7 +489,46 @@ class TrainPage(QWidget):
         self.btn_validate.setEnabled(not busy)
         self.btn_start.setEnabled(not busy and self._can_run())
 
+    def _current_model_type(self) -> ModelType:
+        return ModelType.from_pipeline_value(self.model_type.currentText())
+
+    def _apply_model_type_visibility(self) -> None:
+        model_type = self._current_model_type()
+        is_lora = model_type == ModelType.IMAGE_GENERATION_LORA
+        self._hp_group.setVisible(not is_lora)
+        self._lora_group.setVisible(is_lora)
+        apply_model_type_field_visibility(
+            self._core_form,
+            model_type,
+            {
+                widget: (
+                    ModelType.IMAGE_CLASSIFICATION,
+                    ModelType.OBJECT_DETECTION,
+                    ModelType.IMAGE_GENERATION,
+                )
+                for widget in self._classification_only_core_rows
+            },
+        )
+
+    def _on_model_type_changed(self) -> None:
+        """Live combo-change handler: visibility + a fresh architecture hint + re-validate.
+
+        Only call this for an actual user-driven change. ``restore_gui_state`` calls
+        :meth:`_apply_model_type_visibility` instead — ``MainWindow`` runs
+        :meth:`_run_startup_validation` (which already refreshes the hint and validates)
+        right after restoring, so calling this full handler there would construct the
+        (potentially heavyweight, e.g. PyTorch/Keras) architecture-listing trainer twice.
+        """
+        self._apply_model_type_visibility()
+        self._refresh_architecture_hint()
+        self._validate_inputs()
+
     def _refresh_architecture_hint(self) -> None:
+        if self._current_model_type() == ModelType.IMAGE_GENERATION_LORA:
+            self.architecture.setPlaceholderText(
+                _("local checkpoint path or hub id, e.g. black-forest-labs/FLUX.1-dev")
+            )
+            return
         framework = self.framework.currentText()
         fw = FrameworkType.try_from(framework)
         if fw is None:
@@ -430,50 +568,32 @@ class TrainPage(QWidget):
         except ValueError:
             return False
 
-    def _collect_inputs(self) -> TrainingRunArgs:
-        data_dir = Path(self.data_dir.text().strip() or "data")
-        output_dir = Path(self.output_dir.text().strip() or "data/models")
-        fw = FrameworkType.try_from(self.framework.currentText())
-        if fw is None:
-            raise ValueError(
-                _("Unsupported framework: {fw}").format(fw=self.framework.currentText())
-            )
-        arch_raw = self.architecture.text().strip()
-        if not arch_raw:
-            raise ValueError(_("Architecture is required."))
-        arch = ArchitectureType.try_from(arch_raw)
-        if arch is None:
-            raise ValueError(_("Unknown architecture: {a}").format(a=arch_raw))
-        if not data_dir.exists():
-            raise ValueError(_("Data directory does not exist."))
-        resume_raw = self.resume_from.text().strip()
-        resume_path = Path(resume_raw) if resume_raw else None
-        if resume_path and not resume_path.exists():
-            raise ValueError(_("Resume checkpoint path does not exist."))
-
-        cli_hyperparams: dict[str, Any] = {
-            "frozen_epochs": int(self.frozen_epochs.value()),
-            "unfrozen_epochs": int(self.unfrozen_epochs.value()),
-            "frozen_lr": float(self.frozen_lr.value()),
-            "unfrozen_lr_max": float(self.unfrozen_lr_max.value()),
-            "unfrozen_lr_min": float(self.unfrozen_lr_min.value()),
-            "image_size": int(self.image_size.value()),
-        }
-        if self.batch_size.value() > 0:
-            cli_hyperparams["batch_size"] = int(self.batch_size.value())
-        if self.num_workers.value() > 0:
-            cli_hyperparams["num_workers"] = int(self.num_workers.value())
-
-        return TrainingRunArgs(
-            framework=fw,
-            architecture=arch,
-            data_dir=data_dir,
-            output_dir=output_dir,
-            resume_from=resume_path,
-            run_id=self.run_id.text().strip() or None,
-            update_snapshot=not self.skip_snapshot.isChecked(),
-            cli_hyperparams=cli_hyperparams,
+    def _collect_inputs(self) -> Union[TrainingRunArgs, LoraTrainingConfig]:
+        values = TrainPageFieldValues(
+            model_type=self._current_model_type(),
+            framework_text=self.framework.currentText(),
+            architecture_text=self.architecture.text(),
+            data_dir_text=self.data_dir.text(),
+            output_dir_text=self.output_dir.text(),
+            batch_size=int(self.batch_size.value()),
+            image_size=int(self.image_size.value()),
+            num_workers=int(self.num_workers.value()),
+            resume_from_text=self.resume_from.text(),
+            run_id_text=self.run_id.text(),
+            skip_snapshot=bool(self.skip_snapshot.isChecked()),
+            frozen_epochs=int(self.frozen_epochs.value()),
+            unfrozen_epochs=int(self.unfrozen_epochs.value()),
+            frozen_lr=float(self.frozen_lr.value()),
+            unfrozen_lr_max=float(self.unfrozen_lr_max.value()),
+            unfrozen_lr_min=float(self.unfrozen_lr_min.value()),
+            base_model_architecture_text=str(self.base_model_architecture.currentData() or ""),
+            lora_rank=int(self.lora_rank.value()),
+            lora_alpha=int(self.lora_alpha.value()),
+            learning_rate=float(self.learning_rate.value()),
+            max_train_steps=int(self.max_train_steps.value()),
+            seed_text=self.seed.text(),
         )
+        return build_training_request(values)
 
     def _validate_inputs(self) -> None:
         try:
@@ -497,9 +617,15 @@ class TrainPage(QWidget):
                     if not save_if_dirty(show_success=False):
                         self._append(_("[error] Could not auto-save pipeline config; training cancelled."))
                         return
-        args = self._collect_inputs()
-        summary_base = f"{args.framework.value}/{args.architecture.value}"
-        if self.train_subprocess.isChecked():
+        request = self._collect_inputs()
+        is_lora = isinstance(request, LoraTrainingConfig)
+        args = request  # kept as `args` below for the (classification-only) detached-subprocess path
+        summary_base = (
+            f"image_generation_lora/{request.base_architecture.value}"
+            if is_lora
+            else f"{request.framework.value}/{request.architecture.value}"
+        )
+        if not is_lora and self.train_subprocess.isChecked():
             self._append(f"[run] mb train — detached subprocess ({summary_base})")
             self._set_busy(True)
             try:
@@ -553,20 +679,30 @@ class TrainPage(QWidget):
 
         self._append(f"[run] mb train ({summary_base})")
         self._pending_train_summary = f"mb train ({summary_base})"
-        self._pending_training_args = args
+        self._pending_training_args = request
         self._set_busy(True)
+        worker = self._execute_training_lora if is_lora else self._execute_training_classification
         handle = start_task(
-            self._execute_training,
+            worker,
             self._on_training_success,
             self._on_training_error,
             lambda: self._set_busy(False),
-            args,
+            request,
             pass_context=True,
             on_cancelled=self._on_training_cancelled,
         )
         attach_training_progress_dialog(self, _("Training"), handle, cancellable=True)
 
-    def _execute_training(self, ctx: LongTaskContext, args: TrainingRunArgs) -> str:
+    def _execute_training_lora(self, ctx: LongTaskContext, config: LoraTrainingConfig) -> str:
+        from mb.training.lora_diffusion_trainer import train_image_generation_lora
+
+        # Ensure training modules using stdlib loggers also write to shared log file.
+        setup_logging(script_name="train_gui")
+        ctx.progress(_("Training LoRA adapter…"), None, True)
+        output_dir = train_image_generation_lora(config, cancel_event=ctx.cancel_event)
+        return str(output_dir)
+
+    def _execute_training_classification(self, ctx: LongTaskContext, args: TrainingRunArgs) -> str:
         from mb.training.trainer import ModelTrainer
 
         # Ensure training modules using stdlib loggers also write to shared log file.

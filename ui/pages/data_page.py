@@ -53,6 +53,7 @@ from mb.utils.snapshot import (
 )
 from mb.utils.logging_setup import get_logger
 from mb.utils.translations import _
+from ui.controllers.model_type_field_visibility import apply_model_type_field_visibility
 from ui.lib.duplicates_resolver_window import DuplicatesResolverDialog
 from ui.lib.qt_log_bridge import QtLogBridge, tee_logger_to_qt
 from ui.lib.fast_directory_picker_qt import get_existing_directory, get_open_file_name
@@ -223,6 +224,7 @@ class DataPage(QWidget):
         apply_qform_label_column(
             self._dataset_form,
             [
+                _("Model type"),
                 _("Raw data dir"),
                 _("Output data dir"),
                 _("Test items per class"),
@@ -496,6 +498,7 @@ class DataPage(QWidget):
                 "review_dir": self.upscale_review_dir.text(),
             },
             "dataset": {
+                "model_type": self.dataset_model_type.currentText(),
                 "data_dir": self.dataset_data_dir.text(),
                 "test_per_class": int(self.dataset_test_per_class.value()),
                 "test_split_mode": self.dataset_test_split_mode.currentData(),
@@ -552,6 +555,11 @@ class DataPage(QWidget):
 
             ds = state.get("dataset") or {}
             if isinstance(ds, dict):
+                dmt = ds.get("model_type")
+                if isinstance(dmt, str):
+                    dmtix = self.dataset_model_type.findText(dmt)
+                    if dmtix >= 0:
+                        self.dataset_model_type.setCurrentIndex(dmtix)
                 self.dataset_data_dir.setText(str(ds.get("data_dir", "")))
                 tpc = ds.get("test_per_class")
                 if isinstance(tpc, int):
@@ -577,6 +585,7 @@ class DataPage(QWidget):
             pass
         finally:
             self.tabs.blockSignals(False)
+        self._on_dataset_model_type_changed()
 
     def _build_gather_tab(self) -> QWidget:
         tab = QWidget()
@@ -719,6 +728,9 @@ class DataPage(QWidget):
         self._dataset_group = QGroupBox("mb data create-dataset")
         form = QFormLayout(self._dataset_group)
         self._dataset_form = form
+        self.dataset_model_type = QComboBox()
+        for mt in ModelType:
+            self.dataset_model_type.addItem(mt.value)
         self.dataset_raw_data_dir = QLineEdit("raw_data")
         self.dataset_data_dir = QLineEdit("data")
         self.dataset_test_per_class = QSpinBox()
@@ -736,6 +748,7 @@ class DataPage(QWidget):
         self.dataset_balance_train = QCheckBox(_("Balance train set to smallest class"))
         self.dataset_allow_external = QCheckBox(_("Allow external/removable storage"))
 
+        form.addRow(_("Model type"), self.dataset_model_type)
         form.addRow(_("Raw data dir"), self._path_row(self.dataset_raw_data_dir, select_dir=True))
         form.addRow(_("Output data dir"), self._path_row(self.dataset_data_dir, select_dir=True))
         form.addRow(_("Test items per class"), self.dataset_test_per_class)
@@ -759,6 +772,22 @@ class DataPage(QWidget):
         form.addRow("", self.dataset_skip_space)
         v.addWidget(self._dataset_group)
         v.addStretch(1)
+
+        # image_generation_lora: LoraDatasetCreator only takes raw_data_dir/data_dir (a flat
+        # copy, no split/balance/snapshot integration) — hide everything else on this tab.
+        self._dataset_classification_only_rows = (
+            self.dataset_test_per_class,
+            self.dataset_test_split_mode,
+            self.dataset_test_small_threshold,
+            self.dataset_seed,
+            dataset_run_id_row,
+            self.dataset_max_train,
+            self.dataset_balance_train,
+            self.dataset_allow_external,
+            self.dataset_skip_space,
+        )
+        self.dataset_model_type.currentIndexChanged.connect(self._on_dataset_model_type_changed)
+        self._on_dataset_model_type_changed()
         return tab
 
     def _build_wildcard_tab(self) -> QWidget:
@@ -1001,6 +1030,21 @@ class DataPage(QWidget):
         self.dataset_run_id.setText(rid)
         self._sync_data_tab_run_without_log()
 
+    def _on_dataset_model_type_changed(self) -> None:
+        mt = ModelType.from_pipeline_value(self.dataset_model_type.currentText())
+        apply_model_type_field_visibility(
+            self._dataset_form,
+            mt,
+            {
+                widget: (
+                    ModelType.IMAGE_CLASSIFICATION,
+                    ModelType.OBJECT_DETECTION,
+                    ModelType.IMAGE_GENERATION,
+                )
+                for widget in self._dataset_classification_only_rows
+            },
+        )
+
     def _append(self, msg: str) -> None:
         self.output.append(msg)
 
@@ -1174,10 +1218,19 @@ class DataPage(QWidget):
                 "review_dir": Path(review_raw) if review_raw else None,
             }
         if command == ModelBuildStepCommand.CREATE_DATASET:
+            mt = ModelType.from_pipeline_value(self.dataset_model_type.currentText())
             raw_data_dir = self._pipeline_raw_path()
             data_dir = Path(self.dataset_data_dir.text().strip() or "data")
             if not raw_data_dir.exists():
                 raise ValueError(_("Raw data dir does not exist."))
+            if mt == ModelType.IMAGE_GENERATION_LORA:
+                # LoraDatasetCreator only takes raw_data_dir/data_dir (flat copy, no split/
+                # balance/snapshot integration) — see mb/data/lora_dataset.py.
+                return {
+                    "model_type": mt,
+                    "raw_data_dir": raw_data_dir,
+                    "data_dir": data_dir,
+                }
             run_id = self.dataset_run_id.text().strip() or None
             if run_id:
                 search_paths = unified_snapshot_search_paths_for_dataset(raw_data_dir, data_dir)
@@ -1196,6 +1249,7 @@ class DataPage(QWidget):
             # anchor explicitly so GUI and pipeline stay aligned.
             test_small_thr = tst_raw if tst_raw > 0 else tpc
             return {
+                "model_type": mt,
                 "raw_data_dir": raw_data_dir,
                 "data_dir": data_dir,
                 "test_per_class": tpc,
@@ -1417,6 +1471,13 @@ class DataPage(QWidget):
             upscaler = ImageUpscaler(review_dir=review_dir)
             return bool(upscaler.run(cancel_event=ce))
         if command == ModelBuildStepCommand.CREATE_DATASET:
+            if payload.get("model_type") == ModelType.IMAGE_GENERATION_LORA:
+                from mb.data.lora_dataset import LoraDatasetCreator
+
+                lora_creator = LoraDatasetCreator(
+                    raw_data_dir=payload["raw_data_dir"], data_dir=payload["data_dir"]
+                )
+                return bool(lora_creator.run(cancel_event=ce))
             if payload["seed"] is not None:
                 random.seed(payload["seed"])
             creator = DatasetCreator(

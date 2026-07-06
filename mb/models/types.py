@@ -242,6 +242,15 @@ class ModelType(str, Enum):
     IMAGE_CLASSIFICATION = "image_classification"
     # Reserved for future handlers; gather/convert treat as non-image-classification until wired.
     OBJECT_DETECTION = "object_detection"
+    # Reserved for future handlers: a complete, standalone text-to-image / diffusion model
+    # trained or fully fine-tuned from scratch — not currently being built.
+    IMAGE_GENERATION = "image_generation"
+    # A LoRA *adapter* for an existing base image-generation model — distinct from
+    # IMAGE_GENERATION because the artifact is only useful paired with a base model, not a
+    # standalone model in its own right (different data prep, training loop, export shape,
+    # and evaluation). ``mb data create-dataset``/``mb train`` support this type; ``mb
+    # evaluate``/``mb convert``/``mb export`` still reject or ignore it (not yet wired).
+    IMAGE_GENERATION_LORA = "image_generation_lora"
 
     @classmethod
     def from_pipeline_value(cls, value: Optional[object]) -> ModelType:

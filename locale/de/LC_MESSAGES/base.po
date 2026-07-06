@@ -2,9 +2,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
-"POT-Creation-Date: 2026-05-21 17:46-0400\n"
-"PO-Revision-Date: 2026-05-21 17:46-0400\n"
-"Last-Translator: Translator Name <translator@example.com>\n"
+"POT-Creation-Date: 2026-07-05 23:39-0400\n"
+"PO-Revision-Date: 2026-07-05 23:39-0400\n"
+"Last-Translator: Thomas Hall <tomhall.main@gmail.com>\n"
 "Language-Team: de Team <<EMAIL>>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -12,23 +12,247 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: mb/cli/__init__.py:54
+#: mb/info_inspect.py:227
+msgid "Path is not a file: {path}"
+msgstr "Der Pfad ist keine Datei: {path}"
+
+#: mb/info_inspect.py:231
+msgid "Path: {path}"
+msgstr "Pfad: {path}"
+
+#: mb/info_inspect.py:232
+msgid "Size: {n:,} bytes"
+msgstr "Größe: {n:,} Bytes"
+
+#: mb/info_inspect.py:233
+msgid "Detected framework/type: {fw}"
+msgstr "Detected framework/type: {fw}"
+
+#: mb/info_inspect.py:233 ui/pages/convert_page.py:276
+msgid "unknown"
+msgstr "unbekannt"
+
+#: mb/info_inspect.py:251
+msgid "Registered architectures:"
+msgstr "Registrierte Architekturen"
+
+#: mb/info_inspect.py:256
+msgid "(none)"
+msgstr "(Keine)"
+
+#: mb/info_inspect.py:274
+msgid "Path is not a directory: {path}"
+msgstr "Der Pfad ist kein Verzeichnis: {path}"
+
+#: mb/info_inspect.py:276
+msgid "Data dir: {path}"
+msgstr "Datenverzeichnis: {path}"
+
+#: mb/info_inspect.py:281
+msgid "  missing"
+msgstr "  fehlt"
+
+#: mb/info_inspect.py:290
+msgid "  total: {n}"
+msgstr "  Summe: {n}"
+
+#: mb/cli/__init__.py:56
 msgid "Model Builder - A unified CLI for building ML models"
 msgstr ""
 "Modellbauer - Eine einheitliche Befehlszeilenschnittstelle zum Erstellen von"
 " ML-Modellen"
 
-#: mb/cli/__init__.py:66
+#: mb/cli/__init__.py:68
 msgid "Path to configuration file (YAML)"
 msgstr "Pfad zur Konfigurationsdatei (YAML)"
 
-#: mb/cli/__init__.py:71
+#: mb/cli/__init__.py:73
 msgid "Enable verbose logging"
 msgstr "Ausführliche Protokollierung aktivieren"
 
-#: mb/cli/__init__.py:75
+#: mb/cli/__init__.py:77
 msgid "Available commands"
 msgstr "Verfügbare Befehle"
+
+#: mb/cli/__init__.py:90
+msgid "Please specify valid subdirectories using --subdirs argument"
+msgstr ""
+"Bitte bestimmen Sie gültige Unterordner mithilfe des --subdirs-Arguments."
+
+#: mb/cli/__init__.py:99
+msgid "Invalid weight format: {pair}. Expected format: subdir:weight"
+msgstr "Ungültiger Gewichtsformat: {pair}. Erwarteter Format: subdir:gewicht."
+
+#: mb/cli/__init__.py:109
+msgid "Weight must be non-negative: {subdir}={weight}"
+msgstr "Das Gewicht muss nicht negativ sein: {subdir}={weight}"
+
+#: mb/cli/__init__.py:120
+msgid "Subdirectories in weights not found in --subdirs: {weights}"
+msgstr ""
+"Unterverzeichnisse in „weights“, die nicht in --subdirs: {weights} enthalten"
+" sind"
+
+#: mb/cli/__init__.py:228
+msgid "Process terminated due to external storage detection."
+msgstr "Prozess wurde beendet aufgrund der externen Speichermedium-Detektion."
+
+#: mb/cli/__init__.py:277
+msgid "--pillow and --quiet require --dry-run"
+msgstr "--Kissen und --still erfordern --trockenläufen"
+
+#: mb/cli/__init__.py:280
+msgid "--pillow requires --json"
+msgstr "--pillow erfordert --json"
+
+#: mb/cli/__init__.py:323
+msgid "--data-dir is required when operation is create-dataset"
+msgstr ""
+"--data-dir ist erforderlich, wenn die Operation 'create-dataset' ausgeführt "
+"wird."
+
+#: mb/cli/__init__.py:361
+msgid "Unsupported model type from config: {t}"
+msgstr "Nicht unterstützter Modelltyp aus der Konfiguration: {t}"
+
+#: mb/cli/__init__.py:366 mb/cli/__init__.py:423
+#: mb/training/lora_diffusion_trainer.py:587
+msgid "Data directory does not exist: {path}"
+msgstr "Datenverzeichnis existiert nicht: {path}"
+
+#: mb/cli/__init__.py:378 mb/cli/__init__.py:460
+msgid "Architecture '{arch}' not supported for framework '{fw}'"
+msgstr ""
+"Die Architektur '{arch}' wird für das Framework '{fw}' nicht unterstützt."
+
+#: mb/cli/__init__.py:389 mb/cli/__init__.py:482
+msgid "Training completed successfully. Model saved to: {path}"
+msgstr ""
+"Das Training ist erfolgreich abgeschlossen worden. Modell gespeichert unter:"
+" {path}"
+
+#: mb/cli/__init__.py:397 ui/controllers/train_page_controller.py:72
+msgid "Unsupported framework: {fw}"
+msgstr "Nicht unterstützter Framework: {fw}"
+
+#: mb/cli/__init__.py:409
+msgid "Unsupported model type: {t}"
+msgstr "Nicht unterstützter Modelltyp: {t}"
+
+#: mb/cli/__init__.py:417
+msgid "Unsupported architecture: {arch}"
+msgstr "Nicht unterstützte Architektur: {arch}"
+
+#: mb/cli/__init__.py:487
+msgid "Training failed: {err}"
+msgstr "Training verwarf sich: {err}"
+
+#: mb/cli/__init__.py:498 mb/cli/__init__.py:591
+msgid "Input model file not found: {path}"
+msgstr "Eingabedatei nicht gefunden: {path}"
+
+#: mb/cli/__init__.py:520
+msgid "Could not detect source framework. Please specify --framework"
+msgstr ""
+"Das Source-Rahmenwerk konnte nicht erkannt werden. Bitte angeben Sie "
+"--Rahmenwerk"
+
+#: mb/cli/__init__.py:526
+msgid "PyTorch -> ONNX conversion requires --architecture and --num-classes"
+msgstr ""
+"PyTorch -> ONNX-Konvertierung erfordert --Architektur und --Anzahl-Klassen"
+
+#: mb/cli/__init__.py:545
+msgid "Conversion completed successfully: {path}"
+msgstr "Konvertierung abgeschlossen erfolgreich: {path}"
+
+#: mb/cli/__init__.py:549 ui/pages/convert_page.py:344
+msgid "Conversion failed"
+msgstr "Konvertierung fehlgeschlagen"
+
+#: mb/cli/__init__.py:553
+msgid "Conversion error: {err}"
+msgstr "Konvertierungfehler: {err}"
+
+#: mb/cli/__init__.py:562 ui/pages/info_page.py:184
+msgid "Model path not found: {path}"
+msgstr "Modellpfad nicht gefunden: {path}"
+
+#: mb/cli/__init__.py:576 mb/evaluate/compare.py:157
+#: mb/evaluate/compare.py:193 mb/evaluate/metrics.py:97
+#: mb/evaluate/metrics.py:117 mb/evaluate/misclassified.py:84
+#: mb/evaluate/misclassified.py:104 ui/pages/info_page.py:198
+msgid "Data directory not found: {path}"
+msgstr "Datenverzeichnis nicht gefunden: {path}"
+
+#: mb/cli/__init__.py:624
+msgid "Bundle export completed: {path}"
+msgstr "Bundle-Export abgeschlossen: {path}"
+
+#: mb/cli/__init__.py:625 ui/pages/export_page.py:338
+msgid "Weights: {path}"
+msgstr "Gewichte: {path}"
+
+#: mb/cli/__init__.py:626 ui/pages/export_page.py:339
+msgid "Manifest: {path}"
+msgstr "Manifest: {path}"
+
+#: mb/cli/__init__.py:628 ui/pages/export_page.py:342
+msgid "Architecture stub: {path}"
+msgstr "Architekturstub: {path}"
+
+#: mb/cli/__init__.py:631
+msgid "Export failed: {err}"
+msgstr "Export fehlgeschlagen: {err}"
+
+#: mb/cli/__init__.py:692
+msgid "No data subcommand specified"
+msgstr "Kein Datensubcommand angegeben"
+
+#: mb/cli/__init__.py:697
+msgid "Unknown data subcommand: {cmd}"
+msgstr "Unbekannter Datensatz-Befehl: {cmd}"
+
+#: mb/cli/__init__.py:719
+msgid "No info subcommand specified"
+msgstr "Kein info-Unterbefehl angegeben"
+
+#: mb/cli/__init__.py:723
+msgid "Unknown info subcommand: {cmd}"
+msgstr "Unbekannter Info-Unterbefehl: {cmd}"
+
+#: mb/cli/__init__.py:732
+msgid "No export subcommand specified"
+msgstr "Kein Export-Unterbefehl angegeben"
+
+#: mb/cli/__init__.py:736
+msgid "Unknown export subcommand: {cmd}"
+msgstr "Unbekannter Export-Unterbefehl: {cmd}"
+
+#: mb/cli/__init__.py:740
+msgid "Unhandled export subcommand: {cmd}"
+msgstr "Unbehandelter Export-Unterbefehl: {cmd}"
+
+#: mb/cli/__init__.py:746
+msgid "No evaluate subcommand specified"
+msgstr "Es wurde kein „evaluate“-Unterbefehl angegeben"
+
+#: mb/cli/__init__.py:750
+msgid "Unknown evaluate subcommand: {cmd}"
+msgstr "Unbekannter Unterbefehl: {cmd}"
+
+#: mb/cli/__init__.py:755 ui/pages/data_page.py:1265
+#: ui/pages/data_page.py:1495
+msgid "Unknown command: {cmd}"
+msgstr "Unbekannter Befehl: {cmd}"
+
+#: mb/cli/__init__.py:759
+msgid "Interrupted by user"
+msgstr "Unterbrochen von Benutzer"
+
+#: mb/cli/__init__.py:762
+msgid "Error: {err}"
+msgstr "Fehler: {err}"
 
 #: mb/cli/parsing/data.py:18
 msgid "Data processing operations"
@@ -129,7 +353,7 @@ msgstr ""
 "verhindern."
 
 #: mb/cli/parsing/data.py:107 mb/cli/parsing/data.py:194
-#: mb/cli/parsing/data.py:220 mb/cli/parsing/data.py:401
+#: mb/cli/parsing/data.py:220 mb/cli/parsing/data.py:413
 msgid "Raw data directory (default: raw_data)"
 msgstr "Rohdatenverzeichnis (Standard: raw_data)"
 
@@ -293,7 +517,7 @@ msgstr ""
 "Zufallszahl für die Reproduzierbarkeit (Standard: „data.seed“ aus der "
 "Pipeline-YAML-Datei, sofern festgelegt; andernfalls nicht deterministisch)"
 
-#: mb/cli/parsing/data.py:267 mb/cli/parsing/train.py:94
+#: mb/cli/parsing/data.py:267 mb/cli/parsing/train.py:155
 msgid ""
 "Run ID of unified snapshot to update (auto-detects latest if not provided)"
 msgstr ""
@@ -332,13 +556,13 @@ msgstr ""
 "über genügend freien Speicherplatz verfügt (heuristische Schätzung; nicht "
 "empfohlen)."
 
-#: mb/cli/parsing/data.py:300
+#: mb/cli/parsing/data.py:312
 msgid "Rename mislabeled .jpg sources and rebuild CONVERTED JPEGs"
 msgstr ""
 "Falsch benannte .jpg-Quelldateien umbenennen und die konvertierten JPEGs neu"
 " erstellen"
 
-#: mb/cli/parsing/data.py:302
+#: mb/cli/parsing/data.py:314
 msgid ""
 "Finds non-JPEG bytes under .jpg/.jpeg names in class source trees (same "
 "discovery as convert), writes corrected JPEGs, and removes stale copies "
@@ -353,7 +577,7 @@ msgstr ""
 "verwenden dasselbe Layout aus „random-frame“ und „visual_media_review“ wie "
 "„convert“, wenn der Modelltyp „image_classification“ ist."
 
-#: mb/cli/parsing/data.py:313
+#: mb/cli/parsing/data.py:325
 msgid ""
 "Raw data directory (default: data.raw_data_dir from the pipeline config "
 "after --config; same as gather/convert when omitted)."
@@ -362,13 +586,13 @@ msgstr ""
 "Konfiguration nach „--config“; entspricht „gather/convert“, wenn nicht "
 "angegeben)."
 
-#: mb/cli/parsing/data.py:320
+#: mb/cli/parsing/data.py:332
 msgid "Log planned repairs only; do not rename files or write outputs."
 msgstr ""
 "Nur geplante Reparaturen protokollieren; Dateien nicht umbenennen und keine "
 "Ausgaben schreiben."
 
-#: mb/cli/parsing/data.py:327
+#: mb/cli/parsing/data.py:339
 msgid ""
 "Print newline-delimited JSON (stdout): dry-run or live repair. By default "
 "only actionable mismatches are listed; use -v to include policy-skipped "
@@ -381,7 +605,7 @@ msgstr ""
 "einzubeziehen. Bei der Live-Reparatur wird gegebenenfalls eine Zeile pro "
 "erfolgreicher Korrektur ausgegeben."
 
-#: mb/cli/parsing/data.py:336
+#: mb/cli/parsing/data.py:348
 msgid ""
 "With --dry-run and --json: include Pillow format and GIF metadata in each "
 "JSON object."
@@ -389,7 +613,7 @@ msgstr ""
 "Mit den Optionen --dry-run und --json: Füge das Pillow-Format und die GIF-"
 "Metadaten in jedes JSON-Objekt ein."
 
-#: mb/cli/parsing/data.py:343
+#: mb/cli/parsing/data.py:355
 msgid ""
 "With --dry-run: omit verbose per-file log lines (use with --json for "
 "machine-readable output only)."
@@ -397,7 +621,7 @@ msgstr ""
 "Mit --dry-run: Ausführliche Protokollzeilen pro Datei werden weggelassen "
 "(nur in Verbindung mit --json für maschinenlesbare Ausgabe verwenden)."
 
-#: mb/cli/parsing/data.py:352
+#: mb/cli/parsing/data.py:364
 msgid ""
 "With --json: include policy-skipped static-format mismatches in JSON output."
 " In text mode: log each policy-skipped file and class progress for every "
@@ -411,7 +635,7 @@ msgstr ""
 "protokollieren. Bei Verwendung von --quiet ohne Wirkung. Unabhängig von der "
 "obersten Option mb -v (globale Protokollierung)."
 
-#: mb/cli/parsing/data.py:362
+#: mb/cli/parsing/data.py:374
 msgid ""
 "Also rename/repair mislabeled .jpg/.jpeg whose bytes are PNG, WebP, BMP, or "
 "TIFF. By default those are counted and summarized per class only (GIF and "
@@ -422,22 +646,22 @@ msgstr ""
 "werden diese nur nach Dateityp gezählt und zusammengefasst (GIF- und "
 "animierte IC-Dateien werden immer repariert)."
 
-#: mb/cli/parsing/data.py:370
+#: mb/cli/parsing/data.py:382
 msgid "Pipeline model type (default: model.default_type)."
 msgstr "Pipeline-Modelltyp (Standard: model.default_type)."
 
-#: mb/cli/parsing/data.py:376
+#: mb/cli/parsing/data.py:388
 msgid "RNG seed for random GIF frame selection (optional)."
 msgstr ""
 "RNG-Zaehler für die zufällige Auswahl von GIF-Bildschirmausschnitten "
 "(optional)."
 
-#: mb/cli/parsing/data.py:382
+#: mb/cli/parsing/data.py:394
 msgid "Estimate disk space needed for convert or create-dataset"
 msgstr ""
 "Schätzung des für „convert“ oder „create-dataset“ benötigten Speicherplatzes"
 
-#: mb/cli/parsing/data.py:384
+#: mb/cli/parsing/data.py:396
 msgid ""
 "Walks source files (same rules as convert/dataset) and compares a rough byte"
 " estimate to free space on the target volume. Exits non-zero if the estimate"
@@ -448,201 +672,201 @@ msgstr ""
 "auf dem Zielvolume. Gibt einen Wert ungleich Null zurück, wenn die Schätzung"
 " den freien Speicherplatz übersteigt."
 
-#: mb/cli/parsing/data.py:395
+#: mb/cli/parsing/data.py:407
 msgid "Which step to estimate for"
 msgstr "Welcher Schritt zur Schätzung für"
 
-#: mb/cli/parsing/data.py:406
+#: mb/cli/parsing/data.py:418
 msgid "Output data directory (required when operation is create-dataset)"
 msgstr "Ausgabeverzeichnis (erforderlich bei der Operation „create-dataset“)"
 
-#: mb/cli/parsing/train.py:15
-msgid "Train a model"
-msgstr "Trainieren Sie ein Modell"
+#: mb/cli/parsing/evaluate.py:16
+msgid "Evaluate trained models or datasets"
+msgstr "Trainierte Modelle oder Datensätze auswerten"
 
-#: mb/cli/parsing/train.py:17
+#: mb/cli/parsing/evaluate.py:18
 msgid ""
-"Train a machine learning model using the specified framework and "
-"architecture. Supports transfer learning with frozen/unfrozen training "
-"phases."
+"Score a trained classifier on your train/test tree, surface likely labeling "
+"mistakes, or compare two checkpoints on the same data."
 msgstr ""
-"Trainieren Sie ein Modell für maschinelles Lernen unter Verwendung des "
-"angegebenen Frameworks und der angegebenen Architektur. Unterstützt "
-"Transferlernen mit „gefrorenen“ und „nicht gefrorenen“ Trainingsphasen."
+"Bewerten Sie einen trainierten Klassifikator anhand Ihres "
+"Trainings-/Testbaums, decken Sie mögliche Fehler bei der Klassifizierung auf"
+" oder vergleichen Sie zwei Checkpoints anhand derselben Daten."
 
-#: mb/cli/parsing/train.py:25
-msgid "Model type (default: image_classification)"
-msgstr "Modelltyp (Standardwert: image_classification)"
+#: mb/cli/parsing/evaluate.py:24
+msgid "Evaluate subcommands"
+msgstr "Unterbefehle bewerten"
 
-#: mb/cli/parsing/train.py:30
-msgid "Framework to use (default: from config)"
-msgstr "Rahmenwerk zum verwenden (Standard: aus der Konfiguration)"
+#: mb/cli/parsing/evaluate.py:30
+msgid "Compute classification metrics on a labeled split"
+msgstr "Berechnen Sie Klassifikationsmetriken auf einem beschrifteten Split"
 
-#: mb/cli/parsing/train.py:34
-msgid "Model architecture (e.g., resnet34)"
-msgstr "Modellarchitektur (z. B. ResNet34)"
-
-#: mb/cli/parsing/train.py:39
-msgid "Data directory (default: from config)"
-msgstr ""
-"Datenverzeichnis (voreausgewählter Wert: Standard: aus der Konfiguration)"
-
-#: mb/cli/parsing/train.py:44
-msgid "Output directory for models (default: from config)"
-msgstr "Ausgabeverzeichnis für Modelle (Standard: aus der Konfiguration)"
-
-#: mb/cli/parsing/train.py:49
-msgid "Number of frozen training epochs (default: from config)"
-msgstr ""
-"Anzahl der frohenen Trainingsepochen (Standardwert: aus der Konfiguration)"
-
-#: mb/cli/parsing/train.py:54
-msgid "Number of unfrozen training epochs (default: from config)"
-msgstr ""
-"Anzahl von unschlossenen Trainingsepochen (Standardmäßig: vom Config "
-"Defaults)"
-
-#: mb/cli/parsing/train.py:59
-msgid "Learning rate for frozen phase (default: from config)"
-msgstr "Lernrate für die frorene Phase (voredefiniert: aus der Konfiguration)"
-
-#: mb/cli/parsing/train.py:64
-msgid "Maximum learning rate for unfrozen phase (default: from config)"
-msgstr ""
-"Maximaler Lernrate für die nichtgefrorene Phase (Standard: aus der "
-"Konfiguration)"
-
-#: mb/cli/parsing/train.py:69
-msgid "Minimum learning rate for unfrozen phase (default: from config)"
-msgstr ""
-"Minimale Lernrate für die nicht gefrorene Phase (Standard: aus der "
-"Konfiguration)"
-
-#: mb/cli/parsing/train.py:74
-msgid "Batch size (default: from config or auto-detect)"
-msgstr ""
-"Batchgröße (Standard: aus der Konfiguration oder automatisch ermittelt "
-"werden)"
-
-#: mb/cli/parsing/train.py:79
-msgid "Image size (default: 224)"
-msgstr "Bildgröße (Standard: 224)"
-
-#: mb/cli/parsing/train.py:84
-msgid "Number of data loading workers (default: from config)"
-msgstr "Anzahl der Datenvorlader (Standard: aus der Konfiguration)"
-
-#: mb/cli/parsing/train.py:89
-msgid "Path to checkpoint to resume training from"
-msgstr "Pfad zum Checkpunkt um die Training fortzusetzen von"
-
-#: mb/cli/parsing/train.py:99
-msgid "Skip updating the unified snapshot with training data"
-msgstr ""
-"Überspringen Sie die Aktualisierung der einheitlichen Momentaufnahme mit den"
-" Trainingdaten."
-
-#: mb/cli/parsing/train.py:106
+#: mb/cli/parsing/evaluate.py:32
 msgid ""
-"Load TrainingRunArgs from JSON (see mb.training.run_args); other train flags"
-" are ignored"
+"Accuracy, confusion matrix, and per-class counts on an ImageFolder-style "
+"directory (class-named subfolders of images). PyTorch requires "
+"--architecture and a .pth/.pt file."
 msgstr ""
-"Laden von TrainingRunArgs aus JSON (siehe mb.training.run_args); andere "
-"Train-Flaggen werden ignoriert."
+"Trefferquote, Verwechslungsmatrix und Anzahl pro Klasse in einem Verzeichnis"
+" im ImageFolder-Stil (Unterordner mit Bildern, die nach Klassen benannt "
+"sind). PyTorch benötigt die Option --architecture sowie eine .pth- oder .pt-"
+"Datei."
 
-#: mb/cli/parsing/model_convert.py:15
-msgid "Convert model between formats"
-msgstr "Modell zwischen den Formaten konvertieren"
+#: mb/cli/parsing/evaluate.py:40 mb/cli/parsing/evaluate.py:114
+msgid "Path to trained model file (.pth / .pt / .h5 / .keras)"
+msgstr "Pfad zur Datei des trainierten Modells (.pth / .pt / .h5 / .keras)"
 
-#: mb/cli/parsing/model_convert.py:17
+#: mb/cli/parsing/evaluate.py:46 mb/cli/parsing/evaluate.py:120
+#: mb/cli/parsing/evaluate.py:215
+msgid "ImageFolder root (e.g. .../test with one subfolder per class)"
+msgstr ""
+"Stammverzeichnis des Bildordners (z. B. .../test mit einem Unterordner pro "
+"Klasse)"
+
+#: mb/cli/parsing/evaluate.py:52 mb/cli/parsing/evaluate.py:126
+msgid "Training framework (default: infer from file extension)"
+msgstr "Trainingsrahmen (Standard: aus der Dateiendung ableiten)"
+
+#: mb/cli/parsing/evaluate.py:58 mb/cli/parsing/evaluate.py:132
 msgid ""
-"Convert a trained model between different formats. Supports PyTorch -> ONNX,"
-" PyTorch -> SafeTensors, and Keras -> ONNX."
+"Model architecture id (required for PyTorch .pth checkpoints, e.g. resnet34)"
 msgstr ""
-"Konvertieren Sie ein trainiertes Modell zwischen verschiedenen Formaten. "
-"Unterstützt PyTorch -> ONNX, PyTorch -> SafeTensors und Keras -> ONNX."
+"Modellarchitektur-ID (erforderlich für PyTorch-.pth-Checkpoints, z. B. "
+"resnet34)"
 
-#: mb/cli/parsing/model_convert.py:25
-msgid "Input model file"
-msgstr "Eingabemodell-Datei"
+#: mb/cli/parsing/evaluate.py:64 mb/cli/parsing/evaluate.py:138
+#: mb/cli/parsing/evaluate.py:245
+msgid "Override class count (default: infer from directory layout)"
+msgstr ""
+"Anzahl der Überschreibungsklassen (Standard: aus der Verzeichnisstruktur "
+"ableiten)"
 
-#: mb/cli/parsing/model_convert.py:31
-msgid "Output model file"
-msgstr "Ausgabedatei des Modells"
+#: mb/cli/parsing/evaluate.py:70 mb/cli/parsing/evaluate.py:144
+#: mb/cli/parsing/evaluate.py:251
+msgid "Pipeline model type (default: image_classification)"
+msgstr "Pipeline-Modelltyp (Standard: image_classification)"
 
-#: mb/cli/parsing/model_convert.py:36
-msgid "Source framework (auto-detected if not specified)"
-msgstr "Quellrahmenwerk (wird automatisch erkannt, sofern nicht angegeben)"
+#: mb/cli/parsing/evaluate.py:76 mb/cli/parsing/evaluate.py:150
+#: mb/cli/parsing/evaluate.py:257
+msgid "Square input size (default: 224)"
+msgstr "Quadratische Eingabegröße (Standard: 224)"
 
-#: mb/cli/parsing/model_convert.py:42
-msgid "Target format (onnx or safetensors)"
-msgstr "Zielformat (ONNX oder safetensors)"
+#: mb/cli/parsing/evaluate.py:82 mb/cli/parsing/evaluate.py:156
+#: mb/cli/parsing/evaluate.py:263
+msgid "Batch size (default: 32)"
+msgstr "Batchesize (Standard: 32)"
 
-#: mb/cli/parsing/model_convert.py:46
+#: mb/cli/parsing/evaluate.py:88 mb/cli/parsing/evaluate.py:162
+#: mb/cli/parsing/evaluate.py:269
+msgid "DataLoader workers for PyTorch (default: 0)"
+msgstr "DataLoader-Arbeiter für PyTorch (Standard: 0)"
+
+#: mb/cli/parsing/evaluate.py:94 mb/cli/parsing/evaluate.py:168
+#: mb/cli/parsing/evaluate.py:275
+msgid "PyTorch device override, e.g. cuda or cpu (default: auto)"
+msgstr "PyTorch-Geräteübersteuerung, z. B. CUDA oder CPU (Standard: „auto“)"
+
+#: mb/cli/parsing/evaluate.py:99 mb/cli/parsing/evaluate.py:186
+#: mb/cli/parsing/evaluate.py:296
+msgid "Validate arguments and exit without running inference"
+msgstr "Argumente validieren und beenden, ohne die Inferenz auszuführen"
+
+#: mb/cli/parsing/evaluate.py:104
+msgid "List images whose predicted class differs from the folder label"
+msgstr "Liste der Bilder, deren vorhergesagte Klasse vom Ordnerlabel abweicht"
+
+#: mb/cli/parsing/evaluate.py:106
 msgid ""
-"Model architecture (required for PyTorch -> ONNX conversion, e.g., "
-"'resnet34')"
+"Compares model predictions to ImageFolder-style on-disk class folders to "
+"surface label noise and borderline samples. Image classification only."
 msgstr ""
-"Modellarchitektur (erforderlich für die Konvertierung von PyTorch -> ONNX, "
-"z. B., 'resnet34')"
+"Vergleicht Modellvorhersagen mit auf der Festplatte gespeicherten "
+"Klassenordnern im ImageFolder-Stil, um Label-Rauschen und Grenzfälle "
+"aufzudecken. Nur für die Bildklassifizierung."
 
-#: mb/cli/parsing/model_convert.py:51
-msgid "Number of output classes (required for PyTorch -> ONNX conversion)"
-msgstr ""
-"Anzahl der Ausgabeklassen (erforderlich für die Konvertierung von PyTorch ->"
-" ONNX)"
-
-#: mb/cli/parsing/model_convert.py:57
-msgid "Input image size (default: 224, used for ONNX conversion)"
-msgstr "Eingabebildgröße (Standard: 224, genutzt für die ONNX-Konvertierung)"
-
-#: mb/cli/parsing/info.py:15
-msgid "Show information about models or datasets"
-msgstr "Zeigen Sie Informationen zu Modellen oder Datensätzen."
-
-#: mb/cli/parsing/info.py:17
+#: mb/cli/parsing/evaluate.py:175
 msgid ""
-"Display information about trained models or datasets, including metadata, "
-"architecture details, and dataset statistics."
+"Cap printed / exported misclassified rows (default: no cap; totals still "
+"full)"
 msgstr ""
-"Zeigen Sie Informationen zu trainierten Modellen oder Datensätzen an, "
-"darunter Metadaten, Details zur Architektur und Statistiken zum Datensatz."
+"Grenze für abgedruckte / exportierte fehlerhaft klassifizierte Zeilen "
+"(Standard: keine Grenze; Gesamtmenge bleibt vollständig)"
 
-#: mb/cli/parsing/info.py:23
-msgid "Info subcommands"
-msgstr "Info Unterbefehle"
+#: mb/cli/parsing/evaluate.py:181
+msgid "Optional CSV path (still prints a summary to stdout)"
+msgstr ""
+"Optionaler CSV-Pfad (zeigt den Zusammenfassung trotzdem auf stdout an)"
 
-#: mb/cli/parsing/info.py:30
-msgid "Show model information"
-msgstr "Zeige Modellinformation an"
-
-#: mb/cli/parsing/info.py:32
+#: mb/cli/parsing/evaluate.py:191
 msgid ""
-"Display detailed information about a trained model, including architecture, "
-"framework, number of parameters, and training metadata."
+"Compare two models on the same labeled split (paired outcomes & "
+"disagreements)"
 msgstr ""
-"Zeige detaillierte Informationen zu einem trainierten Modell an, darunter "
-"Architektur, Framework, Anzahl der Parameter und Trainingsmetadaten."
+"Vergleiche zwei Modelle anhand derselben beschrifteten Aufteilung (gepaarte "
+"Ergebnisse und Diskrepanzen)"
 
-#: mb/cli/parsing/info.py:40
-msgid "Path to model file"
-msgstr "Pfad zur Modelldatei"
-
-#: mb/cli/parsing/info.py:46
-msgid "Show dataset information"
-msgstr "Datensatzinformation anzeigen"
-
-#: mb/cli/parsing/info.py:48
+#: mb/cli/parsing/evaluate.py:193
 msgid ""
-"Display statistics about a dataset, including class distributions, image "
-"counts, and data directory structure."
+"Runs both checkpoints on the same ImageFolder split in lockstep: top-1 "
+"accuracy each, a 2×2-style breakdown (both correct, only A, only B, both "
+"wrong vs folder labels), and how often A and B disagree on the predicted "
+"class. PyTorch and Keras supported when both files use the same framework."
 msgstr ""
-"Zeigen Sie Statistiken über einem Dataset an, einschließlich "
-"Klassenverteilungen, Bildanzahlen und Datenverzeichnisstruktur."
+"Führt beide Prüfpunkte auf demselben ImageFolder im Gleichschritt durch: "
+"jeweils die Genauigkeit der Top-1-Vorhersage, eine Aufschlüsselung im "
+"2×2-Format (beide richtig, nur A, nur B, beide falsch im Vergleich zu den "
+"Ordnerbezeichnungen) und die Häufigkeit, mit der A und B bei der "
+"vorhergesagten Klasse voneinander abweichen. PyTorch und Keras werden "
+"unterstützt, wenn beide Dateien dasselbe Framework verwenden."
 
-#: mb/cli/parsing/info.py:56
-msgid "Path to data directory"
-msgstr "Pfad zum Datenvierzchnis"
+#: mb/cli/parsing/evaluate.py:203
+msgid "Path to first model file (.pth / .pt / .h5 / .keras)"
+msgstr "Pfad zur ersten Modell-Datei (.pth / .pt / .h5 / .keras)"
+
+#: mb/cli/parsing/evaluate.py:209
+msgid "Path to second model file (.pth / .pt / .h5 / .keras)"
+msgstr "Pfad zur zweiten Modelldatei (.pth / .pt / .h5 / .keras)"
+
+#: mb/cli/parsing/evaluate.py:221
+msgid ""
+"Training framework hint for both models (default: infer from each file)"
+msgstr ""
+"Hinweis zum Trainingsrahmen für beide Modelle (Standard: aus jeder Datei "
+"ableiten)"
+
+#: mb/cli/parsing/evaluate.py:227
+msgid ""
+"Optional framework hint for model B only (default: same as --framework)"
+msgstr ""
+"Optionaler Rahmenhinweis nur für Modell B (Standard: wie bei --framework)"
+
+#: mb/cli/parsing/evaluate.py:233
+msgid "Model architecture id for PyTorch model A (e.g. resnet34)"
+msgstr "Modellarchitektur-ID für das PyTorch-Modell A (z. B. resnet34)"
+
+#: mb/cli/parsing/evaluate.py:239
+msgid ""
+"Architecture for PyTorch model B when it differs from model A (default: "
+"--architecture)"
+msgstr ""
+"Architektur für das PyTorch-Modell B, wenn es sich von Modell A "
+"unterscheidet (Standard: --architecture)"
+
+#: mb/cli/parsing/evaluate.py:283
+msgid ""
+"Cap printed / exported rows where A and B disagree on class (default: no "
+"cap; totals still full)"
+msgstr ""
+"Zeilen, bei denen A und B hinsichtlich der Klasse nicht übereinstimmen, "
+"werden ausgeblendet bzw. exportiert (Standard: keine Ausblendung; Summen "
+"werden weiterhin vollständig angezeigt)"
+
+#: mb/cli/parsing/evaluate.py:291
+msgid ""
+"Optional TSV path for disagreement rows (summary still prints to stdout)"
+msgstr ""
+"Optionaler TSV-Pfad für Zeilen mit Abweichungen (die Zusammenfassung wird "
+"weiterhin auf stdout ausgegeben)"
 
 #: mb/cli/parsing/export.py:15
 msgid "Export model bundle artifacts"
@@ -709,220 +933,193 @@ msgstr "Den Stub „model_architecture.py“ nicht ausgeben"
 msgid "Optional run ID to include in manifest"
 msgstr "Optionale Ausführungs-ID zum Einbinden im Manifest"
 
-#: mb/cli/__init__.py:88
-msgid "Please specify valid subdirectories using --subdirs argument"
+#: mb/cli/parsing/info.py:15
+msgid "Show information about models or datasets"
+msgstr "Zeigen Sie Informationen zu Modellen oder Datensätzen."
+
+#: mb/cli/parsing/info.py:17
+msgid ""
+"Display information about trained models or datasets, including metadata, "
+"architecture details, and dataset statistics."
 msgstr ""
-"Bitte bestimmen Sie gültige Unterordner mithilfe des --subdirs-Arguments."
+"Zeigen Sie Informationen zu trainierten Modellen oder Datensätzen an, "
+"darunter Metadaten, Details zur Architektur und Statistiken zum Datensatz."
 
-#: mb/cli/__init__.py:97
-msgid "Invalid weight format: {pair}. Expected format: subdir:weight"
-msgstr "Ungültiger Gewichtsformat: {pair}. Erwarteter Format: subdir:gewicht."
+#: mb/cli/parsing/info.py:23
+msgid "Info subcommands"
+msgstr "Info Unterbefehle"
 
-#: mb/cli/__init__.py:107
-msgid "Weight must be non-negative: {subdir}={weight}"
-msgstr "Das Gewicht muss nicht negativ sein: {subdir}={weight}"
+#: mb/cli/parsing/info.py:30
+msgid "Show model information"
+msgstr "Zeige Modellinformation an"
 
-#: mb/cli/__init__.py:118
-msgid "Subdirectories in weights not found in --subdirs: {weights}"
+#: mb/cli/parsing/info.py:32
+msgid ""
+"Display detailed information about a trained model, including architecture, "
+"framework, number of parameters, and training metadata."
 msgstr ""
-"Unterverzeichnisse in „weights“, die nicht in --subdirs: {weights} enthalten"
-" sind"
+"Zeige detaillierte Informationen zu einem trainierten Modell an, darunter "
+"Architektur, Framework, Anzahl der Parameter und Trainingsmetadaten."
 
-#: mb/cli/__init__.py:217
-msgid "Process terminated due to external storage detection."
-msgstr "Prozess wurde beendet aufgrund der externen Speichermedium-Detektion."
+#: mb/cli/parsing/info.py:40
+msgid "Path to model file"
+msgstr "Pfad zur Modelldatei"
 
-#: mb/cli/__init__.py:271
-msgid "--pillow and --quiet require --dry-run"
-msgstr "--Kissen und --still erfordern --trockenläufen"
+#: mb/cli/parsing/info.py:46
+msgid "Show dataset information"
+msgstr "Datensatzinformation anzeigen"
 
-#: mb/cli/__init__.py:274
-msgid "--pillow requires --json"
-msgstr "--pillow erfordert --json"
-
-#: mb/cli/__init__.py:319
-msgid "--data-dir is required when operation is create-dataset"
+#: mb/cli/parsing/info.py:48
+msgid ""
+"Display statistics about a dataset, including class distributions, image "
+"counts, and data directory structure."
 msgstr ""
-"--data-dir ist erforderlich, wenn die Operation 'create-dataset' ausgeführt "
-"wird."
+"Zeigen Sie Statistiken über einem Dataset an, einschließlich "
+"Klassenverteilungen, Bildanzahlen und Datenverzeichnisstruktur."
 
-#: mb/cli/__init__.py:351
-msgid "Unsupported model type from config: {t}"
-msgstr "Nicht unterstützter Modelltyp aus der Konfiguration: {t}"
+#: mb/cli/parsing/info.py:56
+msgid "Path to data directory"
+msgstr "Pfad zum Datenvierzchnis"
 
-#: mb/cli/__init__.py:356 mb/cli/__init__.py:406
-msgid "Data directory does not exist: {path}"
-msgstr "Datenverzeichnis existiert nicht: {path}"
+#: mb/cli/parsing/model_convert.py:15
+msgid "Convert model between formats"
+msgstr "Modell zwischen den Formaten konvertieren"
 
-#: mb/cli/__init__.py:368 mb/cli/__init__.py:443
-msgid "Architecture '{arch}' not supported for framework '{fw}'"
+#: mb/cli/parsing/model_convert.py:17
+msgid ""
+"Convert a trained model between different formats. Supports PyTorch -> ONNX,"
+" PyTorch -> SafeTensors, and Keras -> ONNX."
 msgstr ""
-"Die Architektur '{arch}' wird für das Framework '{fw}' nicht unterstützt."
+"Konvertieren Sie ein trainiertes Modell zwischen verschiedenen Formaten. "
+"Unterstützt PyTorch -> ONNX, PyTorch -> SafeTensors und Keras -> ONNX."
 
-#: mb/cli/__init__.py:379 mb/cli/__init__.py:465
-msgid "Training completed successfully. Model saved to: {path}"
+#: mb/cli/parsing/model_convert.py:25
+msgid "Input model file"
+msgstr "Eingabemodell-Datei"
+
+#: mb/cli/parsing/model_convert.py:31
+msgid "Output model file"
+msgstr "Ausgabedatei des Modells"
+
+#: mb/cli/parsing/model_convert.py:36
+msgid "Source framework (auto-detected if not specified)"
+msgstr "Quellrahmenwerk (wird automatisch erkannt, sofern nicht angegeben)"
+
+#: mb/cli/parsing/model_convert.py:42
+msgid "Target format (onnx or safetensors)"
+msgstr "Zielformat (ONNX oder safetensors)"
+
+#: mb/cli/parsing/model_convert.py:46
+msgid ""
+"Model architecture (required for PyTorch -> ONNX conversion, e.g., "
+"'resnet34')"
 msgstr ""
-"Das Training ist erfolgreich abgeschlossen worden. Modell gespeichert unter:"
-" {path}"
+"Modellarchitektur (erforderlich für die Konvertierung von PyTorch -> ONNX, "
+"z. B., 'resnet34')"
 
-#: mb/cli/__init__.py:387 ui/pages/train_page.py:439
-msgid "Unsupported framework: {fw}"
-msgstr "Nicht unterstützter Framework: {fw}"
-
-#: mb/cli/__init__.py:392
-msgid "Unsupported model type: {t}"
-msgstr "Nicht unterstützter Modelltyp: {t}"
-
-#: mb/cli/__init__.py:400
-msgid "Unsupported architecture: {arch}"
-msgstr "Nicht unterstützte Architektur: {arch}"
-
-#: mb/cli/__init__.py:470
-msgid "Training failed: {err}"
-msgstr "Training verwarf sich: {err}"
-
-#: mb/cli/__init__.py:481 mb/cli/__init__.py:561
-msgid "Input model file not found: {path}"
-msgstr "Eingabedatei nicht gefunden: {path}"
-
-#: mb/cli/__init__.py:490
-msgid "Could not detect source framework. Please specify --framework"
+#: mb/cli/parsing/model_convert.py:51
+msgid "Number of output classes (required for PyTorch -> ONNX conversion)"
 msgstr ""
-"Das Source-Rahmenwerk konnte nicht erkannt werden. Bitte angeben Sie "
-"--Rahmenwerk"
+"Anzahl der Ausgabeklassen (erforderlich für die Konvertierung von PyTorch ->"
+" ONNX)"
 
-#: mb/cli/__init__.py:496
-msgid "PyTorch -> ONNX conversion requires --architecture and --num-classes"
+#: mb/cli/parsing/model_convert.py:57
+msgid "Input image size (default: 224, used for ONNX conversion)"
+msgstr "Eingabebildgröße (Standard: 224, genutzt für die ONNX-Konvertierung)"
+
+#: mb/cli/parsing/train.py:17
+msgid "Train a model"
+msgstr "Trainieren Sie ein Modell"
+
+#: mb/cli/parsing/train.py:19
+msgid ""
+"Train a machine learning model using the specified framework and "
+"architecture. Supports transfer learning with frozen/unfrozen training "
+"phases."
 msgstr ""
-"PyTorch -> ONNX-Konvertierung erfordert --Architektur und --Anzahl-Klassen"
+"Trainieren Sie ein Modell für maschinelles Lernen unter Verwendung des "
+"angegebenen Frameworks und der angegebenen Architektur. Unterstützt "
+"Transferlernen mit „gefrorenen“ und „nicht gefrorenen“ Trainingsphasen."
 
-#: mb/cli/__init__.py:515
-msgid "Conversion completed successfully: {path}"
-msgstr "Konvertierung abgeschlossen erfolgreich: {path}"
+#: mb/cli/parsing/train.py:27
+msgid "Model type (default: image_classification)"
+msgstr "Modelltyp (Standardwert: image_classification)"
 
-#: mb/cli/__init__.py:519 ui/pages/convert_page.py:344
-msgid "Conversion failed"
-msgstr "Konvertierung fehlgeschlagen"
+#: mb/cli/parsing/train.py:32
+msgid "Framework to use (default: from config)"
+msgstr "Rahmenwerk zum verwenden (Standard: aus der Konfiguration)"
 
-#: mb/cli/__init__.py:523
-msgid "Conversion error: {err}"
-msgstr "Konvertierungfehler: {err}"
+#: mb/cli/parsing/train.py:34
+msgid "Model architecture (e.g., resnet34)"
+msgstr "Modellarchitektur (z. B. ResNet34)"
 
-#: mb/cli/__init__.py:532 ui/pages/info_page.py:184
-msgid "Model path not found: {path}"
-msgstr "Modellpfad nicht gefunden: {path}"
+#: mb/cli/parsing/train.py:45
+msgid "Data directory (default: from config)"
+msgstr ""
+"Datenverzeichnis (voreausgewählter Wert: Standard: aus der Konfiguration)"
 
-#: mb/cli/__init__.py:546 mb/evaluate/compare.py:157
-#: mb/evaluate/compare.py:193 mb/evaluate/metrics.py:88
-#: mb/evaluate/metrics.py:108 mb/evaluate/misclassified.py:84
-#: mb/evaluate/misclassified.py:104 ui/pages/info_page.py:198
-msgid "Data directory not found: {path}"
-msgstr "Datenverzeichnis nicht gefunden: {path}"
+#: mb/cli/parsing/train.py:50
+msgid "Output directory for models (default: from config)"
+msgstr "Ausgabeverzeichnis für Modelle (Standard: aus der Konfiguration)"
 
-#: mb/cli/__init__.py:580
-msgid "Bundle export completed: {path}"
-msgstr "Bundle-Export abgeschlossen: {path}"
+#: mb/cli/parsing/train.py:55
+msgid "Number of frozen training epochs (default: from config)"
+msgstr ""
+"Anzahl der frohenen Trainingsepochen (Standardwert: aus der Konfiguration)"
 
-#: mb/cli/__init__.py:581 ui/pages/export_page.py:338
-msgid "Weights: {path}"
-msgstr "Gewichte: {path}"
+#: mb/cli/parsing/train.py:60
+msgid "Number of unfrozen training epochs (default: from config)"
+msgstr ""
+"Anzahl von unschlossenen Trainingsepochen (Standardmäßig: vom Config "
+"Defaults)"
 
-#: mb/cli/__init__.py:582 ui/pages/export_page.py:339
-msgid "Manifest: {path}"
-msgstr "Manifest: {path}"
+#: mb/cli/parsing/train.py:65
+msgid "Learning rate for frozen phase (default: from config)"
+msgstr "Lernrate für die frorene Phase (voredefiniert: aus der Konfiguration)"
 
-#: mb/cli/__init__.py:584 ui/pages/export_page.py:342
-msgid "Architecture stub: {path}"
-msgstr "Architekturstub: {path}"
+#: mb/cli/parsing/train.py:70
+msgid "Maximum learning rate for unfrozen phase (default: from config)"
+msgstr ""
+"Maximaler Lernrate für die nichtgefrorene Phase (Standard: aus der "
+"Konfiguration)"
 
-#: mb/cli/__init__.py:587
-msgid "Export failed: {err}"
-msgstr "Export fehlgeschlagen: {err}"
+#: mb/cli/parsing/train.py:75
+msgid "Minimum learning rate for unfrozen phase (default: from config)"
+msgstr ""
+"Minimale Lernrate für die nicht gefrorene Phase (Standard: aus der "
+"Konfiguration)"
 
-#: mb/cli/__init__.py:648
-msgid "No data subcommand specified"
-msgstr "Kein Datensubcommand angegeben"
+#: mb/cli/parsing/train.py:80
+msgid "Batch size (default: from config or auto-detect)"
+msgstr ""
+"Batchgröße (Standard: aus der Konfiguration oder automatisch ermittelt "
+"werden)"
 
-#: mb/cli/__init__.py:653
-msgid "Unknown data subcommand: {cmd}"
-msgstr "Unbekannter Datensatz-Befehl: {cmd}"
+#: mb/cli/parsing/train.py:79
+msgid "Image size (default: 224)"
+msgstr "Bildgröße (Standard: 224)"
 
-#: mb/cli/__init__.py:675
-msgid "No info subcommand specified"
-msgstr "Kein info-Unterbefehl angegeben"
+#: mb/cli/parsing/train.py:93
+msgid "Number of data loading workers (default: from config)"
+msgstr "Anzahl der Datenvorlader (Standard: aus der Konfiguration)"
 
-#: mb/cli/__init__.py:679
-msgid "Unknown info subcommand: {cmd}"
-msgstr "Unbekannter Info-Unterbefehl: {cmd}"
+#: mb/cli/parsing/train.py:150
+msgid "Path to checkpoint to resume training from"
+msgstr "Pfad zum Checkpunkt um die Training fortzusetzen von"
 
-#: mb/cli/__init__.py:688
-msgid "No export subcommand specified"
-msgstr "Kein Export-Unterbefehl angegeben"
+#: mb/cli/parsing/train.py:160
+msgid "Skip updating the unified snapshot with training data"
+msgstr ""
+"Überspringen Sie die Aktualisierung der einheitlichen Momentaufnahme mit den"
+" Trainingdaten."
 
-#: mb/cli/__init__.py:692
-msgid "Unknown export subcommand: {cmd}"
-msgstr "Unbekannter Export-Unterbefehl: {cmd}"
-
-#: mb/cli/__init__.py:696
-msgid "Unhandled export subcommand: {cmd}"
-msgstr "Unbehandelter Export-Unterbefehl: {cmd}"
-
-#: mb/cli/__init__.py:711 ui/pages/data_page.py:1210
-#: ui/pages/data_page.py:1433
-msgid "Unknown command: {cmd}"
-msgstr "Unbekannter Befehl: {cmd}"
-
-#: mb/cli/__init__.py:715
-msgid "Interrupted by user"
-msgstr "Unterbrochen von Benutzer"
-
-#: mb/cli/__init__.py:718
-msgid "Error: {err}"
-msgstr "Fehler: {err}"
-
-#: mb/info_inspect.py:39
-msgid "Path is not a file: {path}"
-msgstr "Der Pfad ist keine Datei: {path}"
-
-#: mb/info_inspect.py:43
-msgid "Path: {path}"
-msgstr "Pfad: {path}"
-
-#: mb/info_inspect.py:44
-msgid "Size: {n:,} bytes"
-msgstr "Größe: {n:,} Bytes"
-
-#: mb/info_inspect.py:45
-msgid "Detected framework/type: {fw}"
-msgstr "Detected framework/type: {fw}"
-
-#: mb/info_inspect.py:45 ui/pages/convert_page.py:276
-msgid "unknown"
-msgstr "unbekannt"
-
-#: mb/info_inspect.py:57
-msgid "Registered architectures:"
-msgstr "Registrierte Architekturen"
-
-#: mb/info_inspect.py:62
-msgid "(none)"
-msgstr "(Keine)"
-
-#: mb/info_inspect.py:80
-msgid "Path is not a directory: {path}"
-msgstr "Der Pfad ist kein Verzeichnis: {path}"
-
-#: mb/info_inspect.py:82
-msgid "Data dir: {path}"
-msgstr "Datenverzeichnis: {path}"
-
-#: mb/info_inspect.py:87
-msgid "  missing"
-msgstr "  fehlt"
-
-#: mb/info_inspect.py:96
-msgid "  total: {n}"
-msgstr "  Summe: {n}"
+#: mb/cli/parsing/train.py:167
+msgid ""
+"Load TrainingRunArgs from JSON (see mb.training.run_args); other train flags"
+" are ignored"
+msgstr ""
+"Laden von TrainingRunArgs aus JSON (siehe mb.training.run_args); andere "
+"Train-Flaggen werden ignoriert."
 
 #: mb/data/dataset.py:1072
 msgid "Source and target directories are on the same drive."
@@ -990,6 +1187,369 @@ msgstr "Weitert man mit der Gleichlaufbetriebsoperation? (Y/N): "
 #: mb/data/dataset.py:1131
 msgid "Operation cancelled by user."
 msgstr "Operation abgestoppt vom Benutzer."
+
+#: mb/evaluate/_weights.py:29
+msgid "PyTorch file did not contain a dictionary checkpoint or state_dict."
+msgstr ""
+"Die PyTorch-Datei enthielt weder einen „dictionary checkpoint“ noch ein "
+"„state_dict“."
+
+#: mb/evaluate/_weights.py:39
+msgid ""
+"Unrecognized PyTorch checkpoint layout (expected state_dict keys or "
+"model_state_dict)."
+msgstr ""
+"Unbekanntes PyTorch-Checkpoint-Layout (erwartet wurden "
+"„state_dict“-Schlüssel oder „model_state_dict“)."
+
+#: mb/evaluate/compare.py:34
+msgid "Object detection compare is not implemented yet."
+msgstr "Objekterkennung vergleichen ist nicht implementiert."
+
+#: mb/evaluate/compare.py:35
+msgid "Unsupported model type for compare: {t}"
+msgstr "Ununterstützter Modelltyp für die Vergleichung: {t}"
+
+#: mb/evaluate/compare.py:42
+msgid "Model A: {path} ({fw})"
+msgstr "Modell A: {path} ({fw})"
+
+#: mb/evaluate/compare.py:43
+msgid "Model B: {path} ({fw})"
+msgstr "Modell B: {path} ({fw})"
+
+#: mb/evaluate/compare.py:44 mb/evaluate/metrics.py:43
+#: mb/evaluate/misclassified.py:49
+msgid "Data: {path}"
+msgstr "Daten: {path}"
+
+#: mb/evaluate/compare.py:45 mb/evaluate/metrics.py:45
+msgid "Samples: {n}"
+msgstr "Beispiele: {n}"
+
+#: mb/evaluate/compare.py:46
+msgid "Top-1 accuracy A: {acc:.2f}%"
+msgstr "Top-1 Genauigkeit A: {acc:.2f}%"
+
+#: mb/evaluate/compare.py:47
+msgid "Top-1 accuracy B: {acc:.2f}%"
+msgstr "Top-1 Genauigkeit B: {acc:.2f}%"
+
+#: mb/evaluate/compare.py:50
+msgid "Average loss A: {loss:.4f}"
+msgstr "Durchschnittliche Verluste A: {loss:.4f}"
+
+#: mb/evaluate/compare.py:52
+msgid "Average loss B: {loss:.4f}"
+msgstr "Durchschnittliche Verluste B: {loss:.4f}"
+
+#: mb/evaluate/compare.py:54
+msgid "Paired outcomes vs folder label (each row is one image):"
+msgstr ""
+"Gepaarte Ergebnisse im Vergleich zur Ordnerbezeichnung (jede Zeile "
+"entspricht einem Bild):"
+
+#: mb/evaluate/compare.py:56
+msgid "  both correct: {n} ({pct:.1f}%)"
+msgstr "  beides richtig: {n} ({pct:.1f} %)"
+
+#: mb/evaluate/compare.py:59
+msgid "  only A correct: {n} ({pct:.1f}%)"
+msgstr "  only A correct: {n} ({pct:.1f}%)"
+
+#: mb/evaluate/compare.py:64
+msgid "  only B correct: {n} ({pct:.1f}%)"
+msgstr "  Nur B ist richtig: {n} ({pct:.1f} %)"
+
+#: mb/evaluate/compare.py:69
+msgid "  both wrong: {n} ({pct:.1f}%)"
+msgstr "  beides falsch: {n} ({pct:.1f} %)"
+
+#: mb/evaluate/compare.py:73
+msgid "Prediction disagreement (A class ≠ B class): {n} ({pct:.1f}%)"
+msgstr ""
+"Diskrepanz bei der Vorhersage (Klasse A ≠ Klasse B): {n} ({pct:.1f} %)"
+
+#: mb/evaluate/compare.py:79
+msgid ""
+"Note: disagreement counts images where A and B pick different classes; when "
+"both match the folder label, that still counts as both correct above."
+msgstr ""
+"Hinweis: Als „Uneinigkeit“ gelten Fälle, in denen A und B unterschiedliche "
+"Klassen auswählen; wenn beide die Ordnerbezeichnung übereinstimmen, gilt "
+"dies weiterhin als „beide richtig“."
+
+#: mb/evaluate/compare.py:84
+msgid "Disagreement rows printed: {k}"
+msgstr "Missstimmung Zeilen Druck: {k}"
+
+#: mb/evaluate/compare.py:87
+msgid ""
+"(Use --max-disagreement-report to print more; counts above are for the full "
+"split.)"
+msgstr ""
+"(Verwenden Sie --max-disagreement-report, um weitere Informationen "
+"anzuzeigen; die oben genannten Zahlen beziehen sich auf die vollständige "
+"Aufteilung.)"
+
+#: mb/evaluate/compare.py:151 mb/evaluate/compare.py:187
+msgid "Model A file not found: {path}"
+msgstr "Modell A Datei nicht gefunden: {path}"
+
+#: mb/evaluate/compare.py:154 mb/evaluate/compare.py:190
+msgid "Model B file not found: {path}"
+msgstr "Modell B-Datei nicht gefunden: {path}"
+
+#: mb/evaluate/compare.py:164
+msgid "--architecture is required for PyTorch model A in dry-run validation."
+msgstr ""
+"--architecture ist für das PyTorch-Modell A bei der Trockenlauf-Validierung "
+"erforderlich."
+
+#: mb/evaluate/compare.py:170
+msgid ""
+"Model B is PyTorch: provide --architecture-b or share --architecture in dry-"
+"run."
+msgstr ""
+"Modell B ist PyTorch: geben Sie --architecture-b oder teilen Sie "
+"--architecture in einem Trockenlauf."
+
+#: mb/evaluate/compare.py:174
+msgid ""
+"Dry-run OK: would compare models {a} and {b} on {data} (frameworks "
+"{fa}/{fb})"
+msgstr ""
+"Testlauf erfolgreich: Modelle {a} und {b} sollen anhand der Daten {data} "
+"verglichen werden (Frameworks {fa}/{fb})"
+
+#: mb/evaluate/compare.py:182
+msgid "--max-disagreement-report must be at least 1 when provided."
+msgstr ""
+"--max-disagreement-report muss mindestens 1 sein, wenn es angegeben ist."
+
+#: mb/evaluate/compare.py:197
+msgid ""
+"Compare evaluation failed for model type {mt} (subcommand {sub}). Use two "
+"checkpoints of the same framework on the same ImageFolder split; PyTorch "
+"needs --architecture (A) and optionally --architecture-b. Underlying error: "
+"{err}"
+msgstr ""
+"Der Vergleich der Auswertung für den Modelltyp {mt} (Unterbefehl {sub}) ist "
+"fehlgeschlagen. Verwenden Sie zwei Checkpoints desselben Frameworks auf "
+"derselben ImageFolder-Aufteilung; PyTorch benötigt --architecture (A) und "
+"optional --architecture-b. Grundlegender Fehler: {err}"
+
+#: mb/evaluate/compare.py:214
+msgid "Import error during compare: {err}"
+msgstr "Importfehler während der Vergleich: {err}"
+
+#: mb/evaluate/compare.py:227
+msgid "Wrote {n} disagreement rows to {path}"
+msgstr "hat {n} Diskrepanzenzeilen an {path} geschrieben"
+
+#: mb/evaluate/metrics.py:35
+msgid "Object detection metrics are not implemented yet."
+msgstr "Metriken zur Objekterkennung sind noch nicht implementiert."
+
+#: mb/evaluate/metrics.py:36
+msgid "Unsupported model type for metrics: {t}"
+msgstr "Ununterstützener Modelltyp für Metriken: {t}"
+
+#: mb/evaluate/metrics.py:42 mb/evaluate/misclassified.py:48
+msgid "Model: {path}"
+msgstr "Modell: {path}"
+
+#: mb/evaluate/metrics.py:44 mb/evaluate/misclassified.py:50
+msgid "Framework: {fw}"
+msgstr "Rahmenwerk: {fw}"
+
+#: mb/evaluate/metrics.py:46
+msgid "Top-1 accuracy: {acc:.2f}%"
+msgstr "Top-1 Genauigkeit: {acc:.2f}%"
+
+#: mb/evaluate/metrics.py:49
+msgid "Average loss: {loss:.4f}"
+msgstr "Durchschnittlicher Verlust: {loss:.4f}"
+
+#: mb/evaluate/metrics.py:51
+msgid "Per-class correct / total:"
+msgstr "Pro-Klassen richtig / gesamt:"
+
+#: mb/evaluate/metrics.py:56
+msgid "Confusion matrix (rows=true class, cols=predicted):"
+msgstr ""
+"Verwechslungsmatrix (Zeilen = tatsächliche Klasse, Spalten = vorhergesagte "
+"Klasse):"
+
+#: mb/evaluate/metrics.py:93 mb/evaluate/metrics.py:114
+#: mb/evaluate/misclassified.py:80 mb/evaluate/misclassified.py:101
+msgid "Model file not found: {path}"
+msgstr "Modelldatei nicht gefunden: {path}"
+
+#: mb/evaluate/metrics.py:103 mb/evaluate/misclassified.py:90
+msgid "--architecture is required for PyTorch models in dry-run validation."
+msgstr ""
+"--architecture ist für PyTorch-Modelle bei der Trockenlauf-Validierung "
+"erforderlich."
+
+#: mb/evaluate/metrics.py:106
+msgid "Dry-run OK: would score model {model} on {data} (framework={fw})"
+msgstr ""
+"Testlauf erfolgreich: Würde das Modell {model} auf {data} anwenden "
+"(Framework={fw})"
+
+#: mb/evaluate/metrics.py:129
+msgid "Import error during evaluation: {err}"
+msgstr "Importfehler während der Auswertung: {err}"
+
+#: mb/evaluate/metrics.py:132
+msgid "Evaluation failed: {err}"
+msgstr "Evaluierung fehlgeschlagen: {err}"
+
+#: mb/evaluate/misclassified.py:41
+msgid "Object detection misclassified listing is not implemented yet."
+msgstr ""
+"Die Funktion zur Erkennung falsch klassifizierter Einträge ist noch nicht "
+"implementiert."
+
+#: mb/evaluate/misclassified.py:42
+msgid "Unsupported model type for misclassified: {t}"
+msgstr "Nichtunterstützter Modelltyp für fehlklassifizierte: {t}"
+
+#: mb/evaluate/misclassified.py:51
+msgid "Scanned images: {n}"
+msgstr "Gescannte Bilder: {n}"
+
+#: mb/evaluate/misclassified.py:52
+msgid "Misclassified (total): {m}"
+msgstr "Falsch klassifiziert (gesamt): {m}"
+
+#: mb/evaluate/misclassified.py:53
+msgid "Rows printed: {k}"
+msgstr "Gedruckte Zeilen: {k}"
+
+#: mb/evaluate/misclassified.py:57
+msgid ""
+"(Increase --max-report to print more rows; totals above are for the full "
+"split.)"
+msgstr ""
+"(Erhöhen Sie den Wert von --max-report, um mehr Zeilen anzuzeigen; die oben "
+"angegebenen Summen beziehen sich auf die gesamte Aufteilung.)"
+
+#: mb/evaluate/misclassified.py:93
+msgid ""
+"Dry-run OK: would list misclassified for model {model} on {data} "
+"(framework={fw})"
+msgstr ""
+"Testlauf erfolgreich: Liste der falsch klassifizierten Einträge für das "
+"Modell {model} in {data} (Framework={fw})"
+
+#: mb/evaluate/misclassified.py:110
+msgid "--max-report must be at least 1 when provided."
+msgstr "--max-report muss mindestens 1 sein, wenn angegeben."
+
+#: mb/evaluate/misclassified.py:114
+msgid ""
+"Misclassified evaluation failed for model type {mt} (subcommand {sub}). This"
+" flow only supports image classification checkpoints that match the dataset "
+"layout, --architecture (PyTorch), and class counts. Underlying error: {err}"
+msgstr ""
+"Die Bewertung der Fehlklassifizierung für den Modelltyp {mt} (Unterbefehl "
+"{sub}) ist fehlgeschlagen. Dieser Ablauf unterstützt nur Checkpoints für die"
+" Bildklassifizierung, die mit dem Layout des Datensatzes, der Architektur "
+"(PyTorch) und der Anzahl der Klassen übereinstimmen. Grundlegender Fehler: "
+"{err}"
+
+#: mb/evaluate/misclassified.py:131
+msgid "Import error during misclassified evaluation: {err}"
+msgstr "Importfehler während der verfehlten Bewertung: {err}"
+
+#: mb/evaluate/misclassified.py:142
+msgid "Wrote {n} rows to {path}"
+msgstr "Schrieb {n} Zeilen zu {path}"
+
+#: mb/evaluate/classification/image_compare.py:29
+msgid ""
+"Compare requires both checkpoints to use the same framework (got {a} vs "
+"{b}). Mixed PyTorch / Keras is not supported yet."
+msgstr ""
+"Für den Vergleich müssen beide Checkpoints dasselbe Framework verwenden "
+"(entweder {a} oder {b}). Eine gemischte Verwendung von PyTorch und Keras "
+"wird derzeit noch nicht unterstützt."
+
+#: mb/evaluate/classification/image_compare.py:45
+msgid "--architecture is required for PyTorch compare (model A)."
+msgstr "--architecture ist für den PyTorch-Vergleich (Modell A) erforderlich."
+
+#: mb/evaluate/classification/image_compare.py:48
+msgid ""
+"Model B needs --architecture-b or the same --architecture when B is PyTorch."
+msgstr ""
+"Modell B benötigt --architecture-b oder dieselbe --architecture, wenn B "
+"PyTorch ist."
+
+#: mb/evaluate/classification/image_compare.py:58
+#: mb/evaluate/classification/image_compare.py:192
+#: mb/evaluate/classification/image_metrics.py:84
+#: mb/evaluate/classification/image_metrics.py:159
+#: mb/evaluate/classification/image_misclassified.py:39
+#: mb/evaluate/classification/image_misclassified.py:123
+msgid "--num-classes ({n}) does not match directory class count ({c})."
+msgstr ""
+"--num-classes ({n}) stimmt nicht mit der Anzahl der Klassen im Verzeichnis "
+"({c}) überein."
+
+#: mb/evaluate/classification/image_compare.py:175
+msgid "TensorFlow is required for Keras compare: {err}"
+msgstr "TensorFlow wird für die Keras-Vergleich erfordert: {err}"
+
+#: mb/data/lora_dataset.py:118 mb/evaluate/classification/image_compare.py:186
+#: mb/evaluate/classification/image_metrics.py:42
+#: mb/evaluate/classification/image_metrics.py:153
+#: mb/evaluate/classification/image_misclassified.py:117
+msgid "No images found under {path}"
+msgstr "Keine Bilder unter {path} gefunden"
+
+#: mb/evaluate/classification/image_compare.py:283
+msgid "Unsupported framework for compare: {fw}"
+msgstr "Nicht unterstütztes Framework für den Vergleich: {fw}"
+
+#: mb/evaluate/classification/image_metrics.py:59
+msgid "Could not detect model framework from {path}"
+msgstr "Konnte kein Modellrahmen aus {path} ermitteln"
+
+#: mb/evaluate/classification/image_metrics.py:63
+msgid "Framework {fw} is not supported for metrics (use PyTorch or Keras)."
+msgstr ""
+"Das Framework {fw} wird für Metriken nicht unterstützt (verwenden Sie "
+"PyTorch oder Keras)."
+
+#: mb/evaluate/classification/image_metrics.py:75
+msgid "--architecture is required for PyTorch metrics evaluation."
+msgstr ""
+"--Die Architektur ist für die PyTorch-Metriken-Auswertung erforderlich."
+
+#: mb/evaluate/classification/image_metrics.py:142
+msgid "TensorFlow is required for Keras metrics: {err}"
+msgstr "TensorFlow ist für die Keras-Metriken erforderlich: {err}"
+
+#: mb/evaluate/classification/image_metrics.py:203
+msgid "Unsupported framework for metrics: {fw}"
+msgstr "Nichtunterstützter Framework für Metriken: {fw}"
+
+#: mb/evaluate/classification/image_misclassified.py:30
+msgid "--architecture is required for PyTorch misclassified listing."
+msgstr ""
+"--architecture ist für die Auflistung von Fehlklassifizierungen in PyTorch "
+"erforderlich."
+
+#: mb/evaluate/classification/image_misclassified.py:106
+msgid "TensorFlow is required for Keras misclassified listing: {err}"
+msgstr "Für Keras ist TensorFlow erforderlich. Fehlermeldung: {err}"
+
+#: mb/evaluate/classification/image_misclassified.py:171
+msgid "Unsupported framework for misclassified: {fw}"
+msgstr "Nicht unterstütztes Framework für fehlklassifizierte: {fw}"
 
 #: mb/utils/constants.py:82
 msgid "System"
@@ -1118,9 +1678,9 @@ msgstr ""
 msgid "Error"
 msgstr "Fehler"
 
-#: ui/lib/custom_dialogs_qt.py:120 ui/lib/fast_directory_picker_qt.py:411
-#: ui/lib/fast_directory_picker_qt.py:673
-#: ui/lib/fast_directory_picker_qt.py:994 ui/lib/qt_alert.py:28
+#: ui/lib/custom_dialogs_qt.py:120 ui/lib/fast_directory_picker_qt.py:410
+#: ui/lib/fast_directory_picker_qt.py:672
+#: ui/lib/fast_directory_picker_qt.py:993 ui/lib/qt_alert.py:28
 #: ui/lib/task_progress.py:38 ui/lib/training_progress_dialog.py:77
 msgid "Cancel"
 msgstr "Abbrechen"
@@ -1131,19 +1691,19 @@ msgid "OK"
 msgstr "OK"
 
 #: ui/lib/directory_line_edit_row.py:29 ui/pages/convert_page.py:201
-#: ui/pages/data_page.py:957 ui/pages/evaluate_page.py:372
+#: ui/pages/data_page.py:987 ui/pages/evaluate_page.py:379
 #: ui/pages/export_page.py:197 ui/pages/info_page.py:152
-#: ui/pages/train_page.py:379
+#: ui/pages/train_page.py:478
 msgid "Select directory"
 msgstr "Verzeichnis auswählen"
 
 #: ui/lib/directory_line_edit_row.py:30 ui/pages/convert_page.py:142
-#: ui/pages/convert_page.py:190 ui/pages/data_page.py:325
-#: ui/pages/data_page.py:946 ui/pages/evaluate_page.py:195
-#: ui/pages/evaluate_page.py:356 ui/pages/export_page.py:129
+#: ui/pages/convert_page.py:190 ui/pages/data_page.py:328
+#: ui/pages/data_page.py:976 ui/pages/evaluate_page.py:202
+#: ui/pages/evaluate_page.py:363 ui/pages/export_page.py:129
 #: ui/pages/export_page.py:181 ui/pages/info_page.py:67
-#: ui/pages/info_page.py:141 ui/pages/train_page.py:216
-#: ui/pages/train_page.py:321
+#: ui/pages/info_page.py:141 ui/pages/train_page.py:284
+#: ui/pages/train_page.py:420
 msgid "Browse..."
 msgstr "Durchsuchen..."
 
@@ -1230,184 +1790,184 @@ msgstr ""
 "Die Datei des Peers existiert nicht mehr:\n"
 "{p}"
 
-#: ui/lib/fast_directory_picker_qt.py:217
-#: ui/lib/fast_directory_picker_qt.py:278
+#: ui/lib/fast_directory_picker_qt.py:216
+#: ui/lib/fast_directory_picker_qt.py:277
 msgid "Home"
 msgstr "Startseite"
 
-#: ui/lib/fast_directory_picker_qt.py:227
+#: ui/lib/fast_directory_picker_qt.py:226
 msgid "Removable"
 msgstr "Entferbar"
 
-#: ui/lib/fast_directory_picker_qt.py:228
+#: ui/lib/fast_directory_picker_qt.py:227
 msgid "Local"
 msgstr "Ort"
 
-#: ui/lib/fast_directory_picker_qt.py:229
+#: ui/lib/fast_directory_picker_qt.py:228
 msgid "Network"
 msgstr "Netzwerk"
 
-#: ui/lib/fast_directory_picker_qt.py:230
+#: ui/lib/fast_directory_picker_qt.py:229
 msgid "CD/DVD"
 msgstr "CD/DVD"
 
-#: ui/lib/fast_directory_picker_qt.py:231
+#: ui/lib/fast_directory_picker_qt.py:230
 msgid "RAM Disk"
 msgstr "RAM-Disk"
 
-#: ui/lib/fast_directory_picker_qt.py:243
+#: ui/lib/fast_directory_picker_qt.py:242
 msgid "Unknown"
 msgstr "Unbekannt"
 
-#: ui/lib/fast_directory_picker_qt.py:335
-#: ui/lib/fast_directory_picker_qt.py:1236
+#: ui/lib/fast_directory_picker_qt.py:334
+#: ui/lib/fast_directory_picker_qt.py:1235
 msgid "Select Directory"
 msgstr "Wählen Sie das Verzeichnis"
 
-#: ui/lib/fast_directory_picker_qt.py:358
-#: ui/lib/fast_directory_picker_qt.py:615
-#: ui/lib/fast_directory_picker_qt.py:928
+#: ui/lib/fast_directory_picker_qt.py:357
+#: ui/lib/fast_directory_picker_qt.py:614
+#: ui/lib/fast_directory_picker_qt.py:927
 msgid "Locations"
 msgstr "Orte"
 
-#: ui/lib/fast_directory_picker_qt.py:363
-#: ui/lib/fast_directory_picker_qt.py:620
-#: ui/lib/fast_directory_picker_qt.py:933
+#: ui/lib/fast_directory_picker_qt.py:362
+#: ui/lib/fast_directory_picker_qt.py:619
+#: ui/lib/fast_directory_picker_qt.py:932
 msgid "Refresh locations"
 msgstr "Orte aktualisieren"
 
-#: ui/lib/fast_directory_picker_qt.py:376
-#: ui/lib/fast_directory_picker_qt.py:946
+#: ui/lib/fast_directory_picker_qt.py:375
+#: ui/lib/fast_directory_picker_qt.py:945
 msgid "Type or paste a directory path"
 msgstr "Typen Sie oder einfügen Sie einen Verzeichnisweg"
 
-#: ui/lib/fast_directory_picker_qt.py:380
-#: ui/lib/fast_directory_picker_qt.py:637
-#: ui/lib/fast_directory_picker_qt.py:950
+#: ui/lib/fast_directory_picker_qt.py:379
+#: ui/lib/fast_directory_picker_qt.py:636
+#: ui/lib/fast_directory_picker_qt.py:949
 msgid "Go"
 msgstr "Gehe"
 
-#: ui/lib/fast_directory_picker_qt.py:384
-#: ui/lib/fast_directory_picker_qt.py:641
-#: ui/lib/fast_directory_picker_qt.py:954
+#: ui/lib/fast_directory_picker_qt.py:383
+#: ui/lib/fast_directory_picker_qt.py:640
+#: ui/lib/fast_directory_picker_qt.py:953
 msgid "Up"
 msgstr "Auf"
 
-#: ui/lib/fast_directory_picker_qt.py:388
-#: ui/lib/fast_directory_picker_qt.py:645
-#: ui/lib/fast_directory_picker_qt.py:958
+#: ui/lib/fast_directory_picker_qt.py:387
+#: ui/lib/fast_directory_picker_qt.py:644
+#: ui/lib/fast_directory_picker_qt.py:957
 msgid "New Folder"
 msgstr "Neuer Ordner"
 
-#: ui/lib/fast_directory_picker_qt.py:392
-#: ui/lib/fast_directory_picker_qt.py:649
-#: ui/lib/fast_directory_picker_qt.py:962
+#: ui/lib/fast_directory_picker_qt.py:391
+#: ui/lib/fast_directory_picker_qt.py:648
+#: ui/lib/fast_directory_picker_qt.py:961
 msgid "Refresh"
 msgstr "Aktualisieren"
 
-#: ui/lib/fast_directory_picker_qt.py:396
-#: ui/lib/fast_directory_picker_qt.py:653
-#: ui/lib/fast_directory_picker_qt.py:966
+#: ui/lib/fast_directory_picker_qt.py:395
+#: ui/lib/fast_directory_picker_qt.py:652
+#: ui/lib/fast_directory_picker_qt.py:965
 msgid "Folders"
 msgstr "Ordner"
 
-#: ui/lib/fast_directory_picker_qt.py:415
+#: ui/lib/fast_directory_picker_qt.py:414
 msgid "Select"
 msgstr "Auswählen"
+
+#: ui/lib/fast_directory_picker_qt.py:479
+#: ui/lib/fast_directory_picker_qt.py:749
+#: ui/lib/fast_directory_picker_qt.py:1071
+msgid "Create New Folder"
+msgstr "Neuer Ordner"
 
 #: ui/lib/fast_directory_picker_qt.py:480
 #: ui/lib/fast_directory_picker_qt.py:750
 #: ui/lib/fast_directory_picker_qt.py:1072
-msgid "Create New Folder"
-msgstr "Neuer Ordner"
-
-#: ui/lib/fast_directory_picker_qt.py:481
-#: ui/lib/fast_directory_picker_qt.py:751
-#: ui/lib/fast_directory_picker_qt.py:1073
 msgid "Folder name:"
 msgstr "Ordnername:"
 
-#: ui/lib/fast_directory_picker_qt.py:487
-#: ui/lib/fast_directory_picker_qt.py:757
-#: ui/lib/fast_directory_picker_qt.py:1079
+#: ui/lib/fast_directory_picker_qt.py:486
+#: ui/lib/fast_directory_picker_qt.py:756
+#: ui/lib/fast_directory_picker_qt.py:1078
 msgid "Folder name cannot be empty."
 msgstr "Der Ordnername kann nicht leer sein."
 
-#: ui/lib/fast_directory_picker_qt.py:499
-#: ui/lib/fast_directory_picker_qt.py:767
-#: ui/lib/fast_directory_picker_qt.py:1089
+#: ui/lib/fast_directory_picker_qt.py:498
+#: ui/lib/fast_directory_picker_qt.py:766
+#: ui/lib/fast_directory_picker_qt.py:1088
 msgid "A folder with that name already exists."
 msgstr "Es existiert bereits ein Ordner mit dem Namen."
 
-#: ui/lib/fast_directory_picker_qt.py:504
-#: ui/lib/fast_directory_picker_qt.py:771
-#: ui/lib/fast_directory_picker_qt.py:1093
+#: ui/lib/fast_directory_picker_qt.py:503
+#: ui/lib/fast_directory_picker_qt.py:770
+#: ui/lib/fast_directory_picker_qt.py:1092
 msgid "Failed to create folder (check permissions/path)."
 msgstr "Verzeichnis konnte nicht erstellt werden (Rechte/ Pfad überprüfen)"
 
-#: ui/lib/fast_directory_picker_qt.py:553
-#: ui/lib/fast_directory_picker_qt.py:848
-#: ui/lib/fast_directory_picker_qt.py:1155
+#: ui/lib/fast_directory_picker_qt.py:552
+#: ui/lib/fast_directory_picker_qt.py:847
+#: ui/lib/fast_directory_picker_qt.py:1154
 msgid "No folders found (or folder is not currently accessible)."
 msgstr "keine Ordner gefunden (oder der Ordner ist derzeit nicht erreichbar)"
 
-#: ui/lib/fast_directory_picker_qt.py:590
-#: ui/lib/fast_directory_picker_qt.py:1284
+#: ui/lib/fast_directory_picker_qt.py:589
+#: ui/lib/fast_directory_picker_qt.py:1283
 msgid "Open File"
 msgstr "Datei öffnen"
 
-#: ui/lib/fast_directory_picker_qt.py:633
+#: ui/lib/fast_directory_picker_qt.py:632
 msgid "Type or paste a directory or file path"
 msgstr "Geben Sie oder fügen Sie einen Verzeichnis- oder Dateipfad ein"
 
-#: ui/lib/fast_directory_picker_qt.py:658
+#: ui/lib/fast_directory_picker_qt.py:657
 msgid "Files"
 msgstr "Dateien"
 
-#: ui/lib/fast_directory_picker_qt.py:677
+#: ui/lib/fast_directory_picker_qt.py:676
 msgid "Open"
 msgstr "Offen"
 
-#: ui/lib/fast_directory_picker_qt.py:802
-#: ui/lib/fast_directory_picker_qt.py:1123
+#: ui/lib/fast_directory_picker_qt.py:801
+#: ui/lib/fast_directory_picker_qt.py:1122
 msgid "Path not found or not accessible."
 msgstr "Pfad nicht gefunden oder nicht zugänglich."
 
-#: ui/lib/fast_directory_picker_qt.py:887
+#: ui/lib/fast_directory_picker_qt.py:886
 msgid "Select a file or navigate into a folder."
 msgstr "Wählen Sie eine Datei oder navigieren Sie in einem Ordner."
 
-#: ui/lib/fast_directory_picker_qt.py:904
-#: ui/lib/fast_directory_picker_qt.py:1334
+#: ui/lib/fast_directory_picker_qt.py:903
+#: ui/lib/fast_directory_picker_qt.py:1333
 msgid "Save File"
 msgstr "Speichere die Datei"
 
-#: ui/lib/fast_directory_picker_qt.py:971
+#: ui/lib/fast_directory_picker_qt.py:970
 msgid "Files (optional — double-click to fill name)"
 msgstr "Dateien (optional — Doppelklick, um den Namen einzufügen)"
 
-#: ui/lib/fast_directory_picker_qt.py:978
+#: ui/lib/fast_directory_picker_qt.py:977
 msgid "File name"
 msgstr "Dateiname"
 
-#: ui/lib/fast_directory_picker_qt.py:980
+#: ui/lib/fast_directory_picker_qt.py:979
 msgid "output.onnx"
 msgstr "ausgabe.onnx"
 
-#: ui/lib/fast_directory_picker_qt.py:998 ui/pages/config_page.py:82
+#: ui/lib/fast_directory_picker_qt.py:997 ui/pages/config_page.py:82
 #: ui/pages/config_page.py:160 ui/pages/pipeline_config_page.py:224
 msgid "Save"
 msgstr "Speichern"
 
-#: ui/lib/fast_directory_picker_qt.py:1173
+#: ui/lib/fast_directory_picker_qt.py:1172
 msgid "Enter a file name."
 msgstr "Geben Sie einen Dateinamen ein."
 
-#: ui/lib/fast_directory_picker_qt.py:1177
+#: ui/lib/fast_directory_picker_qt.py:1176
 msgid "Use a simple file name (no path separators)."
 msgstr "Verwenden Sie einen einfachen Dateinamen (keine Pfad trennzeichen)."
 
-#: ui/lib/fast_directory_picker_qt.py:1195
+#: ui/lib/fast_directory_picker_qt.py:1194
 msgid "Current Base Directory"
 msgstr "Aktuelles Basisverzeichnis"
 
@@ -1692,22 +2252,22 @@ msgid "Target format"
 msgstr "Zielformat"
 
 #: ui/pages/convert_page.py:86 ui/pages/convert_page.py:125
-#: ui/pages/evaluate_page.py:100 ui/pages/evaluate_page.py:144
+#: ui/pages/evaluate_page.py:105 ui/pages/evaluate_page.py:150
 #: ui/pages/export_page.py:68 ui/pages/export_page.py:105
-#: ui/pages/train_page.py:84 ui/pages/train_page.py:166
+#: ui/pages/train_page.py:98 ui/pages/train_page.py:219
 msgid "Architecture"
 msgstr "Architektur"
 
 #: ui/pages/convert_page.py:87 ui/pages/convert_page.py:126
-#: ui/pages/evaluate_page.py:101 ui/pages/evaluate_page.py:145
+#: ui/pages/evaluate_page.py:106 ui/pages/evaluate_page.py:151
 #: ui/pages/export_page.py:69 ui/pages/export_page.py:106
 msgid "Num classes"
 msgstr "Num Klassen"
 
 #: ui/pages/convert_page.py:88 ui/pages/convert_page.py:127
-#: ui/pages/evaluate_page.py:102 ui/pages/evaluate_page.py:146
+#: ui/pages/evaluate_page.py:107 ui/pages/evaluate_page.py:152
 #: ui/pages/export_page.py:71 ui/pages/export_page.py:108
-#: ui/pages/train_page.py:125 ui/pages/train_page.py:189
+#: ui/pages/train_page.py:102 ui/pages/train_page.py:223
 msgid "Image size"
 msgstr "Bildgröße"
 
@@ -1770,7 +2330,7 @@ msgid "[ok] conversion inputs valid (source={src})"
 msgstr "[ok] Konvertierungs-Eingaben sind gültig (Quelle={src})"
 
 #: ui/pages/convert_page.py:282 ui/pages/export_page.py:304
-#: ui/pages/train_page.py:487
+#: ui/pages/train_page.py:607
 msgid "[invalid] {err}"
 msgstr "[ungültig] {err}"
 
@@ -1792,7 +2352,7 @@ msgid "[failed] Conversion failed."
 msgstr "[fehlgeschlagen] Die Konvertierung ist fehlgeschlagen."
 
 #: ui/pages/convert_page.py:335 ui/pages/export_page.py:352
-#: ui/pages/train_page.py:537 ui/pages/train_page.py:629
+#: ui/pages/train_page.py:663 ui/pages/train_page.py:765
 msgid "[error] {err}"
 msgstr "[Fehler] {err}"
 
@@ -1803,7 +2363,7 @@ msgstr ""
 "Die Modellkonvertierung hat einen Fehler gemeldet. Siehe Details für die "
 "zugrundeliegende Nachricht."
 
-#: ui/pages/data_page.py:156
+#: ui/pages/data_page.py:158
 msgid ""
 "Typical order: Gather → Convert → Deduplicate (optional) → Upscale "
 "(optional) → Create Dataset. If class folders are already under your raw "
@@ -1829,43 +2389,43 @@ msgstr ""
 "Speicherung auf externen Laufwerken sowie zu großen und kleinen Bildern "
 "findest du in der Datei „docs/DATA_PIPELINE.md“."
 
-#: ui/pages/data_page.py:165
+#: ui/pages/data_page.py:167
 msgid "Gather"
 msgstr "Sammeln"
 
-#: ui/pages/data_page.py:166
+#: ui/pages/data_page.py:168
 msgid "Convert"
 msgstr "Konvertieren"
 
-#: ui/pages/data_page.py:167
+#: ui/pages/data_page.py:169
 msgid "Deduplicate"
 msgstr "Deduplizieren"
 
-#: ui/pages/data_page.py:168
+#: ui/pages/data_page.py:170
 msgid "Upscale"
 msgstr "Hochwertig"
 
-#: ui/pages/data_page.py:169
+#: ui/pages/data_page.py:171
 msgid "Create Dataset"
 msgstr "Datensatz erstellen"
 
-#: ui/pages/data_page.py:170
+#: ui/pages/data_page.py:172
 msgid "Wildcard"
 msgstr "Wildcard"
 
-#: ui/pages/data_page.py:171
+#: ui/pages/data_page.py:173
 msgid "Validate Inputs"
 msgstr "Validiere Eingaben"
 
-#: ui/pages/data_page.py:172
+#: ui/pages/data_page.py:174
 msgid "Run Data Command"
 msgstr "führen Sie den Datenbefehl aus"
 
-#: ui/pages/data_page.py:173
+#: ui/pages/data_page.py:175
 msgid "Validation and run results will appear here."
 msgstr "Die Validierungs- und Ausführungsergebnisse werden hier angezeigt."
 
-#: ui/pages/data_page.py:176
+#: ui/pages/data_page.py:178
 msgid ""
 "Example:\n"
 "--dry-run --json\n"
@@ -1875,11 +2435,11 @@ msgstr ""
 "--dry-run --json\n"
 "--raw-data-dir C:\\Pfad\\zu\\Rohdaten"
 
-#: ui/pages/data_page.py:183 ui/pages/data_page.py:1233
+#: ui/pages/data_page.py:185 ui/pages/data_page.py:1288
 msgid "Latest space check"
 msgstr "Aktuelle Raumkontrolle"
 
-#: ui/pages/data_page.py:188
+#: ui/pages/data_page.py:190
 msgid ""
 "No space estimate yet. It updates after the disk-space check finishes (first"
 " phase of Convert or Create Dataset)."
@@ -1888,54 +2448,54 @@ msgstr ""
 "angezeigt, sobald die Überprüfung des Speicherplatzes abgeschlossen ist "
 "(erste Phase von „Konvertieren“ oder „Datensatz erstellen“)."
 
-#: ui/pages/data_page.py:195 ui/pages/data_page.py:598
+#: ui/pages/data_page.py:197 ui/pages/data_page.py:608
 msgid "Source dir"
 msgstr "Quellverzeichnis"
 
-#: ui/pages/data_page.py:196 ui/pages/data_page.py:599
+#: ui/pages/data_page.py:198 ui/pages/data_page.py:609
 msgid "Subdirs (space-separated)"
 msgstr "Unterordner (mit Leerzeichen getrennt)"
 
-#: ui/pages/data_page.py:197 ui/pages/data_page.py:600
+#: ui/pages/data_page.py:199 ui/pages/data_page.py:610
 msgid "Target count"
 msgstr "Zielanzahl"
 
-#: ui/pages/data_page.py:198 ui/pages/data_page.py:601
+#: ui/pages/data_page.py:200 ui/pages/data_page.py:611
 msgid "Target dir"
 msgstr "Ziel-Ordner"
 
-#: ui/pages/data_page.py:199 ui/pages/data_page.py:602
+#: ui/pages/data_page.py:201 ui/pages/data_page.py:612
 msgid "Rejected dir"
 msgstr "Abgelehnter Ordner"
 
-#: ui/pages/data_page.py:200 ui/pages/data_page.py:603
+#: ui/pages/data_page.py:202 ui/pages/data_page.py:613
 msgid "Subdir weights"
 msgstr "Unterverzeichnis Gewichte"
 
-#: ui/pages/data_page.py:201 ui/pages/data_page.py:206
-#: ui/pages/data_page.py:210 ui/pages/data_page.py:220
-#: ui/pages/data_page.py:225 ui/pages/data_page.py:604
-#: ui/pages/data_page.py:622 ui/pages/data_page.py:641
-#: ui/pages/data_page.py:700 ui/pages/data_page.py:738
+#: ui/pages/data_page.py:203 ui/pages/data_page.py:208
+#: ui/pages/data_page.py:212 ui/pages/data_page.py:222
+#: ui/pages/data_page.py:228 ui/pages/data_page.py:614
+#: ui/pages/data_page.py:632 ui/pages/data_page.py:651
+#: ui/pages/data_page.py:710 ui/pages/data_page.py:752
 msgid "Raw data dir"
 msgstr "Rohdatenverzeichnis"
 
-#: ui/pages/data_page.py:206 ui/pages/data_page.py:623
+#: ui/pages/data_page.py:208 ui/pages/data_page.py:633
 msgid "Format (jpeg/jpg)"
 msgstr "Format (jpeg/jpg)"
 
-#: ui/pages/data_page.py:206 ui/pages/data_page.py:231
-#: ui/pages/data_page.py:624 ui/pages/data_page.py:751
+#: ui/pages/data_page.py:208 ui/pages/data_page.py:234
+#: ui/pages/data_page.py:634 ui/pages/data_page.py:765
 #: ui/pages/export_page.py:72 ui/pages/export_page.py:109
-#: ui/pages/train_page.py:88 ui/pages/train_page.py:170
+#: ui/pages/train_page.py:106 ui/pages/train_page.py:226
 msgid "Run ID (optional)"
 msgstr "Lauf-ID (optional)"
 
-#: ui/pages/data_page.py:210 ui/pages/data_page.py:654
+#: ui/pages/data_page.py:212 ui/pages/data_page.py:664
 msgid "Snapshot Run ID (optional)"
 msgstr "Schnappschusslauf-ID (optional)"
 
-#: ui/pages/data_page.py:214 ui/pages/data_page.py:644
+#: ui/pages/data_page.py:216 ui/pages/data_page.py:654
 msgid ""
 "Review cross-class duplicates only: same-class CONVERTED duplicates are "
 "removed automatically; JSON + resolver list cross-class groups after run"
@@ -1944,50 +2504,50 @@ msgstr ""
 "konvertiert wurden, werden automatisch entfernt; JSON + Resolver listet nach"
 " der Ausführung klassenübergreifende Gruppen auf"
 
-#: ui/pages/data_page.py:220 ui/pages/data_page.py:702
+#: ui/pages/data_page.py:222 ui/pages/data_page.py:712
 msgid "Review dir (optional)"
 msgstr "Überprüfung des Verzeichnisses (optional)"
 
-#: ui/pages/data_page.py:226 ui/pages/data_page.py:739
+#: ui/pages/data_page.py:229 ui/pages/data_page.py:753
 msgid "Output data dir"
 msgstr "Ausgabedatenverzeichnis"
 
-#: ui/pages/data_page.py:227 ui/pages/data_page.py:740
+#: ui/pages/data_page.py:230 ui/pages/data_page.py:754
 msgid "Test items per class"
 msgstr "Testaufgaben pro Klasse"
 
-#: ui/pages/data_page.py:228 ui/pages/data_page.py:744
+#: ui/pages/data_page.py:231 ui/pages/data_page.py:758
 #: ui/pages/pipeline_config_page.py:342
 msgid "Test split mode"
 msgstr "Test-Split-Modus"
 
-#: ui/pages/data_page.py:229 ui/pages/data_page.py:749
+#: ui/pages/data_page.py:232 ui/pages/data_page.py:763
 #: ui/pages/pipeline_config_page.py:348
 msgid "Small-class threshold (weighted)"
 msgstr "Schwellwert kleine Klasse (gewichtet)"
 
-#: ui/pages/data_page.py:230 ui/pages/data_page.py:750
+#: ui/pages/data_page.py:233 ui/pages/data_page.py:764
 msgid "Seed (optional)"
 msgstr "Kerne (optional)"
 
-#: ui/pages/data_page.py:232 ui/pages/data_page.py:752
+#: ui/pages/data_page.py:235 ui/pages/data_page.py:766
 msgid "Max train per class"
 msgstr "Maximalzahl an Führenden pro Klasse"
 
-#: ui/pages/data_page.py:238 ui/pages/data_page.py:734
+#: ui/pages/data_page.py:241 ui/pages/data_page.py:747
 #: ui/pages/pipeline_config_page.py:352
 msgid "None"
 msgstr "Keine"
 
-#: ui/pages/data_page.py:239 ui/pages/data_page.py:735
+#: ui/pages/data_page.py:242 ui/pages/data_page.py:748
 msgid "Balance train set to smallest class"
 msgstr "Balance Schulungset zu kleinsten Klasse"
 
-#: ui/pages/data_page.py:240 ui/pages/data_page.py:736
+#: ui/pages/data_page.py:243 ui/pages/data_page.py:749
 msgid "Allow external/removable storage"
 msgstr "Externe/Wechselspeicher zulassen"
 
-#: ui/pages/data_page.py:243
+#: ui/pages/data_page.py:246
 msgid ""
 "Before Create Dataset: (1) Raw data must use one folder per class under the "
 "raw data root (run Gather first if you do not already have that layout). (2)"
@@ -2028,12 +2588,12 @@ msgstr ""
 "„Externen/Wechselspeicher zulassen“, wenn Sie auf Wechseldatenträger "
 "schreiben."
 
-#: ui/pages/data_page.py:263 ui/pages/data_page.py:264
-#: ui/pages/data_page.py:265 ui/pages/train_page.py:200
+#: ui/pages/data_page.py:266 ui/pages/data_page.py:267
+#: ui/pages/data_page.py:268 ui/pages/train_page.py:268
 msgid "Latest"
 msgstr "Neueste"
 
-#: ui/pages/data_page.py:267
+#: ui/pages/data_page.py:270
 msgid ""
 "Set Run ID from the newest snapshot_*.json file under the shared raw data "
 "directory (by file modification time)."
@@ -2042,7 +2602,7 @@ msgstr ""
 "Verzeichnis für gemeinsam genutzte Rohdaten fest (nach dem Änderungsdatum "
 "der Datei)."
 
-#: ui/pages/data_page.py:274
+#: ui/pages/data_page.py:277
 msgid ""
 "Set Run ID from the newest snapshot_*.json found across the same search "
 "paths as manual Run ID entry (raw dir, its parent, output data dir, and "
@@ -2053,11 +2613,11 @@ msgstr ""
 "Lauf-ID (Rohdatenverzeichnis, dessen übergeordnetes Verzeichnis, "
 "Ausgabedatenverzeichnis und Klassenordner)."
 
-#: ui/pages/data_page.py:279
+#: ui/pages/data_page.py:282
 msgid "Open duplicate resolver from snapshot…"
 msgstr "Öffne Duplikationslöser aus dem Schnappschuss…"
 
-#: ui/pages/data_page.py:283
+#: ui/pages/data_page.py:286
 msgid ""
 "If the resolver did not open after a list-only run (for example after a UI "
 "crash), use the button above to load duplicate groups from the snapshot on "
@@ -2067,7 +2627,7 @@ msgstr ""
 "(beispielsweise nach einem Absturz der Benutzeroberfläche), laden Sie über "
 "die Schaltfläche oben doppelte Gruppen aus dem Snapshot auf der Festplatte."
 
-#: ui/pages/data_page.py:289
+#: ui/pages/data_page.py:292
 msgid ""
 "Training sources for Create Dataset are JPEGs under each class’s CONVERTED/ "
 "only. Deduplicate moves borderline-small images from CONVERTED/ into that "
@@ -2091,7 +2651,7 @@ msgstr ""
 "„CONVERTED/“, daher sollten Sie „visual_media_review“ nicht für „Create "
 "Dataset“ zusammenführen."
 
-#: ui/pages/data_page.py:299
+#: ui/pages/data_page.py:302
 msgid ""
 "Upscale is optional. It enlarges images from the review tree; outputs go "
 "under <review-dir>/upscaled_small_images/. Default review dir when empty is "
@@ -2118,13 +2678,13 @@ msgstr ""
 "einbezogen werden, es sei denn, Sie verschieben sie manuell zurück in den "
 "Ordner „CONVERTED/“."
 
-#: ui/pages/data_page.py:626
+#: ui/pages/data_page.py:636
 msgid "Skip free-space check (not recommended; use if you accept the risk)"
 msgstr ""
 "Freiraumprüfung überspringen (nicht empfohlen; nur verwenden, wenn Sie das "
 "Risiko in Kauf nehmen)"
 
-#: ui/pages/data_page.py:669
+#: ui/pages/data_page.py:679
 msgid ""
 "Scope note: Deduplicate only processes files inside each class folder's "
 "CONVERTED directory (raw_data/<class>/CONVERTED). Other folders, including "
@@ -2135,24 +2695,24 @@ msgstr ""
 "(raw_data/<class>/CONVERTED). Andere Ordner, einschließlich „IMAGES“ und "
 "Dienstprogrammverzeichnisse auf der obersten Ebene, werden nicht durchsucht."
 
-#: ui/pages/data_page.py:742 ui/pages/pipeline_config_page.py:340
+#: ui/pages/data_page.py:756 ui/pages/pipeline_config_page.py:340
 msgid "Fixed count per class"
 msgstr "Feste Anzahl pro Klasse"
 
-#: ui/pages/data_page.py:743 ui/pages/pipeline_config_page.py:341
+#: ui/pages/data_page.py:757 ui/pages/pipeline_config_page.py:341
 msgid "Dataset-weighted (modulated)"
 msgstr "Datensatzgewichtet (moduliert)"
 
-#: ui/pages/data_page.py:747
+#: ui/pages/data_page.py:761
 msgid "Same as test per class"
 msgstr "Wie Testanzahl pro Klasse"
 
-#: ui/pages/data_page.py:756
+#: ui/pages/data_page.py:770
 msgid "Skip free-space check on output drive (not recommended)"
 msgstr ""
 "Freiraumprüfung auf dem Ausgabelaufwerk überspringen (nicht empfohlen)"
 
-#: ui/pages/data_page.py:779
+#: ui/pages/data_page.py:809
 msgid ""
 "Pick the subcommand, then type any arguments for ``mb data <subcommand> …`` "
 "(line breaks are fine). The active pipeline config path is passed as "
@@ -2166,21 +2726,21 @@ msgstr ""
 "verwenden Sie Strg+C im Terminal, wenn Sie einen langwierigen Auftrag "
 "beenden müssen."
 
-#: ui/pages/data_page.py:786
+#: ui/pages/data_page.py:816
 msgid "Command"
 msgstr "Befehl"
 
-#: ui/pages/data_page.py:788
+#: ui/pages/data_page.py:818
 msgid "Arguments (optional)"
 msgstr "Argumente (optional)"
 
-#: ui/pages/data_page.py:805
+#: ui/pages/data_page.py:835
 msgid "Could not parse arguments (check quotes and line breaks): {err}"
 msgstr ""
 "Argumente konnten nicht analysiert werden (bitte Anführungszeichen und "
 "Zeilenumbrüche überprüfen): {err}"
 
-#: ui/pages/data_page.py:821
+#: ui/pages/data_page.py:851
 msgid ""
 "Copy samples from source subdirectories into class folders under the raw "
 "data root. Skip this tab if your data is already organized as one folder per"
@@ -2191,7 +2751,7 @@ msgstr ""
 "diese Registerkarte, wenn Ihre Daten bereits in einzelnen Ordnern pro Klasse"
 " organisiert sind."
 
-#: ui/pages/data_page.py:825
+#: ui/pages/data_page.py:855
 msgid ""
 "Normalize images to JPEG under each class’s CONVERTED/ folder. Video/GIF "
 "extracts: the frame JPEG is written to CONVERTED/ and a duplicate copy to "
@@ -2206,7 +2766,7 @@ msgstr ""
 "Ordnerbaum auf einem internen oder externen Laufwerk; die Ausgabedateien "
 "bleiben neben den Quelldateien gespeichert."
 
-#: ui/pages/data_page.py:831
+#: ui/pages/data_page.py:861
 msgid ""
 "Remove duplicates and quarantine very small images from class CONVERTED/ "
 "folders only (raw_data/<class>/CONVERTED); other folders are ignored. "
@@ -2220,7 +2780,7 @@ msgstr ""
 "liest diesen Ordner nur, wenn du die Dateien zurück in den Ordner "
 "„CONVERTED/“ kopierst."
 
-#: ui/pages/data_page.py:837
+#: ui/pages/data_page.py:867
 msgid ""
 "Optional: enlarge undersized images from the review area. Outputs go under "
 "upscaled_small_images/; Create Dataset still uses CONVERTED/ only—merge "
@@ -2236,7 +2796,7 @@ msgstr ""
 "überschreiben Sie das Verzeichnis „Review“, wenn sich Ihre "
 "Überprüfungsdateien unter „raw_data/<class>/small_images_review/“ befinden."
 
-#: ui/pages/data_page.py:843
+#: ui/pages/data_page.py:873
 msgid ""
 "After initial Convert (and any JPEG extension repair if needed), optionally "
 "Dedup/Upscale: copies from each class’s CONVERTED/ into train/ and test/ "
@@ -2253,7 +2813,7 @@ msgstr ""
 "endgültigen Datensatz auf Ihrem Hauptlaufwerk abzulegen, während die "
 "Rohdaten auf einem externen Speichermedium verbleiben."
 
-#: ui/pages/data_page.py:849
+#: ui/pages/data_page.py:879
 msgid ""
 "Choose a data subcommand and optional ``mb data …`` arguments in the text "
 "box (same flags as the CLI)."
@@ -2261,7 +2821,7 @@ msgstr ""
 "Wählen Sie einen Datenunterbefehl und die optionalen ``mb data …`` Argumente"
 " im Textfeld (gleiche Flags wie die CLI)."
 
-#: ui/pages/data_page.py:869
+#: ui/pages/data_page.py:899
 msgid ""
 "Gather copies files into timestamped runs under the target dir and tracks "
 "hashes so reruns skip already-seen files. Set raw data dir to the pipeline "
@@ -2273,7 +2833,7 @@ msgstr ""
 "Stammverzeichnis der Pipeline fest, das von späteren Schritten verwendet "
 "wird."
 
-#: ui/pages/data_page.py:873
+#: ui/pages/data_page.py:903
 msgid ""
 "Convert walks class folders, writes CONVERTED/ JPEGs, and records a unified "
 "snapshot. For image classification, videos and multi-frame GIFs may yield a "
@@ -2288,7 +2848,7 @@ msgstr ""
 "Überprüfung dient. Sehr große Bilder werden verkleinert (maximale Breite "
 "4000 Pixel)."
 
-#: ui/pages/data_page.py:879
+#: ui/pages/data_page.py:909
 msgid ""
 "Deduplicate scans only class CONVERTED/ folders, removes duplicate images, "
 "and handles tiny dimensions: removes very small images and moves borderline-"
@@ -2302,7 +2862,7 @@ msgstr ""
 "wo sie optional hochskaliert werden können. Erstelle Datensatzquellen "
 "ausschließlich aus den JPEGs im Ordner „CONVERTED/“."
 
-#: ui/pages/data_page.py:884
+#: ui/pages/data_page.py:914
 msgid ""
 "Optional: reads the small-image review tree and writes upscaled copies under"
 " upscaled_small_images/. Create Dataset does not read that output—copy "
@@ -2315,7 +2875,7 @@ msgstr ""
 "vor dem Ausführen von „create-dataset“ in den Ordner „CONVERTED/“, wenn sie "
 "in den Ordnern „train“ und „test“ erscheinen sollen."
 
-#: ui/pages/data_page.py:889
+#: ui/pages/data_page.py:919
 msgid ""
 "Prerequisite: Convert has been run (CONVERTED/ + snapshot). JPEG extension "
 "repair updates that snapshot for repaired files—you do not need another full"
@@ -2334,7 +2894,7 @@ msgstr ""
 " das Ausgabeverzeichnis auf einer großzügig dimensionierten internen "
 "Festplatte an, wenn sich die Rohdaten auf einem externen Speicher befinden."
 
-#: ui/pages/data_page.py:896
+#: ui/pages/data_page.py:926
 msgid ""
 "Runs ``mb data <subcommand>`` with the optional argument text you provide "
 "(parsed like the shell). The GUI injects ``--config`` when it is not already"
@@ -2344,7 +2904,7 @@ msgstr ""
 "Argumenttext aus (der wie in der Shell interpretiert wird). Die GUI fügt "
 "„--config“ hinzu, falls dieses noch nicht vorhanden ist."
 
-#: ui/pages/data_page.py:913
+#: ui/pages/data_page.py:943
 msgid ""
 "Storage: convert reads and writes under the raw data path you choose "
 "(including on removable drives). Create Dataset copies into the output data "
@@ -2378,20 +2938,20 @@ msgstr ""
 "Dateien zurück in den Ordner „CONVERTED/“. Ausführliche Erläuterung: "
 "docs/DATA_PIPELINE.md."
 
-#: ui/pages/data_page.py:965 ui/pages/evaluate_page.py:367
+#: ui/pages/data_page.py:995 ui/pages/evaluate_page.py:374
 msgid "Select file"
 msgstr "Datei auswählen"
 
-#: ui/pages/data_page.py:967
+#: ui/pages/data_page.py:997
 msgid "All files (*.*)"
 msgstr "Alle Dateien (*.*)"
 
-#: ui/pages/data_page.py:979 ui/pages/data_page.py:995
-#: ui/pages/train_page.py:345
+#: ui/pages/data_page.py:1009 ui/pages/data_page.py:1025
+#: ui/pages/train_page.py:444
 msgid "No snapshot found"
 msgstr "Kein Schnappschuss gefunden"
 
-#: ui/pages/data_page.py:980 ui/pages/train_page.py:346
+#: ui/pages/data_page.py:1010 ui/pages/train_page.py:445
 msgid ""
 "No snapshot_*.json files were found under:\n"
 "{path}"
@@ -2399,7 +2959,7 @@ msgstr ""
 "Unter folgendem Pfad wurden keine Dateien mit der Endung „snapshot_*.json“ gefunden:\n"
 "{path}"
 
-#: ui/pages/data_page.py:996
+#: ui/pages/data_page.py:1026
 msgid ""
 "No snapshot_*.json files were found in the search paths for the current "
 "directories."
@@ -2407,7 +2967,7 @@ msgstr ""
 "In den Suchpfaden der aktuellen Verzeichnisse wurden keine Dateien mit dem "
 "Namen „snapshot_*.json“ gefunden."
 
-#: ui/pages/data_page.py:1011
+#: ui/pages/data_page.py:1056
 msgid ""
 "Optional. Leave empty to start a new conversion run and write a new snapshot file.\n"
 "\n"
@@ -2425,7 +2985,7 @@ msgstr ""
 "  {raw}\n"
 "Beispiel: snapshot_20260408_abc123.json"
 
-#: ui/pages/data_page.py:1026
+#: ui/pages/data_page.py:1071
 msgid ""
 "  (Raw data directory must exist to list class folders; until then, search "
 "still includes the raw dir, its parent, and the output data dir.)"
@@ -2435,7 +2995,7 @@ msgstr ""
 "weiterhin das Rohdatenverzeichnis, dessen übergeordnetes Verzeichnis und das"
 " Ausgabedatenverzeichnis.)"
 
-#: ui/pages/data_page.py:1031
+#: ui/pages/data_page.py:1076
 msgid ""
 "Optional. Leave empty to use the latest unified snapshot found along the search order below.\n"
 "\n"
@@ -2453,7 +3013,7 @@ msgstr ""
 "{paths}\n"
 "Ausgabedatenverzeichnis (als Kontext): {data_dir}"
 
-#: ui/pages/data_page.py:1045
+#: ui/pages/data_page.py:1090
 msgid ""
 "Optional. Same Run ID as Convert / Create Dataset (shared across the Data page). Leave empty to load the latest loadable snapshot under:\n"
 "  {raw}\n"
@@ -2469,31 +3029,31 @@ msgstr ""
 "  snapshot_<run_id>.json\n"
 "in diesem Verzeichnis. Wird verwendet, wenn der Duplikatslöser von der Festplatte geöffnet wird; für den Lauf-Deduplizierer ist keine Lauf-ID erforderlich."
 
-#: ui/pages/data_page.py:1099
+#: ui/pages/data_page.py:1144
 msgid "[ok] {cmd}: inputs look valid"
 msgstr "[ok] {cmd}: Eingaben sind gültig"
 
-#: ui/pages/data_page.py:1103
+#: ui/pages/data_page.py:1148
 msgid "[invalid] {cmd}: {err}"
 msgstr "[ungültig] {cmd}: {err}"
 
-#: ui/pages/data_page.py:1112
+#: ui/pages/data_page.py:1157
 msgid "Source dir does not exist."
 msgstr "Quelldir existiert nicht."
 
-#: ui/pages/data_page.py:1115
+#: ui/pages/data_page.py:1160
 msgid "Provide at least one subdirectory."
 msgstr "Bereitstellen Sie mindestens einen Unterordner."
 
-#: ui/pages/data_page.py:1121
+#: ui/pages/data_page.py:1166
 msgid "Subdir weights must be in subdir:weight format."
 msgstr "Unterordner-Gewichte müssen im Unterordner:Gewicht-Format sein."
 
-#: ui/pages/data_page.py:1142
+#: ui/pages/data_page.py:1187
 msgid "Format must be jpeg or jpg."
 msgstr "Das Format muss jpeg oder jpg sein."
 
-#: ui/pages/data_page.py:1148
+#: ui/pages/data_page.py:1193
 msgid ""
 "Raw data directory must exist when a Run ID is set (snapshot is loaded from "
 "there)."
@@ -2501,7 +3061,7 @@ msgstr ""
 "Das Verzeichnis für die Rohdaten muss vorhanden sein, wenn eine Lauf-ID "
 "festgelegt wird (der Snapshot wird von dort geladen)."
 
-#: ui/pages/data_page.py:1152
+#: ui/pages/data_page.py:1197
 msgid ""
 "No loadable unified snapshot for Run ID {rid!r}. Expected {name} under:\n"
 "  {dir}"
@@ -2509,11 +3069,11 @@ msgstr ""
 "Es ist kein einheitlicher Snapshot für die Lauf-ID {rid!r} verfügbar. Erwartet wird {name} unter:\n"
 "  {dir}"
 
-#: ui/pages/data_page.py:1179
+#: ui/pages/data_page.py:1225
 msgid "Raw data dir does not exist."
 msgstr "Das Raw Data-Verzeichnis existiert nicht."
 
-#: ui/pages/data_page.py:1186
+#: ui/pages/data_page.py:1240
 msgid ""
 "No loadable unified snapshot for Run ID {rid!r} in the search paths (see the"
 " Run ID field tooltip for locations checked)."
@@ -2522,15 +3082,15 @@ msgstr ""
 " {rid!r} gefunden (die überprüften Speicherorte finden Sie im Tooltip des "
 "Felds „Lauf-ID“)."
 
-#: ui/pages/data_page.py:1252 ui/pages/data_page.py:1277
+#: ui/pages/data_page.py:1307 ui/pages/data_page.py:1332
 msgid "Skipped (free-space estimate not run)."
 msgstr "Übersprungen (Freiraumschätzung nicht durchgeführt)."
 
-#: ui/pages/data_page.py:1260 ui/pages/data_page.py:1288
+#: ui/pages/data_page.py:1315 ui/pages/data_page.py:1343
 msgid "Insufficient disk space (estimate)"
 msgstr "Nicht genügend Speicherplatz (Schätzung)"
 
-#: ui/pages/data_page.py:1261 ui/pages/data_page.py:1289
+#: ui/pages/data_page.py:1316 ui/pages/data_page.py:1344
 msgid ""
 "{msg}\n"
 "\n"
@@ -2540,11 +3100,11 @@ msgstr ""
 "\n"
 "Weiterschalten trotzdem?"
 
-#: ui/pages/data_page.py:1306
+#: ui/pages/data_page.py:1361
 msgid "External storage"
 msgstr "externe Speicherung"
 
-#: ui/pages/data_page.py:1308
+#: ui/pages/data_page.py:1363
 msgid ""
 "The target data directory is on external or removable storage, and \"Allow "
 "external storage\" is not checked. Enable it on the Create Dataset tab or "
@@ -2555,45 +3115,45 @@ msgstr ""
 "aktiviert. Aktivieren Sie diese Option auf der Registerkarte „Datensatz "
 "erstellen“ oder wählen Sie ein anderes Datenverzeichnis aus."
 
-#: ui/pages/data_page.py:1318
+#: ui/pages/data_page.py:1373
 msgid "Confirm"
 msgstr "Bestätigen"
 
-#: ui/pages/data_page.py:1319
+#: ui/pages/data_page.py:1374
 msgid "Source and target are on the same drive. Continue dataset creation?"
 msgstr ""
 "Die Quelle und das Ziel befinden sich auf demselben Laufwerk. Soll die "
 "Datensatzerstellung fortgesetzt werden?"
 
-#: ui/pages/data_page.py:1355
+#: ui/pages/data_page.py:1410
 msgid "Data: {cmd}"
 msgstr "Daten: {cmd}"
 
-#: ui/pages/data_page.py:1373
+#: ui/pages/data_page.py:1428
 msgid "Checking free space…"
 msgstr "Überprüfung des freien Platzes…"
 
-#: ui/pages/data_page.py:1377
+#: ui/pages/data_page.py:1432
 msgid "Converting…"
 msgstr "Übersetzend…"
 
-#: ui/pages/data_page.py:1379
+#: ui/pages/data_page.py:1434
 msgid "Creating dataset…"
 msgstr "Dataset erstellen…"
 
-#: ui/pages/data_page.py:1450
+#: ui/pages/data_page.py:1512
 msgid "Running: {line}"
 msgstr "Laufend: {line}"
 
-#: ui/pages/data_page.py:1459
+#: ui/pages/data_page.py:1524
 msgid "[done] Data command completed successfully."
 msgstr "[fertig] Der Datenbefehl wurde erfolgreich ausgeführt."
 
-#: ui/pages/data_page.py:1475
+#: ui/pages/data_page.py:1540
 msgid "[failed] Data command reported failure."
 msgstr "[fehlgeschlagen] Datenbefehl meldete einen Fehler."
 
-#: ui/pages/data_page.py:1487
+#: ui/pages/data_page.py:1552
 msgid ""
 "[stopped] Data command cancelled — partial copies or snapshot updates may "
 "exist; check folders before re-running."
@@ -2602,39 +3162,39 @@ msgstr ""
 "oder Snapshot-Aktualisierungen vorhanden; überprüfen Sie die Ordner, bevor "
 "Sie den Vorgang erneut ausführen."
 
-#: ui/pages/data_page.py:1509
+#: ui/pages/data_page.py:1574
 msgid "Data command failed"
 msgstr "Datenbefehl fehlgeschlagen"
 
-#: ui/pages/data_page.py:1510
+#: ui/pages/data_page.py:1575
 msgid ""
 "A data pipeline step reported an error. See Details for the full message."
 msgstr ""
 "Eine Pipeline-Schritt im Bereich der Datenverarbeitung hat einen Fehler "
 "gemeldet. Siehe Details für die vollständige Meldung."
 
-#: ui/pages/data_page.py:1545
+#: ui/pages/data_page.py:1610
 msgid "[dedup] No loadable snapshot found for duplicate resolver."
 msgstr ""
 "[dedup] Es wurde kein ladbarer Snapshot für den Duplikats-Resolver gefunden."
 
-#: ui/pages/data_page.py:1548
+#: ui/pages/data_page.py:1613
 msgid "[dedup] No potential duplicates were recorded in the snapshot."
 msgstr "[dedup] Im Snapshot wurden keine potenziellen Duplikate festgestellt."
 
-#: ui/pages/data_page.py:1553
+#: ui/pages/data_page.py:1618
 msgid "Duplicates found"
 msgstr "Duplikate gefunden"
 
-#: ui/pages/data_page.py:1554
+#: ui/pages/data_page.py:1619
 msgid "Open duplicate resolver window now?"
 msgstr "Möchten Sie jetzt das Fenster zum Auflösen von Duplikaten öffnen?"
 
-#: ui/pages/data_page.py:1562
+#: ui/pages/data_page.py:1627
 msgid "Invalid raw data directory"
 msgstr "Ungültiges Verzeichnis für Rohdaten"
 
-#: ui/pages/data_page.py:1563
+#: ui/pages/data_page.py:1628
 msgid ""
 "Raw data directory does not exist:\n"
 "{path}"
@@ -2642,11 +3202,11 @@ msgstr ""
 "Das Verzeichnis für die Rohdaten existiert nicht:\n"
 "{path}"
 
-#: ui/pages/data_page.py:1574
+#: ui/pages/data_page.py:1639
 msgid "No snapshot"
 msgstr "Kein Snapshot"
 
-#: ui/pages/data_page.py:1576
+#: ui/pages/data_page.py:1641
 msgid ""
 "No loadable unified snapshot was found under:\n"
 "{path}\n"
@@ -2658,11 +3218,11 @@ msgstr ""
 "\n"
 "Erwartet wurde die Datei „snapshot_<run_id>.json“ (lassen Sie das Feld „Run ID“ leer, um die zuletzt in sortierter Reihenfolge getestete Datei zu verwenden)."
 
-#: ui/pages/data_page.py:1585
+#: ui/pages/data_page.py:1650
 msgid "Nothing to review"
 msgstr "Nichts zu übersetzen"
 
-#: ui/pages/data_page.py:1587
+#: ui/pages/data_page.py:1652
 msgid ""
 "A snapshot loaded, but it does not list any cross-class duplicate groups for"
 " the resolver. Run Deduplicate with list-only if you have not yet, or pick "
@@ -2673,12 +3233,197 @@ msgstr ""
 "der Option „list-only“ aus, falls Sie dies noch nicht getan haben, oder "
 "wählen Sie eine andere Ausführungs-ID aus."
 
-#: ui/pages/evaluate_page.py:82 ui/pages/evaluate_page.py:152
+#: ui/pages/evaluate_page.py:80 ui/pages/evaluate_page.py:159
+msgid "Infer from file"
+msgstr "Dateien von Dateien analysieren"
+
+#: ui/pages/evaluate_page.py:87 ui/pages/evaluate_page.py:158
 #: ui/pages/export_page.py:57 ui/pages/export_page.py:61
 #: ui/pages/export_page.py:113 ui/pages/export_page.py:114
-#: ui/pages/train_page.py:111 ui/pages/train_page.py:193
+#: ui/pages/train_page.py:82 ui/pages/train_page.py:261
 msgid "Auto"
 msgstr "Auto"
+
+#: ui/pages/evaluate_page.py:99 ui/pages/evaluate_page.py:161
+msgid "optional, e.g. cuda or cpu"
+msgstr "optional, z.B. cuda oder cpu"
+
+#: ui/pages/evaluate_page.py:101 ui/pages/evaluate_page.py:146
+msgid "Eval data dir (ImageFolder)"
+msgstr "Eval Datenverzeichnis (ImageFolder)"
+
+#: ui/pages/data_page.py:227 ui/pages/data_page.py:751
+#: ui/pages/evaluate_page.py:102 ui/pages/evaluate_page.py:147
+#: ui/pages/train_page.py:96 ui/pages/train_page.py:217
+msgid "Model type"
+msgstr "Modellart"
+
+#: ui/pages/evaluate_page.py:103 ui/pages/evaluate_page.py:148
+msgid "Model checkpoint"
+msgstr "Modell-Checkpoint"
+
+#: ui/pages/evaluate_page.py:104 ui/pages/evaluate_page.py:149
+#: ui/pages/train_page.py:97 ui/pages/train_page.py:218
+msgid "Framework"
+msgstr "Rahmenwerk"
+
+#: ui/pages/evaluate_page.py:108 ui/pages/evaluate_page.py:153
+#: ui/pages/train_page.py:101 ui/pages/train_page.py:222
+msgid "Batch size"
+msgstr "Losgröße"
+
+#: ui/pages/evaluate_page.py:109 ui/pages/evaluate_page.py:154
+#: ui/pages/pipeline_config_page.py:208 ui/pages/pipeline_config_page.py:456
+msgid "DataLoader workers"
+msgstr "DataLoader-Prozesse"
+
+#: ui/pages/evaluate_page.py:110 ui/pages/evaluate_page.py:155
+msgid "Device"
+msgstr "Gerät"
+
+#: ui/pages/evaluate_page.py:138
+msgid ""
+"Score checkpoints on a labeled split, list disagreements with folder labels,"
+" or compare two models in one pass (CLI: {cmd})."
+msgstr ""
+"Überprüfen Sie Kontrollpunkte in einem beschrifteten Split, listen Sie "
+"Abweichungen bei Ordnerbezeichnungen auf oder vergleichen Sie zwei Modelle "
+"in einem Durchgang (CLI: {cmd})."
+
+#: ui/pages/evaluate_page.py:142
+msgid "Shared with metrics / misclassified"
+msgstr "Mit Metriken geteilt / falsch klassifiziert"
+
+#: ui/pages/evaluate_page.py:160 ui/pages/evaluate_page.py:442
+msgid "Same as primary"
+msgstr "Gleiches wie primär"
+
+#: ui/pages/evaluate_page.py:162
+msgid "Metrics"
+msgstr "Metriken"
+
+#: ui/pages/evaluate_page.py:163
+msgid "Misclassified"
+msgstr "Falsch klassifiziert"
+
+#: ui/pages/evaluate_page.py:164
+msgid "Compare"
+msgstr "Vergleichen"
+
+#: ui/pages/evaluate_page.py:168 ui/pages/evaluate_page.py:420
+msgid "Max rows (0 = no cap)"
+msgstr "Max Zeilen (0 = keine Begrenzung)"
+
+#: ui/pages/evaluate_page.py:168 ui/pages/evaluate_page.py:421
+msgid "Output CSV"
+msgstr "Ausgabe CSV"
+
+#: ui/pages/evaluate_page.py:172 ui/pages/evaluate_page.py:451
+msgid "Model A"
+msgstr "Modell A"
+
+#: ui/pages/evaluate_page.py:173 ui/pages/evaluate_page.py:452
+msgid "Model B"
+msgstr "Modell B"
+
+#: ui/pages/evaluate_page.py:174 ui/pages/evaluate_page.py:453
+msgid "Framework B"
+msgstr "Framework B"
+
+#: ui/pages/evaluate_page.py:175 ui/pages/evaluate_page.py:454
+msgid "Architecture B"
+msgstr "Architektur B"
+
+#: ui/pages/evaluate_page.py:176 ui/pages/evaluate_page.py:455
+msgid "Max disagreement rows (0 = no cap)"
+msgstr "Max ungleichwichten Zeilen (0 = keine Begrenzung)"
+
+#: ui/pages/evaluate_page.py:177 ui/pages/evaluate_page.py:456
+msgid "Output TSV"
+msgstr "Ausgabe TSV"
+
+#: ui/pages/evaluate_page.py:180 ui/pages/evaluate_page.py:181
+#: ui/pages/evaluate_page.py:417 ui/pages/evaluate_page.py:448
+msgid "No cap"
+msgstr "Kein Problem"
+
+#: ui/pages/evaluate_page.py:182 ui/pages/evaluate_page.py:185
+#: ui/pages/evaluate_page.py:187
+msgid "Validate (dry-run)"
+msgstr "Validieren (dry-run)"
+
+#: ui/pages/evaluate_page.py:183
+msgid "Run metrics"
+msgstr "Laufmetriken"
+
+#: ui/pages/evaluate_page.py:186
+msgid "Run misclassified"
+msgstr "Fehlerhaft klassifiziert"
+
+#: ui/pages/evaluate_page.py:188
+msgid "Run compare"
+msgstr "Führen Sie den Vergleich durch"
+
+#: ui/pages/evaluate_page.py:189
+msgid "Evaluation output will appear here."
+msgstr "Die Auswertausgabe wird hier erscheinen."
+
+#: ui/pages/evaluate_page.py:208
+msgid "[info] Adjust paths and choose a tab, then Validate or Run."
+msgstr ""
+"[Info] Passen Sie die Pfade an, wählen Sie eine Registerkarte aus und "
+"klicken Sie dann auf „Überprüfen“ oder „Ausführen“."
+
+#: ui/pages/evaluate_page.py:376
+msgid "Models (*.pth *.pt *.h5 *.keras);;All files (*.*)"
+msgstr "Modelle (*.pth *.pt *.h5 *.keras);;Alle Dateien (*.*)"
+
+#: ui/pages/evaluate_page.py:462
+msgid ""
+"Compare uses the same eval directory, image size, batch, workers, and device"
+" as above. Model A uses the shared architecture; set architecture B if "
+"checkpoint B differs."
+msgstr ""
+"„Compare“ verwendet dasselbe „eval“-Verzeichnis, dieselbe Bildgröße, "
+"denselben Batch, dieselbe Anzahl an Workern und dasselbe Gerät wie oben. "
+"Modell A nutzt die gemeinsame Architektur; wählen Sie Architektur B, falls "
+"sich Checkpoint B unterscheidet."
+
+#: ui/pages/evaluate_page.py:579 ui/pages/evaluate_page.py:606
+msgid "Evaluate"
+msgstr "bewerten"
+
+#: ui/pages/evaluate_page.py:582
+msgid "[run] {cmd}"
+msgstr "[führt] {cmd}"
+
+#: ui/pages/evaluate_page.py:609 ui/pages/evaluate_page.py:627
+msgid "Running…"
+msgstr "Läuft…"
+
+#: ui/pages/evaluate_page.py:639 ui/pages/evaluate_page.py:692
+msgid "[done]"
+msgstr "[fertig]"
+
+#: ui/pages/evaluate_page.py:647 ui/pages/evaluate_page.py:701
+msgid "[done] Exit code 0."
+msgstr "[erledigt] Ab Fehlercode 0."
+
+#: ui/pages/evaluate_page.py:654 ui/pages/evaluate_page.py:708
+msgid "[failed] Exit code {c}."
+msgstr "[fehlgeschlagen] Ausgangscode {c}."
+
+#: ui/pages/evaluate_page.py:717
+msgid "[error] {m}"
+msgstr "[Fehler] {m}"
+
+#: ui/pages/evaluate_page.py:726
+msgid "Evaluate failed"
+msgstr "Auswertung fehlgeschlagen"
+
+#: ui/pages/evaluate_page.py:727
+msgid "The evaluation task reported an error."
+msgstr "Die Beurteilungsaufgabe meldete einen Fehler."
 
 #: ui/pages/export_page.py:70 ui/pages/export_page.py:107
 msgid "Dataset directory"
@@ -2800,6 +3545,14 @@ msgstr "- Modellkonvertierung in ONNX / SafeTensors"
 msgid "- Model bundle export (manifest + deployment artifacts)"
 msgstr "- Export des Modell-Bundles (Manifest + Bereitstellungsartefakte)"
 
+#: ui/pages/home_page.py:125
+msgid ""
+"- Evaluation: metrics, misclassified, compare (shared paths with Train / "
+"Convert / Pipeline)"
+msgstr ""
+"- Evaluation: Metriken, falsch klassifiziert, vergleichen (geteilte Pfade "
+"mit Train / Convert / Pipeline)"
+
 #: ui/pages/home_page.py:127
 msgid "- App shell (App) and ML defaults (Pipeline)"
 msgstr "- App-Shell (App) und ML-Defaults (Pipeline)"
@@ -2823,6 +3576,10 @@ msgstr "Öffne Konvertierung-Seite"
 #: ui/pages/home_page.py:132
 msgid "Open Export Page"
 msgstr "Öffne die Export-Seite"
+
+#: ui/pages/home_page.py:133
+msgid "Open Evaluate Page"
+msgstr "Öffne Bewertungsseite"
 
 #: ui/pages/home_page.py:134
 msgid "Latest unified snapshot"
@@ -2864,7 +3621,7 @@ msgid "Model path"
 msgstr "Modellpfad"
 
 #: ui/pages/info_page.py:57 ui/pages/info_page.py:120
-#: ui/pages/train_page.py:85 ui/pages/train_page.py:167
+#: ui/pages/train_page.py:99 ui/pages/train_page.py:220
 msgid "Data dir"
 msgstr "Daten dir"
 
@@ -2927,7 +3684,7 @@ msgid "Data"
 msgstr "Daten"
 
 #: ui/pages/pipeline_config_page.py:166 ui/pages/pipeline_config_page.py:172
-#: ui/pages/train_page.py:567
+#: ui/pages/train_page.py:694
 msgid "Training"
 msgstr "Training"
 
@@ -3004,12 +3761,12 @@ msgid "Rejected subfolder"
 msgstr "Abgelehnter Unterordner"
 
 #: ui/pages/pipeline_config_page.py:203 ui/pages/pipeline_config_page.py:432
-#: ui/pages/train_page.py:119 ui/pages/train_page.py:183
+#: ui/pages/train_page.py:140 ui/pages/train_page.py:239
 msgid "Frozen epochs"
 msgstr "Eingefrorene Epochen"
 
 #: ui/pages/pipeline_config_page.py:204 ui/pages/pipeline_config_page.py:436
-#: ui/pages/train_page.py:120 ui/pages/train_page.py:184
+#: ui/pages/train_page.py:141 ui/pages/train_page.py:240
 msgid "Unfrozen epochs"
 msgstr "Aufgetaute Epochen"
 
@@ -3024,11 +3781,6 @@ msgstr "Ungefroren LR (max)"
 #: ui/pages/pipeline_config_page.py:207 ui/pages/pipeline_config_page.py:452
 msgid "Unfrozen LR (min)"
 msgstr "Ungefroren LR (min)"
-
-#: ui/pages/evaluate_page.py:104 ui/pages/evaluate_page.py:148
-#: ui/pages/pipeline_config_page.py:208 ui/pages/pipeline_config_page.py:456
-msgid "DataLoader workers"
-msgstr "DataLoader-Prozesse"
 
 #: ui/pages/pipeline_config_page.py:214 ui/pages/pipeline_config_page.py:476
 msgid "Models directory"
@@ -3228,74 +3980,59 @@ msgstr ""
 "Benutzerpipeline auf die standardisierten Defaults zurücksetzen:\n"
 "{path}"
 
-#: ui/pages/train_page.py:80 ui/pages/train_page.py:175
+#: ui/pages/train_page.py:94 ui/pages/train_page.py:231
 msgid "Skip unified snapshot update"
 msgstr "Aktualisierung des einheitlichen Momentaufnahme überspringen"
 
-#: ui/pages/evaluate_page.py:97 ui/pages/evaluate_page.py:141
-#: ui/pages/train_page.py:82 ui/pages/train_page.py:164
-msgid "Model type"
-msgstr "Modellart"
-
-#: ui/pages/evaluate_page.py:99 ui/pages/evaluate_page.py:143
-#: ui/pages/train_page.py:83 ui/pages/train_page.py:165
-msgid "Framework"
-msgstr "Rahmenwerk"
-
-#: ui/pages/train_page.py:86 ui/pages/train_page.py:168
+#: ui/pages/train_page.py:100 ui/pages/train_page.py:221
 msgid "Output dir"
 msgstr "Ausgabeverzeichnis"
 
-#: ui/pages/train_page.py:87 ui/pages/train_page.py:169
+#: ui/pages/train_page.py:105 ui/pages/train_page.py:225
 msgid "Resume checkpoint"
 msgstr "Checkpoint fortsetzen"
 
-#: ui/pages/train_page.py:91 ui/pages/train_page.py:177
+#: ui/pages/train_page.py:109 ui/pages/train_page.py:233
 msgid ""
 "Run training in a separate process (survives closing this app; see log file)"
 msgstr ""
 "Das Training in einem separaten Prozess ausführen (bleibt auch nach dem "
 "Schließen dieser App erhalten; siehe Protokolldatei)"
 
-#: ui/pages/train_page.py:117 ui/pages/train_page.py:194
+#: ui/pages/train_page.py:88 ui/pages/train_page.py:262
 msgid "Config default"
 msgstr "Standard-Konfiguration"
 
-#: ui/pages/train_page.py:121 ui/pages/train_page.py:185
+#: ui/pages/train_page.py:142 ui/pages/train_page.py:241
 msgid "Frozen LR"
 msgstr "Eingefrohen LR"
 
-#: ui/pages/train_page.py:122 ui/pages/train_page.py:186
+#: ui/pages/train_page.py:143 ui/pages/train_page.py:242
 msgid "Unfrozen LR max"
 msgstr "Aufgetaute LR-Max"
 
-#: ui/pages/train_page.py:123 ui/pages/train_page.py:187
+#: ui/pages/train_page.py:144 ui/pages/train_page.py:243
 msgid "Unfrozen LR min"
 msgstr "Aufgetaute LR-Min"
 
-#: ui/pages/evaluate_page.py:103 ui/pages/evaluate_page.py:147
-#: ui/pages/train_page.py:124 ui/pages/train_page.py:188
-msgid "Batch size"
-msgstr "Losgröße"
-
-#: ui/pages/train_page.py:126 ui/pages/train_page.py:190
+#: ui/pages/train_page.py:103 ui/pages/train_page.py:224
 msgid "Num workers"
 msgstr "Anzahl der Arbeitnehmer"
 
-#: ui/pages/train_page.py:130 ui/pages/train_page.py:195
+#: ui/pages/train_page.py:177 ui/pages/train_page.py:263
 msgid "Validate Training Config"
 msgstr "Trainingskonfiguration validieren"
 
-#: ui/pages/train_page.py:132 ui/pages/train_page.py:196
+#: ui/pages/train_page.py:179 ui/pages/train_page.py:264
 msgid "Start Training"
 msgstr "Training starten"
 
-#: ui/pages/train_page.py:143 ui/pages/train_page.py:198
+#: ui/pages/train_page.py:190 ui/pages/train_page.py:266
 msgid "Training validation and execution messages will appear here."
 msgstr ""
 "Die Training-, Validierung- und Ausführungsmeldungen werden hier angezeigt."
 
-#: ui/pages/train_page.py:156
+#: ui/pages/train_page.py:209
 msgid ""
 "Configure framework, architecture, paths, and hyperparameters (training CLI:"
 " {cmd})."
@@ -3303,7 +4040,7 @@ msgstr ""
 "Konfigurieren Sie das Framework, die Architektur, die Pfade und die "
 "Hyperparameter (Trainings-CLI: {cmd})."
 
-#: ui/pages/train_page.py:160
+#: ui/pages/train_page.py:213
 msgid "Core configuration"
 msgstr "Kernkonfiguration"
 
@@ -3311,7 +4048,7 @@ msgstr "Kernkonfiguration"
 msgid "Hyperparameters"
 msgstr "Hyperparameter"
 
-#: ui/pages/train_page.py:203
+#: ui/pages/train_page.py:271
 msgid ""
 "Set Run ID from the newest snapshot_*.json under the data directory (by file"
 " modification time)."
@@ -3319,69 +4056,70 @@ msgstr ""
 "Legen Sie die Lauf-ID anhand der neuesten Datei „snapshot_*.json“ im "
 "Verzeichnis „data“ fest (nach dem Datum der letzten Änderung)."
 
-#: ui/pages/train_page.py:370
+#: ui/pages/train_page.py:469
 msgid "Select checkpoint file"
 msgstr "Wählen Sie die Checkpoint-Datei aus"
 
-#: ui/pages/train_page.py:372
+#: ui/pages/train_page.py:471
 msgid ""
 "Model/checkpoint files (*.pth *.pt *.h5 *.keras *.ckpt);;All files (*.*)"
 msgstr ""
 "Modellsicherungsdateien (*.pth *.pt *.h5 *.keras *.ckpt);; Alle Dateien "
 "(*.*)."
 
-#: ui/pages/train_page.py:397 ui/pages/train_page.py:419
+#: ui/pages/train_page.py:535 ui/pages/train_page.py:557
 msgid "Enter architecture manually"
 msgstr "Geben Sie die Architektur händisch ein"
 
-#: ui/pages/train_page.py:399
+#: ui/pages/train_page.py:537
 msgid "[warn] Unsupported framework for architecture list: {fw}"
 msgstr "[warn] Nicht unterstütztes Framework für die Architekturliste: {fw}"
 
-#: ui/pages/train_page.py:414
+#: ui/pages/train_page.py:552
 msgid "[info] {fw} architectures: {names}"
 msgstr "[Info] {fw} Architekturen: {names}"
 
-#: ui/pages/train_page.py:421
+#: ui/pages/train_page.py:559
 msgid "[warn] Could not load architecture list for {fw}: {err}"
 msgstr ""
 "[warn] Die Architekturstufe für {fw} konnte nicht geladen werden: {err}"
 
-#: ui/pages/train_page.py:443
+#: ui/controllers/train_page_controller.py:75
 msgid "Architecture is required."
 msgstr "Architektur wird benöigt."
 
-#: ui/pages/train_page.py:446
+#: ui/controllers/train_page_controller.py:78
 msgid "Unknown architecture: {a}"
 msgstr "Unbekannte Architektur: {a}"
 
-#: ui/pages/train_page.py:448
+#: ui/controllers/train_page_controller.py:80
+#: ui/controllers/train_page_controller.py:134
 msgid "Data directory does not exist."
 msgstr "Das Datenverzeichnis existiert nicht."
 
-#: ui/pages/train_page.py:452
+#: ui/controllers/train_page_controller.py:84
 msgid "Resume checkpoint path does not exist."
 msgstr "Der Pfad zum Kontrollpunkt für die Wiederaufnahme existiert nicht."
 
-#: ui/pages/train_page.py:483
+#: ui/pages/train_page.py:603
 msgid "[ok] training inputs look valid"
 msgstr "[ok] Trainingseinträge sind gültig"
 
-#: ui/pages/train_page.py:498
+#: ui/pages/train_page.py:618
 msgid "[error] Could not auto-save pipeline config; training cancelled."
 msgstr ""
 "[Fehler] Die Pipeline-Konfiguration konnte nicht automatisch gespeichert "
 "werden; Training abgebrochen."
 
-#: ui/pages/train_page.py:515
+#: ui/pages/train_page.py:641
 msgid "[detached] PID {pid} — log: {log} — args JSON: {args}"
 msgstr "[getrennt] PID {pid} — Protokoll: {log} — Argumente (JSON): {args}"
 
-#: ui/pages/train_page.py:527
+#: ui/pages/train_page.py:653
 msgid "Training started (separate process)"
 msgstr "Training ist gestartet (eigenen Prozess)"
 
-#: ui/pages/train_page.py:529
+#: ui/pages/train_page.py:655
 msgid ""
 "Training is running outside this window. Closing the app does not stop it.\n"
 "\n"
@@ -3405,26 +4143,26 @@ msgstr ""
 "\n"
 "Beenden Sie den Prozess über den Task-Manager oder Ihr Betriebssystem, falls Sie den Vorgang abbrechen müssen."
 
-#: ui/pages/train_page.py:546
+#: ui/pages/train_page.py:672
 msgid "Could not start detached training"
 msgstr "Das detached Training konnte nicht gestartet werden."
 
-#: ui/pages/train_page.py:547
+#: ui/pages/train_page.py:673
 msgid "Failed to launch the training subprocess. See Details for the error."
 msgstr ""
 "Das Launchen des Trainingseinheit-Unterprozesses ist gescheitert. Siehe "
 "Details für die Meldung."
 
-#: ui/pages/train_page.py:584
+#: ui/pages/train_page.py:720
 msgid "Architecture '{arch}' not supported for {fw}. Supported: {sup}"
 msgstr ""
 "Die Architektur „{arch}“ wird für {fw} nicht unterstützt. Unterstützt: {sup}"
 
-#: ui/pages/train_page.py:599
+#: ui/pages/train_page.py:735
 msgid "[done] Training complete. Model saved: {path}"
 msgstr "[erledigt] Training abgeschlossen. Modell gespeichert: {path}"
 
-#: ui/pages/train_page.py:618
+#: ui/pages/train_page.py:754
 msgid ""
 "[stopped] Training cancelled — partial checkpoints may exist; check the "
 "output folder before re-running."
@@ -3433,11 +4171,11 @@ msgstr ""
 "Checkpoints vorhanden; überprüfen Sie den Ausgabeordner, bevor Sie den "
 "Vorgang erneut ausführen."
 
-#: ui/pages/train_page.py:638
+#: ui/pages/train_page.py:774
 msgid "Training failed"
 msgstr "Das Training ist fehlgeschlagen."
 
-#: ui/pages/train_page.py:639
+#: ui/pages/train_page.py:775
 msgid ""
 "Training stopped with an error. See Details for the message from the "
 "trainer."
@@ -3449,737 +4187,398 @@ msgstr ""
 msgid " etc."
 msgstr " u.a."
 
-#: mb/cli/__init__.py:702
-msgid "No evaluate subcommand specified"
-msgstr "Es wurde kein „evaluate“-Unterbefehl angegeben"
+#: mb/info_inspect.py:43
+msgid "ONNX details unavailable (install onnx: pip install onnx)."
+msgstr ""
+"ONNX-Details nicht verfügbar (installieren Sie ONNX: pip install onnx)."
 
-#: mb/cli/__init__.py:706
-msgid "Unknown evaluate subcommand: {cmd}"
-msgstr "Unbekannter Unterbefehl: {cmd}"
+#: mb/info_inspect.py:49
+msgid "Failed to load ONNX: {err}"
+msgstr "Fehler beim Laden von ONNX: {err}"
 
-#: mb/cli/parsing/evaluate.py:16
-msgid "Evaluate trained models or datasets"
-msgstr "Trainierte Modelle oder Datensätze auswerten"
+#: mb/info_inspect.py:79
+msgid "ONNX initializers (weight tensors): {n}"
+msgstr "ONNX-Initialisierer (Gewichtstensoren): {n}"
 
-#: mb/cli/parsing/evaluate.py:18
+#: mb/info_inspect.py:80
+msgid "Embedded weight bytes: {n:,}"
+msgstr "Eingebettete Gewichtsbytes: {n:,}"
+
+#: mb/info_inspect.py:84
+msgid "External-data initializers: {n}"
+msgstr "Initialisierer für externe Daten: {n}"
+
+#: mb/info_inspect.py:89
+msgid "  External file: {path} ({n:,} bytes)"
+msgstr "  Externe Datei: {path} ({n:,} Bytes)"
+
+#: mb/info_inspect.py:95
+msgid "missing"
+msgstr "fehlend"
+
+#: mb/info_inspect.py:97
+msgid "{n:,} bytes declared"
+msgstr "{n:,} Bytes deklariert"
+
+#: mb/info_inspect.py:97
+msgid "size unknown"
+msgstr "Größe unbekannt"
+
+#: mb/info_inspect.py:100
+msgid "  External file {status}: {path} ({detail})"
+msgstr "  Externe Datei {status}: {path} ({detail})"
+
+#: mb/info_inspect.py:110
+msgid "Inputs: {names}"
+msgstr "Eingaben: {names}"
+
+#: mb/info_inspect.py:112
+msgid "Outputs: {names}"
+msgstr "Ausgaben: {names}"
+
+#: mb/info_inspect.py:117
 msgid ""
-"Score a trained classifier on your train/test tree, surface likely labeling "
-"mistakes, or compare two checkpoints on the same data."
+"Warning: no weight tensors found in this ONNX file (graph-only or incomplete"
+" export)."
 msgstr ""
-"Bewerten Sie einen trainierten Klassifikator anhand Ihres "
-"Trainings-/Testbaums, decken Sie mögliche Fehler bei der Klassifizierung auf"
-" oder vergleichen Sie zwei Checkpoints anhand derselben Daten."
+"Warnung: Keine Gewichtstensoren in dieser ONNX-Datei gefunden (nur Graph "
+"oder unvollständiger Export)."
 
-#: mb/cli/parsing/evaluate.py:24
-msgid "Evaluate subcommands"
-msgstr "Unterbefehle bewerten"
-
-#: mb/cli/parsing/evaluate.py:30
-msgid "Compute classification metrics on a labeled split"
-msgstr "Berechnen Sie Klassifikationsmetriken auf einem beschrifteten Split"
-
-#: mb/cli/parsing/evaluate.py:32
+#: mb/info_inspect.py:128
 msgid ""
-"Accuracy, confusion matrix, and per-class counts on an ImageFolder-style "
-"directory (class-named subfolders of images). PyTorch requires "
-"--architecture and a .pth/.pt file."
+"Warning: weights are stored in external data files that are missing next to "
+"the ONNX file."
 msgstr ""
-"Trefferquote, Verwechslungsmatrix und Anzahl pro Klasse in einem Verzeichnis"
-" im ImageFolder-Stil (Unterordner mit Bildern, die nach Klassen benannt "
-"sind). PyTorch benötigt die Option --architecture sowie eine .pth- oder .pt-"
-"Datei."
+"Warnung: Die Gewichte sind in externen Datendateien gespeichert, die neben "
+"der ONNX-Datei fehlen."
 
-#: mb/cli/parsing/evaluate.py:40 mb/cli/parsing/evaluate.py:114
-msgid "Path to trained model file (.pth / .pt / .h5 / .keras)"
-msgstr "Pfad zur Datei des trainierten Modells (.pth / .pt / .h5 / .keras)"
+#: mb/info_inspect.py:140
+msgid "PyTorch details unavailable (install torch)."
+msgstr "PyTorch-Details nicht verfügbar (torch installieren)."
 
-#: mb/cli/parsing/evaluate.py:46 mb/cli/parsing/evaluate.py:120
-#: mb/cli/parsing/evaluate.py:215
-msgid "ImageFolder root (e.g. .../test with one subfolder per class)"
+#: mb/info_inspect.py:148
+msgid "Failed to load PyTorch file: {err}"
+msgstr "Fehler beim Laden der PyTorch-Datei: {err}"
+
+#: mb/info_inspect.py:165
+msgid "State-dict tensors: {n}"
+msgstr "State-Dict-Tensoren: {n}"
+
+#: mb/info_inspect.py:166 mb/info_inspect.py:198
+msgid "Parameters: {n:,}"
+msgstr "Parameter: {n:,}"
+
+#: mb/info_inspect.py:167 mb/info_inspect.py:199
+msgid "Weight bytes: {n:,}"
+msgstr "Gewicht in Bytes: {n:,}"
+
+#: mb/info_inspect.py:170
+msgid "Checkpoint layout: model_state_dict"
+msgstr "Checkpoint-Layout: model_state_dict"
+
+#: mb/info_inspect.py:173
+msgid "Other checkpoint keys: {keys}"
+msgstr "Andere Prüfpunktschlüssel: {keys}"
+
+#: mb/info_inspect.py:181
+msgid "SafeTensors details unavailable (install safetensors)."
+msgstr "SafeTensors-Details nicht verfügbar (safetensors installieren)."
+
+#: mb/info_inspect.py:194
+msgid "Failed to load SafeTensors file: {err}"
+msgstr "SafeTensors-Datei konnte nicht geladen werden: {err}"
+
+#: mb/info_inspect.py:197
+msgid "Tensors: {n}"
+msgstr "Tensoren: {n}"
+
+#: mb/cli/__init__.py:218
+msgid "Image generation dataset creation is not implemented yet."
 msgstr ""
-"Stammverzeichnis des Bildordners (z. B. .../test mit einem Unterordner pro "
-"Klasse)"
-
-#: mb/cli/parsing/evaluate.py:52 mb/cli/parsing/evaluate.py:126
-msgid "Training framework (default: infer from file extension)"
-msgstr "Trainingsrahmen (Standard: aus der Dateiendung ableiten)"
-
-#: mb/cli/parsing/evaluate.py:58 mb/cli/parsing/evaluate.py:132
-msgid ""
-"Model architecture id (required for PyTorch .pth checkpoints, e.g. resnet34)"
-msgstr ""
-"Modellarchitektur-ID (erforderlich für PyTorch-.pth-Checkpoints, z. B. "
-"resnet34)"
-
-#: mb/cli/parsing/evaluate.py:64 mb/cli/parsing/evaluate.py:138
-#: mb/cli/parsing/evaluate.py:245
-msgid "Override class count (default: infer from directory layout)"
-msgstr ""
-"Anzahl der Überschreibungsklassen (Standard: aus der Verzeichnisstruktur "
-"ableiten)"
-
-#: mb/cli/parsing/evaluate.py:70 mb/cli/parsing/evaluate.py:144
-#: mb/cli/parsing/evaluate.py:251
-msgid "Pipeline model type (default: image_classification)"
-msgstr "Pipeline-Modelltyp (Standard: image_classification)"
-
-#: mb/cli/parsing/evaluate.py:76 mb/cli/parsing/evaluate.py:150
-#: mb/cli/parsing/evaluate.py:257
-msgid "Square input size (default: 224)"
-msgstr "Quadratische Eingabegröße (Standard: 224)"
-
-#: mb/cli/parsing/evaluate.py:82 mb/cli/parsing/evaluate.py:156
-#: mb/cli/parsing/evaluate.py:263
-msgid "Batch size (default: 32)"
-msgstr "Batchesize (Standard: 32)"
-
-#: mb/cli/parsing/evaluate.py:88 mb/cli/parsing/evaluate.py:162
-#: mb/cli/parsing/evaluate.py:269
-msgid "DataLoader workers for PyTorch (default: 0)"
-msgstr "DataLoader-Arbeiter für PyTorch (Standard: 0)"
-
-#: mb/cli/parsing/evaluate.py:94 mb/cli/parsing/evaluate.py:168
-#: mb/cli/parsing/evaluate.py:275
-msgid "PyTorch device override, e.g. cuda or cpu (default: auto)"
-msgstr "PyTorch-Geräteübersteuerung, z. B. CUDA oder CPU (Standard: „auto“)"
-
-#: mb/cli/parsing/evaluate.py:99 mb/cli/parsing/evaluate.py:186
-#: mb/cli/parsing/evaluate.py:296
-msgid "Validate arguments and exit without running inference"
-msgstr "Argumente validieren und beenden, ohne die Inferenz auszuführen"
-
-#: mb/cli/parsing/evaluate.py:104
-msgid "List images whose predicted class differs from the folder label"
-msgstr "Liste der Bilder, deren vorhergesagte Klasse vom Ordnerlabel abweicht"
-
-#: mb/cli/parsing/evaluate.py:106
-msgid ""
-"Compares model predictions to ImageFolder-style on-disk class folders to "
-"surface label noise and borderline samples. Image classification only."
-msgstr ""
-"Vergleicht Modellvorhersagen mit auf der Festplatte gespeicherten "
-"Klassenordnern im ImageFolder-Stil, um Label-Rauschen und Grenzfälle "
-"aufzudecken. Nur für die Bildklassifizierung."
-
-#: mb/cli/parsing/evaluate.py:175
-msgid ""
-"Cap printed / exported misclassified rows (default: no cap; totals still "
-"full)"
-msgstr ""
-"Grenze für abgedruckte / exportierte fehlerhaft klassifizierte Zeilen "
-"(Standard: keine Grenze; Gesamtmenge bleibt vollständig)"
-
-#: mb/cli/parsing/evaluate.py:181
-msgid "Optional CSV path (still prints a summary to stdout)"
-msgstr ""
-"Optionaler CSV-Pfad (zeigt den Zusammenfassung trotzdem auf stdout an)"
-
-#: mb/cli/parsing/evaluate.py:191
-msgid ""
-"Compare two models on the same labeled split (paired outcomes & "
-"disagreements)"
-msgstr ""
-"Vergleiche zwei Modelle anhand derselben beschrifteten Aufteilung (gepaarte "
-"Ergebnisse und Diskrepanzen)"
-
-#: mb/cli/parsing/evaluate.py:193
-msgid ""
-"Runs both checkpoints on the same ImageFolder split in lockstep: top-1 "
-"accuracy each, a 2×2-style breakdown (both correct, only A, only B, both "
-"wrong vs folder labels), and how often A and B disagree on the predicted "
-"class. PyTorch and Keras supported when both files use the same framework."
-msgstr ""
-"Führt beide Prüfpunkte auf demselben ImageFolder im Gleichschritt durch: "
-"jeweils die Genauigkeit der Top-1-Vorhersage, eine Aufschlüsselung im "
-"2×2-Format (beide richtig, nur A, nur B, beide falsch im Vergleich zu den "
-"Ordnerbezeichnungen) und die Häufigkeit, mit der A und B bei der "
-"vorhergesagten Klasse voneinander abweichen. PyTorch und Keras werden "
-"unterstützt, wenn beide Dateien dasselbe Framework verwenden."
-
-#: mb/cli/parsing/evaluate.py:203
-msgid "Path to first model file (.pth / .pt / .h5 / .keras)"
-msgstr "Pfad zur ersten Modell-Datei (.pth / .pt / .h5 / .keras)"
-
-#: mb/cli/parsing/evaluate.py:209
-msgid "Path to second model file (.pth / .pt / .h5 / .keras)"
-msgstr "Pfad zur zweiten Modelldatei (.pth / .pt / .h5 / .keras)"
-
-#: mb/cli/parsing/evaluate.py:221
-msgid ""
-"Training framework hint for both models (default: infer from each file)"
-msgstr ""
-"Hinweis zum Trainingsrahmen für beide Modelle (Standard: aus jeder Datei "
-"ableiten)"
-
-#: mb/cli/parsing/evaluate.py:227
-msgid ""
-"Optional framework hint for model B only (default: same as --framework)"
-msgstr ""
-"Optionaler Rahmenhinweis nur für Modell B (Standard: wie bei --framework)"
-
-#: mb/cli/parsing/evaluate.py:233
-msgid "Model architecture id for PyTorch model A (e.g. resnet34)"
-msgstr "Modellarchitektur-ID für das PyTorch-Modell A (z. B. resnet34)"
-
-#: mb/cli/parsing/evaluate.py:239
-msgid ""
-"Architecture for PyTorch model B when it differs from model A (default: "
-"--architecture)"
-msgstr ""
-"Architektur für das PyTorch-Modell B, wenn es sich von Modell A "
-"unterscheidet (Standard: --architecture)"
-
-#: mb/cli/parsing/evaluate.py:283
-msgid ""
-"Cap printed / exported rows where A and B disagree on class (default: no "
-"cap; totals still full)"
-msgstr ""
-"Zeilen, bei denen A und B hinsichtlich der Klasse nicht übereinstimmen, "
-"werden ausgeblendet bzw. exportiert (Standard: keine Ausblendung; Summen "
-"werden weiterhin vollständig angezeigt)"
-
-#: mb/cli/parsing/evaluate.py:291
-msgid ""
-"Optional TSV path for disagreement rows (summary still prints to stdout)"
-msgstr ""
-"Optionaler TSV-Pfad für Zeilen mit Abweichungen (die Zusammenfassung wird "
-"weiterhin auf stdout ausgegeben)"
-
-#: mb/evaluate/_weights.py:29
-msgid "PyTorch file did not contain a dictionary checkpoint or state_dict."
-msgstr ""
-"Die PyTorch-Datei enthielt weder einen „dictionary checkpoint“ noch ein "
-"„state_dict“."
-
-#: mb/evaluate/_weights.py:39
-msgid ""
-"Unrecognized PyTorch checkpoint layout (expected state_dict keys or "
-"model_state_dict)."
-msgstr ""
-"Unbekanntes PyTorch-Checkpoint-Layout (erwartet wurden "
-"„state_dict“-Schlüssel oder „model_state_dict“)."
-
-#: mb/evaluate/compare.py:34
-msgid "Object detection compare is not implemented yet."
-msgstr "Objekterkennung vergleichen ist nicht implementiert."
-
-#: mb/evaluate/compare.py:35
-msgid "Unsupported model type for compare: {t}"
-msgstr "Ununterstützter Modelltyp für die Vergleichung: {t}"
-
-#: mb/evaluate/compare.py:42
-msgid "Model A: {path} ({fw})"
-msgstr "Modell A: {path} ({fw})"
-
-#: mb/evaluate/compare.py:43
-msgid "Model B: {path} ({fw})"
-msgstr "Modell B: {path} ({fw})"
-
-#: mb/evaluate/compare.py:44 mb/evaluate/metrics.py:42
-#: mb/evaluate/misclassified.py:49
-msgid "Data: {path}"
-msgstr "Daten: {path}"
-
-#: mb/evaluate/compare.py:45 mb/evaluate/metrics.py:44
-msgid "Samples: {n}"
-msgstr "Beispiele: {n}"
-
-#: mb/evaluate/compare.py:46
-msgid "Top-1 accuracy A: {acc:.2f}%"
-msgstr "Top-1 Genauigkeit A: {acc:.2f}%"
-
-#: mb/evaluate/compare.py:47
-msgid "Top-1 accuracy B: {acc:.2f}%"
-msgstr "Top-1 Genauigkeit B: {acc:.2f}%"
-
-#: mb/evaluate/compare.py:50
-msgid "Average loss A: {loss:.4f}"
-msgstr "Durchschnittliche Verluste A: {loss:.4f}"
-
-#: mb/evaluate/compare.py:52
-msgid "Average loss B: {loss:.4f}"
-msgstr "Durchschnittliche Verluste B: {loss:.4f}"
-
-#: mb/evaluate/compare.py:54
-msgid "Paired outcomes vs folder label (each row is one image):"
-msgstr ""
-"Gepaarte Ergebnisse im Vergleich zur Ordnerbezeichnung (jede Zeile "
-"entspricht einem Bild):"
-
-#: mb/evaluate/compare.py:56
-msgid "  both correct: {n} ({pct:.1f}%)"
-msgstr "  beides richtig: {n} ({pct:.1f} %)"
-
-#: mb/evaluate/compare.py:59
-msgid "  only A correct: {n} ({pct:.1f}%)"
-msgstr "  only A correct: {n} ({pct:.1f}%)"
-
-#: mb/evaluate/compare.py:64
-msgid "  only B correct: {n} ({pct:.1f}%)"
-msgstr "  Nur B ist richtig: {n} ({pct:.1f} %)"
-
-#: mb/evaluate/compare.py:69
-msgid "  both wrong: {n} ({pct:.1f}%)"
-msgstr "  beides falsch: {n} ({pct:.1f} %)"
-
-#: mb/evaluate/compare.py:73
-msgid "Prediction disagreement (A class ≠ B class): {n} ({pct:.1f}%)"
-msgstr ""
-"Diskrepanz bei der Vorhersage (Klasse A ≠ Klasse B): {n} ({pct:.1f} %)"
-
-#: mb/evaluate/compare.py:79
-msgid ""
-"Note: disagreement counts images where A and B pick different classes; when "
-"both match the folder label, that still counts as both correct above."
-msgstr ""
-"Hinweis: Als „Uneinigkeit“ gelten Fälle, in denen A und B unterschiedliche "
-"Klassen auswählen; wenn beide die Ordnerbezeichnung übereinstimmen, gilt "
-"dies weiterhin als „beide richtig“."
-
-#: mb/evaluate/compare.py:84
-msgid "Disagreement rows printed: {k}"
-msgstr "Missstimmung Zeilen Druck: {k}"
-
-#: mb/evaluate/compare.py:87
-msgid ""
-"(Use --max-disagreement-report to print more; counts above are for the full "
-"split.)"
-msgstr ""
-"(Verwenden Sie --max-disagreement-report, um weitere Informationen "
-"anzuzeigen; die oben genannten Zahlen beziehen sich auf die vollständige "
-"Aufteilung.)"
-
-#: mb/evaluate/compare.py:151 mb/evaluate/compare.py:187
-msgid "Model A file not found: {path}"
-msgstr "Modell A Datei nicht gefunden: {path}"
-
-#: mb/evaluate/compare.py:154 mb/evaluate/compare.py:190
-msgid "Model B file not found: {path}"
-msgstr "Modell B-Datei nicht gefunden: {path}"
-
-#: mb/evaluate/compare.py:164
-msgid "--architecture is required for PyTorch model A in dry-run validation."
-msgstr ""
-"--architecture ist für das PyTorch-Modell A bei der Trockenlauf-Validierung "
-"erforderlich."
-
-#: mb/evaluate/compare.py:170
-msgid ""
-"Model B is PyTorch: provide --architecture-b or share --architecture in dry-"
-"run."
-msgstr ""
-"Modell B ist PyTorch: geben Sie --architecture-b oder teilen Sie "
-"--architecture in einem Trockenlauf."
-
-#: mb/evaluate/compare.py:174
-msgid ""
-"Dry-run OK: would compare models {a} and {b} on {data} (frameworks "
-"{fa}/{fb})"
-msgstr ""
-"Testlauf erfolgreich: Modelle {a} und {b} sollen anhand der Daten {data} "
-"verglichen werden (Frameworks {fa}/{fb})"
-
-#: mb/evaluate/compare.py:182
-msgid "--max-disagreement-report must be at least 1 when provided."
-msgstr ""
-"--max-disagreement-report muss mindestens 1 sein, wenn es angegeben ist."
-
-#: mb/evaluate/compare.py:197
-msgid ""
-"Compare evaluation failed for model type {mt} (subcommand {sub}). Use two "
-"checkpoints of the same framework on the same ImageFolder split; PyTorch "
-"needs --architecture (A) and optionally --architecture-b. Underlying error: "
-"{err}"
-msgstr ""
-"Der Vergleich der Auswertung für den Modelltyp {mt} (Unterbefehl {sub}) ist "
-"fehlgeschlagen. Verwenden Sie zwei Checkpoints desselben Frameworks auf "
-"derselben ImageFolder-Aufteilung; PyTorch benötigt --architecture (A) und "
-"optional --architecture-b. Grundlegender Fehler: {err}"
-
-#: mb/evaluate/compare.py:214
-msgid "Import error during compare: {err}"
-msgstr "Importfehler während der Vergleich: {err}"
-
-#: mb/evaluate/compare.py:227
-msgid "Wrote {n} disagreement rows to {path}"
-msgstr "hat {n} Diskrepanzenzeilen an {Pfad} geschrieben"
-
-#: mb/evaluate/metrics.py:34
-msgid "Object detection metrics are not implemented yet."
-msgstr "Metriken zur Objekterkennung sind noch nicht implementiert."
-
-#: mb/evaluate/metrics.py:35
-msgid "Unsupported model type for metrics: {t}"
-msgstr "Ununterstützener Modelltyp für Metriken: {t}"
-
-#: mb/evaluate/metrics.py:41 mb/evaluate/misclassified.py:48
-msgid "Model: {path}"
-msgstr "Modell: {Pfad}"
-
-#: mb/evaluate/metrics.py:43 mb/evaluate/misclassified.py:50
-msgid "Framework: {fw}"
-msgstr "Rahmenwerk: {fw}"
-
-#: mb/evaluate/metrics.py:45
-msgid "Top-1 accuracy: {acc:.2f}%"
-msgstr "Top-1 Genauigkeit: {acc:.2f}%"
-
-#: mb/evaluate/metrics.py:48
-msgid "Average loss: {loss:.4f}"
-msgstr "Durchschnittlicher Verlust: {loss:.4f}"
-
-#: mb/evaluate/metrics.py:50
-msgid "Per-class correct / total:"
-msgstr "Pro-Klassen richtig / gesamt:"
-
-#: mb/evaluate/metrics.py:55
-msgid "Confusion matrix (rows=true class, cols=predicted):"
-msgstr ""
-"Verwechslungsmatrix (Zeilen = tatsächliche Klasse, Spalten = vorhergesagte "
-"Klasse):"
-
-#: mb/evaluate/metrics.py:84 mb/evaluate/metrics.py:105
-#: mb/evaluate/misclassified.py:80 mb/evaluate/misclassified.py:101
-msgid "Model file not found: {path}"
-msgstr "Modelldatei nicht gefunden: {path}"
-
-#: mb/evaluate/metrics.py:94 mb/evaluate/misclassified.py:90
-msgid "--architecture is required for PyTorch models in dry-run validation."
-msgstr ""
-"--architecture ist für PyTorch-Modelle bei der Trockenlauf-Validierung "
-"erforderlich."
-
-#: mb/evaluate/metrics.py:97
-msgid "Dry-run OK: would score model {model} on {data} (framework={fw})"
-msgstr ""
-"Testlauf erfolgreich: Würde das Modell {model} auf {data} anwenden "
-"(Framework={fw})"
-
-#: mb/evaluate/metrics.py:120
-msgid "Import error during evaluation: {err}"
-msgstr "Importfehler während der Auswertung: {err}"
-
-#: mb/evaluate/metrics.py:123
-msgid "Evaluation failed: {err}"
-msgstr "Evaluierung fehlgeschlagen: {err}"
-
-#: mb/evaluate/misclassified.py:41
-msgid "Object detection misclassified listing is not implemented yet."
-msgstr ""
-"Die Funktion zur Erkennung falsch klassifizierter Einträge ist noch nicht "
+"Die Erstellung von Datensätzen zur Bildgenerierung ist noch nicht "
 "implementiert."
 
-#: mb/evaluate/misclassified.py:42
-msgid "Unsupported model type for misclassified: {t}"
-msgstr "Nichtunterstützter Modelltyp für fehlklassifizierte: {t}"
+#: mb/cli/__init__.py:355 mb/cli/__init__.py:402
+msgid "Image generation training is not implemented yet."
+msgstr "Bildgenerierungs-Training ist noch nicht implementiert."
 
-#: mb/evaluate/misclassified.py:51
-msgid "Scanned images: {n}"
-msgstr "Gescannte Bilder: {n}"
+#: mb/cli/__init__.py:358
+msgid "Image generation LoRA training is not implemented yet."
+msgstr "Die LoRA-Training für Bildgenerierung ist noch nicht implementiert."
 
-#: mb/evaluate/misclassified.py:52
-msgid "Misclassified (total): {m}"
-msgstr "Falsch klassifiziert (gesamt): {m}"
-
-#: mb/evaluate/misclassified.py:53
-msgid "Rows printed: {k}"
-msgstr ""
-
-#: mb/evaluate/misclassified.py:57
+#: mb/cli/__init__.py:506
 msgid ""
-"(Increase --max-report to print more rows; totals above are for the full "
-"split.)"
+"{path} looks like a LoRA adapter (from `mb train --model-type "
+"image_generation_lora`), not a full model checkpoint — `mb convert` doesn't "
+"apply to it. It's already a portable safetensors artifact, usable directly "
+"(e.g. a diffusers pipeline's load_lora_weights())."
 msgstr ""
-"(Erhöhen Sie den Wert von --max-report, um mehr Zeilen anzuzeigen; die oben "
-"angegebenen Summen beziehen sich auf die gesamte Aufteilung.)"
+"{path} sieht wie ein LoRA-Adapter aus (aus `mb train --model-type "
+"image_generation_lora`), nicht wie ein vollständiger Modell-Checkpoint — `mb"
+" convert` ist darauf nicht anwendbar. Es ist bereits ein tragbares "
+"Safetensors-Artefakt, das direkt verwendet werden kann (z. B. mit "
+"load_lora_weights() einer Diffusers-Pipeline)."
 
-#: mb/evaluate/misclassified.py:93
+#: mb/cli/__init__.py:599
 msgid ""
-"Dry-run OK: would list misclassified for model {model} on {data} "
-"(framework={fw})"
+"{path} looks like a LoRA adapter (from `mb train --model-type "
+"image_generation_lora`), not a full model checkpoint — `mb export bundle` "
+"doesn't apply to it. It's already a portable safetensors artifact, usable "
+"directly (e.g. a diffusers pipeline's load_lora_weights())."
 msgstr ""
-"Testlauf erfolgreich: Liste der falsch klassifizierten Einträge für das "
-"Modell {model} in {data} (Framework={fw})"
+"{path} sieht wie ein LoRA-Adapter (aus `mb train --model-type "
+"image_generation_lora`) aus, nicht wie ein vollständiges Modell-Checkpoint —"
+" `mb export bundle` ist darauf nicht anwendbar. Es ist bereits ein portables"
+" Safetensors-Artefakt, das direkt verwendet werden kann (z. B. "
+"load_lora_weights() einer Diffusers-Pipeline)."
 
-#: mb/evaluate/misclassified.py:110
-msgid "--max-report must be at least 1 when provided."
-msgstr "--max-report muss mindestens 1 sein, wenn angegeben."
-
-#: mb/evaluate/misclassified.py:114
+#: mb/cli/parsing/data.py:301
 msgid ""
-"Misclassified evaluation failed for model type {mt} (subcommand {sub}). This"
-" flow only supports image classification checkpoints that match the dataset "
-"layout, --architecture (PyTorch), and class counts. Underlying error: {err}"
+"Pipeline model type (default: model.default_type). image_classification "
+"builds train/test ImageFolder splits from class subdirectories (all other "
+"options above apply); image_generation_lora instead copies every image "
+"directly under --raw-data-dir (no class folders, no train/test split) plus "
+"its optional .txt caption sidecar into --data-dir, for LoRA fine-tuning of "
+"an image-generation model."
 msgstr ""
-"Die Bewertung der Fehlklassifizierung für den Modelltyp {mt} (Unterbefehl "
-"{sub}) ist fehlgeschlagen. Dieser Ablauf unterstützt nur Checkpoints für die"
-" Bildklassifizierung, die mit dem Layout des Datensatzes, der Architektur "
-"(PyTorch) und der Anzahl der Klassen übereinstimmen. Grundlegender Fehler: "
-"{err}"
+"Pipeline-Modelltyp (Standard: model.default_type). image_classification "
+"erstellt Trainings-/Test-ImageFolder-Aufteilungen aus "
+"Klassenunterverzeichnissen (alle anderen oben genannten Optionen gelten); "
+"image_generation_lora kopiert stattdessen jedes Bild direkt unter --raw-"
+"data-dir (keine Klassenordner, keine Trainings-/Test-Aufteilung) zusammen "
+"mit der optionalen .txt-Beschriftungsdatei in --data-dir, für LoRA-"
+"Feinabstimmung eines Bildgenerierungsmodells."
 
-#: mb/evaluate/misclassified.py:131
-msgid "Import error during misclassified evaluation: {err}"
-msgstr "Importfehler während der verfehlten Bewertung: {err}"
-
-#: mb/evaluate/misclassified.py:142
-msgid "Wrote {n} rows to {path}"
-msgstr "Schrieb {n} Zeilen zu {Pfad}"
-
-#: mb/evaluate/classification/image_compare.py:29
+#: mb/cli/parsing/train.py:37
 msgid ""
-"Compare requires both checkpoints to use the same framework (got {a} vs "
-"{b}). Mixed PyTorch / Keras is not supported yet."
+"Model architecture (e.g., resnet34). For --model-type image_generation_lora,"
+" this instead names the base image-generation model to fine-tune (a local "
+"path or hub id, e.g. a Stable Diffusion checkpoint)."
 msgstr ""
-"Für den Vergleich müssen beide Checkpoints dasselbe Framework verwenden "
-"(entweder {a} oder {b}). Eine gemischte Verwendung von PyTorch und Keras "
-"wird derzeit noch nicht unterstützt."
+"Modellarchitektur (z. B. resnet34). Für --model-type image_generation_lora "
+"gibt dies stattdessen das zu feinabstimmende Basismodell zur Bildgenerierung"
+" an (ein lokaler Pfad oder eine Hub-ID, z. B. ein Stable Diffusion "
+"Checkpoint)."
 
-#: mb/evaluate/classification/image_compare.py:45
-msgid "--architecture is required for PyTorch compare (model A)."
-msgstr "--architecture ist für den PyTorch-Vergleich (Modell A) erforderlich."
-
-#: mb/evaluate/classification/image_compare.py:48
+#: mb/cli/parsing/train.py:86
 msgid ""
-"Model B needs --architecture-b or the same --architecture when B is PyTorch."
+"Image size (default: 224). For --model-type image_generation_lora, this is "
+"the training resolution instead (default: 512)."
 msgstr ""
-"Modell B benötigt --architecture-b oder dieselbe --architecture, wenn B "
-"PyTorch ist."
+"Bildgröße (Standard: 224). Für --model-type image_generation_lora ist dies "
+"stattdessen die Trainingsauflösung (Standard: 512)."
 
-#: mb/evaluate/classification/image_compare.py:58
-#: mb/evaluate/classification/image_compare.py:192
-#: mb/evaluate/classification/image_metrics.py:84
-#: mb/evaluate/classification/image_metrics.py:159
-#: mb/evaluate/classification/image_misclassified.py:39
-#: mb/evaluate/classification/image_misclassified.py:123
-msgid "--num-classes ({n}) does not match directory class count ({c})."
-msgstr ""
-"--num-classes ({n}) stimmt nicht mit der Anzahl der Klassen im Verzeichnis "
-"({c}) überein."
-
-#: mb/evaluate/classification/image_compare.py:175
-msgid "TensorFlow is required for Keras compare: {err}"
-msgstr "TensorFlow wird für die Keras-Vergleich erfordert: {err}"
-
-#: mb/evaluate/classification/image_compare.py:186
-#: mb/evaluate/classification/image_metrics.py:42
-#: mb/evaluate/classification/image_metrics.py:153
-#: mb/evaluate/classification/image_misclassified.py:117
-msgid "No images found under {path}"
-msgstr "Keine Bilder unter {pfad} gefunden"
-
-#: mb/evaluate/classification/image_compare.py:283
-msgid "Unsupported framework for compare: {fw}"
-msgstr "Nicht unterstütztes Framework für den Vergleich: {fw}"
-
-#: mb/evaluate/classification/image_metrics.py:59
-msgid "Could not detect model framework from {path}"
-msgstr "Konnte kein Modellrahmen aus {Pfad} ermitteln"
-
-#: mb/evaluate/classification/image_metrics.py:63
-msgid "Framework {fw} is not supported for metrics (use PyTorch or Keras)."
-msgstr ""
-"Das Framework {fw} wird für Metriken nicht unterstützt (verwenden Sie "
-"PyTorch oder Keras)."
-
-#: mb/evaluate/classification/image_metrics.py:75
-msgid "--architecture is required for PyTorch metrics evaluation."
-msgstr ""
-"--Die Architektur ist für die PyTorch-Metriken-Auswertung erforderlich."
-
-#: mb/evaluate/classification/image_metrics.py:142
-msgid "TensorFlow is required for Keras metrics: {err}"
-msgstr "TensorFlow ist für die Keras-Metriken erforderlich: {err}"
-
-#: mb/evaluate/classification/image_metrics.py:203
-msgid "Unsupported framework for metrics: {fw}"
-msgstr "Nichtunterstützter Framework für Metriken: {fw}"
-
-#: mb/evaluate/classification/image_misclassified.py:30
-msgid "--architecture is required for PyTorch misclassified listing."
-msgstr ""
-"--architecture ist für die Auflistung von Fehlklassifizierungen in PyTorch "
-"erforderlich."
-
-#: mb/evaluate/classification/image_misclassified.py:106
-msgid "TensorFlow is required for Keras misclassified listing: {err}"
-msgstr "Für Keras ist TensorFlow erforderlich. Fehlermeldung: {err}"
-
-#: mb/evaluate/classification/image_misclassified.py:171
-msgid "Unsupported framework for misclassified: {fw}"
-msgstr "Nicht unterstütztes Framework für fehlklassifizierte: {fw}"
-
-#: ui/pages/evaluate_page.py:75 ui/pages/evaluate_page.py:153
-msgid "Infer from file"
-msgstr "Dateien von Dateien analysieren"
-
-#: ui/pages/evaluate_page.py:94 ui/pages/evaluate_page.py:155
-msgid "optional, e.g. cuda or cpu"
-msgstr "optional, z.B. cuda oder cpu"
-
-#: ui/pages/evaluate_page.py:96 ui/pages/evaluate_page.py:140
-msgid "Eval data dir (ImageFolder)"
-msgstr "Eval Datenverzeichnis (ImageFolder)"
-
-#: ui/pages/evaluate_page.py:98 ui/pages/evaluate_page.py:142
-msgid "Model checkpoint"
-msgstr "Modell-Checkpoint"
-
-#: ui/pages/evaluate_page.py:105 ui/pages/evaluate_page.py:149
-msgid "Device"
-msgstr "Gerät"
-
-#: ui/pages/evaluate_page.py:132
+#: mb/cli/parsing/train.py:99
 msgid ""
-"Score checkpoints on a labeled split, list disagreements with folder labels,"
-" or compare two models in one pass (CLI: {cmd})."
+"Random seed. Currently only consumed by --model-type image_generation_lora "
+"(reproducible LoRA weight init and noise sampling)."
 msgstr ""
-"Überprüfen Sie Kontrollpunkte in einem beschrifteten Split, listen Sie "
-"Abweichungen bei Ordnerbezeichnungen auf oder vergleichen Sie zwei Modelle "
-"in einem Durchgang (CLI: {cmd})."
+"Zufälliger Startwert. Derzeit nur von --model-type image_generation_lora "
+"verwendet (reproduzierbare LoRA-Gewichtsinitialisierung und "
+"Rauschabtastung)."
 
-#: ui/pages/evaluate_page.py:136
-msgid "Shared with metrics / misclassified"
-msgstr "Mit Metriken geteilt / falsch klassifiziert"
-
-#: ui/pages/evaluate_page.py:154 ui/pages/evaluate_page.py:424
-msgid "Same as primary"
-msgstr "Gleiches wie primär"
-
-#: ui/pages/evaluate_page.py:156
-msgid "Metrics"
-msgstr "Metriken"
-
-#: ui/pages/evaluate_page.py:157
-msgid "Misclassified"
-msgstr "Falsch klassifiziert"
-
-#: ui/pages/evaluate_page.py:158
-msgid "Compare"
-msgstr "Vergleichen"
-
-#: ui/pages/evaluate_page.py:162 ui/pages/evaluate_page.py:402
-msgid "Max rows (0 = no cap)"
-msgstr "Max Zeilen (0 = keine Begrenzung)"
-
-#: ui/pages/evaluate_page.py:162 ui/pages/evaluate_page.py:403
-msgid "Output CSV"
-msgstr "Ausgabe CSV"
-
-#: ui/pages/evaluate_page.py:166 ui/pages/evaluate_page.py:433
-msgid "Model A"
-msgstr "Modell A"
-
-#: ui/pages/evaluate_page.py:167 ui/pages/evaluate_page.py:434
-msgid "Model B"
-msgstr "Modell B"
-
-#: ui/pages/evaluate_page.py:168 ui/pages/evaluate_page.py:435
-msgid "Framework B"
-msgstr "Framework B"
-
-#: ui/pages/evaluate_page.py:169 ui/pages/evaluate_page.py:436
-msgid "Architecture B"
-msgstr "Architektur B"
-
-#: ui/pages/evaluate_page.py:170 ui/pages/evaluate_page.py:437
-msgid "Max disagreement rows (0 = no cap)"
-msgstr "Max ungleichwichten Zeilen (0 = keine Begrenzung)"
-
-#: ui/pages/evaluate_page.py:171 ui/pages/evaluate_page.py:438
-msgid "Output TSV"
-msgstr "Ausgabe TSV"
-
-#: ui/pages/evaluate_page.py:174 ui/pages/evaluate_page.py:175
-#: ui/pages/evaluate_page.py:399 ui/pages/evaluate_page.py:430
-msgid "No cap"
-msgstr "Kein Problem"
-
-#: ui/pages/evaluate_page.py:176 ui/pages/evaluate_page.py:178
-#: ui/pages/evaluate_page.py:180
-msgid "Validate (dry-run)"
-msgstr "Validieren (dry-run)"
-
-#: ui/pages/evaluate_page.py:177
-msgid "Run metrics"
-msgstr "Laufmetriken"
-
-#: ui/pages/evaluate_page.py:179
-msgid "Run misclassified"
-msgstr "Fehlerhaft klassifiziert"
-
-#: ui/pages/evaluate_page.py:181
-msgid "Run compare"
-msgstr "Führen Sie den Vergleich durch"
-
-#: ui/pages/evaluate_page.py:182
-msgid "Evaluation output will appear here."
-msgstr "Die Auswertausgabe wird hier erscheinen."
-
-#: ui/pages/evaluate_page.py:201
-msgid "[info] Adjust paths and choose a tab, then Validate or Run."
-msgstr ""
-"[Info] Passen Sie die Pfade an, wählen Sie eine Registerkarte aus und "
-"klicken Sie dann auf „Überprüfen“ oder „Ausführen“."
-
-#: ui/pages/evaluate_page.py:369
-msgid "Models (*.pth *.pt *.h5 *.keras);;All files (*.*)"
-msgstr "Modelle (*.pth *.pt *.h5 *.keras);;Alle Dateien (*.*)"
-
-#: ui/pages/evaluate_page.py:444
+#: mb/cli/parsing/train.py:106
 msgid ""
-"Compare uses the same eval directory, image size, batch, workers, and device"
-" as above. Model A uses the shared architecture; set architecture B if "
-"checkpoint B differs."
+"LoRA adapter rank (--model-type image_generation_lora only; default: 16)"
 msgstr ""
-"„Compare“ verwendet dasselbe „eval“-Verzeichnis, dieselbe Bildgröße, "
-"denselben Batch, dieselbe Anzahl an Workern und dasselbe Gerät wie oben. "
-"Modell A nutzt die gemeinsame Architektur; wählen Sie Architektur B, falls "
-"sich Checkpoint B unterscheidet."
+"Rang des LoRA-Adapters (nur bei --model-type image_generation_lora; "
+"Standard: 16)"
 
-#: ui/pages/evaluate_page.py:561 ui/pages/evaluate_page.py:575
-msgid "Evaluate"
-msgstr "bewerten"
-
-#: ui/pages/evaluate_page.py:564
-msgid "[run] {cmd}"
-msgstr "[führt] {Befehl}"
-
-#: ui/pages/evaluate_page.py:578
-msgid "Running…"
-msgstr "Läuft…"
-
-#: ui/pages/evaluate_page.py:589
-msgid "[done]"
-msgstr "{fertig}"
-
-#: ui/pages/evaluate_page.py:598
-msgid "[done] Exit code 0."
-msgstr "[erledigt] Ab Fehlercode 0."
-
-#: ui/pages/evaluate_page.py:605
-msgid "[failed] Exit code {c}."
-msgstr "[fehlgeschlagen] Ausgangscode {c}."
-
-#: ui/pages/evaluate_page.py:614
-msgid "[error] {m}"
-msgstr "[Fehler] {m}"
-
-#: ui/pages/evaluate_page.py:623
-msgid "Evaluate failed"
-msgstr "Auswertung fehlgeschlagen"
-
-#: ui/pages/evaluate_page.py:624
-msgid "The evaluation task reported an error."
-msgstr "Die Beurteilungsaufgabe meldete einen Fehler."
-
-#: ui/pages/home_page.py:125
+#: mb/cli/parsing/train.py:112
 msgid ""
-"- Evaluation: metrics, misclassified, compare (shared paths with Train / "
-"Convert / Pipeline)"
+"LoRA adapter alpha scaling (--model-type image_generation_lora only; "
+"default: same as --lora-rank)"
 msgstr ""
-"- Evaluation: Metriken, falsch klassifiziert, vergleichen (geteilte Pfade "
-"mit Train / Convert / Pipeline)"
+"LoRA-Adapter-Alpha-Skalierung (nur bei --model-type image_generation_lora; "
+"Standard: gleich wie --lora-rank)"
 
-#: ui/pages/home_page.py:133
-msgid "Open Evaluate Page"
-msgstr "Öffne Bewertungsseite"
+#: mb/cli/parsing/train.py:120
+msgid ""
+"Learning rate for the LoRA adapter parameters (--model-type "
+"image_generation_lora only; default: 1e-4). Unrelated to --frozen-"
+"lr/--unfrozen-lr-* (image_classification only)."
+msgstr ""
+"Lernrate für die LoRA-Adapter-Parameter (nur --model-type "
+"image_generation_lora; Standard: 1e-4). Unabhängig von --frozen-"
+"lr/--unfrozen-lr-* (nur image_classification)."
+
+#: mb/cli/parsing/train.py:129
+msgid ""
+"Total optimizer steps to train (--model-type image_generation_lora only; "
+"default: 1000). LoRA training here is step-based, not epoch-based."
+msgstr ""
+"Gesamtschritte des Optimierers für das Training (nur bei --model-type "
+"image_generation_lora; Standard: 1000). Das LoRA-Training ist hier "
+"schrittbasiert, nicht epochenbasiert."
+
+#: mb/cli/parsing/train.py:138
+msgid ""
+"--model-type image_generation_lora only: the base model's architecture "
+"(different architectures load different components and LoRA target layers). "
+"Auto-detected from a local checkpoint's model_index.json when omitted; "
+"required when --architecture is a hub id rather than a local path, since "
+"that can't be auto-detected without a network call. flux (recommended "
+"default), chroma, and stable_diffusion_1x are implemented today — "
+"stable_diffusion_xl, stable_diffusion_3, and z_image_turbo are recognized "
+"but not yet supported."
+msgstr ""
+"--model-type image_generation_lora nur: Die Architektur des Basismodells "
+"(verschiedene Architekturen laden unterschiedliche Komponenten und LoRA-"
+"Zielebenen). Automatisch aus model_index.json eines lokalen Checkpoints "
+"erkannt, wenn weggelassen; erforderlich, wenn --architecture eine Hub-ID und"
+" kein lokaler Pfad ist, da dies ohne Netzwerkaufruf nicht automatisch "
+"erkannt werden kann. flux (empfohlene Standardeinstellung), chroma und "
+"stable_diffusion_1x sind derzeit implementiert — stable_diffusion_xl, "
+"stable_diffusion_3 und z_image_turbo werden erkannt, aber noch nicht "
+"unterstützt."
+
+#: mb/data/lora_dataset.py:112
+msgid "Raw data directory does not exist: {path}"
+msgstr "Verzeichnis für Rohdaten ist nicht vorhanden: {path}"
+
+#: mb/training/lora_diffusion_trainer.py:82
+msgid ""
+"--architecture is required for --model-type image_generation_lora (the base "
+"image-generation model to fine-tune, e.g. a local path or hub id)."
+msgstr ""
+"--architecture ist erforderlich für --model-type image_generation_lora (das "
+"zu feinabstimmende Basisbildgenerierungsmodell, z. B. ein lokaler Pfad oder "
+"eine Hub-ID)."
+
+#: mb/training/lora_diffusion_trainer.py:86
+msgid ""
+"Could not determine the base model's architecture from {path} (no readable "
+"model_index.json, or a hub id rather than a local path). Pass --base-model-"
+"architecture explicitly (one of: {choices})."
+msgstr ""
+"Die Architektur des Basismodells konnte nicht aus {path} ermittelt werden "
+"(keine lesbare model_index.json-Datei oder eine Hub-ID anstelle eines "
+"lokalen Pfads). Übergeben Sie --base-model-architecture explizit (eines von:"
+" {choices})."
+
+#: mb/training/lora_diffusion_trainer.py:91
+msgid ""
+"Base architecture '{arch}' is recognized but not implemented yet — "
+"implemented architectures today: {implemented}."
+msgstr ""
+"Die Basisarchitektur '{arch}' wird erkannt, ist jedoch noch nicht "
+"implementiert — aktuell implementierte Architekturen: {implemented}."
+
+#: mb/training/lora_diffusion_trainer.py:191
+msgid "No prepared images found under {path}"
+msgstr "Keine vorbereiteten Bilder unter {path} gefunden"
+
+#: mb/training/lora_diffusion_trainer.py:534
+msgid ""
+"Image-generation LoRA training requires the 'lora' extras: pip install -e "
+"\".[lora]\" (diffusers, peft, transformers). Underlying error: {err}"
+msgstr ""
+"Das Training von Image-Generation LoRA erfordert die 'lora'-Extras: pip "
+"install -e \".[lora]\" (diffusers, peft, transformers). Zugrundeliegender "
+"Fehler: {err}"
+
+#: mb/training/lora_diffusion_trainer.py:564
+msgid ""
+"--model-type image_generation_lora only supports --framework pytorch (got: "
+"{fw})."
+msgstr ""
+"--model-type image_generation_lora unterstützt nur --framework pytorch "
+"(erhalten: {fw})."
+
+#: mb/training/lora_diffusion_trainer.py:603
+msgid "LoRA training failed: {err}"
+msgstr "LoRA-Training fehlgeschlagen: {err}"
+
+#: mb/training/lora_diffusion_trainer.py:608
+msgid "Training completed successfully. Adapter saved to: {path}"
+msgstr "Training erfolgreich abgeschlossen. Adapter gespeichert unter: {path}"
+
+#: ui/controllers/train_page_controller.py:121
+msgid ""
+"Image-generation LoRA training only supports the PyTorch framework (got: "
+"{fw})."
+msgstr ""
+"Das Training von Bildgenerierungs-LoRAs unterstützt nur das PyTorch-"
+"Framework (Erhalten: {fw})."
+
+#: ui/controllers/train_page_controller.py:129
+msgid ""
+"Base model (a local checkpoint path or hub id) is required for image-"
+"generation LoRA."
+msgstr ""
+"Für das Image-Generation LoRA ist ein Basismodell (ein lokaler Checkpoint-"
+"Pfad oder eine Hub-ID) erforderlich."
+
+#: ui/controllers/train_page_controller.py:143
+msgid ""
+"Could not determine the base model's architecture from {path}. Select one "
+"explicitly."
+msgstr ""
+"Die Architektur des Basismodells konnte nicht aus {path} bestimmt werden. "
+"Wählen Sie eine explizit aus."
+
+#: ui/controllers/train_page_controller.py:149
+msgid "Base architecture '{arch}' is recognized but not implemented yet."
+msgstr ""
+"Basisarchitektur '{arch}' wird erkannt, ist aber noch nicht implementiert."
+
+#: ui/controllers/train_page_controller.py:160
+msgid "Seed must be an integer."
+msgstr "Seed muss eine ganze Zahl sein."
+
+#: ui/pages/evaluate_page.py:184
+msgid "Confusion matrix (rows = true class, cols = predicted)"
+msgstr ""
+"Konfusionsmatrix (Zeilen = tatsächliche Klasse, Spalten = vorhergesagte)"
+
+#: ui/pages/train_page.py:152 ui/pages/train_page.py:258
+msgid "Auto-detect"
+msgstr "Automatisch erkennen"
+
+#: ui/pages/train_page.py:160 ui/pages/train_page.py:259
+msgid "Same as rank"
+msgstr "Gleich wie Rang"
+
+#: ui/pages/train_page.py:166 ui/pages/train_page.py:260
+msgid "optional, integer"
+msgstr "optional, Ganzzahl"
+
+#: ui/pages/train_page.py:168 ui/pages/train_page.py:250
+msgid "Base model architecture"
+msgstr "Basis-Modellarchitektur"
+
+#: ui/pages/train_page.py:169 ui/pages/train_page.py:251
+msgid "LoRA rank"
+msgstr "LoRA-Rang"
+
+#: ui/pages/train_page.py:170 ui/pages/train_page.py:252
+msgid "LoRA alpha"
+msgstr "LoRA-Alpha"
+
+#: ui/pages/train_page.py:171 ui/pages/train_page.py:253
+msgid "Learning rate"
+msgstr "Lernrate"
+
+#: ui/pages/train_page.py:172 ui/pages/train_page.py:254
+msgid "Max train steps"
+msgstr "Maximale Trainingsschritte"
+
+#: ui/pages/train_page.py:173 ui/pages/train_page.py:255
+msgid "Seed"
+msgstr "Startwert"
+
+#: ui/pages/train_page.py:235
+msgid "Hyperparameters (image classification)"
+msgstr "Hyperparameter (Bildklassifizierung)"
+
+#: ui/pages/train_page.py:246
+msgid "Hyperparameters (image generation LoRA)"
+msgstr "Hyperparameter (Bildgenerierungs-LoRA)"
+
+#: ui/pages/train_page.py:529
+msgid "local checkpoint path or hub id, e.g. black-forest-labs/FLUX.1-dev"
+msgstr "lokaler Prüfpfad oder Hub-ID, z. B. black-forest-labs/FLUX.1-dev"
+
+#: ui/pages/train_page.py:701
+msgid "Training LoRA adapter…"
+msgstr "Training LoRA-Adapter…"

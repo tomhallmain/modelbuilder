@@ -7,6 +7,11 @@ from pathlib import Path
 import pytest
 
 from mb.info_inspect import dataset_info_text, model_info_text
+from mb.utils.translations import _
+
+_NO_WEIGHTS_WARNING = _(
+    "Warning: no weight tensors found in this ONNX file (graph-only or incomplete export)."
+)
 
 
 def test_model_info_text_missing_file(tmp_path: Path) -> None:
@@ -54,7 +59,7 @@ def test_model_info_text_onnx_reports_initializers_and_weight_bytes(tmp_path: Pa
     text = model_info_text(path)
     assert "1" in text  # initializer count
     assert f"{weights.nbytes:,}" in text or str(weights.nbytes) in text
-    assert "warning" not in text.lower()
+    assert _NO_WEIGHTS_WARNING.lower() not in text.lower()
 
 
 def test_model_info_text_onnx_graph_only_warns(tmp_path: Path) -> None:
@@ -74,7 +79,7 @@ def test_model_info_text_onnx_graph_only_warns(tmp_path: Path) -> None:
 
     text = model_info_text(path)
     assert "0" in text
-    assert "warning" in text.lower()
+    assert _NO_WEIGHTS_WARNING.lower() in text.lower()
 
 
 def test_model_info_text_pytorch_state_dict(tmp_path: Path) -> None:

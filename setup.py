@@ -47,6 +47,8 @@ setup(
         "pytorch": [
             "torch>=2.0.0",
             "torchvision>=0.15.0",
+            # Used by ``mb convert``/``mb export bundle``/``mb info`` SafeTensors support.
+            "safetensors>=0.4.0",
         ],
         "keras": [
             "tensorflow>=2.10.0",
@@ -55,6 +57,14 @@ setup(
             "onnx>=1.12.0",
             # torch.onnx.export (PyTorch 2.x) imports onnxscript internally
             "onnxscript>=0.1.0",
+        ],
+        # Image-generation LoRA training (mb train --model-type image_generation_lora).
+        # PyTorch only; install "pytorch" alongside this.
+        "lora": [
+            "diffusers>=0.30.0",  # Flux support
+            "peft>=0.10.0",
+            "transformers>=4.30.0",
+            "safetensors>=0.4.0",
         ],
         "post-quantum": [
             "liboqs-python @ git+https://github.com/open-quantum-safe/liboqs-python.git",
@@ -70,6 +80,10 @@ setup(
             "tensorflow>=2.10.0",
             "onnx>=1.12.0",
             "onnxscript>=0.1.0",
+            "safetensors>=0.4.0",
+            "diffusers>=0.30.0",  # Flux support
+            "peft>=0.10.0",
+            "transformers>=4.30.0",
         ],
     },
     entry_points={

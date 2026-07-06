@@ -11,7 +11,7 @@ import pytest
 from PySide6.QtCore import Qt
 
 from mb.data.class_layout import SYNTHETIC_DEFAULT_CLASS_NAMES
-from mb.models.types import ModelBuildStepCommand
+from mb.models.types import ModelBuildStepCommand, ModelType
 from ui.pages.data_page import DataPage
 from ui.task_context import LongTaskContext
 
@@ -41,6 +41,95 @@ def test_data_page_validate_disables_run_when_raw_data_missing(
     page.tabs.setCurrentIndex(4)
     page.dataset_raw_data_dir.setText(str(tmp_path / "missing_raw"))
     page.dataset_data_dir.setText(str(tmp_path / "data"))
+    qtbot.mouseClick(page.btn_validate, Qt.MouseButton.LeftButton)
+    assert not page.btn_run.isEnabled()
+    assert "invalid" in page.output.toPlainText().lower()
+
+
+@pytest.mark.ui
+def test_data_page_dataset_model_type_combo_includes_lora(qtbot) -> None:
+    page = DataPage()
+    qtbot.addWidget(page)
+    values = [page.dataset_model_type.itemText(i) for i in range(page.dataset_model_type.count())]
+    assert ModelType.IMAGE_GENERATION_LORA.value in values
+
+
+@pytest.mark.ui
+def test_data_page_lora_model_type_hides_classification_only_dataset_fields(
+    qtbot, english_gui_locale
+) -> None:
+    """Selecting the LoRA model type on the Create Dataset tab must hide the
+    classification-only rows. This is the scenario that previously raised
+    ``AttributeError: try_from`` (``_on_dataset_model_type_changed`` used a method
+    that doesn't exist on ``ModelType``) as soon as the combo selection changed.
+    """
+    page = DataPage()
+    qtbot.addWidget(page)
+    page.tabs.setCurrentIndex(4)
+    page.show()
+
+    assert page.dataset_test_per_class.isVisible()
+    assert page.dataset_test_split_mode.isVisible()
+    assert page.dataset_test_small_threshold.isVisible()
+    assert page.dataset_seed.isVisible()
+    assert page.dataset_run_id.isVisible()
+    assert page.dataset_max_train.isVisible()
+    assert page.dataset_balance_train.isVisible()
+    assert page.dataset_allow_external.isVisible()
+    assert page.dataset_skip_space.isVisible()
+
+    lora_ix = page.dataset_model_type.findText(ModelType.IMAGE_GENERATION_LORA.value)
+    assert lora_ix >= 0
+    page.dataset_model_type.setCurrentIndex(lora_ix)
+
+    assert not page.dataset_test_per_class.isVisible()
+    assert not page.dataset_test_split_mode.isVisible()
+    assert not page.dataset_test_small_threshold.isVisible()
+    assert not page.dataset_seed.isVisible()
+    assert not page.dataset_run_id.isVisible()
+    assert not page.dataset_max_train.isVisible()
+    assert not page.dataset_balance_train.isVisible()
+    assert not page.dataset_allow_external.isVisible()
+    assert not page.dataset_skip_space.isVisible()
+    # Shared fields stay visible for every model type.
+    assert page.dataset_raw_data_dir.isVisible()
+    assert page.dataset_data_dir.isVisible()
+
+    classification_ix = page.dataset_model_type.findText(ModelType.IMAGE_CLASSIFICATION.value)
+    page.dataset_model_type.setCurrentIndex(classification_ix)
+    assert page.dataset_test_per_class.isVisible()
+    assert page.dataset_balance_train.isVisible()
+
+
+@pytest.mark.ui
+def test_data_page_lora_validate_enables_run_on_create_dataset_tab(
+    qtbot, english_gui_locale, tmp_path: Path
+) -> None:
+    page = DataPage()
+    qtbot.addWidget(page)
+    page.tabs.setCurrentIndex(4)
+    raw = tmp_path / "raw"
+    raw.mkdir()
+    page.dataset_raw_data_dir.setText(str(raw))
+    page.dataset_data_dir.setText(str(tmp_path / "out_data"))
+    lora_ix = page.dataset_model_type.findText(ModelType.IMAGE_GENERATION_LORA.value)
+    page.dataset_model_type.setCurrentIndex(lora_ix)
+    qtbot.mouseClick(page.btn_validate, Qt.MouseButton.LeftButton)
+    assert page.btn_run.isEnabled()
+    assert "look valid" in page.output.toPlainText().lower()
+
+
+@pytest.mark.ui
+def test_data_page_lora_validate_disables_run_when_raw_data_missing(
+    qtbot, english_gui_locale, tmp_path
+) -> None:
+    page = DataPage()
+    qtbot.addWidget(page)
+    page.tabs.setCurrentIndex(4)
+    page.dataset_raw_data_dir.setText(str(tmp_path / "missing_raw"))
+    page.dataset_data_dir.setText(str(tmp_path / "out_data"))
+    lora_ix = page.dataset_model_type.findText(ModelType.IMAGE_GENERATION_LORA.value)
+    page.dataset_model_type.setCurrentIndex(lora_ix)
     qtbot.mouseClick(page.btn_validate, Qt.MouseButton.LeftButton)
     assert not page.btn_run.isEnabled()
     assert "invalid" in page.output.toPlainText().lower()

@@ -3,7 +3,8 @@
 # Or use setuptools extras (same idea):
 #   pip install -e ".[pytorch]"          # torch + torchvision only
 #   pip install -e ".[keras]"            # TensorFlow for Keras trainer
-#   pip install -e ".[all]"              # both frameworks
+#   pip install -e ".[lora]"             # image-generation LoRA training (mb train --model-type image_generation_lora)
+#   pip install -e ".[all]"              # everything above
 
 torch>=2.0.0
 torchvision>=0.15.0
@@ -13,8 +14,19 @@ onnx>=1.12.0
 # Required by torch.onnx.export on PyTorch 2.x (not pulled in via the onnx package)
 onnxscript>=0.1.0
 
+# Used by ``mb convert``/``mb export bundle``/``mb info`` (SafeTensors read/write) and LoRA
+# adapter saving below. Previously an undeclared transitive dependency; declared explicitly now.
+safetensors>=0.4.0
+
 # Keras/TensorFlow — large; only if you use --framework keras
 # tensorflow>=2.10.0
+
+# Image-generation LoRA training (mb train --model-type image_generation_lora, PyTorch only;
+# no mature first-party diffusion/PEFT toolchain exists for Keras/TensorFlow). Large downloads
+# (base diffusion model weights) happen at train time, not at install time.
+# diffusers>=0.30.0 (Flux support; Stable Diffusion 1.x support is available in much older releases too)
+# peft>=0.10.0
+# transformers>=4.30.0
 
 # Advanced / rarely needed
 # onnx-tf>=1.10.0

@@ -204,10 +204,23 @@ def handle_data_upscale(args):
 def handle_data_create_dataset(args):
     """Handle 'mb data create-dataset' command."""
     try:
+        reload_pipeline_config(getattr(args, "config", None), force=True)
+        mt = resolve_model_type_cli(args)
+
+        if mt == ModelType.IMAGE_GENERATION_LORA:
+            from mb.data.lora_dataset import LoraDatasetCreator
+
+            creator_lora = LoraDatasetCreator(raw_data_dir=args.raw_data_dir, data_dir=args.data_dir)
+            success = creator_lora.run()
+            return 0 if success else 1
+
+        if mt == ModelType.IMAGE_GENERATION:
+            logger.error(_("Image generation dataset creation is not implemented yet."))
+            return 1
+
         from mb.utils.storage import check_target_external_storage, check_same_drive
         from mb.data.dataset import confirm_user_action
 
-        reload_pipeline_config(getattr(args, "config", None), force=True)
         ds_opts = resolve_create_dataset_cli(args)
 
         # Storage checks
@@ -338,6 +351,12 @@ def handle_train(args):
         if getattr(args, "train_args_json", None):
             run_args = load_training_run_args_json(args.train_args_json)
             mt_cfg = ModelType.from_pipeline_value(pipeline.get("model.default_type"))
+            if mt_cfg == ModelType.IMAGE_GENERATION:
+                logger.error(_("Image generation training is not implemented yet."))
+                return 1
+            if mt_cfg == ModelType.IMAGE_GENERATION_LORA:
+                logger.error(_("Image generation LoRA training is not implemented yet."))
+                return 1
             if mt_cfg != ModelType.IMAGE_CLASSIFICATION:
                 logger.error(_("Unsupported model type from config: {t}").format(t=mt_cfg.value))
                 return 1
@@ -379,6 +398,13 @@ def handle_train(args):
             return 1
         # Determine model type
         mt = ModelType.from_pipeline_value(args.model_type or pipeline.get("model.default_type"))
+        if mt == ModelType.IMAGE_GENERATION:
+            logger.error(_("Image generation training is not implemented yet."))
+            return 1
+        if mt == ModelType.IMAGE_GENERATION_LORA:
+            from mb.training.lora_diffusion_trainer import run_train_image_generation_lora_cli
+
+            return run_train_image_generation_lora_cli(args, pipeline)
         if mt != ModelType.IMAGE_CLASSIFICATION:
             logger.error(_("Unsupported model type: {t}").format(t=mt.value))
             return 1
@@ -471,7 +497,20 @@ def handle_convert(args):
         if not args.input.exists():
             logger.error(_("Input model file not found: {path}").format(path=args.input))
             return 1
-        
+
+        from mb.models.generation_architectures import looks_like_lora_adapter
+
+        if looks_like_lora_adapter(args.input):
+            logger.error(
+                _(
+                    "{path} looks like a LoRA adapter (from `mb train --model-type "
+                    "image_generation_lora`), not a full model checkpoint — `mb convert` "
+                    "doesn't apply to it. It's already a portable safetensors artifact, "
+                    "usable directly (e.g. a diffusers pipeline's load_lora_weights())."
+                ).format(path=args.input)
+            )
+            return 1
+
         # Check if architecture/num_classes are needed
         source_framework = args.framework
         if source_framework is None:
@@ -550,6 +589,20 @@ def handle_export_bundle(args) -> int:
 
         if not args.input.exists():
             logger.error(_("Input model file not found: {path}").format(path=args.input))
+            return 1
+
+        from mb.models.generation_architectures import looks_like_lora_adapter
+
+        if looks_like_lora_adapter(args.input):
+            logger.error(
+                _(
+                    "{path} looks like a LoRA adapter (from `mb train --model-type "
+                    "image_generation_lora`), not a full model checkpoint — `mb export "
+                    "bundle` doesn't apply to it. It's already a portable safetensors "
+                    "artifact, usable directly (e.g. a diffusers pipeline's "
+                    "load_lora_weights())."
+                ).format(path=args.input)
+            )
             return 1
 
         reload_pipeline_config(getattr(args, "config", None), force=True)

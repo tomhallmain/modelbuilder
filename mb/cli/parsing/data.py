@@ -293,6 +293,18 @@ def register(subparsers) -> None:
             "(heuristic estimate; not recommended)."
         ),
     )
+    dataset_parser.add_argument(
+        "--model-type",
+        default=None,
+        choices=MODEL_TYPE_CLI_CHOICES,
+        help=_(
+            "Pipeline model type (default: model.default_type). image_classification builds "
+            "train/test ImageFolder splits from class subdirectories (all other options above "
+            "apply); image_generation_lora instead copies every image directly under "
+            "--raw-data-dir (no class folders, no train/test split) plus its optional .txt "
+            "caption sidecar into --data-dir, for LoRA fine-tuning of an image-generation model."
+        ),
+    )
 
     # mb data fix-jpeg-extension-mismatch
     fix_jpeg_parser = data_subparsers.add_parser(
