@@ -32,6 +32,56 @@ class MetricsRequest:
     dry_run: bool = False
 
 
+@dataclass(frozen=True)
+class PerClassMetrics:
+    """Precision/recall/F1 for one class, derived from a confusion matrix."""
+
+    name: str
+    support: int
+    """Samples whose true label is this class (confusion-matrix row sum)."""
+    predicted: int
+    """Samples the model assigned to this class (confusion-matrix column sum)."""
+    true_positives: int
+    precision: float
+    recall: float
+    f1: float
+
+    def to_jsonable(self) -> dict[str, Any]:
+        return {
+            "name": self.name,
+            "support": self.support,
+            "predicted": self.predicted,
+            "true_positives": self.true_positives,
+            "precision": self.precision,
+            "recall": self.recall,
+            "f1": self.f1,
+        }
+
+
+@dataclass(frozen=True)
+class AveragedMetrics:
+    """Precision/recall/F1 averaged across classes."""
+
+    precision: float
+    recall: float
+    f1: float
+    n_classes: int
+    """Classes the average was taken over (zero-support classes are excluded)."""
+
+    def to_jsonable(self) -> dict[str, Any]:
+        return {
+            "precision": self.precision,
+            "recall": self.recall,
+            "f1": self.f1,
+            "n_classes": self.n_classes,
+        }
+
+
+def _safe_ratio(numerator: float, denominator: float) -> float:
+    """Zero when the denominator is zero — see :meth:`ClassificationMetricsReport.per_class_metrics`."""
+    return float(numerator) / float(denominator) if denominator else 0.0
+
+
 @dataclass
 class ClassificationMetricsReport:
     """Image-classification metrics on an ImageFolder-style split."""
@@ -48,7 +98,87 @@ class ClassificationMetricsReport:
     per_class_total: list[int] = field(default_factory=list)
     confusion_matrix: list[list[int]] = field(default_factory=list)
 
+    def per_class_metrics(self) -> list[PerClassMetrics]:
+        """
+        Per-class precision/recall/F1 derived from :attr:`confusion_matrix`.
+
+        A metric whose denominator is zero is reported as 0.0 rather than omitted or NaN:
+        a class the model never predicts has no meaningful precision, and 0.0 is the value
+        that keeps the number sortable and comparable across runs. Distinguish the two
+        zero cases by reading :attr:`PerClassMetrics.support` and
+        :attr:`PerClassMetrics.predicted` alongside it — support 0 means the class was
+        absent from the evaluation split, predicted 0 means the model never chose it.
+
+        Returns an empty list when no confusion matrix was recorded.
+        """
+        cm = self.confusion_matrix
+        if not cm:
+            return []
+
+        n = len(cm)
+        out: list[PerClassMetrics] = []
+        for i in range(n):
+            name = self.class_names[i] if i < len(self.class_names) else str(i)
+            tp = int(cm[i][i]) if i < len(cm[i]) else 0
+            support = int(sum(cm[i]))
+            predicted = int(sum(row[i] for row in cm if i < len(row)))
+            precision = _safe_ratio(tp, predicted)
+            recall = _safe_ratio(tp, support)
+            f1 = _safe_ratio(2.0 * precision * recall, precision + recall)
+            out.append(
+                PerClassMetrics(
+                    name=name,
+                    support=support,
+                    predicted=predicted,
+                    true_positives=tp,
+                    precision=precision,
+                    recall=recall,
+                    f1=f1,
+                )
+            )
+        return out
+
+    def macro_averages(self) -> Optional[AveragedMetrics]:
+        """
+        Unweighted mean of per-class metrics over classes present in the split.
+
+        Classes with zero support are excluded rather than averaged in as 0.0. A class
+        absent from the evaluation split has no measured performance, so counting it as a
+        perfect failure would understate the model by an amount that depends only on how
+        the split was built. The per-class table still lists those classes.
+
+        Micro averages are deliberately not reported: for single-label classification,
+        micro precision, recall, and F1 all equal :attr:`accuracy_percent`.
+        """
+        scored = [m for m in self.per_class_metrics() if m.support > 0]
+        if not scored:
+            return None
+        k = len(scored)
+        return AveragedMetrics(
+            precision=sum(m.precision for m in scored) / k,
+            recall=sum(m.recall for m in scored) / k,
+            f1=sum(m.f1 for m in scored) / k,
+            n_classes=k,
+        )
+
+    def weighted_averages(self) -> Optional[AveragedMetrics]:
+        """Support-weighted mean of per-class metrics (zero-support classes contribute nothing)."""
+        scored = [m for m in self.per_class_metrics() if m.support > 0]
+        if not scored:
+            return None
+        total = sum(m.support for m in scored)
+        if total <= 0:
+            return None
+        return AveragedMetrics(
+            precision=sum(m.precision * m.support for m in scored) / total,
+            recall=sum(m.recall * m.support for m in scored) / total,
+            f1=sum(m.f1 * m.support for m in scored) / total,
+            n_classes=len(scored),
+        )
+
     def to_jsonable(self) -> dict[str, Any]:
+        macro = self.macro_averages()
+        weighted = self.weighted_averages()
         return {
             "model_type": self.model_type.value,
             "framework": self.framework.value,
@@ -61,6 +191,9 @@ class ClassificationMetricsReport:
             "per_class_correct": list(self.per_class_correct),
             "per_class_total": list(self.per_class_total),
             "confusion_matrix": [list(row) for row in self.confusion_matrix],
+            "per_class_metrics": [m.to_jsonable() for m in self.per_class_metrics()],
+            "macro_avg": macro.to_jsonable() if macro is not None else None,
+            "weighted_avg": weighted.to_jsonable() if weighted is not None else None,
         }
 
 

@@ -160,8 +160,7 @@ class DataPage(QWidget):
                 "If sources were mislabeled as .jpg, run fix-jpeg-extension-mismatch before Create Dataset "
                 "(it repairs CONVERTED/ and updates the unified snapshot—no separate full Convert needed for that). "
                 "Create Dataset reads training JPEGs from each class’s CONVERTED/ folder only—not from "
-                "small_images_review, upscaled_small_images, or visual_media_review. "
-                "See docs/DATA_PIPELINE.md for storage on external drives and large vs small images."
+                "small_images_review, upscaled_small_images, or visual_media_review."
             )
         )
         self.tabs.setTabText(0, _("Gather"))
@@ -948,8 +947,7 @@ class DataPage(QWidget):
             "Create Dataset globs JPEGs from each class’s CONVERTED/ only. "
             "visual_media_review/ is a duplicate of video/GIF frame outputs for human review—not a second input. "
             "After deduplicate, files that remain only under small_images_review/ (or only under upscaled_small_images/ "
-            "after upscale) are not used unless you copy the ones you want back into CONVERTED/. "
-            "Full discussion: docs/DATA_PIPELINE.md."
+            "after upscale) are not used unless you copy the ones you want back into CONVERTED/."
         )
         if self._intro_tooltip is None:
             self._intro_tooltip = create_tooltip(self._intro, detail)

@@ -85,7 +85,7 @@ def flatten_convert_stats_errors(stats_errors: Any) -> List[str]:
     return out
 
 
-# Backward-friendly alias (see pipeline docs).
+# Backward-compatible alias for callers still using the older, shorter name.
 register_error = register_step_error
 
 

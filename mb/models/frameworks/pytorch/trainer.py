@@ -21,7 +21,8 @@ from mb.training.gui_progress import subepoch_progress_emit
 from mb.models.frameworks.pytorch.data_loader import create_data_loaders
 from mb.models.frameworks.pytorch.architectures import create_resnet, create_efficientnet
 from mb.models.frameworks.registry import get_architecture, list_architectures
-from mb.models.types import ArchitectureType, FrameworkType
+from mb.models.types import ArchitectureType, ClassWeightingMode, FrameworkType
+from mb.training.class_weights import DEFAULT_MAX_CLASS_WEIGHT, resolve_class_weights
 from mb.utils.logging_setup import get_logger
 
 logger = get_logger(__name__)
@@ -181,9 +182,24 @@ class PyTorchTrainer(FrameworkTrainer):
                           f"frozen={frozen_epochs_completed}/{frozen_epochs}, "
                           f"unfrozen={unfrozen_epochs_completed}/{unfrozen_epochs}")
         
-        # Loss and optimizer
-        criterion = nn.CrossEntropyLoss()
-        
+        # Loss and optimizer. Class weights apply to the training loss only: validation
+        # loss stays unweighted so it remains comparable across runs with different
+        # class_weighting settings, which is the comparison the setting exists to support.
+        class_weights = resolve_class_weights(
+            train_loader,
+            ClassWeightingMode.try_from(hyperparams.get('class_weighting'))
+            or ClassWeightingMode.get_default(),
+            max_weight=float(hyperparams.get('class_weight_max') or DEFAULT_MAX_CLASS_WEIGHT),
+            class_names=getattr(getattr(train_loader, 'dataset', None), 'classes', None),
+        )
+        weight_tensor = (
+            torch.tensor(class_weights, dtype=torch.float32, device=self.device)
+            if class_weights
+            else None
+        )
+        criterion = nn.CrossEntropyLoss(weight=weight_tensor)
+        eval_criterion = nn.CrossEntropyLoss()
+
         # Phase 1: Frozen backbone training
         if frozen_epochs_completed < frozen_epochs:
             logger.info(f"Phase 1: Training with frozen backbone ({frozen_epochs} epochs)")
@@ -230,7 +246,7 @@ class PyTorchTrainer(FrameworkTrainer):
 
                 # Validate
                 val_loss, val_acc = self._validate(
-                    model, val_loader, criterion,
+                    model, val_loader, eval_criterion,
                     cancel_event=cancel_event,
                     train_step_count=len(train_loader),
                     on_batch_step=emit,
@@ -249,7 +265,8 @@ class PyTorchTrainer(FrameworkTrainer):
                     frozen_epochs_completed=frozen_epochs_completed,
                     unfrozen_epochs_completed=unfrozen_epochs_completed,
                     best_val_acc=best_val_acc,
-                    phase='frozen'
+                    phase='frozen',
+                    class_weights=class_weights,
                 )
         else:
             logger.info("Frozen phase already completed, skipping")
@@ -298,7 +315,7 @@ class PyTorchTrainer(FrameworkTrainer):
 
                 # Validate
                 val_loss, val_acc = self._validate(
-                    model, val_loader, criterion,
+                    model, val_loader, eval_criterion,
                     cancel_event=cancel_event,
                     train_step_count=len(train_loader),
                     on_batch_step=emit,
@@ -318,7 +335,8 @@ class PyTorchTrainer(FrameworkTrainer):
                     frozen_epochs_completed=frozen_epochs_completed,
                     unfrozen_epochs_completed=unfrozen_epochs_completed,
                     best_val_acc=best_val_acc,
-                    phase='unfrozen'
+                    phase='unfrozen',
+                    class_weights=class_weights,
                 )
         else:
             logger.info("Unfrozen phase already completed, skipping")
@@ -532,9 +550,13 @@ class PyTorchTrainer(FrameworkTrainer):
         frozen_epochs_completed: int,
         unfrozen_epochs_completed: int,
         best_val_acc: float,
-        phase: str
+        phase: str,
+        class_weights: Optional[list] = None,
     ):
         """Save a training checkpoint."""
+        # A loss recorded under class weighting is not comparable to one recorded without
+        # it, so the weights that produced these numbers travel with them.
+        weights = [float(w) for w in class_weights] if class_weights else None
         checkpoint = {
             'epoch': epoch,
             'model_state_dict': model.state_dict(),
@@ -543,13 +565,14 @@ class PyTorchTrainer(FrameworkTrainer):
             'unfrozen_epochs_completed': unfrozen_epochs_completed,
             'best_val_acc': best_val_acc,
             'phase': phase,
+            'class_weights': weights,
             'saved_at': datetime.now().isoformat()
         }
-        
+
         # Save model checkpoint
         checkpoint_path = output_dir / f"checkpoint_epoch_{epoch}.pth"
         torch.save(checkpoint, checkpoint_path)
-        
+
         # Save human-readable metadata only (state dicts contain Tensors and are not JSON-serializable)
         metadata = {
             'epoch': epoch,
@@ -557,6 +580,7 @@ class PyTorchTrainer(FrameworkTrainer):
             'unfrozen_epochs_completed': unfrozen_epochs_completed,
             'best_val_acc': float(best_val_acc),
             'phase': phase,
+            'class_weights': weights,
             'saved_at': checkpoint['saved_at'],
         }
         metadata_path = checkpoint_path.with_suffix('.json')

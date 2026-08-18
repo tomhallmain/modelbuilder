@@ -58,6 +58,11 @@ training:
   unfrozen_lr_min: 0.00001
   num_workers: 12
   store_checkpoints: false
+  # none | inverse_frequency — compensate an imbalanced training set by weighting the
+  # training loss (see mb.training.class_weights). Validation loss stays unweighted.
+  class_weighting: none
+  # Ceiling on any single class weight; used only when class_weighting is inverse_frequency.
+  class_weight_max: 50.0
 
 paths:
   models_dir: data/models

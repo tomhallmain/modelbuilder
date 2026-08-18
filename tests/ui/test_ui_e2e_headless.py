@@ -72,7 +72,10 @@ def _poll_until(
     err_msg: str = "condition not met within timeout",
 ) -> None:
     """
-    Poll without ``qtbot.wait`` / nested ``QEventLoop.exec`` (see module doc).
+    Poll without ``qtbot.wait`` / nested ``QEventLoop.exec``.
+
+    On Windows, hundreds of nested ``QEventLoop.exec`` calls from ``qtbot.wait`` while
+    PyTorch runs in a pool thread has triggered native access violations.
 
     *qtbot* is kept so call sites match pytest-qt style; it is unused here.
     """

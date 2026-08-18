@@ -11,6 +11,7 @@ import time
 from datetime import datetime, timezone
 
 from mb.models.base import FrameworkTrainer
+from mb.models.preprocessing import preprocessing_spec_for, resolve_image_size
 from mb.models.types import FrameworkType, ModelType, get_model_type_handler
 from mb.models.frameworks.pytorch.trainer import PyTorchTrainer
 from mb.models.frameworks.keras.trainer import KerasTrainer
@@ -152,7 +153,12 @@ class ModelTrainer:
                 hyperparams['batch_size'] = cli_hyperparams['batch_size']
         
         # Set defaults and normalize optional/nullable values from config/UI.
-        image_size = hyperparams.get('image_size', 224)
+        image_size = resolve_image_size(
+            architecture,
+            hyperparams.get('image_size', 224),
+            allow_mismatch=bool(hyperparams.get('allow_resolution_mismatch', False)),
+        )
+        preprocessing = preprocessing_spec_for(architecture, image_size)
         try:
             batch_size = int(hyperparams.get('batch_size') or 32)
         except (TypeError, ValueError):
@@ -190,7 +196,8 @@ class ModelTrainer:
             val_dir=val_dir,
             batch_size=batch_size,
             image_size=image_size,
-            num_workers=num_workers
+            num_workers=num_workers,
+            preprocessing=preprocessing,
         )
         
         # Update unified snapshot if requested

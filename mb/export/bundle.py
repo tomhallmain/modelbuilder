@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from mb.conversion.converters import convert_pytorch_to_safetensors, detect_model_framework
+from mb.models.preprocessing import preprocessing_spec_for
 from mb.utils.snapshot import UnifiedSnapshot, find_unified_snapshot
 
 
@@ -382,12 +383,9 @@ def export_bundle(
             "num_classes": resolved_num_classes,
             "class_names": resolved_classes or None,
         },
-        "preprocessing": {
-            "image_size": int(resolved_image_size),
-            "channels": 3,
-            "normalize_mean": [0.485, 0.456, 0.406],
-            "normalize_std": [0.229, 0.224, 0.225],
-        },
+        "preprocessing": preprocessing_spec_for(
+            resolved_architecture, resolved_image_size
+        ).to_manifest_dict(),
         "source_context": {
             "pipeline_model_defaults": {
                 "default_framework": model_cfg.get("default_framework"),

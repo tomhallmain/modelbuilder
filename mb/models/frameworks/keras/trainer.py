@@ -38,7 +38,12 @@ from mb.training.gui_progress import (
 from mb.models.frameworks.keras.data_loader import create_data_generators
 from mb.models.frameworks.keras.architectures import create_resnet, create_efficientnet
 from mb.models.frameworks.registry import get_architecture, list_architectures
-from mb.models.types import ArchitectureType, FrameworkType
+from mb.models.types import ArchitectureType, ClassWeightingMode, FrameworkType
+from mb.training.class_weights import (
+    DEFAULT_MAX_CLASS_WEIGHT,
+    class_weight_dict,
+    resolve_class_weights,
+)
 
 
 class KerasTrainer(FrameworkTrainer):
@@ -188,13 +193,29 @@ class KerasTrainer(FrameworkTrainer):
                           f"frozen={frozen_epochs_completed}/{frozen_epochs}, "
                           f"unfrozen={unfrozen_epochs_completed}/{unfrozen_epochs}")
         
+        # Class weights apply to the training loss only; Keras leaves validation loss
+        # unweighted, which matches the PyTorch trainer and keeps val_loss comparable
+        # across runs with different class_weighting settings.
+        class_weights = resolve_class_weights(
+            train_loader,
+            ClassWeightingMode.try_from(hyperparams.get('class_weighting'))
+            or ClassWeightingMode.get_default(),
+            max_weight=float(hyperparams.get('class_weight_max') or DEFAULT_MAX_CLASS_WEIGHT),
+            class_names=sorted(
+                getattr(train_loader, 'class_indices', {}) or {},
+                key=lambda n: (getattr(train_loader, 'class_indices', {}) or {})[n],
+            )
+            or None,
+        )
+        class_weight = class_weight_dict(class_weights)
+
         # Compile model
         model.compile(
             optimizer=keras.optimizers.Adam(learning_rate=frozen_lr),
             loss='categorical_crossentropy',
             metrics=['accuracy']
         )
-        
+
         # Phase 1: Frozen backbone training
         if frozen_epochs_completed < frozen_epochs:
             logger.info(f"Phase 1: Training with frozen backbone ({frozen_epochs} epochs)")
@@ -243,6 +264,7 @@ class KerasTrainer(FrameworkTrainer):
                 epochs=remaining_frozen,
                 validation_data=val_loader,
                 callbacks=callbacks,
+                class_weight=class_weight,
                 verbose=1
             )
             
@@ -310,6 +332,7 @@ class KerasTrainer(FrameworkTrainer):
                 epochs=remaining_unfrozen,
                 validation_data=val_loader,
                 callbacks=callbacks,
+                class_weight=class_weight,
                 verbose=1
             )
             

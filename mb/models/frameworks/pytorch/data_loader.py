@@ -10,6 +10,7 @@ from torchvision import transforms
 from pathlib import Path
 from typing import Tuple, Optional
 
+from mb.models.preprocessing import DEFAULT_PREPROCESSING, PreprocessingSpec
 from mb.utils.logging_setup import get_logger
 
 logger = get_logger(__name__)
@@ -115,40 +116,55 @@ class ImageFolderDataset(Dataset):
             return torch.zeros(3, 224, 224), label
 
 
-def get_train_transforms(image_size: int = 224) -> transforms.Compose:
+def get_train_transforms(
+    image_size: int = 224,
+    *,
+    preprocessing: Optional[PreprocessingSpec] = None,
+) -> transforms.Compose:
     """
     Get training data transforms with augmentation.
-    
+
     Args:
         image_size: Target image size (assumes square)
-        
+        preprocessing: Normalization contract for the backbone being trained. Defaults to
+            ImageNet statistics, which is what every torchvision backbone expects.
+
     Returns:
         Compose transform for training
     """
+    spec = preprocessing or DEFAULT_PREPROCESSING
     return transforms.Compose([
         transforms.Resize((image_size, image_size)),
         transforms.RandomHorizontalFlip(p=0.5),
         transforms.RandomRotation(degrees=10),
         transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # ImageNet stats
+        transforms.Normalize(mean=list(spec.normalize_mean), std=list(spec.normalize_std))
     ])
 
 
-def get_val_transforms(image_size: int = 224) -> transforms.Compose:
+def get_val_transforms(
+    image_size: int = 224,
+    *,
+    preprocessing: Optional[PreprocessingSpec] = None,
+) -> transforms.Compose:
     """
     Get validation/test data transforms (no augmentation).
-    
+
     Args:
         image_size: Target image size (assumes square)
-        
+        preprocessing: Normalization contract for the backbone being evaluated. Must match
+            what training used, or scores are measured on a different input distribution
+            than the model was fitted on.
+
     Returns:
         Compose transform for validation
     """
+    spec = preprocessing or DEFAULT_PREPROCESSING
     return transforms.Compose([
         transforms.Resize((image_size, image_size)),
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # ImageNet stats
+        transforms.Normalize(mean=list(spec.normalize_mean), std=list(spec.normalize_std))
     ])
 
 
@@ -159,11 +175,12 @@ def create_data_loaders(
     image_size: int = 224,
     num_workers: int = 0,
     pin_memory: bool = True,
+    preprocessing: Optional[PreprocessingSpec] = None,
     **kwargs
 ) -> Tuple[DataLoader, DataLoader]:
     """
     Create PyTorch data loaders for training and validation.
-    
+
     Args:
         train_dir: Path to training data directory
         val_dir: Path to validation/test data directory
@@ -171,20 +188,21 @@ def create_data_loaders(
         image_size: Target image size (assumes square)
         num_workers: Number of worker processes for data loading
         pin_memory: Whether to pin memory for faster GPU transfer
+        preprocessing: Normalization contract for the backbone (default: ImageNet)
         **kwargs: Additional arguments (ignored for now)
-        
+
     Returns:
         Tuple of (train_loader, val_loader)
     """
     # Create datasets
     train_dataset = ImageFolderDataset(
         root=train_dir,
-        transform=get_train_transforms(image_size)
+        transform=get_train_transforms(image_size, preprocessing=preprocessing)
     )
-    
+
     val_dataset = ImageFolderDataset(
         root=val_dir,
-        transform=get_val_transforms(image_size)
+        transform=get_val_transforms(image_size, preprocessing=preprocessing)
     )
     
     # Verify classes match

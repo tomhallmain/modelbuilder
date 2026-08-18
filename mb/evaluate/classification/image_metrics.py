@@ -16,6 +16,7 @@ from mb.conversion.converters import detect_model_framework
 from mb.data.file_types import configured_media_suffixes
 from mb.evaluate._contracts import ClassificationMetricsReport, MetricsRequest
 from mb.evaluate._weights import extract_pytorch_state_dict
+from mb.models.preprocessing import preprocessing_spec_for
 from mb.models.types import FrameworkType, ModelType
 from mb.utils.logging_setup import get_logger
 from mb.utils.translations import _
@@ -27,15 +28,24 @@ def _extensions_tuple() -> tuple[str, ...]:
     return tuple(sorted(configured_media_suffixes()))
 
 
-def _build_imagefolder_torch(data_dir: Path, image_size: int, batch_size: int, num_workers: int):
+def _build_imagefolder_torch(
+    data_dir: Path,
+    image_size: int,
+    batch_size: int,
+    num_workers: int,
+    architecture: Optional[str] = None,
+):
     from torch.utils.data import DataLoader
 
     from mb.models.frameworks.pytorch.data_loader import ImageFolderDataset, get_val_transforms
 
+    # Normalization must match what training applied for the same architecture, or the
+    # model is scored on a different input distribution than it was fitted on.
+    preprocessing = preprocessing_spec_for(architecture, image_size)
     exts = _extensions_tuple()
     ds = ImageFolderDataset(
         root=data_dir,
-        transform=get_val_transforms(image_size),
+        transform=get_val_transforms(image_size, preprocessing=preprocessing),
         extensions=exts,
     )
     if len(ds) == 0:
@@ -75,7 +85,7 @@ def run_image_classification_metrics_pytorch(req: MetricsRequest) -> Classificat
         raise ValueError(_("--architecture is required for PyTorch metrics evaluation."))
 
     ds, loader = _build_imagefolder_torch(
-        req.data_dir, req.image_size, req.batch_size, req.num_workers
+        req.data_dir, req.image_size, req.batch_size, req.num_workers, req.architecture
     )
     class_names = list(ds.classes)
     n_classes = len(class_names)

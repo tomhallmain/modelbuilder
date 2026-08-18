@@ -34,7 +34,7 @@ from mb.pipeline_config import (
     reload_pipeline_config,
     save_pipeline_yaml,
 )
-from mb.models.types import ArchitectureType, FrameworkType, ModelType
+from mb.models.types import ArchitectureType, ClassWeightingMode, FrameworkType, ModelType
 from mb.utils.logging_setup import get_logger
 from ui.lib.directory_line_edit_row import make_directory_line_edit_row
 from ui.lib.form_layout_i18n import apply_qform_label_column
@@ -206,6 +206,8 @@ class PipelineConfigPage(QWidget):
                 _("Unfrozen LR (max)"),
                 _("Unfrozen LR (min)"),
                 _("DataLoader workers"),
+                _("Class weighting"),
+                _("Max class weight"),
                 "",
             ],
         )
@@ -455,6 +457,16 @@ class PipelineConfigPage(QWidget):
         self._t_workers.setRange(0, 256)
         form.addRow(_("DataLoader workers"), self._t_workers)
 
+        self._t_class_weighting = QComboBox()
+        for mode in ClassWeightingMode:
+            self._t_class_weighting.addItem(mode.value, mode.value)
+        form.addRow(_("Class weighting"), self._t_class_weighting)
+
+        self._t_class_weight_max = QDoubleSpinBox()
+        self._t_class_weight_max.setRange(1.0, 10_000.0)
+        self._t_class_weight_max.setDecimals(2)
+        form.addRow(_("Max class weight"), self._t_class_weight_max)
+
         self._store_ck = QCheckBox()
         form.addRow("", self._store_ck)
 
@@ -559,6 +571,11 @@ class PipelineConfigPage(QWidget):
                 "unfrozen_lr_max": float(self._t_umax.value()),
                 "unfrozen_lr_min": float(self._t_umin.value()),
                 "num_workers": int(self._t_workers.value()),
+                "class_weighting": str(
+                    self._t_class_weighting.currentData()
+                    or ClassWeightingMode.get_default().value
+                ),
+                "class_weight_max": float(self._t_class_weight_max.value()),
                 "store_checkpoints": self._store_ck.isChecked(),
             },
             "paths": {
@@ -616,6 +633,10 @@ class PipelineConfigPage(QWidget):
         self._t_umax.setValue(float(t.get("unfrozen_lr_max") or 0.0))
         self._t_umin.setValue(float(t.get("unfrozen_lr_min") or 0.0))
         self._t_workers.setValue(int(t.get("num_workers") or 0))
+        cw = ClassWeightingMode.try_from(t.get("class_weighting")) or ClassWeightingMode.get_default()
+        cw_idx = self._t_class_weighting.findData(cw.value)
+        self._t_class_weighting.setCurrentIndex(cw_idx if cw_idx >= 0 else 0)
+        self._t_class_weight_max.setValue(float(t.get("class_weight_max") or 50.0))
         self._store_ck.setChecked(bool(t.get("store_checkpoints")))
 
         p = cfg.get("paths") or {}

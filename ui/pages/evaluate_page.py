@@ -181,6 +181,9 @@ class EvaluatePage(QWidget):
         self.cmp_max_dis.setSpecialValueText(_("No cap"))
         self.metrics_validate.setText(_("Validate (dry-run)"))
         self.metrics_run.setText(_("Run metrics"))
+        self.metrics_per_class_label.setText(
+            _("Per-class metrics (averages exclude classes with no samples in the split)")
+        )
         self.metrics_confusion_label.setText(_("Confusion matrix (rows = true class, cols = predicted)"))
         self.mis_validate.setText(_("Validate (dry-run)"))
         self.mis_run.setText(_("Run misclassified"))
@@ -393,6 +396,16 @@ class EvaluatePage(QWidget):
         row.addStretch(1)
         v.addLayout(row)
 
+        self.metrics_per_class_label = QLabel()
+        self.metrics_per_class_label.setWordWrap(True)
+        v.addWidget(self.metrics_per_class_label)
+        self.metrics_per_class_table = QTableWidget()
+        self.metrics_per_class_table.setObjectName("evaluate_metrics_per_class_table")
+        self.metrics_per_class_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.metrics_per_class_table.setSelectionMode(QTableWidget.SelectionMode.NoSelection)
+        v.addWidget(self.metrics_per_class_table, 1)
+        self._populate_per_class_metrics(None)
+
         self.metrics_confusion_label = QLabel()
         self.metrics_confusion_label.setWordWrap(True)
         v.addWidget(self.metrics_confusion_label)
@@ -583,7 +596,8 @@ class EvaluatePage(QWidget):
         self._pending_eval_summary = label
         self._set_busy(True)
         # Stale from a previous real metrics run; cleared up front so a dry-run or a
-        # misclassified/compare run in between doesn't leave an unrelated matrix on screen.
+        # misclassified/compare run in between doesn't leave unrelated results on screen.
+        self._populate_per_class_metrics(None)
         self._populate_confusion_matrix(None)
         if sub == EvaluateSubcommand.METRICS and not dry_run:
             handle = start_task(
@@ -642,6 +656,7 @@ class EvaluatePage(QWidget):
         if text.strip():
             self._append(text.rstrip())
         ok = code == 0
+        self._populate_per_class_metrics(report if ok else None)
         self._populate_confusion_matrix(report if ok else None)
         if ok:
             self._append(_("[done] Exit code 0."))
@@ -658,6 +673,57 @@ class EvaluatePage(QWidget):
                 False,
                 f"exit {code}",
             )
+
+    def _populate_per_class_metrics(self, report: Optional[ClassificationMetricsReport]) -> None:
+        """Fill the per-class precision/recall/F1 table, with macro and weighted rows appended."""
+        table = self.metrics_per_class_table
+        rows = report.per_class_metrics() if report is not None else []
+        if not rows:
+            table.clear()
+            table.setRowCount(0)
+            table.setColumnCount(0)
+            return
+
+        headers = [_("class"), _("precision"), _("recall"), _("f1"), _("support"), _("predicted")]
+        macro = report.macro_averages()
+        weighted = report.weighted_averages()
+        summary = [(_("macro avg"), macro), (_("weighted avg"), weighted)]
+        summary = [(label, avg) for label, avg in summary if avg is not None]
+
+        table.setColumnCount(len(headers))
+        table.setHorizontalHeaderLabels(headers)
+        table.setRowCount(len(rows) + len(summary))
+        table.verticalHeader().setVisible(False)
+
+        def put(r: int, c: int, text: str, *, bold: bool = False) -> None:
+            item = QTableWidgetItem(text)
+            item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)
+            if c > 0:
+                item.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+            if bold:
+                font = item.font()
+                font.setBold(True)
+                item.setFont(font)
+            table.setItem(r, c, item)
+
+        for i, m in enumerate(rows):
+            put(i, 0, m.name)
+            put(i, 1, f"{m.precision:.4f}")
+            put(i, 2, f"{m.recall:.4f}")
+            put(i, 3, f"{m.f1:.4f}")
+            put(i, 4, str(m.support))
+            put(i, 5, str(m.predicted))
+
+        for j, (label, avg) in enumerate(summary):
+            r = len(rows) + j
+            put(r, 0, label, bold=True)
+            put(r, 1, f"{avg.precision:.4f}", bold=True)
+            put(r, 2, f"{avg.recall:.4f}", bold=True)
+            put(r, 3, f"{avg.f1:.4f}", bold=True)
+            put(r, 4, "", bold=True)
+            put(r, 5, "", bold=True)
+
+        table.resizeColumnsToContents()
 
     def _populate_confusion_matrix(self, report: Optional[ClassificationMetricsReport]) -> None:
         table = self.metrics_confusion_table

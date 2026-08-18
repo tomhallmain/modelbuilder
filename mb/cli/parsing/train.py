@@ -6,7 +6,7 @@ from pathlib import Path
 
 from mb.cli.parsing.common import MODEL_TYPE_CLI_CHOICES
 from mb.models.generation_architectures import BaseGenerationArchitecture
-from mb.models.types import FrameworkType, ModelType
+from mb.models.types import ClassWeightingMode, FrameworkType, ModelType
 from mb.utils.constants import ModelBuilderTaskType
 from mb.utils.translations import _
 
@@ -91,6 +91,23 @@ def register(subparsers) -> None:
         "--num-workers",
         type=int,
         help=_("Number of data loading workers (default: from config)"),
+    )
+    train_parser.add_argument(
+        "--class-weighting",
+        choices=[m.value for m in ClassWeightingMode],
+        help=_(
+            "Compensate an imbalanced training set by weighting the training loss "
+            "(image_classification only; default: from config). Validation loss stays "
+            "unweighted so it remains comparable across settings."
+        ),
+    )
+    train_parser.add_argument(
+        "--class-weight-max",
+        type=float,
+        help=_(
+            "Ceiling on any single class weight (--class-weighting inverse_frequency only; "
+            "default: from config)"
+        ),
     )
     train_parser.add_argument(
         "--seed",

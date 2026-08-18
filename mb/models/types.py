@@ -144,6 +144,39 @@ class ArchitectureType(str, Enum):
             return None
 
 
+class ClassWeightingMode(str, Enum):
+    """
+    ``training.class_weighting`` — how an imbalanced training set is compensated for.
+
+    Weight computation lives in :mod:`mb.training.class_weights`.
+    """
+
+    NONE = "none"
+    """Unweighted loss."""
+    INVERSE_FREQUENCY = "inverse_frequency"
+    """Balanced weights ``N / (K * n_i)``, clamped and renormalized."""
+
+    @classmethod
+    def get_default(cls) -> ClassWeightingMode:
+        """Default weighting (matches packaged :file:`mb/config/default_pipeline.yaml`)."""
+        return cls.NONE
+
+    @classmethod
+    def registered_values(cls) -> FrozenSet[str]:
+        """Set of all enum values (for config validation)."""
+        return frozenset(m.value for m in cls)
+
+    @classmethod
+    def try_from(cls, raw: object) -> ClassWeightingMode | None:
+        if raw is None:
+            return None
+        s = str(raw).strip().lower()
+        try:
+            return cls(s)
+        except ValueError:
+            return None
+
+
 class InfoSubcommand(str, Enum):
     """
     ``mb info <subcommand>`` — inspect a checkpoint or a prepared dataset layout.

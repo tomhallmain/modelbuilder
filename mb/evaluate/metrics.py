@@ -48,10 +48,45 @@ def format_classification_report(report: ClassificationMetricsReport) -> str:
     if report.avg_loss is not None:
         lines.append(_("Average loss: {loss:.4f}").format(loss=report.avg_loss))
     lines.append("")
-    lines.append(_("Per-class correct / total:"))
-    for name, c, t in zip(report.class_names, report.per_class_correct, report.per_class_total):
-        pct = 100.0 * c / max(t, 1)
-        lines.append(f"  {name}: {c}/{t} ({pct:.1f}%)")
+
+    per_class = report.per_class_metrics()
+    if per_class:
+        # A single flat accuracy figure hides how a model performs on its rarest classes,
+        # which for an imbalanced multi-class set is usually the number that matters.
+        lines.append(_("Classification report:"))
+        header = (
+            f"{_('class'):<16}{_('precision'):>10}{_('recall'):>10}"
+            f"{_('f1'):>10}{_('support'):>10}{_('predicted'):>11}"
+        )
+        lines.append(header)
+        for m in per_class:
+            lines.append(
+                f"{m.name[:16]:<16}{m.precision:>10.4f}{m.recall:>10.4f}"
+                f"{m.f1:>10.4f}{m.support:>10d}{m.predicted:>11d}"
+            )
+        macro = report.macro_averages()
+        weighted = report.weighted_averages()
+        if macro is not None:
+            lines.append(
+                f"{_('macro avg'):<16}{macro.precision:>10.4f}{macro.recall:>10.4f}"
+                f"{macro.f1:>10.4f}"
+            )
+        if weighted is not None:
+            lines.append(
+                f"{_('weighted avg'):<16}{weighted.precision:>10.4f}{weighted.recall:>10.4f}"
+                f"{weighted.f1:>10.4f}"
+            )
+        if macro is not None and macro.n_classes != len(per_class):
+            lines.append(
+                _("Averages exclude {n} class(es) with no samples in this split.").format(
+                    n=len(per_class) - macro.n_classes
+                )
+            )
+    else:
+        lines.append(_("Per-class correct / total:"))
+        for name, c, t in zip(report.class_names, report.per_class_correct, report.per_class_total):
+            pct = 100.0 * c / max(t, 1)
+            lines.append(f"  {name}: {c}/{t} ({pct:.1f}%)")
     lines.append("")
     lines.append(_("Confusion matrix (rows=true class, cols=predicted):"))
     header = " " * 12 + " ".join(f"{n[:8]:>8}" for n in report.class_names)

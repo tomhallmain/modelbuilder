@@ -27,7 +27,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence
 
 import yaml
 
-from mb.models.types import ArchitectureType, FrameworkType, ModelType
+from mb.models.types import ArchitectureType, ClassWeightingMode, FrameworkType, ModelType
 from mb.utils.constants import DatasetSplitMode
 from mb.utils.logging_setup import get_logger
 
@@ -232,6 +232,10 @@ class PipelineConfig:
                 "unfrozen_lr_min": 0.00001,
                 "num_workers": 12,
                 "store_checkpoints": False,
+                # "none" | "inverse_frequency" — see mb.training.class_weights
+                "class_weighting": ClassWeightingMode.get_default().value,
+                # Ceiling on any single class weight (inverse_frequency only).
+                "class_weight_max": 50.0,
             },
             "paths": {
                 "models_dir": "data/models",
@@ -293,6 +297,8 @@ class PipelineConfig:
             "unfrozen_lr_max": self.get("training.unfrozen_lr_max"),
             "unfrozen_lr_min": self.get("training.unfrozen_lr_min"),
             "num_workers": self.get("training.num_workers"),
+            "class_weighting": self.get("training.class_weighting"),
+            "class_weight_max": self.get("training.class_weight_max"),
             "image_size": self.get("data.image_size"),
             "batch_size": self.get("data.batch_size"),
         }

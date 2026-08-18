@@ -49,7 +49,7 @@ def run_image_classification_compare_pytorch(req: CompareRequest) -> Classificat
         )
 
     ds, _ = _build_imagefolder_torch(
-        req.data_dir, req.image_size, req.batch_size, req.num_workers
+        req.data_dir, req.image_size, req.batch_size, req.num_workers, req.architecture
     )
     class_names = list(ds.classes)
     n_classes = len(class_names)

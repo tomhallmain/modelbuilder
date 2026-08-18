@@ -1,0 +1,202 @@
+"""
+Per-architecture input preprocessing contract (resolution, normalization).
+
+One :class:`PreprocessingSpec` is the single source of truth for three things that must
+agree or inference silently degrades: the transforms training applies
+(:mod:`mb.models.frameworks.pytorch.data_loader`), the ``preprocessing`` block recorded in
+an exported bundle manifest (:mod:`mb.export.bundle`), and the size validation applied to
+``--image-size``.
+
+torchvision/Keras backbones use ImageNet statistics, which is what every architecture in
+the registry resolved to before this module existed — so architectures without an explicit
+registration keep exactly that behavior. Architectures whose pretrained weights expect
+different statistics (SigLIP and other Hugging Face vision backbones) register their own
+spec, sourced from the checkpoint's own preprocessor config rather than assumed.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Any, Dict, Optional, Tuple, Union
+
+from mb.models.types import ArchitectureType
+from mb.utils.logging_setup import get_logger
+from mb.utils.translations import _
+
+logger = get_logger(__name__)
+
+ArchitectureKey = Union[ArchitectureType, str]
+
+# torchvision/Keras pretrained weights are trained against these; they were hardcoded in
+# the transform builders and the export manifest before this module.
+IMAGENET_MEAN: Tuple[float, float, float] = (0.485, 0.456, 0.406)
+IMAGENET_STD: Tuple[float, float, float] = (0.229, 0.224, 0.225)
+
+DEFAULT_IMAGE_SIZE = 224
+
+
+@dataclass(frozen=True)
+class PreprocessingSpec:
+    """
+    What a trained model expects its input to look like.
+
+    Args:
+        image_size: Native square input size for the backbone's pretrained weights.
+        normalize_mean: Per-channel mean subtracted after scaling to ``[0, 1]``.
+        normalize_std: Per-channel standard deviation divided after mean subtraction.
+        channels: Input channel count (3 for every architecture registered today).
+        resize_mode: ``"squash"`` resizes to an exact square, ignoring source aspect ratio.
+            This is what the pipeline has always done; it is recorded so a consumer
+            reproducing preprocessing does not have to guess between squash and
+            resize-shortest-edge-then-crop, which produce visibly different crops.
+        resolution_locked: True when the backbone cannot accept an input size other than
+            :attr:`image_size` without interpolating pretrained position embeddings — true
+            for fixed-grid vision transformers, false for fully convolutional backbones.
+    """
+
+    image_size: int = DEFAULT_IMAGE_SIZE
+    normalize_mean: Tuple[float, float, float] = IMAGENET_MEAN
+    normalize_std: Tuple[float, float, float] = IMAGENET_STD
+    channels: int = 3
+    resize_mode: str = "squash"
+    resolution_locked: bool = False
+
+    def with_image_size(self, image_size: int) -> "PreprocessingSpec":
+        """Copy of this spec at *image_size* (normalization and resize policy unchanged)."""
+        if int(image_size) == self.image_size:
+            return self
+        return PreprocessingSpec(
+            image_size=int(image_size),
+            normalize_mean=self.normalize_mean,
+            normalize_std=self.normalize_std,
+            channels=self.channels,
+            resize_mode=self.resize_mode,
+            resolution_locked=self.resolution_locked,
+        )
+
+    def to_manifest_dict(self) -> Dict[str, Any]:
+        """The ``preprocessing`` block of an export manifest."""
+        return {
+            "image_size": int(self.image_size),
+            "channels": int(self.channels),
+            "normalize_mean": list(self.normalize_mean),
+            "normalize_std": list(self.normalize_std),
+            "resize_mode": self.resize_mode,
+        }
+
+
+DEFAULT_PREPROCESSING = PreprocessingSpec()
+
+# Architectures whose pretrained weights need something other than the ImageNet defaults.
+# Empty until a backbone that is not trained against ImageNet statistics is registered.
+_SPECS: Dict[str, PreprocessingSpec] = {}
+
+
+def _architecture_key(architecture: ArchitectureKey) -> str:
+    if isinstance(architecture, ArchitectureType):
+        return architecture.value
+    return str(architecture).strip().lower()
+
+
+def register_preprocessing_spec(
+    architecture: ArchitectureKey,
+    spec: PreprocessingSpec,
+    overwrite: bool = False,
+) -> None:
+    """
+    Register *spec* as the preprocessing contract for *architecture*.
+
+    Raises:
+        ValueError: If already registered and *overwrite* is False.
+    """
+    key = _architecture_key(architecture)
+    if key in _SPECS and not overwrite:
+        raise ValueError(f"Preprocessing spec already registered for '{key}'")
+    _SPECS[key] = spec
+    logger.debug("Registered preprocessing spec for %s", key)
+
+
+def has_registered_spec(architecture: Optional[ArchitectureKey]) -> bool:
+    """
+    Whether *architecture* declares its own preprocessing contract.
+
+    False means "no opinion", not "expects the ImageNet default at 224". Fully
+    convolutional backbones accept any reasonable input size, so an unregistered
+    architecture must not be size-validated against the default spec's 224.
+    """
+    if architecture is None:
+        return False
+    return _architecture_key(architecture) in _SPECS
+
+
+def preprocessing_spec_for(
+    architecture: Optional[ArchitectureKey],
+    image_size: Optional[int] = None,
+) -> PreprocessingSpec:
+    """
+    Resolve the preprocessing contract for *architecture*.
+
+    Unregistered (and unknown) architectures resolve to the ImageNet default, which is what
+    every torchvision and Keras backbone here expects. When *image_size* is given it
+    replaces the spec's native size — call :func:`resolve_image_size` first if the request
+    came from a user and should be validated rather than trusted.
+    """
+    spec = DEFAULT_PREPROCESSING
+    if architecture is not None:
+        spec = _SPECS.get(_architecture_key(architecture), DEFAULT_PREPROCESSING)
+    if image_size is None:
+        return spec
+    return spec.with_image_size(image_size)
+
+
+def resolve_image_size(
+    architecture: Optional[ArchitectureKey],
+    requested_image_size: Optional[int],
+    *,
+    allow_mismatch: bool = False,
+) -> int:
+    """
+    Validate a requested input size against what *architecture* expects.
+
+    A size differing from the architecture's native size is a warning for backbones that
+    tolerate it and an error for :attr:`PreprocessingSpec.resolution_locked` ones, where
+    training at the wrong size silently interpolates pretrained position embeddings and
+    costs accuracy without failing.
+
+    Architectures with no registered spec are not validated at all: a fully convolutional
+    backbone has no single correct input size, and the baseline models this pipeline has
+    already produced were trained at 320 on a ResNet whose torchvision weights are
+    nominally 224.
+
+    Returns:
+        The image size to train/evaluate at.
+
+    Raises:
+        ValueError: If the architecture is resolution-locked, the sizes differ, and
+            *allow_mismatch* is False.
+    """
+    spec = preprocessing_spec_for(architecture)
+    if requested_image_size is None:
+        return spec.image_size
+
+    requested = int(requested_image_size)
+    if requested == spec.image_size or not has_registered_spec(architecture):
+        return requested
+
+    arch_name = _architecture_key(architecture) if architecture is not None else "?"
+    if spec.resolution_locked and not allow_mismatch:
+        raise ValueError(
+            _(
+                "Architecture {arch} expects {native}x{native} input; {requested} was requested. "
+                "Pass --allow-resolution-mismatch to train at a different size anyway."
+            ).format(arch=arch_name, native=spec.image_size, requested=requested)
+        )
+    logger.warning(
+        "Training %s at %dx%d instead of its native %dx%d",
+        arch_name,
+        requested,
+        requested,
+        spec.image_size,
+        spec.image_size,
+    )
+    return requested

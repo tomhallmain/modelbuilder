@@ -445,7 +445,11 @@ def handle_train(args):
             cli_hyperparams['image_size'] = args.image_size
         if args.num_workers is not None:
             cli_hyperparams['num_workers'] = args.num_workers
-        
+        if getattr(args, 'class_weighting', None) is not None:
+            cli_hyperparams['class_weighting'] = args.class_weighting
+        if getattr(args, 'class_weight_max', None) is not None:
+            cli_hyperparams['class_weight_max'] = args.class_weight_max
+
         # Create trainer
         trainer = ModelTrainer(
             framework=fw,
