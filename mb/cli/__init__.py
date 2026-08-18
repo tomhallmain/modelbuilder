@@ -445,6 +445,8 @@ def handle_train(args):
             cli_hyperparams['image_size'] = args.image_size
         if args.num_workers is not None:
             cli_hyperparams['num_workers'] = args.num_workers
+        if getattr(args, 'allow_resolution_mismatch', False):
+            cli_hyperparams['allow_resolution_mismatch'] = True
         if getattr(args, 'class_weighting', None) is not None:
             cli_hyperparams['class_weighting'] = args.class_weighting
         if getattr(args, 'class_weight_max', None) is not None:

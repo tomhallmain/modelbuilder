@@ -98,8 +98,9 @@ class ArchitectureType(str, Enum):
     Values match registry keys passed as :class:`ArchitectureType` to
     :func:`mb.models.frameworks.registry.register_architecture` (lowercase). Families
     include ResNet, EfficientNet, MobileNet, DenseNet, and VGG where implemented per
-    framework. Not every framework implements every member; use the registry or trainer
-    helpers to list supported names per framework.
+    framework, plus SigLIP2 (PyTorch only, and only when the optional ``transformers``
+    dependency is installed). Not every framework implements every member; use the
+    registry or trainer helpers to list supported names per framework.
     """
 
     RESNET18 = "resnet18"
@@ -111,6 +112,12 @@ class ArchitectureType(str, Enum):
     EFFICIENTNET_B1 = "efficientnet_b1"
     EFFICIENTNET_B2 = "efficientnet_b2"
     EFFICIENTNET_B3 = "efficientnet_b3"
+    EFFICIENTNET_B4 = "efficientnet_b4"
+    # SigLIP2 fixed-resolution vision backbones (Hugging Face ``transformers``; optional
+    # dependency, so these register only when it is installed).
+    SIGLIP2_BASE_PATCH16_224 = "siglip2_base_patch16_224"
+    SIGLIP2_BASE_PATCH16_256 = "siglip2_base_patch16_256"
+    SIGLIP2_BASE_PATCH16_384 = "siglip2_base_patch16_384"
     # MobileNet (``torchvision.models`` / ``keras.applications``)
     MOBILENET_V2 = "mobilenet_v2"
     MOBILENET_V3_LARGE = "mobilenet_v3_large"

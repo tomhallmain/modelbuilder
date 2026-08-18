@@ -58,6 +58,12 @@ setup(
             # torch.onnx.export (PyTorch 2.x) imports onnxscript internally
             "onnxscript>=0.1.0",
         ],
+        # Hugging Face vision backbones for mb train (e.g. siglip2_base_patch16_384).
+        # PyTorch only; install "pytorch" alongside this. 4.50.0 is the first release
+        # carrying SigLIP2.
+        "transformers": [
+            "transformers>=4.50.0",
+        ],
         # Image-generation LoRA training (mb train --model-type image_generation_lora).
         # PyTorch only; install "pytorch" alongside this.
         "lora": [
@@ -83,7 +89,8 @@ setup(
             "safetensors>=0.4.0",
             "diffusers>=0.30.0",  # Flux support
             "peft>=0.10.0",
-            "transformers>=4.30.0",
+            # 4.50.0 (SigLIP2) rather than the 4.30.0 the LoRA trainer alone needs.
+            "transformers>=4.50.0",
         ],
     },
     entry_points={

@@ -93,6 +93,15 @@ def register(subparsers) -> None:
         help=_("Number of data loading workers (default: from config)"),
     )
     train_parser.add_argument(
+        "--allow-resolution-mismatch",
+        action="store_true",
+        help=_(
+            "Train at --image-size even when the architecture expects a different one. "
+            "Only affects backbones with a fixed input resolution (e.g. siglip2_*), where "
+            "a mismatch means the pretrained position embeddings no longer line up."
+        ),
+    )
+    train_parser.add_argument(
         "--class-weighting",
         choices=[m.value for m in ClassWeightingMode],
         help=_(

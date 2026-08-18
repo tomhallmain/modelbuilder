@@ -87,9 +87,32 @@ class PreprocessingSpec:
 
 DEFAULT_PREPROCESSING = PreprocessingSpec()
 
+# SigLIP-family checkpoints normalize to [-1, 1] rather than by ImageNet channel statistics.
+# Values read from each checkpoint's own preprocessor_config.json (image_mean, image_std,
+# size, resample=2 => bilinear, which matches transforms.Resize's default).
+SIGLIP_MEAN: Tuple[float, float, float] = (0.5, 0.5, 0.5)
+SIGLIP_STD: Tuple[float, float, float] = (0.5, 0.5, 0.5)
+
+
+def _siglip2_spec(image_size: int) -> PreprocessingSpec:
+    """Fixed-resolution SigLIP2 contract at *image_size*."""
+    return PreprocessingSpec(
+        image_size=image_size,
+        normalize_mean=SIGLIP_MEAN,
+        normalize_std=SIGLIP_STD,
+        # Position embeddings are learned per patch position on a fixed grid, so a
+        # different input size changes the patch count and no longer matches the
+        # pretrained embeddings.
+        resolution_locked=True,
+    )
+
+
 # Architectures whose pretrained weights need something other than the ImageNet defaults.
-# Empty until a backbone that is not trained against ImageNet statistics is registered.
-_SPECS: Dict[str, PreprocessingSpec] = {}
+_SPECS: Dict[str, PreprocessingSpec] = {
+    ArchitectureType.SIGLIP2_BASE_PATCH16_224.value: _siglip2_spec(224),
+    ArchitectureType.SIGLIP2_BASE_PATCH16_256.value: _siglip2_spec(256),
+    ArchitectureType.SIGLIP2_BASE_PATCH16_384.value: _siglip2_spec(384),
+}
 
 
 def _architecture_key(architecture: ArchitectureKey) -> str:

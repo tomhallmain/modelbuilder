@@ -38,6 +38,23 @@ def test_pytorch_registry_factory_forward(arch: ArchitectureType) -> None:
     assert y.shape == (1, 2)
 
 
+@pytest.mark.requires_torch
+def test_pytorch_efficientnet_b4_registered() -> None:
+    """
+    B4 is the comparison arm for a new backbone: same dataset, same pipeline, no new
+    dependency, and the only family in the field measured on a public benchmark.
+    """
+    torch = pytest.importorskip("torch")
+    import mb.models.frameworks.pytorch.architectures  # noqa: F401 — register side effects
+    from mb.models.frameworks.registry import get_architecture
+
+    factory = get_architecture(FrameworkType.PYTORCH, ArchitectureType.EFFICIENTNET_B4)
+    assert factory is not None
+    model = factory(num_classes=2, pretrained=False)
+    y = model(torch.randn(1, 3, 224, 224))
+    assert y.shape == (1, 2)
+
+
 @pytest.mark.requires_tf
 @pytest.mark.parametrize("arch", _EXTRA)
 def test_keras_registry_factory_predict(arch: ArchitectureType) -> None:

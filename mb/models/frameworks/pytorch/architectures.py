@@ -88,13 +88,20 @@ def create_efficientnet(
     """
     arch_s = _architecture_str(architecture)
     try:
-        from torchvision.models import efficientnet_b0, efficientnet_b1, efficientnet_b2, efficientnet_b3
+        from torchvision.models import (
+            efficientnet_b0,
+            efficientnet_b1,
+            efficientnet_b2,
+            efficientnet_b3,
+            efficientnet_b4,
+        )
 
         efficientnet_models = {
             ArchitectureType.EFFICIENTNET_B0.value: efficientnet_b0,
             ArchitectureType.EFFICIENTNET_B1.value: efficientnet_b1,
             ArchitectureType.EFFICIENTNET_B2.value: efficientnet_b2,
             ArchitectureType.EFFICIENTNET_B3.value: efficientnet_b3,
+            ArchitectureType.EFFICIENTNET_B4.value: efficientnet_b4,
         }
 
         if arch_s not in efficientnet_models:
@@ -216,6 +223,7 @@ try:
     register_architecture(_FW, ArchitectureType.EFFICIENTNET_B1, _make_efficientnet_factory(ArchitectureType.EFFICIENTNET_B1.value))
     register_architecture(_FW, ArchitectureType.EFFICIENTNET_B2, _make_efficientnet_factory(ArchitectureType.EFFICIENTNET_B2.value))
     register_architecture(_FW, ArchitectureType.EFFICIENTNET_B3, _make_efficientnet_factory(ArchitectureType.EFFICIENTNET_B3.value))
+    register_architecture(_FW, ArchitectureType.EFFICIENTNET_B4, _make_efficientnet_factory(ArchitectureType.EFFICIENTNET_B4.value))
 except Exception as e:
     logger.debug(f"Could not register EfficientNet architectures: {e}")
 

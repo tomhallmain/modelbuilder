@@ -207,15 +207,26 @@ class PyTorchTrainer(FrameworkTrainer):
             # Freeze all layers except the classifier
             for param in model.parameters():
                 param.requires_grad = False
-            
-            # Unfreeze classifier
-            if hasattr(model, 'fc'):
+
+            # Unfreeze the classification head. Models that name their own head explicitly
+            # are asked directly; matching on 'fc'/'classifier' works for torchvision but
+            # silently trains nothing on a backbone that names its head anything else.
+            head_params = getattr(model, 'head_parameters', None)
+            if callable(head_params):
+                for param in head_params():
+                    param.requires_grad = True
+            elif hasattr(model, 'fc'):
                 for param in model.fc.parameters():
                     param.requires_grad = True
             elif hasattr(model, 'classifier'):
                 for param in model.classifier.parameters():
                     param.requires_grad = True
-            
+            else:
+                raise ValueError(
+                    f"Cannot locate a classification head to unfreeze on "
+                    f"{type(model).__name__}; the frozen phase would train nothing"
+                )
+
             optimizer = optim.Adam(
                 filter(lambda p: p.requires_grad, model.parameters()),
                 lr=frozen_lr
