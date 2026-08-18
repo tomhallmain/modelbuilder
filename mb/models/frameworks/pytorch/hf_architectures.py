@@ -24,7 +24,7 @@ from typing import Any, Dict, Iterator, Union
 import torch.nn as nn
 
 from mb.models.frameworks.registry import register_architecture
-from mb.models.types import ArchitectureType, FrameworkType
+from mb.models.types import ArchitectureType, FrameworkType, LabelMode
 from mb.utils.logging_setup import get_logger
 from mb.utils.translations import _
 
@@ -34,8 +34,19 @@ _FW = FrameworkType.PYTORCH
 
 # ``transformers`` config field recording what kind of head this is. The training loops
 # compute their own loss, so this is metadata travelling with the checkpoint rather than a
-# loss selector. Multi-label output would pass "multi_label_classification" instead.
-SINGLE_LABEL_PROBLEM_TYPE = "single_label_classification"
+# loss selector — but it has to agree with the loss that was actually applied.
+_PROBLEM_TYPES: Dict[LabelMode, str] = {
+    LabelMode.SINGLE_LABEL: "single_label_classification",
+    LabelMode.MULTI_LABEL: "multi_label_classification",
+}
+
+SINGLE_LABEL_PROBLEM_TYPE = _PROBLEM_TYPES[LabelMode.SINGLE_LABEL]
+
+
+def problem_type_for(label_mode: Union[LabelMode, str, None]) -> str:
+    """``transformers`` ``problem_type`` string for a label mode (unknown values fall back)."""
+    mode = LabelMode.try_from(label_mode) or LabelMode.get_default()
+    return _PROBLEM_TYPES[mode]
 
 # First release carrying SigLIP2; the fixed-resolution checkpoints named below were
 # published against it.
@@ -80,6 +91,19 @@ class HFImageClassifier(nn.Module):
         """Parameters of the classification head only (everything else is the backbone)."""
         return self.hf.classifier.parameters()
 
+    def set_problem_type(self, label_mode: Union[LabelMode, str, None]) -> None:
+        """
+        Record the label mode on the wrapped config.
+
+        Set after construction rather than passed to the factory: the factory signature is
+        shared with the torchvision ones, which forward unrecognized keywords straight into
+        their constructors and would reject it. The value is metadata — the training loop
+        computes its own loss — but a consumer that loads this checkpoint through
+        ``transformers`` and supplies labels will use it to pick a loss, so it has to agree
+        with what was actually trained.
+        """
+        self.hf.config.problem_type = problem_type_for(label_mode)
+
 
 def _require_transformers():
     """Import ``transformers``, raising a message that names the missing dependency."""
@@ -100,7 +124,7 @@ def create_siglip2(
     num_classes: int,
     pretrained: bool = True,
     *,
-    problem_type: str = SINGLE_LABEL_PROBLEM_TYPE,
+    label_mode: Union[LabelMode, str, None] = None,
     **kwargs: Any,
 ) -> HFImageClassifier:
     """
@@ -112,7 +136,8 @@ def create_siglip2(
         pretrained: True downloads the checkpoint from the Hugging Face hub (or reads the
             local cache). False builds an equivalent randomly-initialized model and makes
             **no network access**, which is what keeps the test suite runnable offline.
-        problem_type: Recorded on the config; see :data:`SINGLE_LABEL_PROBLEM_TYPE`.
+        label_mode: Selects the ``problem_type`` recorded on the config. Defaults to
+            single-label, matching the pipeline default.
 
     Returns:
         The model wrapped so it returns a logits tensor.
@@ -124,6 +149,7 @@ def create_siglip2(
             f"Unknown SigLIP2 architecture: {arch_s}. Supported: {sorted(SIGLIP2_HUB_IDS)}"
         )
 
+    problem_type = problem_type_for(label_mode)
     AutoModelForImageClassification = _require_transformers()
 
     if pretrained:

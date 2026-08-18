@@ -20,9 +20,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Sequence
 
-# ``label_mode`` values.
-SINGLE_LABEL = "single_label"
-MULTI_LABEL = "multi_label"
+from mb.models.types import LabelMode
+
+# ``label_mode`` values, taken from the enum that already owns this vocabulary rather than
+# restated here — two spellings of the same value would eventually disagree.
+SINGLE_LABEL = LabelMode.SINGLE_LABEL.value
+MULTI_LABEL = LabelMode.MULTI_LABEL.value
 
 # ``activation`` values: how to turn logits into per-class scores.
 SOFTMAX = "softmax"

@@ -326,6 +326,41 @@ def load_label_manifest(
     return out
 
 
+def report_unresolved_manifest_entries(
+    manifest: Mapping[str, Sequence[str]],
+    root: Path,
+) -> List[str]:
+    """
+    Manifest keys naming a file that does not exist under *root*, logged as warnings.
+
+    Matching is by exact path only, so an entry written against a path that no longer
+    exists contributes nothing — and contributes nothing *silently*, since a missing entry
+    is indistinguishable from "this image only has its folder label". The usual cause is
+    re-running ``create-dataset`` after annotating: the test split moves files out of
+    ``train/`` into ``test/``, and every entry keyed to the old path goes stale.
+
+    Matching those by filename instead was tried and removed: a file with no manifest entry
+    can share a basename with one that has an entry, so the fallback assigned labels to
+    images that were never annotated. Guessing wrong silently is worse than not matching,
+    and the recovery is to re-key the manifest, which this warning prompts.
+
+    Returns:
+        The unresolved keys, sorted.
+    """
+    root = Path(root)
+    unresolved = sorted(key for key in manifest if not (root / key).exists())
+    if unresolved:
+        logger.warning(
+            "%d manifest entr%s name files that do not exist under %s; their labels are "
+            "not applied. First few: %s",
+            len(unresolved),
+            "y" if len(unresolved) == 1 else "ies",
+            root,
+            ", ".join(unresolved[:5]),
+        )
+    return unresolved
+
+
 def labels_for_sample(
     relative_path: str,
     primary_label: str,
@@ -336,11 +371,14 @@ def labels_for_sample(
 
     The primary label is always included even if the manifest omits it, so a manifest entry
     can only ever widen an image's labels, never silently remove the one the folder asserts.
+
+    Matching is by exact dataset-relative path. See
+    :func:`report_unresolved_manifest_entries` for why there is no filename fallback.
     """
     key = str(relative_path).replace("\\", "/")
     names = [primary_label]
     for name in manifest.get(key, ()):  # type: ignore[arg-type]
-        if name != primary_label:
+        if name != primary_label and name not in names:
             names.append(name)
     return names
 

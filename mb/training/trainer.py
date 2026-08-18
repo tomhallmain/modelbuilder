@@ -205,6 +205,11 @@ class ModelTrainer:
             num_classes=num_classes,
             pretrained=True
         )
+        # Backbones that carry their own config record the label mode on it, so a checkpoint
+        # loaded outside this pipeline does not infer the wrong loss from stale metadata.
+        set_problem_type = getattr(model, "set_problem_type", None)
+        if callable(set_problem_type):
+            set_problem_type(label_mode)
         
         # Create data loaders
         train_dir = data_dir / "train"

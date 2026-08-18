@@ -147,11 +147,14 @@ class MultiLabelImageFolderDataset(ImageFolderDataset):
                 parent, which is the dataset directory holding both splits.
         """
         super().__init__(root, transform=transform, extensions=extensions)
-        from mb.data.label_schema import labels_for_sample
+        from mb.data.label_schema import labels_for_sample, report_unresolved_manifest_entries
 
         self.schema = schema
         self.manifest = dict(manifest or {})
         self.manifest_root = Path(manifest_root) if manifest_root is not None else self.root.parent
+        # Entries keyed to a path that no longer exists apply to nothing, which is otherwise
+        # indistinguishable from an image simply having no extra labels.
+        report_unresolved_manifest_entries(self.manifest, self.manifest_root)
 
         # Targets are resolved once here rather than per __getitem__ so that a label outside
         # the schema fails at construction, not partway through the first epoch.

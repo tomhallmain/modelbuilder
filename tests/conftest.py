@@ -145,3 +145,41 @@ def two_class_classification_data_dir(tmp_path: Path) -> Path:
                     (10 + i * 8, 30 + ci * 15, 90),
                 ).save(path, quality=92)
     return data
+
+
+@pytest.fixture
+def multi_label_classification_data_dir(two_class_classification_data_dir: Path) -> Path:
+    """
+    The two-class layout plus a label schema and manifest, for multi-label runs.
+
+    Deliberately declares a third label, ``extra``, that has no folder of its own and
+    appears only through the manifest. That is the case a folder count cannot see, so any
+    code sizing the output layer from directories rather than the schema fails here.
+    """
+    import json
+
+    data = two_class_classification_data_dir
+    (data / "label_schema.json").write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "labels": ["class_a", "class_b", "extra"],
+                "axes": {"grouped": {"ordered": False, "labels": ["class_a", "extra"]}},
+                "default_thresholds": {"extra": 0.4},
+                "default_threshold": 0.5,
+            }
+        ),
+        encoding="utf-8",
+    )
+    # A few images carry a second label; both splits get some so `extra` has support when
+    # scored, not just when trained.
+    records = [
+        {"path": "train/class_a/img_00.jpg", "labels": ["extra"]},
+        {"path": "train/class_a/img_01.jpg", "labels": ["extra"]},
+        {"path": "train/class_b/img_00.jpg", "labels": ["extra"]},
+        {"path": "test/class_a/img_00.jpg", "labels": ["extra"]},
+    ]
+    (data / "labels.jsonl").write_text(
+        "\n".join(json.dumps(r) for r in records), encoding="utf-8"
+    )
+    return data

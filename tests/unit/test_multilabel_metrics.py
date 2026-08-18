@@ -170,3 +170,99 @@ def test_threshold_tuning_leaves_unsupported_labels_alone() -> None:
     )
     tuned = tune_thresholds([[0.9], [0.8]], [[False], [False]], schema)
     assert tuned[0] == 0.42
+
+
+@pytest.mark.requires_torch
+def test_run_multilabel_metrics_end_to_end(
+    multi_label_classification_data_dir, tmp_path
+) -> None:
+    """
+    Real (untrained) inference through the multi-label metrics entry point.
+
+    Covers the chain the pure-arithmetic tests above cannot: schema and manifest loading
+    relative to the split, multi-hot truth assembly, per-label counting, and report
+    construction — including the axis grouping.
+    """
+    torch = pytest.importorskip("torch")
+    pytest.importorskip("torchvision")
+
+    from mb.evaluate._contracts import MetricsRequest
+    from mb.evaluate.classification.image_multilabel_metrics import run_multilabel_metrics
+    from mb.models.frameworks.pytorch.trainer import PyTorchTrainer
+    from mb.models.types import LabelMode, ModelType
+
+    torch.manual_seed(0)
+    trainer = PyTorchTrainer(device="cpu")
+    model = trainer.create_model("resnet18", num_classes=3, pretrained=False)
+    model_path = tmp_path / "model.pth"
+    torch.save(model.state_dict(), model_path)
+
+    report = run_multilabel_metrics(
+        MetricsRequest(
+            model_path=model_path,
+            data_dir=multi_label_classification_data_dir / "test",
+            model_type=ModelType.IMAGE_CLASSIFICATION,
+            architecture="resnet18",
+            image_size=64,
+            batch_size=2,
+            num_workers=0,
+            device="cpu",
+            label_mode=LabelMode.MULTI_LABEL,
+        )
+    )
+
+    assert report.n_samples == 4
+    assert report.label_names == ["class_a", "class_b", "extra"]
+    assert len(report.per_label) == 3
+    # Truth comes from folders plus the manifest: two per folder label, one from `extra`.
+    supports = {m.name: m.support for m in report.per_label}
+    assert supports == {"class_a": 2, "class_b": 2, "extra": 1}
+    # `extra`'s threshold comes from the schema, not the global default.
+    assert next(m.threshold for m in report.per_label if m.name == "extra") == 0.4
+    assert report.n_labels_with_support == 3
+    assert "grouped" in report.axis_macro_f1
+    assert 0.0 <= report.micro_f1 <= 1.0
+    assert 0.0 <= report.macro_f1 <= 1.0
+
+
+@pytest.mark.requires_torch
+def test_tune_thresholds_writes_back_to_the_schema(
+    multi_label_classification_data_dir, tmp_path
+) -> None:
+    """Tuning is a calibration step that persists — the schema on disk changes."""
+    torch = pytest.importorskip("torch")
+    pytest.importorskip("torchvision")
+
+    from mb.data.label_schema import load_label_schema
+    from mb.evaluate._contracts import MetricsRequest
+    from mb.evaluate.classification.image_multilabel_metrics import run_multilabel_metrics
+    from mb.models.frameworks.pytorch.trainer import PyTorchTrainer
+    from mb.models.types import LabelMode, ModelType
+
+    torch.manual_seed(0)
+    trainer = PyTorchTrainer(device="cpu")
+    model = trainer.create_model("resnet18", num_classes=3, pretrained=False)
+    model_path = tmp_path / "model.pth"
+    torch.save(model.state_dict(), model_path)
+
+    before = load_label_schema(multi_label_classification_data_dir)
+    run_multilabel_metrics(
+        MetricsRequest(
+            model_path=model_path,
+            data_dir=multi_label_classification_data_dir / "test",
+            model_type=ModelType.IMAGE_CLASSIFICATION,
+            architecture="resnet18",
+            image_size=64,
+            batch_size=2,
+            num_workers=0,
+            device="cpu",
+            label_mode=LabelMode.MULTI_LABEL,
+            tune_thresholds=True,
+        )
+    )
+    after = load_label_schema(multi_label_classification_data_dir)
+
+    # Every label gains an explicit threshold, and the label set is untouched.
+    assert after.labels == before.labels
+    assert set(after.default_thresholds) == set(after.labels)
+    assert set(after.axes) == set(before.axes)

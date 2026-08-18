@@ -200,6 +200,61 @@ def test_labels_for_sample_always_includes_the_folder_label() -> None:
     assert labels_for_sample("x", "gore", {"x": ["gore"]}) == ["gore"]
 
 
+def test_matching_is_by_exact_path_only() -> None:
+    """
+    A file sharing a name with an annotated one must not inherit its labels.
+
+    A filename fallback was tried so entries would survive the test split moving a file
+    between directories. It assigned labels to images that were never annotated: a file
+    with no manifest entry at all can share a basename with one that has an entry. Guessing
+    wrong silently is worse than the silent non-match it was meant to fix.
+    """
+    manifest = {"train/class_a/img_00.jpg": ["extra"]}
+
+    assert labels_for_sample("train/class_a/img_00.jpg", "class_a", manifest) == [
+        "class_a",
+        "extra",
+    ]
+    # Same filename, different image — no entry of its own, so no extra label.
+    assert labels_for_sample("test/class_b/img_00.jpg", "class_b", manifest) == ["class_b"]
+
+
+def test_stale_manifest_entries_are_reported(tmp_path: Path) -> None:
+    """
+    Entries naming a file that no longer exists apply to nothing, and say so.
+
+    This is what re-running ``create-dataset`` after annotating produces: the split moves
+    files out of ``train/``, and entries keyed to the old paths go stale. Without the
+    report it is indistinguishable from an image simply having no extra labels.
+    """
+    from mb.data.label_schema import report_unresolved_manifest_entries
+
+    (tmp_path / "train" / "class_a").mkdir(parents=True)
+    (tmp_path / "train" / "class_a" / "here.jpg").write_bytes(b"x")
+
+    unresolved = report_unresolved_manifest_entries(
+        {
+            "train/class_a/here.jpg": ["extra"],
+            "train/class_a/moved_away.jpg": ["extra"],
+        },
+        tmp_path,
+    )
+    assert unresolved == ["train/class_a/moved_away.jpg"]
+
+
+def test_no_unresolved_entries_when_every_path_exists(tmp_path: Path) -> None:
+    from mb.data.label_schema import report_unresolved_manifest_entries
+
+    (tmp_path / "train" / "a").mkdir(parents=True)
+    (tmp_path / "train" / "a" / "x.jpg").write_bytes(b"x")
+    assert report_unresolved_manifest_entries({"train/a/x.jpg": ["extra"]}, tmp_path) == []
+
+
+def test_labels_are_not_duplicated() -> None:
+    manifest = {"train/a/x.jpg": ["extra", "extra"]}
+    assert labels_for_sample("train/a/x.jpg", "a", manifest) == ["a", "extra"]
+
+
 def test_label_positive_counts() -> None:
     vectors = [[1.0, 0.0, 0.0], [1.0, 1.0, 0.0], [0.0, 0.0, 0.0]]
     assert label_positive_counts(vectors, 3) == [2, 1, 0]
