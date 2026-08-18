@@ -171,3 +171,16 @@ def test_export_bundle_writes_manifest_and_safetensors(tmp_path: Path) -> None:
     assert isinstance(manifest["artifacts"]["weights_sha256"], str)
     assert len(manifest["artifacts"]["weights_sha256"]) == 64
 
+    # Decode contract: how to read the output tensor, and what input the weights expect.
+    output = manifest["output"]
+    assert output["label_mode"] == "single_label"
+    assert output["activation"] == "softmax"
+    assert output["labels"] == ["a", "b"]
+    assert output["thresholds"] is None
+    assert output["axes"] is None
+
+    preprocessing = manifest["preprocessing"]
+    assert preprocessing["normalize_mean"] == [0.485, 0.456, 0.406]
+    assert preprocessing["channels"] == 3
+    assert preprocessing["resize_mode"] == "squash"
+

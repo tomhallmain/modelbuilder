@@ -57,6 +57,9 @@ setup(
             "onnx>=1.12.0",
             # torch.onnx.export (PyTorch 2.x) imports onnxscript internally
             "onnxscript>=0.1.0",
+            # int8/uint8 dynamic quantization (mb convert --quantize) and loading exported
+            # graphs back to verify them
+            "onnxruntime>=1.16.0",
         ],
         # Hugging Face vision backbones for mb train (e.g. siglip2_base_patch16_384).
         # PyTorch only; install "pytorch" alongside this. 4.50.0 is the first release
@@ -86,6 +89,7 @@ setup(
             "tensorflow>=2.10.0",
             "onnx>=1.12.0",
             "onnxscript>=0.1.0",
+            "onnxruntime>=1.16.0",
             "safetensors>=0.4.0",
             "diffusers>=0.30.0",  # Flux support
             "peft>=0.10.0",

@@ -543,13 +543,33 @@ def handle_convert(args):
             target_format=args.target,
             architecture=args.architecture,
             num_classes=args.num_classes,
-            image_size=args.image_size
+            image_size=args.image_size,
+            class_names=getattr(args, 'class_names', None),
         )
-        
+
         if success:
             logger.info(
                 _("Conversion completed successfully: {path}").format(path=args.output)
             )
+            quantize_modes = getattr(args, 'quantize', None)
+            if quantize_modes:
+                if args.target != ConversionTargetFormat.ONNX.value:
+                    logger.error(
+                        _("--quantize applies to --target onnx only; skipping quantization.")
+                    )
+                    return 1
+                from mb.conversion.quantize import quantize_onnx_variants
+
+                written = quantize_onnx_variants(args.output, quantize_modes)
+                if len(written) != len(quantize_modes):
+                    logger.error(
+                        _("Only {n} of {total} quantized variants were written.").format(
+                            n=len(written), total=len(quantize_modes)
+                        )
+                    )
+                    return 1
+                for path in written:
+                    logger.info(_("Wrote quantized variant: {path}").format(path=path))
             return 0
         else:
             logger.error(_("Conversion failed"))

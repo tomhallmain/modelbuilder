@@ -276,6 +276,38 @@ class ConversionTargetFormat(str, Enum):
             return None
 
 
+class OnnxQuantizationMode(str, Enum):
+    """
+    ``mb convert --quantize`` variants, produced from an exported ONNX file.
+
+    Implementations live in :mod:`mb.conversion.quantize`.
+    """
+
+    FP16 = "fp16"
+    """Half-precision weights; graph inputs and outputs stay float32."""
+    INT8 = "int8"
+    """Dynamic signed 8-bit weight quantization."""
+    UINT8 = "uint8"
+    """Dynamic unsigned 8-bit weight quantization."""
+
+    @classmethod
+    def registered_values(cls) -> FrozenSet[str]:
+        """Set of all enum values (CLI ``--quantize`` choices)."""
+        return frozenset(m.value for m in cls)
+
+    @classmethod
+    def try_from(cls, raw: object) -> OnnxQuantizationMode | None:
+        if raw is None:
+            return None
+        if isinstance(raw, OnnxQuantizationMode):
+            return raw
+        s = str(raw).strip().lower()
+        try:
+            return cls(s)
+        except ValueError:
+            return None
+
+
 class ModelType(str, Enum):
     """Pipeline / training model type (YAML ``model.default_type``, CLI, gather, convert)."""
 

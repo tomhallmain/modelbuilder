@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from mb.conversion.converters import convert_pytorch_to_safetensors, detect_model_framework
+from mb.models.output_contract import single_label_contract
 from mb.models.preprocessing import preprocessing_spec_for
 from mb.utils.snapshot import UnifiedSnapshot, find_unified_snapshot
 
@@ -119,8 +120,35 @@ def _make_torchvision_backbone(architecture: str):
         return ctor(pretrained=False)
 
 
+# Hugging Face backbones are not in torchvision. The attribute holding the wrapped model is
+# named `hf` so the state dict keys here match the ones training wrote.
+SIGLIP_IMAGE_SIZES = {{
+    "siglip2_base_patch16_224": 224,
+    "siglip2_base_patch16_256": 256,
+    "siglip2_base_patch16_384": 384,
+}}
+
+
+class HFImageClassifier(nn.Module):
+    def __init__(self, architecture: str, num_classes: int):
+        super().__init__()
+        from transformers import AutoModelForImageClassification, SiglipConfig
+
+        image_size = SIGLIP_IMAGE_SIZES.get(architecture)
+        if image_size is None:
+            raise ValueError(f"Unsupported transformers architecture: {{architecture}}")
+        config = SiglipConfig(
+            vision_config={{"image_size": image_size, "patch_size": 16}},
+            num_labels=num_classes,
+        )
+        self.hf = AutoModelForImageClassification.from_config(config)
+
+    def forward(self, x):
+        return self.hf(pixel_values=x).logits
+
+
 class ExportedImageModel(nn.Module):
-    # Generic wrapper that can represent torchvision-style and FastAI-style layouts.
+    # Generic wrapper that can represent torchvision, FastAI, and transformers layouts.
     def __init__(
         self,
         architecture: str = "{arch}",
@@ -136,6 +164,9 @@ class ExportedImageModel(nn.Module):
 
     @staticmethod
     def _build_inner(architecture: str, num_classes: int, layout: str) -> nn.Module:
+        if layout == "transformers":
+            return HFImageClassifier(architecture, num_classes)
+
         base = _make_torchvision_backbone(architecture)
         arch_l = str(architecture).lower()
         if layout == "fastai_sequential":
@@ -206,6 +237,9 @@ def infer_layout_from_state_dict(state_dict) -> str:
     keys = list(state_dict.keys())
     if not keys:
         return "torchvision"
+    # Hugging Face backbones are wrapped in a module whose submodule attribute is `hf`.
+    if any(k.startswith("hf.") for k in keys):
+        return "transformers"
     # FastAI-style sequential exports often use 0.* / 1.* top-level keys.
     if any(k.startswith("0.") or k.startswith("1.") for k in keys):
         return "fastai_sequential"
@@ -386,6 +420,7 @@ def export_bundle(
         "preprocessing": preprocessing_spec_for(
             resolved_architecture, resolved_image_size
         ).to_manifest_dict(),
+        "output": single_label_contract(resolved_classes).to_manifest_dict(),
         "source_context": {
             "pipeline_model_defaults": {
                 "default_framework": model_cfg.get("default_framework"),

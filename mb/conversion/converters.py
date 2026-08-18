@@ -8,6 +8,7 @@ This module provides functionality to convert models between different formats:
 """
 
 import gc
+import json
 import threading
 import time
 from pathlib import Path
@@ -111,6 +112,75 @@ def _unlink_with_retry(path: Path, *, attempts: int = 5, initial_delay: float = 
             delay *= 2
 
 
+def write_onnx_metadata(output_path: Path, metadata: Dict[str, str]) -> bool:
+    """
+    Store string key/value pairs in an ONNX file's ``metadata_props``.
+
+    This is how the decode contract travels with the graph: a consumer loading only the
+    ``.onnx`` file can still read the label order and activation instead of guessing.
+    Existing keys with the same name are replaced.
+
+    Returns:
+        True if the metadata was written.
+    """
+    if not metadata:
+        return False
+    try:
+        import onnx
+    except ImportError:
+        logger.warning("onnx package not available; cannot write ONNX metadata")
+        return False
+
+    output_path = Path(output_path)
+    try:
+        model = onnx.load(str(output_path))
+    except Exception as e:
+        logger.warning("Could not reload ONNX to write metadata: %s", e)
+        return False
+
+    existing = {prop.key: prop for prop in model.metadata_props}
+    for key, value in metadata.items():
+        if key in existing:
+            existing[key].value = str(value)
+        else:
+            entry = model.metadata_props.add()
+            entry.key = str(key)
+            entry.value = str(value)
+
+    try:
+        onnx.save_model(model, str(output_path))
+    except Exception as e:
+        logger.warning("Could not save ONNX metadata: %s", e)
+        return False
+    logger.info("Wrote %d ONNX metadata entries to %s", len(metadata), output_path)
+    return True
+
+
+def build_onnx_metadata(
+    *,
+    architecture: Optional[str],
+    class_names: Optional[list] = None,
+    image_size: int = 224,
+) -> Dict[str, str]:
+    """
+    Decode contract for a single-label classifier, as ONNX metadata strings.
+
+    Values are JSON so the same structures appear here and in an export manifest rather
+    than being flattened differently in each place.
+    """
+    from mb.models.output_contract import CONTRACT_SCHEMA_VERSION, single_label_contract
+    from mb.models.preprocessing import preprocessing_spec_for
+
+    spec = preprocessing_spec_for(architecture, image_size)
+    contract = single_label_contract(class_names)
+    return {
+        "mb.schema_version": str(CONTRACT_SCHEMA_VERSION),
+        "mb.architecture": str(architecture or ""),
+        "mb.output": json.dumps(contract.to_manifest_dict()),
+        "mb.preprocessing": json.dumps(spec.to_manifest_dict()),
+    }
+
+
 # New torch.onnx dynamo exporter implements opset 18+; requesting older versions
 # triggers a failed downgrade (noisy traceback) and leaves the model at 18 anyway.
 _DEFAULT_ONNX_OPSET = 18
@@ -171,26 +241,29 @@ def convert_pytorch_to_onnx(
     architecture: str,
     num_classes: int,
     image_size: int = 224,
+    class_names: Optional[list] = None,
     **kwargs
 ) -> bool:
     """
     Convert a PyTorch model to ONNX format.
-    
+
     Args:
         model_path: Path to PyTorch model (.pth file)
         output_path: Path to save ONNX model
         architecture: Model architecture name (e.g., 'resnet34')
         num_classes: Number of output classes
         image_size: Input image size (assumes square)
+        class_names: Optional class names in output-index order, recorded in the graph's
+            metadata so a consumer does not have to be told the label order out of band
         **kwargs: Additional conversion arguments
-        
+
     Returns:
         True if conversion successful, False otherwise
     """
     try:
         # Load PyTorch model
         from mb.models.frameworks.pytorch.trainer import PyTorchTrainer
-        
+
         trainer = PyTorchTrainer()
         model = trainer.load_model(model_path, architecture, num_classes)
         model.eval()
@@ -202,7 +275,16 @@ def convert_pytorch_to_onnx(
             opset_version=kwargs.get("opset_version", _DEFAULT_ONNX_OPSET),
             verbose=kwargs.get("verbose", False),
         )
-        
+
+        write_onnx_metadata(
+            output_path,
+            build_onnx_metadata(
+                architecture=architecture,
+                class_names=class_names,
+                image_size=image_size,
+            ),
+        )
+
         logger.info(f"Successfully converted PyTorch model to ONNX: {output_path}")
         return True
         
@@ -385,6 +467,7 @@ def convert_model(
     architecture: Optional[str] = None,
     num_classes: Optional[int] = None,
     image_size: int = 224,
+    class_names: Optional[list] = None,
     cancel_event: Optional[threading.Event] = None,
     **kwargs
 ) -> bool:
@@ -399,6 +482,7 @@ def convert_model(
         architecture: Model architecture (required for PyTorch -> ONNX)
         num_classes: Number of classes (required for PyTorch -> ONNX)
         image_size: Input image size (default: 224)
+        class_names: Optional class names in output-index order, recorded in ONNX metadata
         **kwargs: Additional conversion arguments
         
     Returns:
@@ -433,7 +517,13 @@ def convert_model(
                 )
                 return False
             return convert_pytorch_to_onnx(
-                input_path, output_path, architecture, num_classes, image_size, **kwargs
+                input_path,
+                output_path,
+                architecture,
+                num_classes,
+                image_size,
+                class_names=class_names,
+                **kwargs,
             )
         elif target_format == 'safetensors':
             return convert_pytorch_to_safetensors(input_path, output_path, **kwargs)

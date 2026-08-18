@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from mb.models.types import ConversionTargetFormat, FrameworkType
+from mb.models.types import ConversionTargetFormat, FrameworkType, OnnxQuantizationMode
 from mb.utils.constants import ModelBuilderTaskType
 from mb.utils.translations import _
 
@@ -55,4 +55,21 @@ def register(subparsers) -> None:
         type=int,
         default=224,
         help=_("Input image size (default: 224, used for ONNX conversion)"),
+    )
+    convert_model_parser.add_argument(
+        "--class-names",
+        nargs="+",
+        help=_(
+            "Class names in output-index order, recorded in the ONNX file's metadata so "
+            "consumers do not have to be told the label order separately"
+        ),
+    )
+    convert_model_parser.add_argument(
+        "--quantize",
+        nargs="+",
+        choices=[m.value for m in OnnxQuantizationMode],
+        help=_(
+            "Also write quantized ONNX variants alongside the output (e.g. --quantize fp16 int8). "
+            "Smaller and faster at some cost in accuracy — score them before deploying."
+        ),
     )

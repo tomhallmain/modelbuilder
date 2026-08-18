@@ -14,6 +14,10 @@ torchvision>=0.15.0
 onnx>=1.12.0
 # Required by torch.onnx.export on PyTorch 2.x (not pulled in via the onnx package)
 onnxscript>=0.1.0
+# int8/uint8 dynamic quantization (mb convert --quantize) and loading exported graphs to
+# verify them. fp16 additionally needs onnxconverter-common, which is not declared here
+# because it is only used by that one variant.
+onnxruntime>=1.16.0
 
 # Used by ``mb convert``/``mb export bundle``/``mb info`` (SafeTensors read/write) and LoRA
 # adapter saving below. Previously an undeclared transitive dependency; declared explicitly now.
