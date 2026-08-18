@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict
 
-from mb.models.types import ArchitectureType, FrameworkType
+from mb.models.types import ArchitectureType, FrameworkType, LabelMode
 
 
 @dataclass(frozen=True)
@@ -27,6 +27,8 @@ class TrainingRunArgs:
     run_id: str | None
     update_snapshot: bool
     cli_hyperparams: Dict[str, Any]
+    label_mode: LabelMode = LabelMode.SINGLE_LABEL
+    """Defaulted so existing callers and serialized runs keep single-label behavior."""
 
     def to_json_dict(self) -> Dict[str, Any]:
         """Serialize to a JSON-friendly dict (paths as strings)."""
@@ -39,6 +41,7 @@ class TrainingRunArgs:
             "run_id": self.run_id,
             "update_snapshot": self.update_snapshot,
             "cli_hyperparams": dict(self.cli_hyperparams),
+            "label_mode": self.label_mode.value,
         }
 
     @classmethod
@@ -60,6 +63,8 @@ class TrainingRunArgs:
             run_id=d.get("run_id"),
             update_snapshot=bool(d.get("update_snapshot", True)),
             cli_hyperparams=dict(d.get("cli_hyperparams") or {}),
+            # Absent in JSON written before label mode existed, which is single-label.
+            label_mode=LabelMode.try_from(d.get("label_mode")) or LabelMode.get_default(),
         )
 
 

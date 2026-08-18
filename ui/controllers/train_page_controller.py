@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Union
 
-from mb.models.types import ArchitectureType, FrameworkType, ModelType
+from mb.models.types import ArchitectureType, FrameworkType, LabelMode, ModelType
 from mb.training.lora_diffusion_trainer import LoraTrainingConfig
 from mb.training.run_args import TrainingRunArgs
 from mb.utils.translations import _
@@ -36,6 +36,7 @@ class TrainPageFieldValues:
     num_workers: int
 
     # image_classification only
+    label_mode: LabelMode = LabelMode.SINGLE_LABEL
     resume_from_text: str = ""
     run_id_text: str = ""
     skip_snapshot: bool = False
@@ -105,6 +106,7 @@ def _build_classification_run_args(values: TrainPageFieldValues) -> TrainingRunA
         run_id=values.run_id_text.strip() or None,
         update_snapshot=not values.skip_snapshot,
         cli_hyperparams=cli_hyperparams,
+        label_mode=values.label_mode,
     )
 
 

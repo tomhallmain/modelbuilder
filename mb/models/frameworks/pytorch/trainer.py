@@ -20,8 +20,15 @@ from mb.models.base import FrameworkTrainer
 from mb.training.gui_progress import subepoch_progress_emit
 from mb.models.frameworks.pytorch.data_loader import create_data_loaders
 from mb.models.frameworks.pytorch.architectures import create_resnet, create_efficientnet
+from mb.models.frameworks.pytorch.objectives import (
+    ClassificationObjective,
+    MultiLabelF1,
+    SingleLabelAccuracy,
+    build_multi_label_objective,
+    build_single_label_objective,
+)
 from mb.models.frameworks.registry import get_architecture, list_architectures
-from mb.models.types import ArchitectureType, ClassWeightingMode, FrameworkType
+from mb.models.types import ArchitectureType, ClassWeightingMode, FrameworkType, LabelMode
 from mb.training.class_weights import DEFAULT_MAX_CLASS_WEIGHT, resolve_class_weights
 from mb.utils.logging_setup import get_logger
 
@@ -182,23 +189,15 @@ class PyTorchTrainer(FrameworkTrainer):
                           f"frozen={frozen_epochs_completed}/{frozen_epochs}, "
                           f"unfrozen={unfrozen_epochs_completed}/{unfrozen_epochs}")
         
-        # Loss and optimizer. Class weights apply to the training loss only: validation
-        # loss stays unweighted so it remains comparable across runs with different
-        # class_weighting settings, which is the comparison the setting exists to support.
-        class_weights = resolve_class_weights(
-            train_loader,
-            ClassWeightingMode.try_from(hyperparams.get('class_weighting'))
-            or ClassWeightingMode.get_default(),
-            max_weight=float(hyperparams.get('class_weight_max') or DEFAULT_MAX_CLASS_WEIGHT),
-            class_names=getattr(getattr(train_loader, 'dataset', None), 'classes', None),
-        )
-        weight_tensor = (
-            torch.tensor(class_weights, dtype=torch.float32, device=self.device)
-            if class_weights
-            else None
-        )
-        criterion = nn.CrossEntropyLoss(weight=weight_tensor)
-        eval_criterion = nn.CrossEntropyLoss()
+        # Loss, epoch metric, and weighting are chosen together: they are three views of the
+        # same decision about what the output layer means. Weighting applies to the training
+        # loss only, so validation loss stays comparable across weighting settings.
+        objective = self._build_objective(train_loader, hyperparams)
+        criterion = objective.criterion
+        eval_criterion = objective.eval_criterion
+        class_weights = objective.class_weights
+        make_accumulator = objective.make_accumulator
+        logger.info("Objective: %s, tracking %s", objective.label_mode.value, objective.primary_metric)
 
         # Phase 1: Frozen backbone training
         if frozen_epochs_completed < frozen_epochs:
@@ -253,6 +252,7 @@ class PyTorchTrainer(FrameworkTrainer):
                     model, train_loader, criterion, optimizer, epoch_num,
                     cancel_event=cancel_event,
                     on_batch_step=emit,
+                    make_accumulator=make_accumulator,
                 )
 
                 # Validate
@@ -261,6 +261,7 @@ class PyTorchTrainer(FrameworkTrainer):
                     cancel_event=cancel_event,
                     train_step_count=len(train_loader),
                     on_batch_step=emit,
+                    make_accumulator=make_accumulator,
                 )
                 
                 logger.info(f"  Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}")
@@ -278,6 +279,7 @@ class PyTorchTrainer(FrameworkTrainer):
                     best_val_acc=best_val_acc,
                     phase='frozen',
                     class_weights=class_weights,
+                    primary_metric=objective.primary_metric,
                 )
         else:
             logger.info("Frozen phase already completed, skipping")
@@ -322,6 +324,7 @@ class PyTorchTrainer(FrameworkTrainer):
                     model, train_loader, criterion, optimizer, epoch_num, scheduler,
                     cancel_event=cancel_event,
                     on_batch_step=emit,
+                    make_accumulator=make_accumulator,
                 )
 
                 # Validate
@@ -330,6 +333,7 @@ class PyTorchTrainer(FrameworkTrainer):
                     cancel_event=cancel_event,
                     train_step_count=len(train_loader),
                     on_batch_step=emit,
+                    make_accumulator=make_accumulator,
                 )
                 
                 logger.info(f"  Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}")
@@ -348,6 +352,7 @@ class PyTorchTrainer(FrameworkTrainer):
                     best_val_acc=best_val_acc,
                     phase='unfrozen',
                     class_weights=class_weights,
+                    primary_metric=objective.primary_metric,
                 )
         else:
             logger.info("Unfrozen phase already completed, skipping")
@@ -371,10 +376,24 @@ class PyTorchTrainer(FrameworkTrainer):
             **kwargs: Additional evaluation arguments
             
         Returns:
-            Dictionary of metric names to values
+            Dictionary of metric names to values. The metric key follows the label mode:
+            ``accuracy`` for single-label, ``micro_f1`` for multi-label, since accuracy over
+            independent labels is dominated by correctly predicted negatives.
         """
         model.eval()
-        criterion = nn.CrossEntropyLoss()
+
+        # Detected from the dataset rather than passed in: the loader already knows which
+        # kind of target it produces, and a mismatch here would apply the wrong loss.
+        schema = getattr(getattr(val_loader, "dataset", None), "schema", None)
+        if schema is not None:
+            criterion: nn.Module = nn.BCEWithLogitsLoss()
+            thresholds = schema.thresholds()
+            make_accumulator: Optional[Callable[[], Any]] = lambda: MultiLabelF1(thresholds)
+            metric_name = MultiLabelF1.name
+        else:
+            criterion = nn.CrossEntropyLoss()
+            make_accumulator = None
+            metric_name = SingleLabelAccuracy.name
 
         cancel_event: Optional[threading.Event] = kwargs.get("cancel_event")
         progress_cb: Optional[Callable[[str, Optional[float]], None]] = kwargs.get("progress_cb")
@@ -386,18 +405,19 @@ class PyTorchTrainer(FrameworkTrainer):
             pct = min(max(step / total_steps, 0.0), 1.0)
             progress_cb(f"Evaluating… — batch {step}/{total_steps}", pct)
 
-        val_loss, val_acc = self._validate(
+        val_loss, val_metric = self._validate(
             model,
             val_loader,
             criterion,
             cancel_event=cancel_event,
             train_step_count=0,
             on_batch_step=_emit_eval_step,
+            make_accumulator=make_accumulator,
         )
-        
+
         return {
             'loss': val_loss,
-            'accuracy': val_acc
+            metric_name: val_metric,
         }
     
     def save_model(
@@ -462,6 +482,55 @@ class PyTorchTrainer(FrameworkTrainer):
         logger.info(f"Loaded model from {path}")
         return model
     
+    def _build_objective(
+        self,
+        train_loader: DataLoader,
+        hyperparams: Dict[str, Any],
+    ) -> ClassificationObjective:
+        """
+        Pick the loss and epoch metric for this run's label mode.
+
+        Multi-label needs the training split's per-label positive counts and the schema's
+        thresholds, both of which the dataset already carries; single-label resolves the
+        class weights exactly as before.
+        """
+        label_mode = LabelMode.try_from(hyperparams.get('label_mode')) or LabelMode.get_default()
+        dataset = getattr(train_loader, 'dataset', None)
+        max_weight = float(hyperparams.get('class_weight_max') or DEFAULT_MAX_CLASS_WEIGHT)
+
+        if label_mode == LabelMode.MULTI_LABEL:
+            counts_fn = getattr(dataset, 'label_positive_counts', None)
+            schema = getattr(dataset, 'schema', None)
+            if counts_fn is None or schema is None:
+                raise ValueError(
+                    "Multi-label training needs a multi-label dataset; "
+                    f"got {type(dataset).__name__}"
+                )
+            positive_counts = counts_fn()
+            weighting = (
+                ClassWeightingMode.try_from(hyperparams.get('class_weighting'))
+                or ClassWeightingMode.get_default()
+            )
+            for name, count in zip(schema.labels, positive_counts):
+                logger.info("  label %s: %d positives", name, count)
+            return build_multi_label_objective(
+                positive_counts=positive_counts,
+                n_samples=len(dataset),
+                thresholds=schema.thresholds(),
+                device=self.device,
+                max_weight=max_weight,
+                weighted=weighting == ClassWeightingMode.INVERSE_FREQUENCY,
+            )
+
+        class_weights = resolve_class_weights(
+            train_loader,
+            ClassWeightingMode.try_from(hyperparams.get('class_weighting'))
+            or ClassWeightingMode.get_default(),
+            max_weight=max_weight,
+            class_names=getattr(dataset, 'classes', None),
+        )
+        return build_single_label_objective(class_weights, self.device)
+
     def _train_epoch(
         self,
         model: nn.Module,
@@ -472,12 +541,16 @@ class PyTorchTrainer(FrameworkTrainer):
         scheduler: Optional[Any] = None,
         cancel_event: Optional[threading.Event] = None,
         on_batch_step: Optional[Callable[[int], None]] = None,
+        make_accumulator: Optional[Callable[[], Any]] = None,
     ) -> Tuple[float, float]:
-        """Train for one epoch."""
+        """Train for one epoch.
+
+        *make_accumulator* builds the epoch metric; the default is top-1 accuracy, which is
+        what the metric was before label mode became selectable.
+        """
         model.train()
         running_loss = 0.0
-        correct = 0
-        total = 0
+        metric = (make_accumulator or SingleLabelAccuracy)()
 
         for batch_idx, (inputs, targets) in enumerate(train_loader):
             check_cancel_event(cancel_event)
@@ -501,14 +574,12 @@ class PyTorchTrainer(FrameworkTrainer):
 
             # Statistics
             running_loss += loss.item()
-            _, predicted = outputs.max(1)
-            total += targets.size(0)
-            correct += predicted.eq(targets).sum().item()
+            metric.update(outputs, targets)
             if on_batch_step is not None:
                 on_batch_step(batch_idx + 1)
 
         epoch_loss = running_loss / max(len(train_loader), 1)
-        epoch_acc = 100.0 * correct / max(total, 1)
+        epoch_acc = metric.value()
 
         return epoch_loss, epoch_acc
     
@@ -520,12 +591,12 @@ class PyTorchTrainer(FrameworkTrainer):
         cancel_event: Optional[threading.Event] = None,
         train_step_count: int = 0,
         on_batch_step: Optional[Callable[[int], None]] = None,
+        make_accumulator: Optional[Callable[[], Any]] = None,
     ) -> Tuple[float, float]:
         """Validate the model."""
         model.eval()
         running_loss = 0.0
-        correct = 0
-        total = 0
+        metric = (make_accumulator or SingleLabelAccuracy)()
 
         step = train_step_count
         with torch.no_grad():
@@ -540,15 +611,13 @@ class PyTorchTrainer(FrameworkTrainer):
                 loss = criterion(outputs, targets)
 
                 running_loss += loss.item()
-                _, predicted = outputs.max(1)
-                total += targets.size(0)
-                correct += predicted.eq(targets).sum().item()
+                metric.update(outputs, targets)
                 step += 1
                 if on_batch_step is not None:
                     on_batch_step(step)
 
         epoch_loss = running_loss / max(len(val_loader), 1)
-        epoch_acc = 100.0 * correct / max(total, 1)
+        epoch_acc = metric.value()
 
         return epoch_loss, epoch_acc
     
@@ -563,8 +632,14 @@ class PyTorchTrainer(FrameworkTrainer):
         best_val_acc: float,
         phase: str,
         class_weights: Optional[list] = None,
+        primary_metric: str = SingleLabelAccuracy.name,
     ):
-        """Save a training checkpoint."""
+        """Save a training checkpoint.
+
+        ``best_val_acc`` keeps its name so older checkpoints still resume, but its meaning
+        now depends on the label mode. ``primary_metric`` records which meaning applies, so
+        a reader is never left guessing whether a stored figure is accuracy or F1.
+        """
         # A loss recorded under class weighting is not comparable to one recorded without
         # it, so the weights that produced these numbers travel with them.
         weights = [float(w) for w in class_weights] if class_weights else None
@@ -577,6 +652,7 @@ class PyTorchTrainer(FrameworkTrainer):
             'best_val_acc': best_val_acc,
             'phase': phase,
             'class_weights': weights,
+            'primary_metric': primary_metric,
             'saved_at': datetime.now().isoformat()
         }
 
@@ -592,6 +668,7 @@ class PyTorchTrainer(FrameworkTrainer):
             'best_val_acc': float(best_val_acc),
             'phase': phase,
             'class_weights': weights,
+            'primary_metric': primary_metric,
             'saved_at': checkpoint['saved_at'],
         }
         metadata_path = checkpoint_path.with_suffix('.json')

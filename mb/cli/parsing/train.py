@@ -6,7 +6,7 @@ from pathlib import Path
 
 from mb.cli.parsing.common import MODEL_TYPE_CLI_CHOICES
 from mb.models.generation_architectures import BaseGenerationArchitecture
-from mb.models.types import ClassWeightingMode, FrameworkType, ModelType
+from mb.models.types import ClassWeightingMode, FrameworkType, LabelMode, ModelType
 from mb.utils.constants import ModelBuilderTaskType
 from mb.utils.translations import _
 
@@ -91,6 +91,16 @@ def register(subparsers) -> None:
         "--num-workers",
         type=int,
         help=_("Number of data loading workers (default: from config)"),
+    )
+    train_parser.add_argument(
+        "--label-mode",
+        choices=[m.value for m in LabelMode],
+        help=_(
+            "Whether an image carries one class or several (image_classification only; "
+            "default: from config, which ships as single_label). multi_label reads "
+            "label_schema.json and labels.jsonl beside the dataset and trains independent "
+            "per-label sigmoids. PyTorch only."
+        ),
     )
     train_parser.add_argument(
         "--allow-resolution-mismatch",

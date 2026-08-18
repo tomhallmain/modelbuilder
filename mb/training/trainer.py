@@ -12,7 +12,13 @@ from datetime import datetime, timezone
 
 from mb.models.base import FrameworkTrainer
 from mb.models.preprocessing import preprocessing_spec_for, resolve_image_size
-from mb.models.types import FrameworkType, ModelType, get_model_type_handler
+from mb.models.types import (
+    FrameworkType,
+    LabelMode,
+    ModelType,
+    get_classification_handler,
+    get_model_type_handler,
+)
 from mb.models.frameworks.pytorch.trainer import PyTorchTrainer
 from mb.models.frameworks.keras.trainer import KerasTrainer
 from mb.training.hyperparams import get_training_hyperparams
@@ -20,6 +26,7 @@ from mb.training.run_args import TrainingRunArgs
 from mb.training.snapshot_integration import update_training_snapshot
 from mb.utils.constants import ModelBuilderTaskType
 from mb.utils.logging_setup import get_logger
+from mb.utils.translations import _
 from mb.utils.snapshot import (
     find_unified_snapshot,
     preload_gather_cache,
@@ -112,6 +119,18 @@ class ModelTrainer:
         run_id = args.run_id
         update_snapshot = args.update_snapshot
         cli_hyperparams = args.cli_hyperparams
+        label_mode = args.label_mode or LabelMode.get_default()
+
+        # Label mode changes where labels come from, so it selects the handler that
+        # validates the data and counts the classes.
+        handler = get_classification_handler(self.model_type, label_mode)
+        if label_mode == LabelMode.MULTI_LABEL and self.framework != FrameworkType.PYTORCH:
+            raise ValueError(
+                _(
+                    "Multi-label training is implemented for PyTorch only; "
+                    "--framework {fw} would silently train a single-label model."
+                ).format(fw=self.framework.value)
+            )
 
         def _emit(msg: str, pct: Optional[float]) -> None:
             if progress_cb is not None:
@@ -129,15 +148,17 @@ class ModelTrainer:
 
         # Validate data structure
         _emit("Validating data…", p_after_validate)
-        if not self.model_type_handler.validate_data(data_dir):
-            raise ValueError(f"Invalid data structure for {self.model_type.value}")
-        
+        if not handler.validate_data(data_dir):
+            raise ValueError(
+                f"Invalid data structure for {self.model_type.value} ({label_mode.value})"
+            )
+
         # Get number of classes
-        num_classes = self.model_type_handler.get_num_classes(data_dir)
+        num_classes = handler.get_num_classes(data_dir)
         logger.info(f"Number of classes: {num_classes}")
-        
+
         # Get hyperparameters
-        model_type_defaults = self.model_type_handler.get_default_hyperparams()
+        model_type_defaults = handler.get_default_hyperparams()
         cli_for_hp = cli_hyperparams if cli_hyperparams else None
         hyperparams = get_training_hyperparams(
             model_type_defaults=model_type_defaults,
@@ -191,6 +212,25 @@ class ModelTrainer:
         
         _emit("Loading data…", p_after_data)
         logger.info("Creating data loaders...")
+        loader_kwargs: dict[str, Any] = {}
+        if label_mode == LabelMode.MULTI_LABEL:
+            from mb.data.label_schema import load_label_manifest, load_label_schema
+
+            schema = load_label_schema(data_dir)
+            manifest = load_label_manifest(data_dir, schema)
+            logger.info(
+                "Multi-label training over %d labels with %d manifest entries",
+                schema.num_labels,
+                len(manifest),
+            )
+            loader_kwargs = {
+                "label_schema": schema,
+                "label_manifest": manifest,
+                "manifest_root": data_dir,
+            }
+            # Read by the framework trainer to pick the loss and epoch metric.
+            hyperparams['label_mode'] = label_mode.value
+
         train_loader, val_loader = self.framework_trainer.create_data_loaders(
             train_dir=train_dir,
             val_dir=val_dir,
@@ -198,6 +238,7 @@ class ModelTrainer:
             image_size=image_size,
             num_workers=num_workers,
             preprocessing=preprocessing,
+            **loader_kwargs,
         )
         
         # Update unified snapshot if requested

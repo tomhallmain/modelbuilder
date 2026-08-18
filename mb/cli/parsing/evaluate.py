@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from mb.cli.parsing.common import MODEL_TYPE_CLI_CHOICES
-from mb.models.types import EvaluateSubcommand, FrameworkType, ModelType
+from mb.models.types import EvaluateSubcommand, FrameworkType, LabelMode, ModelType
 from mb.utils.constants import ModelBuilderTaskType
 from mb.utils.translations import _
 
@@ -92,6 +92,25 @@ def register(subparsers) -> None:
         type=str,
         default=None,
         help=_("PyTorch device override, e.g. cuda or cpu (default: auto)"),
+    )
+    evaluate_metrics_parser.add_argument(
+        "--label-mode",
+        choices=[m.value for m in LabelMode],
+        default=LabelMode.get_default().value,
+        help=_(
+            "How the model's output is interpreted (default: single_label). multi_label "
+            "reads label_schema.json beside the dataset and reports per-label metrics "
+            "instead of accuracy and a confusion matrix."
+        ),
+    )
+    evaluate_metrics_parser.add_argument(
+        "--tune-thresholds",
+        action="store_true",
+        help=_(
+            "--label-mode multi_label only: pick the per-label threshold that maximizes "
+            "each label's F1 on this split and write it back to label_schema.json. A "
+            "post-hoc calibration step — never run this on the training split."
+        ),
     )
     evaluate_metrics_parser.add_argument(
         "--dry-run",

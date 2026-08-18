@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
 
-from mb.models.types import FrameworkType, ModelType
+from mb.models.types import FrameworkType, LabelMode, ModelType
 
 
 @dataclass(frozen=True)
@@ -30,6 +30,10 @@ class MetricsRequest:
     num_workers: int = 0
     device: Optional[str] = None
     dry_run: bool = False
+    label_mode: LabelMode = LabelMode.SINGLE_LABEL
+    """Defaulted so existing callers keep single-label scoring."""
+    tune_thresholds: bool = False
+    """Multi-label only: sweep per-label thresholds and write the result back to the schema."""
 
 
 @dataclass(frozen=True)
@@ -194,6 +198,81 @@ class ClassificationMetricsReport:
             "per_class_metrics": [m.to_jsonable() for m in self.per_class_metrics()],
             "macro_avg": macro.to_jsonable() if macro is not None else None,
             "weighted_avg": weighted.to_jsonable() if weighted is not None else None,
+        }
+
+
+@dataclass(frozen=True)
+class PerLabelMetrics:
+    """Binary counts and derived rates for one label of a multi-label model."""
+
+    name: str
+    support: int
+    predicted: int
+    true_positives: int
+    false_positives: int
+    false_negatives: int
+    true_negatives: int
+    precision: float
+    recall: float
+    f1: float
+    threshold: float
+    """Score above which this label counts as predicted."""
+
+    def to_jsonable(self) -> dict[str, Any]:
+        return {
+            "name": self.name,
+            "support": self.support,
+            "predicted": self.predicted,
+            "true_positives": self.true_positives,
+            "false_positives": self.false_positives,
+            "false_negatives": self.false_negatives,
+            "true_negatives": self.true_negatives,
+            "precision": self.precision,
+            "recall": self.recall,
+            "f1": self.f1,
+            "threshold": self.threshold,
+        }
+
+
+@dataclass
+class MultiLabelClassificationMetricsReport:
+    """
+    Multi-label metrics on a prepared split.
+
+    There is no confusion matrix: predictions are independent, so the analogue of an n x n
+    matrix is a 2 x 2 count per label. Accuracy is absent for the same reason it is not the
+    training metric — with most labels negative on most images, predicting nothing scores
+    well by that measure.
+    """
+
+    model_type: ModelType
+    framework: FrameworkType
+    model_path: Path
+    data_dir: Path
+    n_samples: int
+    label_names: list[str]
+    micro_f1: float
+    macro_f1: float
+    avg_loss: Optional[float] = None
+    per_label: list[PerLabelMetrics] = field(default_factory=list)
+    axis_macro_f1: dict[str, float] = field(default_factory=dict)
+    n_labels_with_support: int = 0
+
+    def to_jsonable(self) -> dict[str, Any]:
+        return {
+            "model_type": self.model_type.value,
+            "framework": self.framework.value,
+            "label_mode": "multi_label",
+            "model_path": str(self.model_path),
+            "data_dir": str(self.data_dir),
+            "n_samples": self.n_samples,
+            "label_names": list(self.label_names),
+            "micro_f1": self.micro_f1,
+            "macro_f1": self.macro_f1,
+            "avg_loss": self.avg_loss,
+            "per_label": [m.to_jsonable() for m in self.per_label],
+            "axis_macro_f1": dict(self.axis_macro_f1),
+            "n_labels_with_support": self.n_labels_with_support,
         }
 
 

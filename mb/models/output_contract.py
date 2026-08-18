@@ -64,6 +64,41 @@ class OutputContract:
         }
 
 
+def multi_label_contract(
+    labels: Sequence[str],
+    thresholds: Optional[Dict[str, float]] = None,
+    axes: Optional[Dict[str, Any]] = None,
+) -> OutputContract:
+    """
+    Contract for independent per-label sigmoids.
+
+    Thresholds matter here in a way they never do for softmax: without them a consumer has
+    no decision rule at all, since the scores do not compete and no argmax is meaningful.
+    """
+    return OutputContract(
+        label_mode=MULTI_LABEL,
+        activation=SIGMOID,
+        labels=[str(name) for name in labels],
+        thresholds={str(k): float(v) for k, v in (thresholds or {}).items()} or None,
+        axes=dict(axes) if axes else None,
+    )
+
+
+def contract_from_label_schema(schema: Any) -> OutputContract:
+    """
+    Build a multi-label contract from a :class:`~mb.data.label_schema.LabelSchema`.
+
+    Every label gets an explicit threshold, including ones falling back to the schema
+    default, so the exported artifact never depends on a consumer knowing that default.
+    """
+    labels = list(schema.labels)
+    return multi_label_contract(
+        labels=labels,
+        thresholds={name: schema.threshold_for(name) for name in labels},
+        axes={name: axis.to_jsonable() for name, axis in schema.axes.items()} or None,
+    )
+
+
 def single_label_contract(labels: Optional[Sequence[str]] = None) -> OutputContract:
     """
     Contract for a softmax classifier over mutually exclusive classes.

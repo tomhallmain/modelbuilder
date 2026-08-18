@@ -10,30 +10,57 @@ from __future__ import annotations
 import json
 from argparse import Namespace
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 
-from mb.evaluate._contracts import ClassificationMetricsReport, MetricsRequest
-from mb.models.types import FrameworkType, ModelType
+from mb.evaluate._contracts import (
+    ClassificationMetricsReport,
+    MetricsRequest,
+    MultiLabelClassificationMetricsReport,
+)
+from mb.models.types import FrameworkType, LabelMode, ModelType
 from mb.utils.logging_setup import get_logger
 from mb.utils.translations import _
 
 logger = get_logger(__name__)
 
+MetricsReport = Union[ClassificationMetricsReport, MultiLabelClassificationMetricsReport]
+"""Either report shape; which one comes back follows the request's label mode."""
 
-def run_metrics(request: MetricsRequest) -> ClassificationMetricsReport:
+
+def run_metrics(request: MetricsRequest) -> MetricsReport:
     """
     Run dataset-level metrics for the given :attr:`MetricsRequest.model_type`.
 
     Today only :class:`~mb.models.types.ModelType.IMAGE_CLASSIFICATION` is implemented.
+    Its :attr:`MetricsRequest.label_mode` selects between the single-label report (accuracy
+    and a confusion matrix) and the multi-label one (per-label counts and F1).
     """
     mt = request.model_type
     if mt == ModelType.IMAGE_CLASSIFICATION:
+        if request.label_mode == LabelMode.MULTI_LABEL:
+            from mb.evaluate.classification.image_multilabel_metrics import (
+                run_multilabel_metrics,
+            )
+
+            return run_multilabel_metrics(request)
+
         from mb.evaluate.classification.image_metrics import run_image_classification_metrics
 
         return run_image_classification_metrics(request)
     if mt == ModelType.OBJECT_DETECTION:
         raise NotImplementedError(_("Object detection metrics are not implemented yet."))
     raise ValueError(_("Unsupported model type for metrics: {t}").format(t=mt.value))
+
+
+def format_metrics_report(report: MetricsReport) -> str:
+    """Human-readable block for either report shape."""
+    if isinstance(report, MultiLabelClassificationMetricsReport):
+        from mb.evaluate.classification.image_multilabel_metrics import (
+            format_multilabel_report,
+        )
+
+        return format_multilabel_report(report)
+    return format_classification_report(report)
 
 
 def format_classification_report(report: ClassificationMetricsReport) -> str:
@@ -110,10 +137,13 @@ def build_metrics_request(args: Namespace) -> MetricsRequest:
         batch_size=int(args.batch_size),
         num_workers=int(args.num_workers),
         device=getattr(args, "device", None),
+        label_mode=LabelMode.try_from(getattr(args, "label_mode", None))
+        or LabelMode.get_default(),
+        tune_thresholds=bool(getattr(args, "tune_thresholds", False)),
     )
 
 
-def run_evaluate_metrics(args: Namespace) -> Tuple[int, Optional[ClassificationMetricsReport]]:
+def run_evaluate_metrics(args: Namespace) -> Tuple[int, Optional[MetricsReport]]:
     """
     Core ``mb evaluate metrics`` logic: validate arguments and run metrics.
 
@@ -174,6 +204,6 @@ def run_evaluate_metrics_cli(args: Namespace) -> int:
     """CLI implementation for ``mb evaluate metrics`` (returns process exit code)."""
     code, report = run_evaluate_metrics(args)
     if report is not None:
-        print(format_classification_report(report))
+        print(format_metrics_report(report))
         logger.debug(json.dumps(report.to_jsonable()))
     return code

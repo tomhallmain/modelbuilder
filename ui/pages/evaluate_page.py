@@ -26,8 +26,9 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from mb.evaluate.metrics import ClassificationMetricsReport, format_classification_report, run_evaluate_metrics
-from mb.models.types import EvaluateSubcommand, FrameworkType, ModelType
+from mb.evaluate._contracts import MultiLabelClassificationMetricsReport
+from mb.evaluate.metrics import MetricsReport, format_metrics_report, run_evaluate_metrics
+from mb.models.types import EvaluateSubcommand, FrameworkType, LabelMode, ModelType
 from mb.pipeline_config import get_pipeline_config, reload_pipeline_config
 from mb.utils.constants import ModelBuilderTaskType
 from mb.utils.recent_run_history import append_recent_run
@@ -74,6 +75,10 @@ class EvaluatePage(QWidget):
         self.model_type = QComboBox()
         for mt in ModelType:
             self.model_type.addItem(mt.value)
+        self.label_mode = QComboBox()
+        self.label_mode.setObjectName("evaluate_label_mode_combo")
+        for mode in LabelMode:
+            self.label_mode.addItem(mode.value, mode.value)
         self.model_path = QLineEdit()
         self.model_path.setObjectName("evaluate_model_path_edit")
         self.framework = QComboBox()
@@ -100,6 +105,7 @@ class EvaluatePage(QWidget):
 
         sform.addRow(_("Eval data dir (ImageFolder)"), self._path_row(self.data_dir, is_file=False))
         sform.addRow(_("Model type"), self.model_type)
+        sform.addRow(_("Label mode"), self.label_mode)
         sform.addRow(_("Model checkpoint"), self._path_row(self.model_path, is_file=True))
         sform.addRow(_("Framework"), self.framework)
         sform.addRow(_("Architecture"), self.architecture)
@@ -145,6 +151,7 @@ class EvaluatePage(QWidget):
             [
                 _("Eval data dir (ImageFolder)"),
                 _("Model type"),
+                _("Label mode"),
                 _("Model checkpoint"),
                 _("Framework"),
                 _("Architecture"),
@@ -539,6 +546,11 @@ class EvaluatePage(QWidget):
                     *self._shared_argv_tail(),
                 ]
             )
+            # Only `metrics` accepts a label mode; misclassified and compare are
+            # single-label by construction, so passing it to them would be a parse error.
+            if sub == EvaluateSubcommand.METRICS:
+                mode = LabelMode.try_from(self.label_mode.currentData()) or LabelMode.get_default()
+                base.extend(["--label-mode", mode.value])
         else:
             base.extend(
                 [
@@ -631,7 +643,7 @@ class EvaluatePage(QWidget):
 
     def _worker_metrics_report_main(
         self, ctx: LongTaskContext, argv: list[str]
-    ) -> Tuple[int, str, Optional[ClassificationMetricsReport]]:
+    ) -> Tuple[int, str, Optional[MetricsReport]]:
         """
         Real (non-dry-run) ``metrics`` runs go through :func:`run_evaluate_metrics` directly
         (same parser + pipeline-config reload as ``mb.cli.main``) instead of ``main(argv)``, so
@@ -645,7 +657,7 @@ class EvaluatePage(QWidget):
         parsed = parser.parse_args(argv)
         reload_pipeline_config(getattr(parsed, "config", None), force=True)
         code, report = run_evaluate_metrics(parsed)
-        text = format_classification_report(report) if report is not None else ""
+        text = format_metrics_report(report) if report is not None else ""
         return int(code), text, report
 
     def _on_metrics_report_success(self, payload: object) -> None:
@@ -674,8 +686,12 @@ class EvaluatePage(QWidget):
                 f"exit {code}",
             )
 
-    def _populate_per_class_metrics(self, report: Optional[ClassificationMetricsReport]) -> None:
+    def _populate_per_class_metrics(self, report: Optional[MetricsReport]) -> None:
         """Fill the per-class precision/recall/F1 table, with macro and weighted rows appended."""
+        if isinstance(report, MultiLabelClassificationMetricsReport):
+            self._populate_per_label_metrics(report)
+            return
+
         table = self.metrics_per_class_table
         rows = report.per_class_metrics() if report is not None else []
         if not rows:
@@ -725,9 +741,74 @@ class EvaluatePage(QWidget):
 
         table.resizeColumnsToContents()
 
-    def _populate_confusion_matrix(self, report: Optional[ClassificationMetricsReport]) -> None:
+    def _populate_per_label_metrics(
+        self, report: MultiLabelClassificationMetricsReport
+    ) -> None:
+        """
+        Per-label table for a multi-label report.
+
+        Carries a threshold column the single-label table has no use for: with independent
+        sigmoids the threshold is part of the result, not a fixed convention.
+        """
+        table = self.metrics_per_class_table
+        if not report.per_label:
+            table.clear()
+            table.setRowCount(0)
+            table.setColumnCount(0)
+            return
+
+        headers = [
+            _("label"),
+            _("precision"),
+            _("recall"),
+            _("f1"),
+            _("support"),
+            _("predicted"),
+            _("threshold"),
+        ]
+        table.setColumnCount(len(headers))
+        table.setHorizontalHeaderLabels(headers)
+        table.setRowCount(len(report.per_label) + 2)
+        table.verticalHeader().setVisible(False)
+
+        def put(r: int, c: int, text: str, *, bold: bool = False) -> None:
+            item = QTableWidgetItem(text)
+            item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)
+            if c > 0:
+                item.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+            if bold:
+                font = item.font()
+                font.setBold(True)
+                item.setFont(font)
+            table.setItem(r, c, item)
+
+        for i, m in enumerate(report.per_label):
+            put(i, 0, m.name)
+            put(i, 1, f"{m.precision:.4f}")
+            put(i, 2, f"{m.recall:.4f}")
+            put(i, 3, f"{m.f1:.4f}")
+            put(i, 4, str(m.support))
+            put(i, 5, str(m.predicted))
+            put(i, 6, f"{m.threshold:.2f}")
+
+        for offset, (label, value) in enumerate(
+            ((_("micro F1"), report.micro_f1), (_("macro F1"), report.macro_f1))
+        ):
+            r = len(report.per_label) + offset
+            put(r, 0, label, bold=True)
+            put(r, 3, f"{value:.4f}", bold=True)
+            for c in (1, 2, 4, 5, 6):
+                put(r, c, "", bold=True)
+
+        table.resizeColumnsToContents()
+
+    def _populate_confusion_matrix(self, report: Optional[MetricsReport]) -> None:
         table = self.metrics_confusion_table
-        if report is None or not report.confusion_matrix:
+        # Multi-label predictions are independent, so there is no n x n matrix to show.
+        show_matrix = not isinstance(report, MultiLabelClassificationMetricsReport)
+        self.metrics_confusion_label.setVisible(show_matrix)
+        table.setVisible(show_matrix)
+        if report is None or not show_matrix or not report.confusion_matrix:
             table.clear()
             table.setRowCount(0)
             table.setColumnCount(0)

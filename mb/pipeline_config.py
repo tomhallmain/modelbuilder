@@ -27,7 +27,13 @@ from typing import Any, Callable, Dict, List, Optional, Sequence
 
 import yaml
 
-from mb.models.types import ArchitectureType, ClassWeightingMode, FrameworkType, ModelType
+from mb.models.types import (
+    ArchitectureType,
+    ClassWeightingMode,
+    FrameworkType,
+    LabelMode,
+    ModelType,
+)
 from mb.utils.constants import DatasetSplitMode
 from mb.utils.logging_setup import get_logger
 
@@ -212,6 +218,9 @@ class PipelineConfig:
                     ".avif",
                 ],
                 "video_types": [".mp4", ".mkv", ".avi", ".wmv", ".mov", ".flv"],
+                # "single_label" | "multi_label" — multi_label reads label_schema.json and
+                # labels.jsonl under data_dir (see mb.data.label_schema).
+                "label_mode": LabelMode.get_default().value,
                 # null = discover class folders under raw_data_dir; else explicit list (order preserved).
                 "class_names": None,
                 # null = do not require a nested folder; else e.g. "IMAGES" — class dirs must contain it.

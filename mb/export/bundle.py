@@ -9,7 +9,6 @@ from pathlib import Path
 from typing import Any, Optional
 
 from mb.conversion.converters import convert_pytorch_to_safetensors, detect_model_framework
-from mb.models.output_contract import single_label_contract
 from mb.models.preprocessing import preprocessing_spec_for
 from mb.utils.snapshot import UnifiedSnapshot, find_unified_snapshot
 
@@ -302,6 +301,30 @@ if __name__ == "__main__":
 """
 
 
+def _resolve_output_contract(data_dir: Optional[Path], class_names: list[str]):
+    """
+    Decode contract for the exported model, inferred from the dataset it was built against.
+
+    A label schema beside the data means the model was trained with independent per-label
+    sigmoids, so the exported artifact has to say so — a consumer applying softmax to those
+    logits gets plausible normalized numbers rather than an error.
+    """
+    from mb.models.output_contract import contract_from_label_schema, single_label_contract
+
+    if data_dir is not None:
+        from mb.data.label_schema import LabelSchemaError, find_label_schema
+
+        try:
+            schema = find_label_schema(Path(data_dir))
+        except LabelSchemaError as e:
+            # An unreadable schema is reported rather than silently downgrading the export
+            # to single-label, which would misdescribe the model.
+            raise ValueError(f"Label schema beside {data_dir} could not be read: {e}") from e
+        if schema is not None:
+            return contract_from_label_schema(schema)
+    return single_label_contract(class_names)
+
+
 def export_bundle(
     *,
     input_model: Path,
@@ -420,7 +443,7 @@ def export_bundle(
         "preprocessing": preprocessing_spec_for(
             resolved_architecture, resolved_image_size
         ).to_manifest_dict(),
-        "output": single_label_contract(resolved_classes).to_manifest_dict(),
+        "output": _resolve_output_contract(resolved_data_dir, resolved_classes).to_manifest_dict(),
         "source_context": {
             "pipeline_model_defaults": {
                 "default_framework": model_cfg.get("default_framework"),

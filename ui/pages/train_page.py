@@ -24,7 +24,7 @@ from PySide6.QtWidgets import (
 )
 
 from mb.models.generation_architectures import BaseGenerationArchitecture
-from mb.models.types import ArchitectureType, FrameworkType, ModelType
+from mb.models.types import ArchitectureType, FrameworkType, LabelMode, ModelType
 from mb.pipeline_config import get_pipeline_config
 from mb.training.lora_diffusion_trainer import LoraTrainingConfig
 from mb.training.run_args import TrainingRunArgs
@@ -71,6 +71,10 @@ class TrainPage(QWidget):
         self.framework = QComboBox()
         # ``registered_values`` returns a set-like container; sort for deterministic UI order.
         self.framework.addItems(sorted(FrameworkType.registered_values()))
+        self.label_mode = QComboBox()
+        self.label_mode.setObjectName("train_label_mode_combo")
+        for mode in LabelMode:
+            self.label_mode.addItem(mode.value, mode.value)
         self.architecture = QLineEdit(ArchitectureType.get_default().value)
         self.architecture.setObjectName("train_architecture_edit")
         self.data_dir = QLineEdit("data")
@@ -95,6 +99,7 @@ class TrainPage(QWidget):
 
         core_form.addRow(_("Model type"), self.model_type)
         core_form.addRow(_("Framework"), self.framework)
+        core_form.addRow(_("Label mode"), self.label_mode)
         core_form.addRow(_("Architecture"), self.architecture)
         core_form.addRow(_("Data dir"), self._path_row(self.data_dir, select_file=False))
         core_form.addRow(_("Output dir"), self._path_row(self.output_dir, select_file=False))
@@ -216,6 +221,7 @@ class TrainPage(QWidget):
             [
                 _("Model type"),
                 _("Framework"),
+                _("Label mode"),
                 _("Architecture"),
                 _("Data dir"),
                 _("Output dir"),
@@ -298,6 +304,7 @@ class TrainPage(QWidget):
             "model_type_value": self.model_type.currentText(),
             "framework_idx": int(self.framework.currentIndex()),
             "framework_value": self.framework.currentText(),
+            "label_mode": self.label_mode.currentData(),
             "architecture": self.architecture.text(),
             "data_dir": self.data_dir.text(),
             "output_dir": self.output_dir.text(),
@@ -353,6 +360,9 @@ class TrainPage(QWidget):
                 fi = state.get("framework_idx")
                 if isinstance(fi, int) and 0 <= fi < self.framework.count():
                     self.framework.setCurrentIndex(fi)
+            lm = LabelMode.try_from(state.get("label_mode")) or LabelMode.get_default()
+            lm_idx = self.label_mode.findData(lm.value)
+            self.label_mode.setCurrentIndex(lm_idx if lm_idx >= 0 else 0)
             self.architecture.setText(str(state.get("architecture", "")))
             self.data_dir.setText(str(state.get("data_dir", "")))
             self.output_dir.setText(str(state.get("output_dir", "")))
@@ -497,18 +507,17 @@ class TrainPage(QWidget):
         is_lora = model_type == ModelType.IMAGE_GENERATION_LORA
         self._hp_group.setVisible(not is_lora)
         self._lora_group.setVisible(is_lora)
-        apply_model_type_field_visibility(
-            self._core_form,
-            model_type,
-            {
-                widget: (
-                    ModelType.IMAGE_CLASSIFICATION,
-                    ModelType.OBJECT_DETECTION,
-                    ModelType.IMAGE_GENERATION,
-                )
-                for widget in self._classification_only_core_rows
-            },
-        )
+        visibility = {
+            widget: (
+                ModelType.IMAGE_CLASSIFICATION,
+                ModelType.OBJECT_DETECTION,
+                ModelType.IMAGE_GENERATION,
+            )
+            for widget in self._classification_only_core_rows
+        }
+        # Narrower than the rest: only classification has a notion of labels per image.
+        visibility[self.label_mode] = (ModelType.IMAGE_CLASSIFICATION,)
+        apply_model_type_field_visibility(self._core_form, model_type, visibility)
 
     def _on_model_type_changed(self) -> None:
         """Live combo-change handler: visibility + a fresh architecture hint + re-validate.
@@ -578,6 +587,8 @@ class TrainPage(QWidget):
             batch_size=int(self.batch_size.value()),
             image_size=int(self.image_size.value()),
             num_workers=int(self.num_workers.value()),
+            label_mode=LabelMode.try_from(self.label_mode.currentData())
+            or LabelMode.get_default(),
             resume_from_text=self.resume_from.text(),
             run_id_text=self.run_id.text(),
             skip_snapshot=bool(self.skip_snapshot.isChecked()),

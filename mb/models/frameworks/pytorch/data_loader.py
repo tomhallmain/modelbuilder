@@ -8,9 +8,12 @@ import torch
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 from pathlib import Path
-from typing import Tuple, Optional
+from typing import TYPE_CHECKING, Dict, List, Tuple, Optional
 
 from mb.models.preprocessing import DEFAULT_PREPROCESSING, PreprocessingSpec
+
+if TYPE_CHECKING:
+    from mb.data.label_schema import LabelSchema
 from mb.utils.logging_setup import get_logger
 
 logger = get_logger(__name__)
@@ -116,6 +119,67 @@ class ImageFolderDataset(Dataset):
             return torch.zeros(3, 224, 224), label
 
 
+class MultiLabelImageFolderDataset(ImageFolderDataset):
+    """
+    Folder dataset whose targets are multi-hot vectors rather than class indices.
+
+    The folder an image sits in is its primary label; the manifest adds any others. Image
+    loading, extension handling, and the unreadable-file fallback are inherited unchanged —
+    only the target differs.
+    """
+
+    def __init__(
+        self,
+        root: Path,
+        schema: "LabelSchema",
+        manifest: Optional[Dict[str, List[str]]] = None,
+        *,
+        manifest_root: Optional[Path] = None,
+        transform: Optional[transforms.Compose] = None,
+        extensions: Tuple[str, ...] = ('.jpg', '.jpeg', '.png', '.bmp', '.tiff'),
+    ):
+        """
+        Args:
+            root: Split directory (``train`` or ``test``) holding the class folders.
+            schema: Ordered label set; fixes the output index of every label.
+            manifest: Extra labels keyed by path relative to *manifest_root*.
+            manifest_root: Base the manifest's keys are relative to. Defaults to *root*'s
+                parent, which is the dataset directory holding both splits.
+        """
+        super().__init__(root, transform=transform, extensions=extensions)
+        from mb.data.label_schema import labels_for_sample
+
+        self.schema = schema
+        self.manifest = dict(manifest or {})
+        self.manifest_root = Path(manifest_root) if manifest_root is not None else self.root.parent
+
+        # Targets are resolved once here rather than per __getitem__ so that a label outside
+        # the schema fails at construction, not partway through the first epoch.
+        self.targets: List[List[float]] = []
+        for img_path, class_idx in self.samples:
+            primary = self.classes[class_idx]
+            try:
+                rel = Path(img_path).relative_to(self.manifest_root).as_posix()
+            except ValueError:
+                rel = Path(img_path).name
+            names = labels_for_sample(rel, primary, self.manifest)
+            self.targets.append(schema.multi_hot(names))
+
+    def label_positive_counts(self) -> List[int]:
+        """Per-label positive counts across the split, for loss weighting."""
+        counts = [0] * self.schema.num_labels
+        for vector in self.targets:
+            for index, value in enumerate(vector):
+                if value > 0:
+                    counts[index] += 1
+        return counts
+
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Return the image and its multi-hot target vector."""
+        image, _primary_index = super().__getitem__(idx)
+        return image, torch.tensor(self.targets[idx], dtype=torch.float32)
+
+
 def get_train_transforms(
     image_size: int = 224,
     *,
@@ -176,6 +240,9 @@ def create_data_loaders(
     num_workers: int = 0,
     pin_memory: bool = True,
     preprocessing: Optional[PreprocessingSpec] = None,
+    label_schema: Optional["LabelSchema"] = None,
+    label_manifest: Optional[Dict[str, List[str]]] = None,
+    manifest_root: Optional[Path] = None,
     **kwargs
 ) -> Tuple[DataLoader, DataLoader]:
     """
@@ -189,21 +256,40 @@ def create_data_loaders(
         num_workers: Number of worker processes for data loading
         pin_memory: Whether to pin memory for faster GPU transfer
         preprocessing: Normalization contract for the backbone (default: ImageNet)
-        **kwargs: Additional arguments (ignored for now)
+        label_schema: When given, build multi-label datasets with multi-hot targets over
+            this schema. Omitted means single-label targets from the folder layout.
+        label_manifest: Extra per-image labels, keyed relative to *manifest_root*
+        manifest_root: Base for the manifest's keys (default: each split's parent)
 
     Returns:
         Tuple of (train_loader, val_loader)
     """
     # Create datasets
-    train_dataset = ImageFolderDataset(
-        root=train_dir,
-        transform=get_train_transforms(image_size, preprocessing=preprocessing)
-    )
+    if label_schema is not None:
+        train_dataset: Dataset = MultiLabelImageFolderDataset(
+            root=train_dir,
+            schema=label_schema,
+            manifest=label_manifest,
+            manifest_root=manifest_root,
+            transform=get_train_transforms(image_size, preprocessing=preprocessing),
+        )
+        val_dataset: Dataset = MultiLabelImageFolderDataset(
+            root=val_dir,
+            schema=label_schema,
+            manifest=label_manifest,
+            manifest_root=manifest_root,
+            transform=get_val_transforms(image_size, preprocessing=preprocessing),
+        )
+    else:
+        train_dataset = ImageFolderDataset(
+            root=train_dir,
+            transform=get_train_transforms(image_size, preprocessing=preprocessing)
+        )
 
-    val_dataset = ImageFolderDataset(
-        root=val_dir,
-        transform=get_val_transforms(image_size, preprocessing=preprocessing)
-    )
+        val_dataset = ImageFolderDataset(
+            root=val_dir,
+            transform=get_val_transforms(image_size, preprocessing=preprocessing)
+        )
     
     # Verify classes match
     if train_dataset.classes != val_dataset.classes:

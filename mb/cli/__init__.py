@@ -40,6 +40,7 @@ from mb.models.types import (
     ExportSubcommand,
     FrameworkType,
     InfoSubcommand,
+    LabelMode,
     ModelBuildStepCommand,
     ModelType,
 )
@@ -481,6 +482,11 @@ def handle_train(args):
             run_id=getattr(args, "run_id", None),
             update_snapshot=not getattr(args, "skip_snapshot_update", False),
             cli_hyperparams=dict(cli_hyperparams),
+            label_mode=(
+                LabelMode.try_from(getattr(args, "label_mode", None))
+                or LabelMode.try_from(pipeline.get("data.label_mode"))
+                or LabelMode.get_default()
+            ),
         )
         model_path = trainer.train(run_args)
         

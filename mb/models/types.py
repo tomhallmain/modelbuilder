@@ -151,6 +151,45 @@ class ArchitectureType(str, Enum):
             return None
 
 
+class LabelMode(str, Enum):
+    """
+    Whether an image-classification model assigns one class or any number of them.
+
+    This is orthogonal to :class:`ModelType`: the data-preparation steps (gather, convert,
+    deduplicate, upscale, dataset creation) are identical either way, and only label
+    reading, loss, and scoring differ. Making it a separate model type would mean teaching
+    every ``model_type ==`` check in those steps about a distinction they do not care
+    about.
+    """
+
+    SINGLE_LABEL = "single_label"
+    """Softmax over mutually exclusive classes; the folder a file sits in is its label."""
+    MULTI_LABEL = "multi_label"
+    """Independent per-label sigmoids; labels come from a schema plus a sidecar manifest."""
+
+    @classmethod
+    def get_default(cls) -> LabelMode:
+        """Default label mode (matches packaged :file:`mb/config/default_pipeline.yaml`)."""
+        return cls.SINGLE_LABEL
+
+    @classmethod
+    def registered_values(cls) -> FrozenSet[str]:
+        """Set of all enum values (CLI ``--label-mode`` choices)."""
+        return frozenset(m.value for m in cls)
+
+    @classmethod
+    def try_from(cls, raw: object) -> LabelMode | None:
+        if raw is None:
+            return None
+        if isinstance(raw, LabelMode):
+            return raw
+        s = str(raw).strip().lower()
+        try:
+            return cls(s)
+        except ValueError:
+            return None
+
+
 class ClassWeightingMode(str, Enum):
     """
     ``training.class_weighting`` — how an imbalanced training set is compensated for.
@@ -502,10 +541,95 @@ Image Classification Data Structure:
 """
 
 
+class MultiLabelImageClassificationHandler(ImageClassificationHandler):
+    """
+    Handler for image classification where an image can carry several labels.
+
+    Differs from its single-label parent only in where labels come from: the ordered label
+    schema beside the dataset rather than the set of ``train/`` subdirectories. The folder
+    layout, and therefore every data-preparation step, is unchanged.
+    """
+
+    def get_num_classes(self, data_dir: Path) -> int:
+        """Label count from the schema, not from the number of class folders.
+
+        An image's folder is only its primary label, so counting folders would undercount
+        whenever a label appears solely in the manifest.
+        """
+        from mb.data.label_schema import load_label_schema
+
+        return load_label_schema(data_dir).num_labels
+
+    def validate_data(self, data_dir: Path) -> bool:
+        """Single-label layout checks plus a readable label schema."""
+        if not super().validate_data(data_dir):
+            return False
+
+        from mb.data.label_schema import LabelSchemaError, load_label_manifest, load_label_schema
+
+        try:
+            schema = load_label_schema(data_dir)
+            load_label_manifest(data_dir, schema)
+        except LabelSchemaError:
+            return False
+
+        # Every folder name has to be a label, or images in it could not be encoded.
+        train_dir = Path(data_dir) / "train"
+        known = set(schema.labels)
+        return all(d.name in known for d in train_dir.iterdir() if d.is_dir())
+
+    def get_data_structure_info(self) -> str:
+        """Get information about expected data structure."""
+        return """
+Multi-label Image Classification Data Structure:
+  data_dir/
+    label_schema.json      ordered labels, optional axes and thresholds
+    labels.jsonl           optional; one record per image with extra labels
+    train/
+      primary_label_a/
+        image1.jpg
+      primary_label_b/
+        ...
+    test/
+      primary_label_a/
+        ...
+
+Each image's labels are its folder name plus any the manifest adds for it. An
+existing single-label dataset is valid here with no manifest at all.
+"""
+
+
 # Registry for model type handlers
 _MODEL_TYPE_HANDLERS: Dict[ModelType, ModelTypeHandler] = {
     ModelType.IMAGE_CLASSIFICATION: ImageClassificationHandler(),
 }
+
+# Handlers selected by label mode within the image-classification family.
+_CLASSIFICATION_LABEL_MODE_HANDLERS: Dict[LabelMode, ModelTypeHandler] = {
+    LabelMode.MULTI_LABEL: MultiLabelImageClassificationHandler(),
+}
+
+
+def get_classification_handler(
+    model_type: ModelType,
+    label_mode: Optional[LabelMode] = None,
+) -> ModelTypeHandler:
+    """
+    Handler for *model_type*, specialized by *label_mode* where that applies.
+
+    Every mode other than multi-label image classification resolves through
+    :func:`get_model_type_handler` unchanged, so existing callers keep the handler they
+    already had.
+
+    Raises:
+        ValueError: If the model type is not supported.
+    """
+    if (
+        model_type == ModelType.IMAGE_CLASSIFICATION
+        and label_mode == LabelMode.MULTI_LABEL
+    ):
+        return _CLASSIFICATION_LABEL_MODE_HANDLERS[LabelMode.MULTI_LABEL]
+    return get_model_type_handler(model_type)
 
 
 def get_model_type_handler(model_type: ModelType) -> ModelTypeHandler:

@@ -39,6 +39,9 @@ data:
     - .wmv
     - .mov
     - .flv
+  # single_label | multi_label — multi_label reads label_schema.json and labels.jsonl under
+  # data_dir and trains independent per-label sigmoids (PyTorch only).
+  label_mode: single_label
   # null = discover subdirs of raw_data_dir; optional explicit class folder names
   class_names: null
   # null = any class folder layout under raw data; else require raw_data/<class>/<this_subdir>/…
