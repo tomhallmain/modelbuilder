@@ -87,19 +87,23 @@ class PreprocessingSpec:
 
 DEFAULT_PREPROCESSING = PreprocessingSpec()
 
-# SigLIP-family checkpoints normalize to [-1, 1] rather than by ImageNet channel statistics.
-# Values read from each checkpoint's own preprocessor_config.json (image_mean, image_std,
-# size, resample=2 => bilinear, which matches transforms.Resize's default).
-SIGLIP_MEAN: Tuple[float, float, float] = (0.5, 0.5, 0.5)
-SIGLIP_STD: Tuple[float, float, float] = (0.5, 0.5, 0.5)
+# SigLIP and ViT checkpoints normalize to [-1, 1] rather than by ImageNet channel
+# statistics. Values read from each checkpoint's own preprocessor_config.json (image_mean,
+# image_std, size, resample=2 => bilinear, which matches transforms.Resize's default).
+# Hugging Face backbones do not share a preprocessing contract, so every one of them must
+# appear below — inheriting the ImageNet default would be silently wrong rather than absent.
+# Named for the values rather than for a model family: SigLIP introduced them here, but ViT
+# uses the same ones, and a family-specific name would go stale on the next backbone.
+HALF_MEAN: Tuple[float, float, float] = (0.5, 0.5, 0.5)
+HALF_STD: Tuple[float, float, float] = (0.5, 0.5, 0.5)
 
 
-def _siglip2_spec(image_size: int) -> PreprocessingSpec:
-    """Fixed-resolution SigLIP2 contract at *image_size*."""
+def _fixed_grid_half_norm_spec(image_size: int) -> PreprocessingSpec:
+    """Square-resize, half-normalized contract for a fixed patch-grid transformer."""
     return PreprocessingSpec(
         image_size=image_size,
-        normalize_mean=SIGLIP_MEAN,
-        normalize_std=SIGLIP_STD,
+        normalize_mean=HALF_MEAN,
+        normalize_std=HALF_STD,
         # Position embeddings are learned per patch position on a fixed grid, so a
         # different input size changes the patch count and no longer matches the
         # pretrained embeddings.
@@ -109,9 +113,11 @@ def _siglip2_spec(image_size: int) -> PreprocessingSpec:
 
 # Architectures whose pretrained weights need something other than the ImageNet defaults.
 _SPECS: Dict[str, PreprocessingSpec] = {
-    ArchitectureType.SIGLIP2_BASE_PATCH16_224.value: _siglip2_spec(224),
-    ArchitectureType.SIGLIP2_BASE_PATCH16_256.value: _siglip2_spec(256),
-    ArchitectureType.SIGLIP2_BASE_PATCH16_384.value: _siglip2_spec(384),
+    ArchitectureType.SIGLIP2_BASE_PATCH16_224.value: _fixed_grid_half_norm_spec(224),
+    ArchitectureType.SIGLIP2_BASE_PATCH16_256.value: _fixed_grid_half_norm_spec(256),
+    ArchitectureType.SIGLIP2_BASE_PATCH16_384.value: _fixed_grid_half_norm_spec(384),
+    ArchitectureType.SIGLIP2_BASE_PATCH16_512.value: _fixed_grid_half_norm_spec(512),
+    ArchitectureType.VIT_BASE_PATCH16_224.value: _fixed_grid_half_norm_spec(224),
 }
 
 

@@ -10,6 +10,10 @@ the existing architecture registry with no changes to the loops.
 ``transformers`` is an optional dependency. Registration is guarded, so an install without
 it simply does not offer these architectures rather than failing to import.
 
+Backbones are declared as rows in :data:`HF_BACKBONES` rather than as one factory function
+each. Adding one is a hub id plus a config builder for its family, and it is picked up by the
+architecture registry, the CLI, and the parametrized tests without further work.
+
 The SigLIP2 entries here are the **fixed-resolution** checkpoints. Their ``config.json``
 declares ``model_type: siglip``, so they load through the SigLIP classes rather than the
 ``Siglip2`` ones, which serve the variable-resolution (naflex) variant. Resolving the class
@@ -19,6 +23,7 @@ hardcoding it here.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Any, Dict, Iterator, Union
 
 import torch.nn as nn
@@ -52,16 +57,93 @@ def problem_type_for(label_mode: Union[LabelMode, str, None]) -> str:
 # published against it.
 MIN_TRANSFORMERS_VERSION = "4.50.0"
 
-# Canonical architecture id -> Hugging Face hub id.
-SIGLIP2_HUB_IDS: Dict[str, str] = {
-    ArchitectureType.SIGLIP2_BASE_PATCH16_224.value: "google/siglip2-base-patch16-224",
-    ArchitectureType.SIGLIP2_BASE_PATCH16_256.value: "google/siglip2-base-patch16-256",
-    ArchitectureType.SIGLIP2_BASE_PATCH16_384.value: "google/siglip2-base-patch16-384",
+
+@dataclass(frozen=True)
+class HFBackbone:
+    """
+    One Hugging Face backbone the pipeline can train.
+
+    Args:
+        hub_id: Checkpoint to fine-tune from.
+        config_class: ``transformers`` config class name, used to rebuild the architecture
+            without fetching anything.
+        nested_vision_config: Whether the patch geometry belongs under a ``vision_config``
+            key. SigLIP is a composite vision-plus-text config; ViT is flat.
+        patch_size: Patch grid the checkpoint was trained with.
+
+    Every field is plain data rather than a callable, because the same description has to be
+    emitted into the standalone ``model_architecture.py`` an export bundle ships — a stub
+    that runs where this package is not installed cannot call back into it.
+
+    The input resolution is deliberately **not** stored here. It comes from the architecture's
+    registered :class:`~mb.models.preprocessing.PreprocessingSpec`, which is the same value the
+    transforms and the export manifest use — duplicating it would let the model's patch grid
+    and its declared preprocessing drift apart.
+    """
+
+    hub_id: str
+    config_class: str
+    nested_vision_config: bool = False
+    patch_size: int = 16
+
+    def config_kwargs(self, image_size: int) -> Dict[str, Any]:
+        """Geometry keywords for :attr:`config_class`, shaped for this family."""
+        geometry = {"image_size": image_size, "patch_size": self.patch_size}
+        return {"vision_config": geometry} if self.nested_vision_config else geometry
+
+    def build_config(self, image_size: int, num_classes: int, problem_type: str) -> Any:
+        """Instantiate the config for offline construction."""
+        import transformers
+
+        config_cls = getattr(transformers, self.config_class)
+        return config_cls(
+            num_labels=num_classes,
+            problem_type=problem_type,
+            **self.config_kwargs(image_size),
+        )
+
+
+HF_BACKBONES: Dict[str, HFBackbone] = {
+    ArchitectureType.SIGLIP2_BASE_PATCH16_224.value: HFBackbone(
+        "google/siglip2-base-patch16-224", "SiglipConfig", nested_vision_config=True
+    ),
+    ArchitectureType.SIGLIP2_BASE_PATCH16_256.value: HFBackbone(
+        "google/siglip2-base-patch16-256", "SiglipConfig", nested_vision_config=True
+    ),
+    ArchitectureType.SIGLIP2_BASE_PATCH16_384.value: HFBackbone(
+        "google/siglip2-base-patch16-384", "SiglipConfig", nested_vision_config=True
+    ),
+    ArchitectureType.SIGLIP2_BASE_PATCH16_512.value: HFBackbone(
+        "google/siglip2-base-patch16-512", "SiglipConfig", nested_vision_config=True
+    ),
+    # The in21k checkpoint has no classification head, which is what fine-tuning wants; the
+    # plain -224 variant carries an ImageNet-1k head that would be discarded anyway.
+    ArchitectureType.VIT_BASE_PATCH16_224.value: HFBackbone(
+        "google/vit-base-patch16-224-in21k", "ViTConfig"
+    ),
 }
 
-# Vision-tower geometry for the ``-base-patch16-*`` checkpoints, used only to build an
-# equivalent randomly-initialized model offline. Everything else is a SigLIP base default.
-_SIGLIP2_PATCH_SIZE = 16
+
+def hf_backbone_export_table() -> Dict[str, Dict[str, Any]]:
+    """
+    Plain-data description of every backbone, for embedding in a generated bundle stub.
+
+    Includes the input size, which the stub cannot look up because it has no access to the
+    preprocessing registry.
+    """
+    from mb.models.preprocessing import preprocessing_spec_for
+
+    return {
+        name: {
+            "config_class": backbone.config_class,
+            "nested_vision_config": backbone.nested_vision_config,
+            "patch_size": backbone.patch_size,
+            "image_size": preprocessing_spec_for(name).image_size,
+        }
+        for name, backbone in HF_BACKBONES.items()
+    }
+
+HF_HUB_IDS: Dict[str, str] = {key: b.hub_id for key, b in HF_BACKBONES.items()}
 
 
 class HFImageClassifier(nn.Module):
@@ -119,7 +201,7 @@ def _require_transformers():
     return AutoModelForImageClassification
 
 
-def create_siglip2(
+def create_hf_classifier(
     architecture: Union[ArchitectureType, str],
     num_classes: int,
     pretrained: bool = True,
@@ -128,10 +210,10 @@ def create_siglip2(
     **kwargs: Any,
 ) -> HFImageClassifier:
     """
-    Create a fixed-resolution SigLIP2 classifier.
+    Create a classifier for any backbone declared in :data:`HF_BACKBONES`.
 
     Args:
-        architecture: One of the ``siglip2_base_patch16_*`` ids.
+        architecture: A registered Hugging Face architecture id.
         num_classes: Number of output classes.
         pretrained: True downloads the checkpoint from the Hugging Face hub (or reads the
             local cache). False builds an equivalent randomly-initialized model and makes
@@ -143,11 +225,12 @@ def create_siglip2(
         The model wrapped so it returns a logits tensor.
     """
     arch_s = architecture.value if isinstance(architecture, ArchitectureType) else str(architecture).strip().lower()
-    hub_id = SIGLIP2_HUB_IDS.get(arch_s)
-    if hub_id is None:
+    backbone = HF_BACKBONES.get(arch_s)
+    if backbone is None:
         raise ValueError(
-            f"Unknown SigLIP2 architecture: {arch_s}. Supported: {sorted(SIGLIP2_HUB_IDS)}"
+            f"Unknown Hugging Face architecture: {arch_s}. Supported: {sorted(HF_BACKBONES)}"
         )
+    hub_id = backbone.hub_id
 
     problem_type = problem_type_for(label_mode)
     AutoModelForImageClassification = _require_transformers()
@@ -166,18 +249,13 @@ def create_siglip2(
         logger.info("Created %s from %s with %d classes", arch_s, hub_id, num_classes)
         return HFImageClassifier(model, arch_s, num_classes)
 
-    # Offline: build the same architecture from a config rather than fetching one. The
-    # image size drives the patch grid, so it has to match the named checkpoint.
+    # Offline: build the same architecture from a config rather than fetching one. The image
+    # size drives the patch grid, so it has to match the named checkpoint — which is why it
+    # comes from the registered preprocessing spec rather than being restated here.
     from mb.models.preprocessing import preprocessing_spec_for
 
     image_size = preprocessing_spec_for(arch_s).image_size
-    from transformers import SiglipConfig
-
-    config = SiglipConfig(
-        vision_config={"image_size": image_size, "patch_size": _SIGLIP2_PATCH_SIZE},
-        num_labels=num_classes,
-        problem_type=problem_type,
-    )
+    config = backbone.build_config(image_size, num_classes, problem_type)
     model = AutoModelForImageClassification.from_config(config)
     logger.info(
         "Created %s (randomly initialized, %dpx) with %d classes", arch_s, image_size, num_classes
@@ -185,8 +263,8 @@ def create_siglip2(
     return HFImageClassifier(model, arch_s, num_classes)
 
 
-def _make_siglip2_factory(arch_name: str):
-    return lambda num_classes, pretrained=True, **kwargs: create_siglip2(
+def _make_hf_factory(arch_name: str):
+    return lambda num_classes, pretrained=True, **kwargs: create_hf_classifier(
         arch_name, num_classes, pretrained, **kwargs
     )
 
@@ -218,13 +296,9 @@ def register_hf_architectures() -> bool:
         logger.debug("transformers not installed; Hugging Face architectures not registered")
         return False
 
-    for arch in (
-        ArchitectureType.SIGLIP2_BASE_PATCH16_224,
-        ArchitectureType.SIGLIP2_BASE_PATCH16_256,
-        ArchitectureType.SIGLIP2_BASE_PATCH16_384,
-    ):
+    for arch_name in HF_BACKBONES:
         try:
-            register_architecture(_FW, arch, _make_siglip2_factory(arch.value))
+            register_architecture(_FW, arch_name, _make_hf_factory(arch_name))
         except ValueError:
             # Already registered (module re-imported); keep the first registration.
             pass

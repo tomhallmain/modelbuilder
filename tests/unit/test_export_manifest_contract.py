@@ -131,29 +131,32 @@ def test_stub_layout_inference_still_detects_torchvision_and_fastai() -> None:
     assert infer_layout({}) == "torchvision"
 
 
-def test_stub_input_sizes_match_the_registered_specs() -> None:
+def test_stub_can_rebuild_every_hugging_face_backbone() -> None:
     """
-    The stub rebuilds the model offline, so it carries the input sizes as literals.
+    The stub rebuilds the model offline, so it carries each backbone's description literally.
 
-    Checked against the registered specs rather than against hardcoded numbers, so the two
-    cannot drift apart: a wrong size there means a patch grid that does not match the saved
-    weights, and the bundle fails to load.
+    Checked against the live table rather than hardcoded values, so adding a backbone that
+    the stub cannot rebuild fails here rather than at a consumer's bundle-load time. A wrong
+    size means a patch grid that does not match the saved weights; a wrong config class means
+    the wrong architecture entirely.
     """
+    from mb.models.frameworks.pytorch.hf_architectures import HF_BACKBONES
+
     tree = ast.parse(_rendered_stub(architecture="siglip2_base_patch16_384", num_classes=3))
     assign = next(
         node
         for node in tree.body
         if isinstance(node, ast.Assign)
-        and any(getattr(t, "id", None) == "SIGLIP_IMAGE_SIZES" for t in node.targets)
+        and any(getattr(t, "id", None) == "HF_BACKBONES" for t in node.targets)
     )
-    stub_sizes = ast.literal_eval(assign.value)
+    stub_table = ast.literal_eval(assign.value)
 
-    expected = {
-        arch.value: preprocessing_spec_for(arch).image_size
-        for arch in (
-            ArchitectureType.SIGLIP2_BASE_PATCH16_224,
-            ArchitectureType.SIGLIP2_BASE_PATCH16_256,
-            ArchitectureType.SIGLIP2_BASE_PATCH16_384,
-        )
-    }
-    assert stub_sizes == expected
+    # Every trainable Hugging Face backbone is rebuildable from the stub, at the same input
+    # size its preprocessing spec declares.
+    assert set(stub_table) == set(HF_BACKBONES)
+    for name, backbone in HF_BACKBONES.items():
+        entry = stub_table[name]
+        assert entry["image_size"] == preprocessing_spec_for(name).image_size
+        assert entry["config_class"] == backbone.config_class
+        assert entry["nested_vision_config"] == backbone.nested_vision_config
+        assert entry["patch_size"] == backbone.patch_size

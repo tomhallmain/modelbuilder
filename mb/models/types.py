@@ -113,11 +113,13 @@ class ArchitectureType(str, Enum):
     EFFICIENTNET_B2 = "efficientnet_b2"
     EFFICIENTNET_B3 = "efficientnet_b3"
     EFFICIENTNET_B4 = "efficientnet_b4"
-    # SigLIP2 fixed-resolution vision backbones (Hugging Face ``transformers``; optional
-    # dependency, so these register only when it is installed).
+    # Hugging Face ``transformers`` vision backbones (optional dependency, so these register
+    # only when it is installed). SigLIP2 entries are the fixed-resolution checkpoints.
     SIGLIP2_BASE_PATCH16_224 = "siglip2_base_patch16_224"
     SIGLIP2_BASE_PATCH16_256 = "siglip2_base_patch16_256"
     SIGLIP2_BASE_PATCH16_384 = "siglip2_base_patch16_384"
+    SIGLIP2_BASE_PATCH16_512 = "siglip2_base_patch16_512"
+    VIT_BASE_PATCH16_224 = "vit_base_patch16_224"
     # MobileNet (``torchvision.models`` / ``keras.applications``)
     MOBILENET_V2 = "mobilenet_v2"
     MOBILENET_V3_LARGE = "mobilenet_v3_large"

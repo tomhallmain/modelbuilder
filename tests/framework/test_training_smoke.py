@@ -123,31 +123,55 @@ def _force_random_init(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(PyTorchTrainer, "create_model", _random_init)
 
 
+def _hf_architectures_at(image_size: int) -> list[ArchitectureType]:
+    """
+    Registered Hugging Face backbones whose native size is *image_size*.
+
+    Derived from the backbone table rather than listed, so a new one is smoke-tested as soon
+    as it is declared. Restricted by size to keep CPU cost bounded: these are 86-93M
+    parameter models, and a 384 or 512 forward-and-backward pass is several times the work of
+    a 224 one for no additional coverage.
+    """
+    from mb.models.frameworks.pytorch.hf_architectures import HF_BACKBONES
+    from mb.models.preprocessing import preprocessing_spec_for
+
+    return [
+        arch
+        for name in sorted(HF_BACKBONES)
+        if (arch := ArchitectureType.try_from(name)) is not None
+        and preprocessing_spec_for(name).image_size == image_size
+    ]
+
+
 @pytest.mark.slow
 @pytest.mark.requires_torch
 @pytest.mark.requires_transformers
-def test_model_trainer_siglip2_one_epoch_cpu_smoke(
+@pytest.mark.parametrize("architecture", _hf_architectures_at(224), ids=lambda a: a.value)
+def test_model_trainer_hf_backbone_one_epoch_cpu_smoke(
+    architecture: ArchitectureType,
     two_class_classification_data_dir: Path,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """
-    One epoch through a Hugging Face backbone.
+    One epoch through each Hugging Face backbone.
 
     Covers what the unit tests cannot: that the adapter's logits tensor survives the loss,
     the frozen phase finds a head to unfreeze via ``head_parameters()``, and the resulting
-    state dict saves. The architecture is resolution-locked, so the image size has to match
-    its native 224 or training is rejected before it starts.
+    state dict saves. Each architecture is resolution-locked, so the image size comes from
+    its registered spec rather than a literal.
     """
     pytest.importorskip("torch", reason="PyTorch smoke test")
     pytest.importorskip("torchvision", reason="PyTorch smoke test")
     pytest.importorskip("transformers", reason="Hugging Face backbone smoke test")
     import torch
 
+    from mb.models.preprocessing import preprocessing_spec_for
+
     monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
     _force_random_init(monkeypatch)
 
-    out_dir = tmp_path / "models_siglip2"
+    out_dir = tmp_path / f"models_{architecture.value}"
     trainer = ModelTrainer(
         framework=FrameworkType.PYTORCH,
         model_type=ModelType.IMAGE_CLASSIFICATION,
@@ -155,7 +179,7 @@ def test_model_trainer_siglip2_one_epoch_cpu_smoke(
     )
     run_args = TrainingRunArgs(
         framework=FrameworkType.PYTORCH,
-        architecture=ArchitectureType.SIGLIP2_BASE_PATCH16_224,
+        architecture=architecture,
         data_dir=two_class_classification_data_dir,
         output_dir=out_dir,
         resume_from=None,
@@ -166,7 +190,7 @@ def test_model_trainer_siglip2_one_epoch_cpu_smoke(
             "unfrozen_epochs": 0,
             "batch_size": 2,
             "num_workers": 0,
-            "image_size": 224,
+            "image_size": preprocessing_spec_for(architecture).image_size,
         },
     )
     model_path = trainer.train(run_args)
