@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Dict, List, Tuple, Optional
 
 from mb.models.preprocessing import DEFAULT_PREPROCESSING, PreprocessingSpec
+from mb.models.types import ResizeMode
 
 if TYPE_CHECKING:
     from mb.data.label_schema import LabelSchema
@@ -183,6 +184,23 @@ class MultiLabelImageFolderDataset(ImageFolderDataset):
         return image, torch.tensor(self.targets[idx], dtype=torch.float32)
 
 
+def _fit_transforms(image_size: int, spec: PreprocessingSpec) -> List[object]:
+    """
+    The steps that bring a source image to *image_size*, per the spec's resize policy.
+
+    Shared by the train and validation builders so the two cannot diverge — evaluating a
+    model with a different geometry than it was trained on is silent, not an error.
+    """
+    if spec.resize_mode == ResizeMode.SHORTEST_EDGE_CROP:
+        # transforms.Resize with a single int scales the shortest edge and keeps the aspect
+        # ratio; the pair form squashes. The distinction is the whole point of this branch.
+        return [
+            transforms.Resize(spec.resize_target_for(image_size)),
+            transforms.CenterCrop(image_size),
+        ]
+    return [transforms.Resize((image_size, image_size))]
+
+
 def get_train_transforms(
     image_size: int = 224,
     *,
@@ -201,7 +219,7 @@ def get_train_transforms(
     """
     spec = preprocessing or DEFAULT_PREPROCESSING
     return transforms.Compose([
-        transforms.Resize((image_size, image_size)),
+        *_fit_transforms(image_size, spec),
         transforms.RandomHorizontalFlip(p=0.5),
         transforms.RandomRotation(degrees=10),
         transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
@@ -229,7 +247,7 @@ def get_val_transforms(
     """
     spec = preprocessing or DEFAULT_PREPROCESSING
     return transforms.Compose([
-        transforms.Resize((image_size, image_size)),
+        *_fit_transforms(image_size, spec),
         transforms.ToTensor(),
         transforms.Normalize(mean=list(spec.normalize_mean), std=list(spec.normalize_std))
     ])

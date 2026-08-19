@@ -121,6 +121,15 @@ HF_BACKBONES: Dict[str, HFBackbone] = {
     ArchitectureType.VIT_BASE_PATCH16_224.value: HFBackbone(
         "google/vit-base-patch16-224-in21k", "ViTConfig"
     ),
+    # Only the architecture is used here; the well-known FocalNet NSFW fine-tune is
+    # CC-BY-NC-SA, while these Microsoft base checkpoints carry no such restriction. Patch
+    # size 4, not 16 — it is a hierarchical model, not a plain patch-grid transformer.
+    ArchitectureType.FOCALNET_TINY.value: HFBackbone(
+        "microsoft/focalnet-tiny", "FocalNetConfig", patch_size=4
+    ),
+    ArchitectureType.FOCALNET_BASE.value: HFBackbone(
+        "microsoft/focalnet-base", "FocalNetConfig", patch_size=4
+    ),
 }
 
 

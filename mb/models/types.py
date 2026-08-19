@@ -120,6 +120,10 @@ class ArchitectureType(str, Enum):
     SIGLIP2_BASE_PATCH16_384 = "siglip2_base_patch16_384"
     SIGLIP2_BASE_PATCH16_512 = "siglip2_base_patch16_512"
     VIT_BASE_PATCH16_224 = "vit_base_patch16_224"
+    # FocalNet: a focal-modulation CNN/attention hybrid, neither ViT nor ResNet. Crops rather
+    # than squashing, so it needs the shortest-edge resize policy.
+    FOCALNET_TINY = "focalnet_tiny"
+    FOCALNET_BASE = "focalnet_base"
     # MobileNet (``torchvision.models`` / ``keras.applications``)
     MOBILENET_V2 = "mobilenet_v2"
     MOBILENET_V3_LARGE = "mobilenet_v3_large"
@@ -151,6 +155,37 @@ class ArchitectureType(str, Enum):
     def try_from(cls, raw: object) -> ArchitectureType | None:
         if raw is None:
             return None
+        s = str(raw).strip().lower()
+        try:
+            return cls(s)
+        except ValueError:
+            return None
+
+
+class ResizeMode(str, Enum):
+    """
+    How a source image is fitted to a model's input size.
+
+    Part of the exported preprocessing contract: the two produce visibly different crops, so
+    a consumer reproducing preprocessing must be told which one, not left to guess.
+    """
+
+    SQUASH = "squash"
+    """Resize both edges to an exact square, ignoring the source aspect ratio."""
+    SHORTEST_EDGE_CROP = "shortest_edge_crop"
+    """Resize the shortest edge, preserving aspect ratio, then centre-crop to the input size."""
+
+    @classmethod
+    def get_default(cls) -> ResizeMode:
+        """What the pipeline has always done, and what every torchvision backbone expects."""
+        return cls.SQUASH
+
+    @classmethod
+    def try_from(cls, raw: object) -> ResizeMode | None:
+        if raw is None:
+            return None
+        if isinstance(raw, ResizeMode):
+            return raw
         s = str(raw).strip().lower()
         try:
             return cls(s)

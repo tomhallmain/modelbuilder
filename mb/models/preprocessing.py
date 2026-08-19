@@ -19,7 +19,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, Optional, Tuple, Union
 
-from mb.models.types import ArchitectureType
+from mb.models.types import ArchitectureType, ResizeMode
 from mb.utils.logging_setup import get_logger
 from mb.utils.translations import _
 
@@ -45,10 +45,12 @@ class PreprocessingSpec:
         normalize_mean: Per-channel mean subtracted after scaling to ``[0, 1]``.
         normalize_std: Per-channel standard deviation divided after mean subtraction.
         channels: Input channel count (3 for every architecture registered today).
-        resize_mode: ``"squash"`` resizes to an exact square, ignoring source aspect ratio.
-            This is what the pipeline has always done; it is recorded so a consumer
-            reproducing preprocessing does not have to guess between squash and
-            resize-shortest-edge-then-crop, which produce visibly different crops.
+        resize_mode: How the source image is fitted. Recorded so a consumer reproducing
+            preprocessing does not have to guess between the two, which produce visibly
+            different crops.
+        resize_size: Shortest-edge target before cropping, used only by
+            :attr:`~mb.models.types.ResizeMode.SHORTEST_EDGE_CROP`. For that mode
+            :attr:`image_size` is the *crop* size, and this is the larger intermediate.
         resolution_locked: True when the backbone cannot accept an input size other than
             :attr:`image_size` without interpolating pretrained position embeddings — true
             for fixed-grid vision transformers, false for fully convolutional backbones.
@@ -58,8 +60,22 @@ class PreprocessingSpec:
     normalize_mean: Tuple[float, float, float] = IMAGENET_MEAN
     normalize_std: Tuple[float, float, float] = IMAGENET_STD
     channels: int = 3
-    resize_mode: str = "squash"
+    resize_mode: ResizeMode = ResizeMode.SQUASH
+    resize_size: Optional[int] = None
     resolution_locked: bool = False
+
+    def resize_target_for(self, image_size: int) -> int:
+        """
+        Shortest-edge target when cropping to *image_size*.
+
+        Scaled by the ratio this spec records rather than fixed, so the policy still holds
+        when a backbone that tolerates other resolutions is trained at one: FocalNet's
+        256-then-crop-224 becomes 366-then-crop-320 rather than cropping most of the frame
+        away.
+        """
+        if self.resize_size is None or self.image_size <= 0:
+            return int(image_size)
+        return max(int(image_size), round(int(image_size) * self.resize_size / self.image_size))
 
     def with_image_size(self, image_size: int) -> "PreprocessingSpec":
         """Copy of this spec at *image_size* (normalization and resize policy unchanged)."""
@@ -71,6 +87,10 @@ class PreprocessingSpec:
             normalize_std=self.normalize_std,
             channels=self.channels,
             resize_mode=self.resize_mode,
+            # Rescaled so the recorded ratio survives, matching resize_target_for.
+            resize_size=(
+                None if self.resize_size is None else self.resize_target_for(int(image_size))
+            ),
             resolution_locked=self.resolution_locked,
         )
 
@@ -81,7 +101,8 @@ class PreprocessingSpec:
             "channels": int(self.channels),
             "normalize_mean": list(self.normalize_mean),
             "normalize_std": list(self.normalize_std),
-            "resize_mode": self.resize_mode,
+            "resize_mode": self.resize_mode.value,
+            "resize_size": int(self.resize_size) if self.resize_size is not None else None,
         }
 
 
@@ -111,13 +132,29 @@ def _fixed_grid_half_norm_spec(image_size: int) -> PreprocessingSpec:
     )
 
 
-# Architectures whose pretrained weights need something other than the ImageNet defaults.
+def _shortest_edge_crop_spec(crop_size: int, resize_size: int) -> PreprocessingSpec:
+    """ImageNet-normalized contract that preserves aspect ratio and centre-crops."""
+    return PreprocessingSpec(
+        image_size=crop_size,
+        normalize_mean=IMAGENET_MEAN,
+        normalize_std=IMAGENET_STD,
+        resize_mode=ResizeMode.SHORTEST_EDGE_CROP,
+        resize_size=resize_size,
+    )
+
+
+# Architectures whose pretrained weights need something other than the ImageNet defaults —
+# which includes a different resize policy, not only different normalization.
 _SPECS: Dict[str, PreprocessingSpec] = {
     ArchitectureType.SIGLIP2_BASE_PATCH16_224.value: _fixed_grid_half_norm_spec(224),
     ArchitectureType.SIGLIP2_BASE_PATCH16_256.value: _fixed_grid_half_norm_spec(256),
     ArchitectureType.SIGLIP2_BASE_PATCH16_384.value: _fixed_grid_half_norm_spec(384),
     ArchitectureType.SIGLIP2_BASE_PATCH16_512.value: _fixed_grid_half_norm_spec(512),
     ArchitectureType.VIT_BASE_PATCH16_224.value: _fixed_grid_half_norm_spec(224),
+    # FocalNet keeps ImageNet statistics but crops rather than squashing, and has no absolute
+    # position embeddings, so it tolerates other input sizes.
+    ArchitectureType.FOCALNET_TINY.value: _shortest_edge_crop_spec(224, 256),
+    ArchitectureType.FOCALNET_BASE.value: _shortest_edge_crop_spec(224, 256),
 }
 
 

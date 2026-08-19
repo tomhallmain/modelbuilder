@@ -23,9 +23,46 @@ from mb.models.preprocessing import (
     preprocessing_spec_for,
     resolve_image_size,
 )
-from mb.models.types import ArchitectureType, FrameworkType, LabelMode
+from mb.models.types import ArchitectureType, FrameworkType, LabelMode, ResizeMode
 
 _HF_ARCHITECTURES = sorted(HF_BACKBONES)
+
+# The preprocessing contract each checkpoint declares, transcribed from its own
+# preprocessor_config.json. Recorded here rather than derived so that changing a spec fails
+# this test and forces whoever changed it to re-check the source — these values cannot be
+# reasoned out, and getting one wrong costs accuracy without raising anything.
+# Written out rather than imported from mb.models.preprocessing, deliberately: these are the
+# values the checkpoints publish, and an independent copy is what makes the comparison a
+# check rather than a tautology. Do not "deduplicate" them against the source constants.
+_HALF = (0.5, 0.5, 0.5)
+_IMAGENET_MEAN = (0.485, 0.456, 0.406)
+_IMAGENET_STD = (0.229, 0.224, 0.225)
+
+
+def _contract(mean, std, size, resize_mode, resize_size, locked):
+    return {
+        "mean": mean,
+        "std": std,
+        "image_size": size,
+        "resize_mode": resize_mode,
+        "resize_size": resize_size,
+        "resolution_locked": locked,
+    }
+
+
+_EXPECTED_CONTRACTS = {
+    "siglip2_base_patch16_224": _contract(_HALF, _HALF, 224, ResizeMode.SQUASH, None, True),
+    "siglip2_base_patch16_256": _contract(_HALF, _HALF, 256, ResizeMode.SQUASH, None, True),
+    "siglip2_base_patch16_384": _contract(_HALF, _HALF, 384, ResizeMode.SQUASH, None, True),
+    "siglip2_base_patch16_512": _contract(_HALF, _HALF, 512, ResizeMode.SQUASH, None, True),
+    "vit_base_patch16_224": _contract(_HALF, _HALF, 224, ResizeMode.SQUASH, None, True),
+    "focalnet_tiny": _contract(
+        _IMAGENET_MEAN, _IMAGENET_STD, 224, ResizeMode.SHORTEST_EDGE_CROP, 256, False
+    ),
+    "focalnet_base": _contract(
+        _IMAGENET_MEAN, _IMAGENET_STD, 224, ResizeMode.SHORTEST_EDGE_CROP, 256, False
+    ),
+}
 
 
 # --- Guards: the traps that breadth invites (see the backbone spec's testing section) ---
@@ -59,13 +96,29 @@ def test_backbone_table_and_preprocessing_table_agree() -> None:
     assert set(HF_BACKBONES) <= specs, f"backbones missing specs: {set(HF_BACKBONES) - specs}"
 
 
+def test_every_backbone_has_a_recorded_expected_contract() -> None:
+    """A new backbone must state what its checkpoint declares, not just that it declared it."""
+    assert set(_EXPECTED_CONTRACTS) == set(HF_BACKBONES)
+
+
 @pytest.mark.parametrize("arch", _HF_ARCHITECTURES)
-def test_hf_backbones_are_not_imagenet_normalized(arch: str) -> None:
-    """Every backbone currently in the table normalizes to [-1, 1], not by ImageNet stats."""
+def test_preprocessing_matches_the_checkpoint(arch: str) -> None:
+    """
+    Each spec reproduces the contract its checkpoint publishes.
+
+    Two axes vary independently across these backbones and neither can be inferred: SigLIP
+    and ViT normalize to [-1, 1] and squash to a square, while FocalNet keeps ImageNet
+    statistics but resizes the shortest edge and centre-crops.
+    """
+    expected = _EXPECTED_CONTRACTS[arch]
     spec = preprocessing_spec_for(arch)
-    assert spec.normalize_mean != IMAGENET_MEAN
-    assert spec.normalize_mean == (0.5, 0.5, 0.5)
-    assert spec.normalize_std == (0.5, 0.5, 0.5)
+
+    assert spec.normalize_mean == expected["mean"]
+    assert spec.normalize_std == expected["std"]
+    assert spec.image_size == expected["image_size"]
+    assert spec.resize_mode == expected["resize_mode"]
+    assert spec.resize_size == expected["resize_size"]
+    assert spec.resolution_locked is expected["resolution_locked"]
 
 
 @pytest.mark.parametrize("arch", _HF_ARCHITECTURES)
@@ -79,32 +132,42 @@ def test_hub_id_matches_the_architecture_id(arch: str) -> None:
     """
     The architecture id names the checkpoint it loads, so the two cannot drift apart.
 
-    ViT is the deliberate exception: its hub id carries an ``-in21k`` suffix because the
-    pretraining checkpoint, which has no classification head, is what fine-tuning wants.
+    Only the repository name is compared — the publishing organization varies (Google for
+    SigLIP and ViT, Microsoft for FocalNet). ViT is the deliberate exception on the name
+    itself: its hub id carries an ``-in21k`` suffix because the pretraining checkpoint, which
+    has no classification head, is what fine-tuning wants.
     """
-    hub_id = HF_HUB_IDS[arch]
-    expected = f"google/{arch.replace('_', '-')}"
-    assert hub_id in (expected, f"{expected}-in21k")
+    repo_name = HF_HUB_IDS[arch].split("/")[-1]
+    expected = arch.replace("_", "-")
+    assert repo_name in (expected, f"{expected}-in21k")
 
 
 # --- Resolution locking ---
 
 
 @pytest.mark.parametrize("arch", _HF_ARCHITECTURES)
-def test_fixed_grid_backbones_reject_a_mismatched_size(arch: str) -> None:
+def test_resolution_locking_follows_the_architecture(arch: str) -> None:
     """
-    Position embeddings are learned per patch position, so the input size is not free.
+    A fixed patch grid rejects other input sizes; a hierarchical backbone accepts them.
 
-    Training at another size silently interpolates them and costs accuracy without failing.
+    For the locked ones, training at another size silently interpolates learned position
+    embeddings and costs accuracy without failing — so it must be refused rather than warned
+    about. FocalNet has no absolute position embeddings and is genuinely size-flexible, so
+    refusing it would be wrong.
     """
     spec = preprocessing_spec_for(arch)
-    assert spec.resolution_locked is True
+    locked = _EXPECTED_CONTRACTS[arch]["resolution_locked"]
+    assert spec.resolution_locked is locked
 
-    other = 320 if spec.image_size != 320 else 224
-    with pytest.raises(ValueError):
-        resolve_image_size(arch, other)
-    assert resolve_image_size(arch, other, allow_mismatch=True) == other
+    other = 320 if spec.image_size != 320 else 288
     assert resolve_image_size(arch, spec.image_size) == spec.image_size
+
+    if locked:
+        with pytest.raises(ValueError):
+            resolve_image_size(arch, other)
+        assert resolve_image_size(arch, other, allow_mismatch=True) == other
+    else:
+        assert resolve_image_size(arch, other) == other
 
 
 def test_torchvision_backbones_are_unaffected() -> None:
