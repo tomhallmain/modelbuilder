@@ -155,6 +155,54 @@ def create_mobilenet(
     return model
 
 
+def _replace_final_linear(head: nn.Module, num_classes: int) -> None:
+    """
+    Resize the last :class:`~torch.nn.Linear` in a classification *head*, in place.
+
+    Locating the layer by searching backwards rather than by a literal index: a head is a
+    small ``Sequential`` whose composition varies by family and can change between
+    torchvision releases, and an index that silently points at a normalization or flatten
+    layer would leave the model at its pretrained class count with nothing raising.
+
+    Raises:
+        ValueError: If the head contains no Linear layer.
+    """
+    if isinstance(head, nn.Linear):
+        raise ValueError("Bare Linear heads must be replaced by the caller")
+    if isinstance(head, nn.Sequential):
+        for index in range(len(head) - 1, -1, -1):
+            layer = head[index]
+            if isinstance(layer, nn.Linear):
+                head[index] = nn.Linear(layer.in_features, num_classes)
+                return
+    raise ValueError(f"No Linear layer found in head of type {type(head).__name__}")
+
+
+def create_convnext(
+    architecture: Union[ArchitectureType, str],
+    num_classes: int,
+    pretrained: bool = True,
+    **kwargs,
+) -> nn.Module:
+    """Create ConvNeXt (``torchvision.models``)."""
+    arch_s = _architecture_str(architecture)
+    convnext_models = {
+        ArchitectureType.CONVNEXT_TINY.value: models.convnext_tiny,
+        ArchitectureType.CONVNEXT_SMALL.value: models.convnext_small,
+        ArchitectureType.CONVNEXT_BASE.value: models.convnext_base,
+        ArchitectureType.CONVNEXT_LARGE.value: models.convnext_large,
+    }
+    if arch_s not in convnext_models:
+        raise ValueError(
+            f"Unknown ConvNeXt architecture: {arch_s}. Supported: {list(convnext_models.keys())}"
+        )
+    model = convnext_models[arch_s](pretrained=pretrained, **kwargs)
+    # classifier is Sequential(norm, Flatten, Linear); the head is its last element.
+    _replace_final_linear(model.classifier, num_classes)
+    logger.info(f"Created {arch_s} with {num_classes} classes (pretrained={pretrained})")
+    return model
+
+
 def create_densenet(
     architecture: Union[ArchitectureType, str],
     num_classes: int,
@@ -234,6 +282,12 @@ def _make_mobilenet_factory(arch_name: str):
     )
 
 
+def _make_convnext_factory(arch_name: str):
+    return lambda num_classes, pretrained=True, **kwargs: create_convnext(
+        arch_name, num_classes, pretrained, **kwargs
+    )
+
+
 def _make_densenet_factory(arch_name: str):
     return lambda num_classes, pretrained=True, **kwargs: create_densenet(
         arch_name, num_classes, pretrained, **kwargs
@@ -250,6 +304,13 @@ for _arch in (
     ArchitectureType.MOBILENET_V3_SMALL,
 ):
     register_architecture(_FW, _arch, _make_mobilenet_factory(_arch.value))
+for _arch in (
+    ArchitectureType.CONVNEXT_TINY,
+    ArchitectureType.CONVNEXT_SMALL,
+    ArchitectureType.CONVNEXT_BASE,
+    ArchitectureType.CONVNEXT_LARGE,
+):
+    register_architecture(_FW, _arch, _make_convnext_factory(_arch.value))
 for _arch in (
     ArchitectureType.DENSENET121,
     ArchitectureType.DENSENET169,

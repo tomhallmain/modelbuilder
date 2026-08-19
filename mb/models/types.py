@@ -124,6 +124,11 @@ class ArchitectureType(str, Enum):
     MOBILENET_V2 = "mobilenet_v2"
     MOBILENET_V3_LARGE = "mobilenet_v3_large"
     MOBILENET_V3_SMALL = "mobilenet_v3_small"
+    # ConvNeXt (``torchvision.models``)
+    CONVNEXT_TINY = "convnext_tiny"
+    CONVNEXT_SMALL = "convnext_small"
+    CONVNEXT_BASE = "convnext_base"
+    CONVNEXT_LARGE = "convnext_large"
     # DenseNet
     DENSENET121 = "densenet121"
     DENSENET169 = "densenet169"
