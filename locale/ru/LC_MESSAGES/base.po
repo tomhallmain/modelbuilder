@@ -1,0 +1,4792 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"POT-Creation-Date: 2026-10-01 09:52-0400\n"
+"PO-Revision-Date: 2026-10-01 09:52-0400\n"
+"Last-Translator: Thomas Hall <tomhall.main@gmail.com>\n"
+"Language-Team: ru Team <<EMAIL>>\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: mb/info_inspect.py:43
+msgid "ONNX details unavailable (install onnx: pip install onnx)."
+msgstr "Сведения ONNX недоступны (установите onnx: pip install onnx)."
+
+#: mb/info_inspect.py:49
+msgid "Failed to load ONNX: {err}"
+msgstr "Не удалось загрузить ONNX: {err}"
+
+#: mb/info_inspect.py:79
+msgid "ONNX initializers (weight tensors): {n}"
+msgstr "Инициализаторы ONNX (тензоры весов): {n}"
+
+#: mb/info_inspect.py:80
+msgid "Embedded weight bytes: {n:,}"
+msgstr "Байты встроенных весов: {n:,}"
+
+#: mb/info_inspect.py:84
+msgid "External-data initializers: {n}"
+msgstr "Инициализаторы внешних данных: {n}"
+
+#: mb/info_inspect.py:89
+msgid "  External file: {path} ({n:,} bytes)"
+msgstr "  Внешний файл: {path} ({n:,} байт)"
+
+#: mb/info_inspect.py:95
+msgid "missing"
+msgstr "отсутствует"
+
+#: mb/info_inspect.py:97
+msgid "{n:,} bytes declared"
+msgstr "Объявлено {n:,} байт"
+
+#: mb/info_inspect.py:97
+msgid "size unknown"
+msgstr "размер неизвестен"
+
+#: mb/info_inspect.py:100
+msgid "  External file {status}: {path} ({detail})"
+msgstr "  Внешний файл {status}: {path} ({detail})"
+
+#: mb/info_inspect.py:110
+msgid "Inputs: {names}"
+msgstr "Входы: {names}"
+
+#: mb/info_inspect.py:112
+msgid "Outputs: {names}"
+msgstr "Выходы: {names}"
+
+#: mb/info_inspect.py:117 tests/test_info_inspect.py:13
+msgid ""
+"Warning: no weight tensors found in this ONNX file (graph-only or incomplete"
+" export)."
+msgstr ""
+"Предупреждение: в этом файле ONNX нет тензоров весов (только граф или "
+"неполный экспорт)."
+
+#: mb/info_inspect.py:128
+msgid ""
+"Warning: weights are stored in external data files that are missing next to "
+"the ONNX file."
+msgstr ""
+"Предупреждение: веса хранятся во внешних файлах данных, которых нет рядом с "
+"файлом ONNX."
+
+#: mb/info_inspect.py:140
+msgid "PyTorch details unavailable (install torch)."
+msgstr "Сведения PyTorch недоступны (установите torch)."
+
+#: mb/info_inspect.py:148
+msgid "Failed to load PyTorch file: {err}"
+msgstr "Не удалось загрузить файл PyTorch: {err}"
+
+#: mb/info_inspect.py:165
+msgid "State-dict tensors: {n}"
+msgstr "Тензоры state-dict: {n}"
+
+#: mb/info_inspect.py:166 mb/info_inspect.py:198
+msgid "Parameters: {n:,}"
+msgstr "Параметры: {n:,}"
+
+#: mb/info_inspect.py:167 mb/info_inspect.py:199
+msgid "Weight bytes: {n:,}"
+msgstr "Байты весов: {n:,}"
+
+#: mb/info_inspect.py:170
+msgid "Checkpoint layout: model_state_dict"
+msgstr "Структура контрольной точки: model_state_dict"
+
+#: mb/info_inspect.py:173
+msgid "Other checkpoint keys: {keys}"
+msgstr "Другие ключи контрольной точки: {keys}"
+
+#: mb/info_inspect.py:181
+msgid "SafeTensors details unavailable (install safetensors)."
+msgstr "Сведения SafeTensors недоступны (установите safetensors)."
+
+#: mb/info_inspect.py:194
+msgid "Failed to load SafeTensors file: {err}"
+msgstr "Не удалось загрузить файл SafeTensors: {err}"
+
+#: mb/info_inspect.py:197
+msgid "Tensors: {n}"
+msgstr "Тензоры: {n}"
+
+#: mb/info_inspect.py:227
+msgid "Path is not a file: {path}"
+msgstr "Путь не является файлом: {path}"
+
+#: mb/info_inspect.py:231
+msgid "Path: {path}"
+msgstr "Путь: {path}"
+
+#: mb/info_inspect.py:232
+msgid "Size: {n:,} bytes"
+msgstr "Размер: {n:,} байт"
+
+#: mb/info_inspect.py:233
+msgid "Detected framework/type: {fw}"
+msgstr "Обнаруженный фреймворк/тип: {fw}"
+
+#: mb/info_inspect.py:233 ui/pages/convert_page.py:276
+msgid "unknown"
+msgstr "неизвестно"
+
+#: mb/info_inspect.py:251
+msgid "Registered architectures:"
+msgstr "Зарегистрированные архитектуры:"
+
+#: mb/info_inspect.py:256
+msgid "(none)"
+msgstr "(нет)"
+
+#: mb/info_inspect.py:274
+msgid "Path is not a directory: {path}"
+msgstr "Путь не является каталогом: {path}"
+
+#: mb/info_inspect.py:276
+msgid "Data dir: {path}"
+msgstr "Каталог данных: {path}"
+
+#: mb/info_inspect.py:281
+msgid "  missing"
+msgstr "  отсутствует"
+
+#: mb/info_inspect.py:290
+msgid "  total: {n}"
+msgstr "  всего: {n}"
+
+#: mb/cli/__init__.py:57
+msgid "Model Builder - A unified CLI for building ML models"
+msgstr "Model Builder - единый CLI для создания моделей ML"
+
+#: mb/cli/__init__.py:69
+msgid "Path to configuration file (YAML)"
+msgstr "Путь к файлу конфигурации (YAML)"
+
+#: mb/cli/__init__.py:74
+msgid "Enable verbose logging"
+msgstr "Включить подробное ведение журнала"
+
+#: mb/cli/__init__.py:78
+msgid "Available commands"
+msgstr "Доступные команды"
+
+#: mb/cli/__init__.py:91
+msgid "Please specify valid subdirectories using --subdirs argument"
+msgstr "Укажите допустимые подкаталоги с помощью аргумента --subdirs"
+
+#: mb/cli/__init__.py:100
+msgid "Invalid weight format: {pair}. Expected format: subdir:weight"
+msgstr "Недопустимый формат веса: {pair}. Ожидаемый формат: subdir:weight"
+
+#: mb/cli/__init__.py:110
+msgid "Weight must be non-negative: {subdir}={weight}"
+msgstr "Вес не может быть отрицательным: {subdir}={weight}"
+
+#: mb/cli/__init__.py:121
+msgid "Subdirectories in weights not found in --subdirs: {weights}"
+msgstr "Подкаталоги из весов отсутствуют в --subdirs: {weights}"
+
+#: mb/cli/__init__.py:219
+msgid "Image generation dataset creation is not implemented yet."
+msgstr "Создание набора данных для генерации изображений ещё не реализовано."
+
+#: mb/cli/__init__.py:229
+msgid "Process terminated due to external storage detection."
+msgstr "Процесс завершён из-за обнаружения внешнего хранилища."
+
+#: mb/cli/__init__.py:278
+msgid "--pillow and --quiet require --dry-run"
+msgstr "--pillow и --quiet требуют --dry-run"
+
+#: mb/cli/__init__.py:281
+msgid "--pillow requires --json"
+msgstr "--pillow требует --json"
+
+#: mb/cli/__init__.py:324
+msgid "--data-dir is required when operation is create-dataset"
+msgstr "--data-dir обязателен, если операция равна create-dataset"
+
+#: mb/cli/__init__.py:356 mb/cli/__init__.py:403
+msgid "Image generation training is not implemented yet."
+msgstr "Обучение генерации изображений ещё не реализовано."
+
+#: mb/cli/__init__.py:359
+msgid "Image generation LoRA training is not implemented yet."
+msgstr "Обучение LoRA для генерации изображений ещё не реализовано."
+
+#: mb/cli/__init__.py:362
+msgid "Unsupported model type from config: {t}"
+msgstr "Неподдерживаемый тип модели в конфигурации: {t}"
+
+#: mb/cli/__init__.py:367 mb/cli/__init__.py:424
+#: mb/training/lora_diffusion_trainer.py:587
+msgid "Data directory does not exist: {path}"
+msgstr "Каталог данных не существует: {path}"
+
+#: mb/cli/__init__.py:379 mb/cli/__init__.py:467
+msgid "Architecture '{arch}' not supported for framework '{fw}'"
+msgstr "Архитектура '{arch}' не поддерживается для фреймворка '{fw}'"
+
+#: mb/cli/__init__.py:390 mb/cli/__init__.py:494
+msgid "Training completed successfully. Model saved to: {path}"
+msgstr "Обучение успешно завершено. Модель сохранена в: {path}"
+
+#: mb/cli/__init__.py:398 ui/controllers/train_page_controller.py:73
+msgid "Unsupported framework: {fw}"
+msgstr "Неподдерживаемый фреймворк: {fw}"
+
+#: mb/cli/__init__.py:410
+msgid "Unsupported model type: {t}"
+msgstr "Неподдерживаемый тип модели: {t}"
+
+#: mb/cli/__init__.py:418
+msgid "Unsupported architecture: {arch}"
+msgstr "Неподдерживаемая архитектура: {arch}"
+
+#: mb/cli/__init__.py:499
+msgid "Training failed: {err}"
+msgstr "Сбой обучения: {err}"
+
+#: mb/cli/__init__.py:510 mb/cli/__init__.py:623
+msgid "Input model file not found: {path}"
+msgstr "Входной файл модели не найден: {path}"
+
+#: mb/cli/__init__.py:518
+msgid ""
+"{path} looks like a LoRA adapter (from `mb train --model-type "
+"image_generation_lora`), not a full model checkpoint — `mb convert` doesn't "
+"apply to it. It's already a portable safetensors artifact, usable directly "
+"(e.g. a diffusers pipeline's load_lora_weights())."
+msgstr ""
+"{path} похож на адаптер LoRA (из `mb train --model-type "
+"image_generation_lora`), а не на полную контрольную точку модели — `mb "
+"convert` к нему неприменим. Это уже переносимый артефакт safetensors, его "
+"можно использовать напрямую (напр. load_lora_weights() конвейера diffusers)."
+
+#: mb/cli/__init__.py:532
+msgid "Could not detect source framework. Please specify --framework"
+msgstr "Не удалось определить исходный фреймворк. Укажите --framework"
+
+#: mb/cli/__init__.py:538
+msgid "PyTorch -> ONNX conversion requires --architecture and --num-classes"
+msgstr ""
+"Для преобразования PyTorch -> ONNX нужны --architecture и --num-classes"
+
+#: mb/cli/__init__.py:558
+msgid "Conversion completed successfully: {path}"
+msgstr "Преобразование успешно завершено: {path}"
+
+#: mb/cli/__init__.py:564
+msgid "--quantize applies to --target onnx only; skipping quantization."
+msgstr ""
+"--quantize действует только для --target onnx; квантование пропускается."
+
+#: mb/cli/__init__.py:572
+msgid "Only {n} of {total} quantized variants were written."
+msgstr "Записано только {n} из {total} квантованных вариантов."
+
+#: mb/cli/__init__.py:578
+msgid "Wrote quantized variant: {path}"
+msgstr "Квантованный вариант записан: {path}"
+
+#: mb/cli/__init__.py:581 ui/pages/convert_page.py:344
+msgid "Conversion failed"
+msgstr "Сбой преобразования"
+
+#: mb/cli/__init__.py:585
+msgid "Conversion error: {err}"
+msgstr "Ошибка преобразования: {err}"
+
+#: mb/cli/__init__.py:594 ui/pages/info_page.py:184
+msgid "Model path not found: {path}"
+msgstr "Путь к модели не найден: {path}"
+
+#: mb/cli/__init__.py:608 mb/evaluate/compare.py:157
+#: mb/evaluate/compare.py:193 mb/evaluate/metrics.py:162
+#: mb/evaluate/metrics.py:182 mb/evaluate/misclassified.py:84
+#: mb/evaluate/misclassified.py:104 ui/pages/info_page.py:198
+msgid "Data directory not found: {path}"
+msgstr "Каталог данных не найден: {path}"
+
+#: mb/cli/__init__.py:631
+msgid ""
+"{path} looks like a LoRA adapter (from `mb train --model-type "
+"image_generation_lora`), not a full model checkpoint — `mb export bundle` "
+"doesn't apply to it. It's already a portable safetensors artifact, usable "
+"directly (e.g. a diffusers pipeline's load_lora_weights())."
+msgstr ""
+"{path} похож на адаптер LoRA (из `mb train --model-type "
+"image_generation_lora`), а не на полную контрольную точку модели — `mb "
+"export bundle` к нему неприменим. Это уже переносимый артефакт safetensors, "
+"его можно использовать напрямую (напр. load_lora_weights() конвейера "
+"diffusers)."
+
+#: mb/cli/__init__.py:656
+msgid "Bundle export completed: {path}"
+msgstr "Экспорт пакета завершён: {path}"
+
+#: mb/cli/__init__.py:657 ui/pages/export_page.py:338
+msgid "Weights: {path}"
+msgstr "Веса: {path}"
+
+#: mb/cli/__init__.py:658 ui/pages/export_page.py:339
+msgid "Manifest: {path}"
+msgstr "Манифест: {path}"
+
+#: mb/cli/__init__.py:660 ui/pages/export_page.py:342
+msgid "Architecture stub: {path}"
+msgstr "Заготовка архитектуры: {path}"
+
+#: mb/cli/__init__.py:663
+msgid "Export failed: {err}"
+msgstr "Сбой экспорта: {err}"
+
+#: mb/cli/__init__.py:724
+msgid "No data subcommand specified"
+msgstr "Подкоманда данных не указана"
+
+#: mb/cli/__init__.py:729
+msgid "Unknown data subcommand: {cmd}"
+msgstr "Неизвестная подкоманда данных: {cmd}"
+
+#: mb/cli/__init__.py:751
+msgid "No info subcommand specified"
+msgstr "Подкоманда сведений не указана"
+
+#: mb/cli/__init__.py:755
+msgid "Unknown info subcommand: {cmd}"
+msgstr "Неизвестная подкоманда сведений: {cmd}"
+
+#: mb/cli/__init__.py:764
+msgid "No export subcommand specified"
+msgstr "Подкоманда экспорта не указана"
+
+#: mb/cli/__init__.py:768
+msgid "Unknown export subcommand: {cmd}"
+msgstr "Неизвестная подкоманда экспорта: {cmd}"
+
+#: mb/cli/__init__.py:772
+msgid "Unhandled export subcommand: {cmd}"
+msgstr "Необработанная подкоманда экспорта: {cmd}"
+
+#: mb/cli/__init__.py:778
+msgid "No evaluate subcommand specified"
+msgstr "Подкоманда оценки не указана"
+
+#: mb/cli/__init__.py:782
+msgid "Unknown evaluate subcommand: {cmd}"
+msgstr "Неизвестная подкоманда оценки: {cmd}"
+
+#: mb/cli/__init__.py:787 ui/pages/data_page.py:1263
+#: ui/pages/data_page.py:1493
+msgid "Unknown command: {cmd}"
+msgstr "Неизвестная команда: {cmd}"
+
+#: mb/cli/__init__.py:791
+msgid "Interrupted by user"
+msgstr "Прервано пользователем"
+
+#: mb/cli/__init__.py:794
+msgid "Error: {err}"
+msgstr "Ошибка: {err}"
+
+#: mb/cli/parsing/data.py:18
+msgid "Data processing operations"
+msgstr "Операции обработки данных"
+
+#: mb/cli/parsing/data.py:19
+msgid "Data processing operations for preparing image datasets"
+msgstr "Операции обработки данных для подготовки наборов данных изображений"
+
+#: mb/cli/parsing/data.py:23
+msgid "Data subcommands"
+msgstr "Подкоманды данных"
+
+#: mb/cli/parsing/data.py:30
+msgid "Gather images from source directories"
+msgstr "Собрать изображения из исходных каталогов"
+
+#: mb/cli/parsing/data.py:32
+msgid ""
+"Gather images from source directories into a target directory, with "
+"deduplication and optional weighting by subdirectory."
+msgstr ""
+"Собирает изображения из исходных каталогов в целевой каталог, с удалением "
+"дубликатов и необязательными весами по подкаталогам."
+
+#: mb/cli/parsing/data.py:40
+msgid "Source directory containing images"
+msgstr "Исходный каталог с изображениями"
+
+#: mb/cli/parsing/data.py:46
+msgid "Subdirectories to process"
+msgstr "Подкаталоги для обработки"
+
+#: mb/cli/parsing/data.py:53
+msgid ""
+"Target number of images to gather (default: from pipeline "
+"data.gather.default_target_count). Treated as a limit, not an exact "
+"requirement."
+msgstr ""
+"Целевое число собираемых изображений (по умолчанию: из конвейера, "
+"data.gather.default_target_count). Это предел, а не точное требование."
+
+#: mb/cli/parsing/data.py:61
+msgid ""
+"Target directory for gathered images (default: from pipeline "
+"data.gather.default_target_dir)"
+msgstr ""
+"Целевой каталог собранных изображений (по умолчанию: из конвейера, "
+"data.gather.default_target_dir)"
+
+#: mb/cli/parsing/data.py:67
+msgid ""
+"Rejected directory for manually rejected images (default: "
+"data.gather.default_rejected_dir)"
+msgstr ""
+"Каталог отклонения для изображений, отклонённых вручную (по умолчанию: "
+"data.gather.default_rejected_dir)"
+
+#: mb/cli/parsing/data.py:73
+msgid ""
+"Relative weights for subdirectories: \"subdir1:weight1,subdir2:weight2\" "
+"(e.g. \"neutral:4,drawing:1\" ≈ 80%%/20%%, or \"neutral:0.8,drawing:0.2\"). "
+"Weights are normalized automatically; any positive numbers work."
+msgstr ""
+"Относительные веса подкаталогов: \"subdir1:weight1,subdir2:weight2\" (напр. "
+"\"neutral:4,drawing:1\" ~ 80%%/20%% или \"neutral:0.8,drawing:0.2\"). Веса "
+"нормализуются автоматически; подходит любое положительное число."
+
+#: mb/cli/parsing/data.py:82
+msgid ""
+"Root directory for raw data (default: data.raw_data_dir in pipeline config)"
+msgstr ""
+"Корневой каталог необработанных данных (по умолчанию: data.raw_data_dir в "
+"конфигурации конвейера)"
+
+#: mb/cli/parsing/data.py:89
+msgid ""
+"Pipeline model type (default: model.default_type). When "
+"image_classification, gather also considers configured video extensions."
+msgstr ""
+"Тип модели конвейера (по умолчанию: model.default_type). При "
+"image_classification сбор также учитывает заданные расширения видео."
+
+#: mb/cli/parsing/data.py:97
+msgid "Convert images to specified format"
+msgstr "Преобразовать изображения в указанный формат"
+
+#: mb/cli/parsing/data.py:99
+msgid ""
+"Convert images in the raw data directory to a specified format (e.g., JPEG)."
+" Large images are automatically resized to prevent memory issues."
+msgstr ""
+"Преобразует изображения в каталоге необработанных данных в указанный формат "
+"(напр., JPEG). Крупные изображения автоматически меняют размер, чтобы "
+"избежать проблем с памятью."
+
+#: mb/cli/parsing/data.py:107 mb/cli/parsing/data.py:194
+#: mb/cli/parsing/data.py:220 mb/cli/parsing/data.py:413
+msgid "Raw data directory (default: raw_data)"
+msgstr "Каталог необработанных данных (по умолчанию: raw_data)"
+
+#: mb/cli/parsing/data.py:114
+msgid ""
+"Target format for converted outputs (default: jpeg). The converter is "
+"currently JPEG-oriented; non-default values may be ignored until "
+"implemented."
+msgstr ""
+"Целевой формат преобразованных результатов (по умолчанию: jpeg). "
+"Преобразователь сейчас ориентирован на JPEG; значения, отличные от значения "
+"по умолчанию, могут игнорироваться, пока их не реализуют."
+
+#: mb/cli/parsing/data.py:123
+msgid ""
+"Pipeline model type (default: model.default_type). When "
+"image_classification, videos and multi-frame GIFs get a random frame as "
+"JPEG."
+msgstr ""
+"Тип модели конвейера (по умолчанию: model.default_type). При "
+"image_classification видео и многокадровые GIF получают случайный кадр в "
+"виде JPEG."
+
+#: mb/cli/parsing/data.py:131
+msgid ""
+"Allow convert to run even if the raw-data drive appears to have insufficient"
+" free space (heuristic estimate; not recommended)."
+msgstr ""
+"Разрешить запуск convert, даже если на диске необработанных данных, по "
+"оценке, недостаточно свободного места (эвристическая оценка; не "
+"рекомендуется)."
+
+#: mb/cli/parsing/data.py:140
+msgid ""
+"Unified snapshot run ID to update (snapshot_<run_id>.json under raw data). "
+"Omit to start a new snapshot with a new run ID."
+msgstr ""
+"Идентификатор запуска единого снимка для обновления (snapshot_<run_id>.json "
+"в необработанных данных). Если не указан, начинается новый снимок с новым "
+"идентификатором запуска."
+
+#: mb/cli/parsing/data.py:148
+msgid "Remove duplicate images"
+msgstr "Удалить повторяющиеся изображения"
+
+#: mb/cli/parsing/data.py:150
+msgid ""
+"Remove duplicate images within and across class directories. Uses perceptual"
+" hashing to identify duplicates and moves them to a review directory."
+msgstr ""
+"Удаляет повторяющиеся изображения внутри каталогов классов и между ними. "
+"Использует перцептивное хеширование, чтобы найти дубликаты, и перемещает их "
+"в каталог проверки."
+
+#: mb/cli/parsing/data.py:159
+msgid ""
+"Root raw data directory containing class subdirectories (default: raw_data)."
+" Typical layouts include multiple class folders under this root."
+msgstr ""
+"Корневой каталог необработанных данных с подкаталогами классов (по "
+"умолчанию: raw_data). Обычные структуры включают несколько папок классов под"
+" этим корнем."
+
+#: mb/cli/parsing/data.py:167
+msgid ""
+"Scan and print duplicate groups as indented JSON (no removals). Useful for "
+"manual review workflows."
+msgstr ""
+"Сканирует и выводит группы дубликатов как JSON с отступами (без удалений). "
+"Удобно для ручной проверки."
+
+#: mb/cli/parsing/data.py:176
+msgid ""
+"Optional unified snapshot run ID to update with deduplication metadata. If "
+"omitted, the latest loadable snapshot under raw data is used when available."
+msgstr ""
+"Необязательный идентификатор запуска единого снимка, который обновляется "
+"метаданными дедупликации. Если не указан, при наличии используется последний"
+" загружаемый снимок в необработанных данных."
+
+#: mb/cli/parsing/data.py:184
+msgid "Upscale small images"
+msgstr "Увеличить маленькие изображения"
+
+#: mb/cli/parsing/data.py:186
+msgid ""
+"Upscale images that are smaller than a minimum dimension threshold. Small "
+"images are moved to a review directory for manual inspection before "
+"upscaling."
+msgstr ""
+"Увеличивает изображения меньше порога минимального размера. Маленькие "
+"изображения перед увеличением перемещаются в каталог проверки для ручного "
+"осмотра."
+
+#: mb/cli/parsing/data.py:200
+msgid ""
+"Review directory containing small images to upscale (default: <raw-data-"
+"dir>/small_images_review). Upscaled outputs go under <review-"
+"dir>/upscaled_small_images."
+msgstr ""
+"Каталог проверки с маленькими изображениями для увеличения (по умолчанию: "
+"<raw-data-dir>/small_images_review). Увеличенные результаты помещаются в "
+"<review-dir>/upscaled_small_images."
+
+#: mb/cli/parsing/data.py:209
+msgid "Create train/test dataset splits"
+msgstr "Создать разбиения набора данных на обучение и тест"
+
+#: mb/cli/parsing/data.py:211
+msgid ""
+"Create training and test dataset splits from raw data. Validates images, "
+"removes corrupted files, filters by size, and creates balanced train/test "
+"splits with hash-based filenames."
+msgstr ""
+"Создает разбиения набора данных на обучение и тест из необработанных данных."
+" Проверяет изображения, удаляет поврежденные файлы, фильтрует по размеру и "
+"создает сбалансированные разбиения обучение/тест с именами файлов на основе "
+"хеша."
+
+#: mb/cli/parsing/data.py:226
+msgid "Output data directory (default: data)"
+msgstr "Каталог выходных данных (по умолчанию: data)"
+
+#: mb/cli/parsing/data.py:233
+msgid ""
+"Number of items per class in the test split when mode is fixed; also the "
+"anchor for dataset-weighted mode (default: data.test_per_class from pipeline"
+" YAML)."
+msgstr ""
+"Число элементов на класс в тестовом разбиении, когда режим равен fixed; "
+"также якорь режима dataset-weighted (по умолчанию: data.test_per_class из "
+"YAML конвейера)."
+
+#: mb/cli/parsing/data.py:242
+msgid ""
+"fixed = test_per_class images per class; dataset-weighted = modulated counts"
+" from class size vs total (default: data.test_split_mode in pipeline YAML, "
+"else fixed)."
+msgstr ""
+"fixed = test_per_class изображений на класс; dataset-weighted = "
+"скорректированные количества по размеру класса относительно общего числа (по"
+" умолчанию: data.test_split_mode в YAML конвейера, иначе fixed)."
+
+#: mb/cli/parsing/data.py:251
+msgid ""
+"With dataset-weighted mode: classes with fewer images than this use a "
+"proportional test count; larger classes use anchor + anchor×(class_share). "
+"Omit to use --test-per-class as the threshold (default: pipeline "
+"data.test_small_class_threshold)."
+msgstr ""
+"В режиме dataset-weighted: классы с меньшим числом изображений, чем это "
+"значение, используют пропорциональное число тестовых элементов; более "
+"крупные классы используют якорь + якорь x (class_share). Если не указано, "
+"порогом служит --test-per-class (по умолчанию: "
+"data.test_small_class_threshold конвейера)."
+
+#: mb/cli/parsing/data.py:261
+msgid ""
+"Random seed for reproducibility (default: data.seed from pipeline YAML when "
+"set, else non-deterministic)"
+msgstr ""
+"Случайное начальное значение для воспроизводимости (по умолчанию: data.seed "
+"из YAML конвейера, если задано, иначе недетерминированное)"
+
+#: mb/cli/parsing/data.py:267 mb/cli/parsing/train.py:191
+msgid ""
+"Run ID of unified snapshot to update (auto-detects latest if not provided)"
+msgstr ""
+"Идентификатор запуска единого снимка для обновления (если не указан, "
+"автоматически выбирается последний)"
+
+#: mb/cli/parsing/data.py:273
+msgid ""
+"Balance the training set to the smallest class size (default: off, keeps "
+"natural proportions)."
+msgstr ""
+"Выровнять обучающий набор по размеру наименьшего класса (по умолчанию: off, "
+"сохраняет естественные доли)."
+
+#: mb/cli/parsing/data.py:280
+msgid ""
+"Maximum training items per class (no limit if omitted; keeps natural "
+"proportions below the cap)."
+msgstr ""
+"Максимум обучающих элементов на класс (без ограничения, если не указано; "
+"ниже предела сохраняются естественные доли)."
+
+#: mb/cli/parsing/data.py:286
+msgid "Allow running on external/removable storage (not recommended)"
+msgstr "Разрешить запуск на внешнем или съёмном носителе (не рекомендуется)"
+
+#: mb/cli/parsing/data.py:292
+msgid ""
+"Allow create-dataset even if the output data drive appears to have "
+"insufficient free space (heuristic estimate; not recommended)."
+msgstr ""
+"Разрешить create-dataset, даже если на диске выходных данных, по оценке, "
+"недостаточно свободного места (эвристическая оценка; не рекомендуется)."
+
+#: mb/cli/parsing/data.py:301
+msgid ""
+"Pipeline model type (default: model.default_type). image_classification "
+"builds train/test ImageFolder splits from class subdirectories (all other "
+"options above apply); image_generation_lora instead copies every image "
+"directly under --raw-data-dir (no class folders, no train/test split) plus "
+"its optional .txt caption sidecar into --data-dir, for LoRA fine-tuning of "
+"an image-generation model."
+msgstr ""
+"Тип модели конвейера (по умолчанию: model.default_type). "
+"image_classification строит разбиения обучение/тест ImageFolder из "
+"подкаталогов классов (действуют все остальные параметры выше); "
+"image_generation_lora вместо этого копирует в --data-dir каждое изображение "
+"непосредственно из --raw-data-dir (без папок классов и без разбиения на "
+"обучение/тест) вместе с необязательным сопроводительным файлом подписи .txt "
+"для тонкой настройки LoRA модели генерации изображений."
+
+#: mb/cli/parsing/data.py:312
+msgid "Rename mislabeled .jpg sources and rebuild CONVERTED JPEGs"
+msgstr ""
+"Переименовать неверно помеченные исходные .jpg и заново собрать JPEG в "
+"CONVERTED"
+
+#: mb/cli/parsing/data.py:314
+msgid ""
+"Finds non-JPEG bytes under .jpg/.jpeg names in class source trees (same "
+"discovery as convert), writes corrected JPEGs, and removes stale copies "
+"under CONVERTED and small_images_review only after a successful write. "
+"Animated GIFs use the same random-frame + visual_media_review layout as "
+"convert when the model type is image_classification."
+msgstr ""
+"Находит байты, которые не являются JPEG, под именами .jpg/.jpeg в исходных "
+"деревьях классов (то же обнаружение, что у convert), записывает исправленные"
+" JPEG и удаляет устаревшие копии в CONVERTED и small_images_review только "
+"после успешной записи. Анимированные GIF используют ту же схему случайный "
+"кадр + visual_media_review, что и convert, когда тип модели равен "
+"image_classification."
+
+#: mb/cli/parsing/data.py:325
+msgid ""
+"Raw data directory (default: data.raw_data_dir from the pipeline config "
+"after --config; same as gather/convert when omitted)."
+msgstr ""
+"Каталог необработанных данных (по умолчанию: data.raw_data_dir из "
+"конфигурации конвейера после --config; если не указан, то же, что у "
+"gather/convert)."
+
+#: mb/cli/parsing/data.py:332
+msgid "Log planned repairs only; do not rename files or write outputs."
+msgstr ""
+"Записывать в журнал только запланированные исправления; не переименовывать "
+"файлы и не записывать результаты."
+
+#: mb/cli/parsing/data.py:339
+msgid ""
+"Print newline-delimited JSON (stdout): dry-run or live repair. By default "
+"only actionable mismatches are listed; use -v to include policy-skipped "
+"PNG/WebP/BMP/TIFF under .jpg. Live repair emits one line per successful fix "
+"when applicable."
+msgstr ""
+"Печатает JSON с разделителем-переводом строки (stdout): пробный прогон или "
+"реальное исправление. По умолчанию перечисляются только исправимые "
+"несоответствия; используйте -v, чтобы включить пропущенные политикой "
+"PNG/WebP/BMP/TIFF под .jpg. Реальное исправление выводит одну строку на "
+"каждое успешное исправление, когда это применимо."
+
+#: mb/cli/parsing/data.py:348
+msgid ""
+"With --dry-run and --json: include Pillow format and GIF metadata in each "
+"JSON object."
+msgstr ""
+"С --dry-run и --json: включать формат Pillow и метаданные GIF в каждый "
+"объект JSON."
+
+#: mb/cli/parsing/data.py:355
+msgid ""
+"With --dry-run: omit verbose per-file log lines (use with --json for "
+"machine-readable output only)."
+msgstr ""
+"С --dry-run: не выводить подробные строки журнала по каждому файлу "
+"(используйте вместе с --json, если нужна только машиночитаемая выдача)."
+
+#: mb/cli/parsing/data.py:364
+msgid ""
+"With --json: include policy-skipped static-format mismatches in JSON output."
+" In text mode: log each policy-skipped file and class progress for every "
+"folder; with live repair, log each skipped file. Useless with --quiet. "
+"Separate from top-level mb -v (global logging)."
+msgstr ""
+"С --json: включать в вывод JSON несоответствия статического формата, "
+"пропущенные политикой. В текстовом режиме: записывать в журнал каждый "
+"пропущенный политикой файл и ход по классам для каждой папки; при реальном "
+"исправлении записывать каждый пропущенный файл. Бесполезно вместе с --quiet."
+" Отдельно от mb -v верхнего уровня (глобальное журналирование)."
+
+#: mb/cli/parsing/data.py:374
+msgid ""
+"Also rename/repair mislabeled .jpg/.jpeg whose bytes are PNG, WebP, BMP, or "
+"TIFF. By default those are counted and summarized per class only (GIF and "
+"animated-IC cases are always repaired)."
+msgstr ""
+"Также переименовывает или исправляет неверно помеченные .jpg/.jpeg, байты "
+"которых являются PNG, WebP, BMP или TIFF. По умолчанию они только "
+"подсчитываются и сводятся по классам (случаи GIF и animated-IC исправляются "
+"всегда)."
+
+#: mb/cli/parsing/data.py:382
+msgid "Pipeline model type (default: model.default_type)."
+msgstr "Тип модели конвейера (по умолчанию: model.default_type)."
+
+#: mb/cli/parsing/data.py:388
+msgid "RNG seed for random GIF frame selection (optional)."
+msgstr "Начальное значение для случайного выбора кадра GIF (необязательно)."
+
+#: mb/cli/parsing/data.py:394
+msgid "Estimate disk space needed for convert or create-dataset"
+msgstr "Оценить место на диске для convert или create-dataset"
+
+#: mb/cli/parsing/data.py:396
+msgid ""
+"Walks source files (same rules as convert/dataset) and compares a rough byte"
+" estimate to free space on the target volume. Exits non-zero if the estimate"
+" exceeds free space."
+msgstr ""
+"Обходит исходные файлы (те же правила, что у convert/dataset) и сравнивает "
+"грубую оценку в байтах со свободным местом на целевом томе. Завершается с "
+"ненулевым кодом, если оценка превышает свободное место."
+
+#: mb/cli/parsing/data.py:407
+msgid "Which step to estimate for"
+msgstr "Шаг, для которого считать оценку"
+
+#: mb/cli/parsing/data.py:418
+msgid "Output data directory (required when operation is create-dataset)"
+msgstr ""
+"Каталог выходных данных (обязателен, когда операция равна create-dataset)"
+
+#: mb/cli/parsing/evaluate.py:16
+msgid "Evaluate trained models or datasets"
+msgstr "Оценить обученные модели или наборы данных"
+
+#: mb/cli/parsing/evaluate.py:18
+msgid ""
+"Score a trained classifier on your train/test tree, surface likely labeling "
+"mistakes, or compare two checkpoints on the same data."
+msgstr ""
+"Оценивает обученный классификатор на дереве обучение/тест, показывает "
+"вероятные ошибки разметки или сравнивает две контрольные точки на одних и "
+"тех же данных."
+
+#: mb/cli/parsing/evaluate.py:24
+msgid "Evaluate subcommands"
+msgstr "Подкоманды оценки"
+
+#: mb/cli/parsing/evaluate.py:30
+msgid "Compute classification metrics on a labeled split"
+msgstr "Вычислить метрики классификации на размеченном разбиении"
+
+#: mb/cli/parsing/evaluate.py:32
+msgid ""
+"Accuracy, confusion matrix, and per-class counts on an ImageFolder-style "
+"directory (class-named subfolders of images). PyTorch requires "
+"--architecture and a .pth/.pt file."
+msgstr ""
+"Точность, матрица ошибок и количества по классам в каталоге в стиле "
+"ImageFolder (подпапки изображений с именами классов). Для PyTorch нужны "
+"--architecture и файл .pth/.pt."
+
+#: mb/cli/parsing/evaluate.py:40 mb/cli/parsing/evaluate.py:133
+msgid "Path to trained model file (.pth / .pt / .h5 / .keras)"
+msgstr "Путь к файлу обученной модели (.pth / .pt / .h5 / .keras)"
+
+#: mb/cli/parsing/evaluate.py:46 mb/cli/parsing/evaluate.py:139
+#: mb/cli/parsing/evaluate.py:234
+msgid "ImageFolder root (e.g. .../test with one subfolder per class)"
+msgstr "Корень ImageFolder (напр. .../test с одной подпапкой на класс)"
+
+#: mb/cli/parsing/evaluate.py:52 mb/cli/parsing/evaluate.py:145
+msgid "Training framework (default: infer from file extension)"
+msgstr "Фреймворк обучения (по умолчанию: определить по расширению файла)"
+
+#: mb/cli/parsing/evaluate.py:58 mb/cli/parsing/evaluate.py:151
+msgid ""
+"Model architecture id (required for PyTorch .pth checkpoints, e.g. resnet34)"
+msgstr ""
+"Идентификатор архитектуры модели (обязателен для контрольных точек .pth "
+"PyTorch, напр. resnet34)"
+
+#: mb/cli/parsing/evaluate.py:64 mb/cli/parsing/evaluate.py:157
+#: mb/cli/parsing/evaluate.py:264
+msgid "Override class count (default: infer from directory layout)"
+msgstr ""
+"Переопределить число классов (по умолчанию: определить по структуре "
+"каталога)"
+
+#: mb/cli/parsing/evaluate.py:70 mb/cli/parsing/evaluate.py:163
+#: mb/cli/parsing/evaluate.py:270
+msgid "Pipeline model type (default: image_classification)"
+msgstr "Тип модели конвейера (по умолчанию: image_classification)"
+
+#: mb/cli/parsing/evaluate.py:76 mb/cli/parsing/evaluate.py:169
+#: mb/cli/parsing/evaluate.py:276
+msgid "Square input size (default: 224)"
+msgstr "Квадратный размер входа (по умолчанию: 224)"
+
+#: mb/cli/parsing/evaluate.py:82 mb/cli/parsing/evaluate.py:175
+#: mb/cli/parsing/evaluate.py:282
+msgid "Batch size (default: 32)"
+msgstr "Размер пакета (по умолчанию: 32)"
+
+#: mb/cli/parsing/evaluate.py:88 mb/cli/parsing/evaluate.py:181
+#: mb/cli/parsing/evaluate.py:288
+msgid "DataLoader workers for PyTorch (default: 0)"
+msgstr "Рабочие DataLoader для PyTorch (по умолчанию: 0)"
+
+#: mb/cli/parsing/evaluate.py:94 mb/cli/parsing/evaluate.py:187
+#: mb/cli/parsing/evaluate.py:294
+msgid "PyTorch device override, e.g. cuda or cpu (default: auto)"
+msgstr ""
+"Переопределение устройства PyTorch, напр. cuda или cpu (по умолчанию: auto)"
+
+#: mb/cli/parsing/evaluate.py:101
+msgid ""
+"How the model's output is interpreted (default: single_label). multi_label "
+"reads label_schema.json beside the dataset and reports per-label metrics "
+"instead of accuracy and a confusion matrix."
+msgstr ""
+"Как интерпретируется выход модели (по умолчанию: single_label). multi_label "
+"читает label_schema.json рядом с набором данных и сообщает метрики по меткам"
+" вместо точности и матрицы ошибок."
+
+#: mb/cli/parsing/evaluate.py:110
+msgid ""
+"--label-mode multi_label only: pick the per-label threshold that maximizes "
+"each label's F1 on this split and write it back to label_schema.json. A "
+"post-hoc calibration step — never run this on the training split."
+msgstr ""
+"Только для --label-mode multi_label: выбрать порог по каждой метке, который "
+"максимизирует её F1 на этом разбиении, и записать его обратно в "
+"label_schema.json. Шаг последующей калибровки: никогда не запускайте его на "
+"обучающем разбиении."
+
+#: mb/cli/parsing/evaluate.py:118 mb/cli/parsing/evaluate.py:205
+#: mb/cli/parsing/evaluate.py:315
+msgid "Validate arguments and exit without running inference"
+msgstr "Проверить аргументы и выйти без выполнения инференса"
+
+#: mb/cli/parsing/evaluate.py:123
+msgid "List images whose predicted class differs from the folder label"
+msgstr ""
+"Перечислить изображения, у которых предсказанный класс отличается от метки "
+"папки"
+
+#: mb/cli/parsing/evaluate.py:125
+msgid ""
+"Compares model predictions to ImageFolder-style on-disk class folders to "
+"surface label noise and borderline samples. Image classification only."
+msgstr ""
+"Сравнивает предсказания модели с папками классов на диске в стиле "
+"ImageFolder, чтобы показать шум меток и пограничные образцы. Только "
+"классификация изображений."
+
+#: mb/cli/parsing/evaluate.py:194
+msgid ""
+"Cap printed / exported misclassified rows (default: no cap; totals still "
+"full)"
+msgstr ""
+"Ограничить число выведенных или экспортированных неверно классифицированных "
+"строк (по умолчанию: без ограничения; итоги остаются полными)"
+
+#: mb/cli/parsing/evaluate.py:200
+msgid "Optional CSV path (still prints a summary to stdout)"
+msgstr "Необязательный путь CSV (сводка всё равно выводится в stdout)"
+
+#: mb/cli/parsing/evaluate.py:210
+msgid ""
+"Compare two models on the same labeled split (paired outcomes & "
+"disagreements)"
+msgstr ""
+"Сравнить две модели на одном размеченном разбиении (парные исходы и "
+"расхождения)"
+
+#: mb/cli/parsing/evaluate.py:212
+msgid ""
+"Runs both checkpoints on the same ImageFolder split in lockstep: top-1 "
+"accuracy each, a 2×2-style breakdown (both correct, only A, only B, both "
+"wrong vs folder labels), and how often A and B disagree on the predicted "
+"class. PyTorch and Keras supported when both files use the same framework."
+msgstr ""
+"Запускает обе контрольные точки синхронно на одном разбиении ImageFolder: "
+"точность top-1 каждой, разложение в стиле 2x2 (оба верны, только A, только "
+"B, оба неверны относительно меток папки) и то, как часто A и B расходятся в "
+"предсказанном классе. PyTorch и Keras поддерживаются, когда оба файла "
+"используют один и тот же фреймворк."
+
+#: mb/cli/parsing/evaluate.py:222
+msgid "Path to first model file (.pth / .pt / .h5 / .keras)"
+msgstr "Путь к файлу первой модели (.pth / .pt / .h5 / .keras)"
+
+#: mb/cli/parsing/evaluate.py:228
+msgid "Path to second model file (.pth / .pt / .h5 / .keras)"
+msgstr "Путь к файлу второй модели (.pth / .pt / .h5 / .keras)"
+
+#: mb/cli/parsing/evaluate.py:240
+msgid ""
+"Training framework hint for both models (default: infer from each file)"
+msgstr ""
+"Подсказка фреймворка обучения для обеих моделей (по умолчанию: определить по"
+" каждому файлу)"
+
+#: mb/cli/parsing/evaluate.py:246
+msgid ""
+"Optional framework hint for model B only (default: same as --framework)"
+msgstr ""
+"Необязательная подсказка фреймворка только для модели B (по умолчанию: как "
+"--framework)"
+
+#: mb/cli/parsing/evaluate.py:252
+msgid "Model architecture id for PyTorch model A (e.g. resnet34)"
+msgstr "Идентификатор архитектуры модели A PyTorch (напр. resnet34)"
+
+#: mb/cli/parsing/evaluate.py:258
+msgid ""
+"Architecture for PyTorch model B when it differs from model A (default: "
+"--architecture)"
+msgstr ""
+"Архитектура модели B PyTorch, если она отличается от модели A (по умолчанию:"
+" --architecture)"
+
+#: mb/cli/parsing/evaluate.py:302
+msgid ""
+"Cap printed / exported rows where A and B disagree on class (default: no "
+"cap; totals still full)"
+msgstr ""
+"Ограничить выведенные или экспортированные строки, где A и B расходятся в "
+"классе (по умолчанию: без ограничения; итоги остаются полными)"
+
+#: mb/cli/parsing/evaluate.py:310
+msgid ""
+"Optional TSV path for disagreement rows (summary still prints to stdout)"
+msgstr ""
+"Необязательный путь TSV для строк расхождений (сводка всё равно выводится в "
+"stdout)"
+
+#: mb/cli/parsing/export.py:15
+msgid "Export model bundle artifacts"
+msgstr "Экспортировать артефакты пакета модели"
+
+#: mb/cli/parsing/export.py:17
+msgid ""
+"Export deployment bundle artifacts such as safetensors weights and metadata "
+"manifests."
+msgstr ""
+"Экспортирует артефакты пакета развертывания, такие как веса safetensors и "
+"манифесты метаданных."
+
+#: mb/cli/parsing/export.py:22
+msgid "Export subcommands"
+msgstr "Подкоманды экспорта"
+
+#: mb/cli/parsing/export.py:28
+msgid ""
+"Export a model bundle (safetensors + manifest + optional architecture stub)"
+msgstr ""
+"Экспортировать пакет модели (safetensors + манифест + необязательная "
+"заготовка архитектуры)"
+
+#: mb/cli/parsing/export.py:30
+msgid "Input model file (.pth/.pt)"
+msgstr "Входной файл модели (.pth/.pt)"
+
+#: mb/cli/parsing/export.py:31
+msgid "Output bundle directory"
+msgstr "Каталог выходного пакета"
+
+#: mb/cli/parsing/export.py:32
+msgid "Model architecture id (e.g. resnet34)"
+msgstr "Идентификатор архитектуры модели (напр. resnet34)"
+
+#: mb/cli/parsing/export.py:33
+msgid "Number of output classes"
+msgstr "Число выходных классов"
+
+#: mb/cli/parsing/export.py:34
+msgid "Optional ordered class names"
+msgstr "Необязательные упорядоченные имена классов"
+
+#: mb/cli/parsing/export.py:35
+msgid "Optional data dir to infer class names from train/"
+msgstr ""
+"Необязательный каталог данных, чтобы определить имена классов из train/"
+
+#: mb/cli/parsing/export.py:36
+msgid "Expected input image size (defaults to pipeline)"
+msgstr ""
+"Ожидаемый размер входного изображения (по умолчанию берётся из конвейера)"
+
+#: mb/cli/parsing/export.py:37
+msgid "Optional snapshot JSON path"
+msgstr "Необязательный путь JSON снимка"
+
+#: mb/cli/parsing/export.py:41
+msgid "Do not emit model_architecture.py stub"
+msgstr "Не создавать заготовку model_architecture.py"
+
+#: mb/cli/parsing/export.py:43
+msgid "Optional run ID to include in manifest"
+msgstr "Необязательный идентификатор запуска для включения в манифест"
+
+#: mb/cli/parsing/info.py:15
+msgid "Show information about models or datasets"
+msgstr "Показать сведения о моделях или наборах данных"
+
+#: mb/cli/parsing/info.py:17
+msgid ""
+"Display information about trained models or datasets, including metadata, "
+"architecture details, and dataset statistics."
+msgstr ""
+"Показывает сведения об обученных моделях или наборах данных, включая "
+"метаданные, сведения об архитектуре и статистику набора данных."
+
+#: mb/cli/parsing/info.py:23
+msgid "Info subcommands"
+msgstr "Подкоманды сведений"
+
+#: mb/cli/parsing/info.py:30
+msgid "Show model information"
+msgstr "Показать сведения о модели"
+
+#: mb/cli/parsing/info.py:32
+msgid ""
+"Display detailed information about a trained model, including architecture, "
+"framework, number of parameters, and training metadata."
+msgstr ""
+"Показывает подробные сведения об обученной модели, включая архитектуру, "
+"фреймворк, число параметров и метаданные обучения."
+
+#: mb/cli/parsing/info.py:40
+msgid "Path to model file"
+msgstr "Путь к файлу модели"
+
+#: mb/cli/parsing/info.py:46
+msgid "Show dataset information"
+msgstr "Показать сведения о наборе данных"
+
+#: mb/cli/parsing/info.py:48
+msgid ""
+"Display statistics about a dataset, including class distributions, image "
+"counts, and data directory structure."
+msgstr ""
+"Показывает статистику набора данных, включая распределения классов, числа "
+"изображений и структуру каталога данных."
+
+#: mb/cli/parsing/info.py:56
+msgid "Path to data directory"
+msgstr "Путь к каталогу данных"
+
+#: mb/cli/parsing/model_convert.py:15
+msgid "Convert model between formats"
+msgstr "Преобразовать модель между форматами"
+
+#: mb/cli/parsing/model_convert.py:17
+msgid ""
+"Convert a trained model between different formats. Supports PyTorch -> ONNX,"
+" PyTorch -> SafeTensors, and Keras -> ONNX."
+msgstr ""
+"Преобразует обученную модель между разными форматами. Поддерживает PyTorch "
+"-> ONNX, PyTorch -> SafeTensors и Keras -> ONNX."
+
+#: mb/cli/parsing/model_convert.py:25
+msgid "Input model file"
+msgstr "Входной файл модели"
+
+#: mb/cli/parsing/model_convert.py:31
+msgid "Output model file"
+msgstr "Выходной файл модели"
+
+#: mb/cli/parsing/model_convert.py:36
+msgid "Source framework (auto-detected if not specified)"
+msgstr "Исходный фреймворк (определяется автоматически, если не указан)"
+
+#: mb/cli/parsing/model_convert.py:42
+msgid "Target format (onnx or safetensors)"
+msgstr "Целевой формат (onnx или safetensors)"
+
+#: mb/cli/parsing/model_convert.py:46
+msgid ""
+"Model architecture (required for PyTorch -> ONNX conversion, e.g., "
+"'resnet34')"
+msgstr ""
+"Архитектура модели (обязательна для преобразования PyTorch -> ONNX, напр. "
+"'resnet34')"
+
+#: mb/cli/parsing/model_convert.py:51
+msgid "Number of output classes (required for PyTorch -> ONNX conversion)"
+msgstr ""
+"Число выходных классов (обязательно для преобразования PyTorch -> ONNX)"
+
+#: mb/cli/parsing/model_convert.py:57
+msgid "Input image size (default: 224, used for ONNX conversion)"
+msgstr ""
+"Размер входного изображения (по умолчанию: 224, используется при "
+"преобразовании в ONNX)"
+
+#: mb/cli/parsing/model_convert.py:63
+msgid ""
+"Class names in output-index order, recorded in the ONNX file's metadata so "
+"consumers do not have to be told the label order separately"
+msgstr ""
+"Имена классов в порядке выходных индексов, записанные в метаданных файла "
+"ONNX, чтобы потребителям не приходилось отдельно узнавать порядок меток"
+
+#: mb/cli/parsing/model_convert.py:72
+msgid ""
+"Also write quantized ONNX variants alongside the output (e.g. --quantize "
+"fp16 int8). Smaller and faster at some cost in accuracy — score them before "
+"deploying."
+msgstr ""
+"Также записать квантованные варианты ONNX рядом с результатом (напр. "
+"--quantize fp16 int8). Они меньше и быстрее ценой некоторой потери точности "
+"- оцените их перед развертыванием."
+
+#: mb/cli/parsing/train.py:17
+msgid "Train a model"
+msgstr "Обучить модель"
+
+#: mb/cli/parsing/train.py:19
+msgid ""
+"Train a machine learning model using the specified framework and "
+"architecture. Supports transfer learning with frozen/unfrozen training "
+"phases."
+msgstr ""
+"Обучает модель машинного обучения с указанными фреймворком и архитектурой. "
+"Поддерживает трансферное обучение с замороженной и размороженной фазами."
+
+#: mb/cli/parsing/train.py:27
+msgid "Model type (default: image_classification)"
+msgstr "Тип модели (по умолчанию: image_classification)"
+
+#: mb/cli/parsing/train.py:32
+msgid "Framework to use (default: from config)"
+msgstr "Используемый фреймворк (по умолчанию: из конфигурации)"
+
+#: mb/cli/parsing/train.py:37
+msgid ""
+"Model architecture (e.g., resnet34). For --model-type image_generation_lora,"
+" this instead names the base image-generation model to fine-tune (a local "
+"path or hub id, e.g. a Stable Diffusion checkpoint)."
+msgstr ""
+"Архитектура модели (напр., resnet34). Для --model-type image_generation_lora"
+" здесь вместо этого указывается базовая модель генерации изображений для "
+"дообучения (локальный путь или hub id, напр. контрольная точка Stable "
+"Diffusion)."
+
+#: mb/cli/parsing/train.py:45
+msgid "Data directory (default: from config)"
+msgstr "Каталог данных (по умолчанию: из конфигурации)"
+
+#: mb/cli/parsing/train.py:50
+msgid "Output directory for models (default: from config)"
+msgstr "Каталог вывода моделей (по умолчанию: из конфигурации)"
+
+#: mb/cli/parsing/train.py:55
+msgid "Number of frozen training epochs (default: from config)"
+msgstr "Число эпох замороженного обучения (по умолчанию: из конфигурации)"
+
+#: mb/cli/parsing/train.py:60
+msgid "Number of unfrozen training epochs (default: from config)"
+msgstr "Число эпох размороженного обучения (по умолчанию: из конфигурации)"
+
+#: mb/cli/parsing/train.py:65
+msgid "Learning rate for frozen phase (default: from config)"
+msgstr "Скорость обучения замороженной фазы (по умолчанию: из конфигурации)"
+
+#: mb/cli/parsing/train.py:70
+msgid "Maximum learning rate for unfrozen phase (default: from config)"
+msgstr ""
+"Максимальная скорость обучения размороженной фазы (по умолчанию: из "
+"конфигурации)"
+
+#: mb/cli/parsing/train.py:75
+msgid "Minimum learning rate for unfrozen phase (default: from config)"
+msgstr ""
+"Минимальная скорость обучения размороженной фазы (по умолчанию: из "
+"конфигурации)"
+
+#: mb/cli/parsing/train.py:80
+msgid "Batch size (default: from config or auto-detect)"
+msgstr ""
+"Размер пакета (по умолчанию: из конфигурации или автоматическое определение)"
+
+#: mb/cli/parsing/train.py:86
+msgid ""
+"Image size (default: 224). For --model-type image_generation_lora, this is "
+"the training resolution instead (default: 512)."
+msgstr ""
+"Размер изображения (по умолчанию: 224). Для --model-type "
+"image_generation_lora это вместо этого разрешение обучения (по умолчанию: "
+"512)."
+
+#: mb/cli/parsing/train.py:93
+msgid "Number of data loading workers (default: from config)"
+msgstr ""
+"Число рабочих процессов загрузки данных (по умолчанию: из конфигурации)"
+
+#: mb/cli/parsing/train.py:99
+msgid ""
+"Whether an image carries one class or several (image_classification only; "
+"default: from config, which ships as single_label). multi_label reads "
+"label_schema.json and labels.jsonl beside the dataset and trains independent"
+" per-label sigmoids. PyTorch only."
+msgstr ""
+"Несет ли изображение один класс или несколько (только image_classification; "
+"по умолчанию: из конфигурации, поставляется как single_label). multi_label "
+"читает label_schema.json и labels.jsonl рядом с набором данных и обучает "
+"независимые сигмоиды для каждой метки. Только PyTorch."
+
+#: mb/cli/parsing/train.py:109
+msgid ""
+"Train at --image-size even when the architecture expects a different one. "
+"Only affects backbones with a fixed input resolution (e.g. siglip2_*), where"
+" a mismatch means the pretrained position embeddings no longer line up."
+msgstr ""
+"Обучать с --image-size, даже если архитектура ожидает другой размер. Влияет "
+"только на магистрали с фиксированным входным разрешением (напр. siglip2_*), "
+"где несовпадение означает, что предобученные позиционные эмбеддинги больше "
+"не совпадают."
+
+#: mb/cli/parsing/train.py:118
+msgid ""
+"Compensate an imbalanced training set by weighting the training loss "
+"(image_classification only; default: from config). Validation loss stays "
+"unweighted so it remains comparable across settings."
+msgstr ""
+"Компенсировать несбалансированный обучающий набор данных, назначая веса "
+"потере обучения (только image_classification; по умолчанию: из "
+"конфигурации). Потеря проверки остается без весов, чтобы оставаться "
+"сравнимой при разных параметрах."
+
+#: mb/cli/parsing/train.py:127
+msgid ""
+"Ceiling on any single class weight (--class-weighting inverse_frequency "
+"only; default: from config)"
+msgstr ""
+"Потолок веса одного класса (только --class-weighting inverse_frequency; по "
+"умолчанию: из конфигурации)"
+
+#: mb/cli/parsing/train.py:135
+msgid ""
+"Random seed. Currently only consumed by --model-type image_generation_lora "
+"(reproducible LoRA weight init and noise sampling)."
+msgstr ""
+"Случайное начальное значение. Сейчас используется только при --model-type "
+"image_generation_lora (воспроизводимая инициализация весов LoRA и выборка "
+"шума)."
+
+#: mb/cli/parsing/train.py:142
+msgid ""
+"LoRA adapter rank (--model-type image_generation_lora only; default: 16)"
+msgstr ""
+"Ранг адаптера LoRA (только --model-type image_generation_lora; по умолчанию:"
+" 16)"
+
+#: mb/cli/parsing/train.py:148
+msgid ""
+"LoRA adapter alpha scaling (--model-type image_generation_lora only; "
+"default: same as --lora-rank)"
+msgstr ""
+"Альфа-масштабирование адаптера LoRA (только --model-type "
+"image_generation_lora; по умолчанию: как у --lora-rank)"
+
+#: mb/cli/parsing/train.py:156
+msgid ""
+"Learning rate for the LoRA adapter parameters (--model-type "
+"image_generation_lora only; default: 1e-4). Unrelated to --frozen-"
+"lr/--unfrozen-lr-* (image_classification only)."
+msgstr ""
+"Скорость обучения параметров адаптера LoRA (только --model-type "
+"image_generation_lora; по умолчанию: 1e-4). Не связана с --frozen-"
+"lr/--unfrozen-lr-* (только image_classification)."
+
+#: mb/cli/parsing/train.py:165
+msgid ""
+"Total optimizer steps to train (--model-type image_generation_lora only; "
+"default: 1000). LoRA training here is step-based, not epoch-based."
+msgstr ""
+"Всего шагов оптимизатора для обучения (только --model-type "
+"image_generation_lora; по умолчанию: 1000). Здесь обучение LoRA считается "
+"шагами, а не эпохами."
+
+#: mb/cli/parsing/train.py:174
+msgid ""
+"--model-type image_generation_lora only: the base model's architecture "
+"(different architectures load different components and LoRA target layers). "
+"Auto-detected from a local checkpoint's model_index.json when omitted; "
+"required when --architecture is a hub id rather than a local path, since "
+"that can't be auto-detected without a network call. flux (recommended "
+"default), chroma, and stable_diffusion_1x are implemented today — "
+"stable_diffusion_xl, stable_diffusion_3, and z_image_turbo are recognized "
+"but not yet supported."
+msgstr ""
+"--model-type image_generation_lora только: архитектура базовой модели "
+"(разные архитектуры загружают разные компоненты и целевые слои LoRA). При "
+"пропуске определяется автоматически из model_index.json локальной "
+"контрольной точки; обязательна, когда --architecture является hub id, а не "
+"локальным путём, так как без сетевого вызова автоматическое определение "
+"невозможно. flux (рекомендуемое значение по умолчанию), chroma и "
+"stable_diffusion_1x реализованы сейчас - stable_diffusion_xl, "
+"stable_diffusion_3 и z_image_turbo распознаются, но пока не поддерживаются."
+
+#: mb/cli/parsing/train.py:186
+msgid "Path to checkpoint to resume training from"
+msgstr "Путь к контрольной точке, с которой возобновить обучение"
+
+#: mb/cli/parsing/train.py:196
+msgid "Skip updating the unified snapshot with training data"
+msgstr "Не обновлять единый снимок данными обучения"
+
+#: mb/cli/parsing/train.py:203
+msgid ""
+"Load TrainingRunArgs from JSON (see mb.training.run_args); other train flags"
+" are ignored"
+msgstr ""
+"Загрузить TrainingRunArgs из JSON (см. mb.training.run_args); остальные "
+"флаги train игнорируются"
+
+#: mb/conversion/quantize.py:42
+msgid ""
+"fp16 quantization needs onnx and onnxconverter-common. Install with: pip "
+"install onnxconverter-common"
+msgstr ""
+"Для квантования fp16 нужны onnx и onnxconverter-common. Установка: pip "
+"install onnxconverter-common"
+
+#: mb/conversion/quantize.py:63
+msgid ""
+"int8/uint8 quantization needs onnxruntime. Install with: pip install -e "
+"\".[onnx]\""
+msgstr ""
+"Для квантования int8/uint8 нужен onnxruntime. Установка: pip install -e "
+"\".[onnx]\""
+
+#: mb/conversion/quantize.py:97
+msgid "Unknown quantization mode: {mode}"
+msgstr "Неизвестный режим квантования: {mode}"
+
+#: mb/conversion/quantize.py:102
+msgid "ONNX file not found: {path}"
+msgstr "Файл ONNX не найден: {path}"
+
+#: mb/conversion/quantize.py:115
+msgid "Quantization to {mode} failed: {err}"
+msgstr "Квантование в {mode} не выполнено: {err}"
+
+#: mb/data/dataset.py:1072
+msgid "Source and target directories are on the same drive."
+msgstr "Исходный и целевой каталоги находятся на одном диске."
+
+#: mb/data/dataset.py:1074
+msgid ""
+"The script will use copy operations (not move) to preserve source files."
+msgstr ""
+"Скрипт использует копирование (не перемещение), чтобы сохранить исходные "
+"файлы."
+
+#: mb/data/dataset.py:1093
+msgid ""
+"Source drive {drive} is the system drive. Proceeding without confirmation."
+msgstr ""
+"Исходный диск {drive} является системным диском. Продолжение без "
+"подтверждения."
+
+#: mb/data/dataset.py:1103
+msgid "NOTE: Source drive {src} is different from system drive {sys}."
+msgstr "ПРИМЕЧАНИЕ: Исходный диск {src} отличается от системного диска {sys}."
+
+#: mb/data/dataset.py:1109
+msgid ""
+"This may indicate an external drive that failed detection. Consider whether "
+"to proceed."
+msgstr ""
+"Это может указывать на внешний диск, обнаружение которого не удалось. "
+"Подумайте, стоит ли продолжать."
+
+#: mb/data/dataset.py:1115
+msgid ""
+"NOTE: Unable to determine system drive. If this is not your main system "
+"drive,"
+msgstr ""
+"ПРИМЕЧАНИЕ: Не удалось определить системный диск. Если это не ваш основной "
+"системный диск,"
+
+#: mb/data/dataset.py:1120
+msgid ""
+"it may indicate an external drive that failed detection. Consider whether to"
+" proceed."
+msgstr ""
+"это может указывать на внешний диск, обнаружение которого не удалось. "
+"Подумайте, стоит ли продолжать."
+
+#: mb/data/dataset.py:1125
+msgid ""
+"NOTE: If this is not your main system drive, it may indicate an external "
+"drive"
+msgstr ""
+"ПРИМЕЧАНИЕ: Если это не ваш основной системный диск, это может указывать на "
+"внешний диск,"
+
+#: mb/data/dataset.py:1127
+msgid "that failed detection. Consider whether to proceed."
+msgstr "обнаружение которого не удалось. Подумайте, стоит ли продолжать."
+
+#: mb/data/dataset.py:1129
+msgid "Continue with same-drive operation? (y/N): "
+msgstr "Продолжить операцию на том же диске? (y/N): "
+
+#: mb/data/dataset.py:1131
+msgid "Operation cancelled by user."
+msgstr "Операция отменена пользователем."
+
+#: mb/data/label_schema.py:91
+msgid "Label {label} is not in the schema."
+msgstr "Метка {label} отсутствует в схеме."
+
+#: mb/data/label_schema.py:123
+msgid "Schema 'axes' must be an object."
+msgstr "Поле 'axes' схемы должно быть объектом."
+
+#: mb/data/label_schema.py:130
+msgid "Axis {name} must be an object with a 'labels' list."
+msgstr "Ось {name} должна быть объектом со списком 'labels'."
+
+#: mb/data/label_schema.py:135
+msgid "Axis {name} must list at least one label."
+msgstr "Ось {name} должна содержать хотя бы одну метку."
+
+#: mb/data/label_schema.py:140
+msgid "Axis {name} references labels not in the schema: {unknown}"
+msgstr "Ось {name} ссылается на метки, которых нет в схеме: {unknown}"
+
+#: mb/data/label_schema.py:161
+msgid "Schema must contain a non-empty 'labels' list."
+msgstr "Схема должна содержать непустой список 'labels'."
+
+#: mb/data/label_schema.py:165
+msgid "Schema labels must not be empty strings."
+msgstr "Метки схемы не должны быть пустыми строками."
+
+#: mb/data/label_schema.py:170
+msgid "Schema has duplicate labels: {names}"
+msgstr "В схеме есть повторяющиеся метки: {names}"
+
+#: mb/data/label_schema.py:175
+msgid "Schema 'default_thresholds' must be an object."
+msgstr "Поле 'default_thresholds' схемы должно быть объектом."
+
+#: mb/data/label_schema.py:179
+msgid "Thresholds reference labels not in the schema: {unknown}"
+msgstr "Пороги ссылаются на метки, которых нет в схеме: {unknown}"
+
+#: mb/data/label_schema.py:187
+msgid "Schema 'default_threshold' must be a number."
+msgstr "Поле 'default_threshold' схемы должно быть числом."
+
+#: mb/data/label_schema.py:220
+msgid "Label schema not found: {path}"
+msgstr "Схема меток не найдена: {path}"
+
+#: mb/data/label_schema.py:226
+msgid "Could not read label schema {path}: {err}"
+msgstr "Не удалось прочитать схему меток {path}: {err}"
+
+#: mb/data/label_schema.py:229
+msgid "Label schema must be a JSON object."
+msgstr "Схема меток должна быть объектом JSON."
+
+#: mb/data/label_schema.py:275
+msgid "Could not read label manifest {path}: {err}"
+msgstr "Не удалось прочитать манифест меток {path}: {err}"
+
+#: mb/data/label_schema.py:286
+msgid "Malformed JSON in {path} line {line}: {err}"
+msgstr "Некорректный JSON в {path}, строка {line}: {err}"
+
+#: mb/data/label_schema.py:292
+msgid "Manifest line {line} must be a JSON object."
+msgstr "Строка {line} манифеста должна быть объектом JSON."
+
+#: mb/data/label_schema.py:298
+msgid "Manifest line {line} is missing a 'path'."
+msgstr "В строке {line} манифеста отсутствует 'path'."
+
+#: mb/data/label_schema.py:305
+msgid "Manifest line {line} 'labels' must be a list."
+msgstr "Поле 'labels' в строке {line} манифеста должно быть списком."
+
+#: mb/data/label_schema.py:315
+msgid "Manifest line {line} uses label {label}, which is not in the schema."
+msgstr ""
+"Строка {line} манифеста использует метку {label}, которой нет в схеме."
+
+#: mb/data/lora_dataset.py:112
+msgid "Raw data directory does not exist: {path}"
+msgstr "Каталог необработанных данных не существует: {path}"
+
+#: mb/data/lora_dataset.py:118 mb/evaluate/classification/image_compare.py:186
+#: mb/evaluate/classification/image_metrics.py:52
+#: mb/evaluate/classification/image_metrics.py:163
+#: mb/evaluate/classification/image_misclassified.py:117
+#: mb/evaluate/classification/image_multilabel_metrics.py:70
+msgid "No images found under {path}"
+msgstr "Под {path} изображения не найдены"
+
+#: mb/evaluate/_weights.py:29
+msgid "PyTorch file did not contain a dictionary checkpoint or state_dict."
+msgstr ""
+"Файл PyTorch не содержал контрольную точку в виде словаря или state_dict."
+
+#: mb/evaluate/_weights.py:39
+msgid ""
+"Unrecognized PyTorch checkpoint layout (expected state_dict keys or "
+"model_state_dict)."
+msgstr ""
+"Нераспознанная структура контрольной точки PyTorch (ожидались ключи "
+"state_dict или model_state_dict)."
+
+#: mb/evaluate/compare.py:34
+msgid "Object detection compare is not implemented yet."
+msgstr "Сравнение обнаружения объектов ещё не реализовано."
+
+#: mb/evaluate/compare.py:35
+msgid "Unsupported model type for compare: {t}"
+msgstr "Неподдерживаемый тип модели для сравнения: {t}"
+
+#: mb/evaluate/compare.py:42
+msgid "Model A: {path} ({fw})"
+msgstr "Модель A: {path} ({fw})"
+
+#: mb/evaluate/compare.py:43
+msgid "Model B: {path} ({fw})"
+msgstr "Модель B: {path} ({fw})"
+
+#: mb/evaluate/classification/image_multilabel_metrics.py:249
+#: mb/evaluate/compare.py:44 mb/evaluate/metrics.py:70
+#: mb/evaluate/misclassified.py:49
+msgid "Data: {path}"
+msgstr "Данные: {path}"
+
+#: mb/evaluate/classification/image_multilabel_metrics.py:251
+#: mb/evaluate/compare.py:45 mb/evaluate/metrics.py:72
+msgid "Samples: {n}"
+msgstr "Образцы: {n}"
+
+#: mb/evaluate/compare.py:46
+msgid "Top-1 accuracy A: {acc:.2f}%"
+msgstr "Точность Top-1 A: {acc:.2f}%"
+
+#: mb/evaluate/compare.py:47
+msgid "Top-1 accuracy B: {acc:.2f}%"
+msgstr "Точность Top-1 B: {acc:.2f}%"
+
+#: mb/evaluate/compare.py:50
+msgid "Average loss A: {loss:.4f}"
+msgstr "Средняя потеря A: {loss:.4f}"
+
+#: mb/evaluate/compare.py:52
+msgid "Average loss B: {loss:.4f}"
+msgstr "Средняя потеря B: {loss:.4f}"
+
+#: mb/evaluate/compare.py:54
+msgid "Paired outcomes vs folder label (each row is one image):"
+msgstr ""
+"Парные исходы относительно метки папки (каждая строка - одно изображение):"
+
+#: mb/evaluate/compare.py:56
+msgid "  both correct: {n} ({pct:.1f}%)"
+msgstr "  оба верны: {n} ({pct:.1f}%)"
+
+#: mb/evaluate/compare.py:59
+msgid "  only A correct: {n} ({pct:.1f}%)"
+msgstr "  только A верно: {n} ({pct:.1f}%)"
+
+#: mb/evaluate/compare.py:64
+msgid "  only B correct: {n} ({pct:.1f}%)"
+msgstr "  только B верно: {n} ({pct:.1f}%)"
+
+#: mb/evaluate/compare.py:69
+msgid "  both wrong: {n} ({pct:.1f}%)"
+msgstr "  оба неверны: {n} ({pct:.1f}%)"
+
+#: mb/evaluate/compare.py:73
+msgid "Prediction disagreement (A class ≠ B class): {n} ({pct:.1f}%)"
+msgstr ""
+"Расхождение предсказаний (класс A отличается от класса B): {n} ({pct:.1f}%)"
+
+#: mb/evaluate/compare.py:79
+msgid ""
+"Note: disagreement counts images where A and B pick different classes; when "
+"both match the folder label, that still counts as both correct above."
+msgstr ""
+"Примечание: расхождение считает изображения, где A и B выбирают разные "
+"классы; если оба совпадают с меткой папки, выше это все равно считается как "
+"оба верны."
+
+#: mb/evaluate/compare.py:84
+msgid "Disagreement rows printed: {k}"
+msgstr "Выведено строк расхождения: {k}"
+
+#: mb/evaluate/compare.py:87
+msgid ""
+"(Use --max-disagreement-report to print more; counts above are for the full "
+"split.)"
+msgstr ""
+"(Используйте --max-disagreement-report, чтобы вывести больше; подсчеты выше "
+"относятся ко всему разбиению.)"
+
+#: mb/evaluate/compare.py:151 mb/evaluate/compare.py:187
+msgid "Model A file not found: {path}"
+msgstr "Файл модели A не найден: {path}"
+
+#: mb/evaluate/compare.py:154 mb/evaluate/compare.py:190
+msgid "Model B file not found: {path}"
+msgstr "Файл модели B не найден: {path}"
+
+#: mb/evaluate/compare.py:164
+msgid "--architecture is required for PyTorch model A in dry-run validation."
+msgstr ""
+"Для модели A на PyTorch при проверке пробного запуска требуется "
+"--architecture."
+
+#: mb/evaluate/compare.py:170
+msgid ""
+"Model B is PyTorch: provide --architecture-b or share --architecture in dry-"
+"run."
+msgstr ""
+"Модель B использует PyTorch: укажите --architecture-b или общий "
+"--architecture для пробного запуска."
+
+#: mb/evaluate/compare.py:174
+msgid ""
+"Dry-run OK: would compare models {a} and {b} on {data} (frameworks "
+"{fa}/{fb})"
+msgstr ""
+"Пробный запуск OK: будут сравнены модели {a} и {b} на {data} (фреймворки "
+"{fa}/{fb})"
+
+#: mb/evaluate/compare.py:182
+msgid "--max-disagreement-report must be at least 1 when provided."
+msgstr "--max-disagreement-report должен быть не меньше 1, если он указан."
+
+#: mb/evaluate/compare.py:197
+msgid ""
+"Compare evaluation failed for model type {mt} (subcommand {sub}). Use two "
+"checkpoints of the same framework on the same ImageFolder split; PyTorch "
+"needs --architecture (A) and optionally --architecture-b. Underlying error: "
+"{err}"
+msgstr ""
+"Сравнительная оценка не удалась для типа модели {mt} (подкоманда {sub}). "
+"Используйте две контрольные точки одного фреймворка на одном разбиении "
+"ImageFolder; для PyTorch нужны --architecture (A) и при необходимости "
+"--architecture-b. Базовая ошибка: {err}"
+
+#: mb/evaluate/compare.py:214
+msgid "Import error during compare: {err}"
+msgstr "Ошибка импорта во время сравнения: {err}"
+
+#: mb/evaluate/compare.py:227
+msgid "Wrote {n} disagreement rows to {path}"
+msgstr "Записано {n} строк расхождения в {path}"
+
+#: mb/evaluate/metrics.py:51
+msgid "Object detection metrics are not implemented yet."
+msgstr "Метрики обнаружения объектов ещё не реализованы."
+
+#: mb/evaluate/metrics.py:52
+msgid "Unsupported model type for metrics: {t}"
+msgstr "Неподдерживаемый тип модели для метрик: {t}"
+
+#: mb/evaluate/classification/image_multilabel_metrics.py:248
+#: mb/evaluate/metrics.py:69 mb/evaluate/misclassified.py:48
+msgid "Model: {path}"
+msgstr "Модель: {path}"
+
+#: mb/evaluate/classification/image_multilabel_metrics.py:250
+#: mb/evaluate/metrics.py:71 mb/evaluate/misclassified.py:50
+msgid "Framework: {fw}"
+msgstr "Фреймворк: {fw}"
+
+#: mb/evaluate/metrics.py:73
+msgid "Top-1 accuracy: {acc:.2f}%"
+msgstr "Точность Top-1: {acc:.2f}%"
+
+#: mb/evaluate/classification/image_multilabel_metrics.py:256
+#: mb/evaluate/metrics.py:76
+msgid "Average loss: {loss:.4f}"
+msgstr "Средняя потеря: {loss:.4f}"
+
+#: mb/evaluate/metrics.py:83
+msgid "Classification report:"
+msgstr "Отчет о классификации:"
+
+#: mb/evaluate/metrics.py:108
+msgid "Averages exclude {n} class(es) with no samples in this split."
+msgstr ""
+"Средние значения исключают {n} класс(ов) без образцов в этом разбиении."
+
+#: mb/evaluate/metrics.py:113
+msgid "Per-class correct / total:"
+msgstr "Верно по классу / всего:"
+
+#: mb/evaluate/metrics.py:118
+msgid "Confusion matrix (rows=true class, cols=predicted):"
+msgstr "Матрица ошибок (строки=истинный класс, столбцы=прогноз):"
+
+#: mb/evaluate/metrics.py:158 mb/evaluate/metrics.py:179
+#: mb/evaluate/misclassified.py:80 mb/evaluate/misclassified.py:101
+msgid "Model file not found: {path}"
+msgstr "Файл модели не найден: {path}"
+
+#: mb/evaluate/metrics.py:168 mb/evaluate/misclassified.py:90
+msgid "--architecture is required for PyTorch models in dry-run validation."
+msgstr ""
+"Для моделей PyTorch при проверке пробного запуска требуется --architecture."
+
+#: mb/evaluate/metrics.py:171
+msgid "Dry-run OK: would score model {model} on {data} (framework={fw})"
+msgstr ""
+"Пробный запуск выполнен: модель {model} была бы оценена на {data} "
+"(фреймворк={fw})"
+
+#: mb/evaluate/metrics.py:194
+msgid "Import error during evaluation: {err}"
+msgstr "Ошибка импорта во время оценки: {err}"
+
+#: mb/evaluate/metrics.py:197
+msgid "Evaluation failed: {err}"
+msgstr "Оценка не выполнена: {err}"
+
+#: mb/evaluate/misclassified.py:41
+msgid "Object detection misclassified listing is not implemented yet."
+msgstr ""
+"Список неверных классификаций для обнаружения объектов еще не реализован."
+
+#: mb/evaluate/misclassified.py:42
+msgid "Unsupported model type for misclassified: {t}"
+msgstr "Неподдерживаемый тип модели для неверных классификаций: {t}"
+
+#: mb/evaluate/misclassified.py:51
+msgid "Scanned images: {n}"
+msgstr "Просмотрено изображений: {n}"
+
+#: mb/evaluate/misclassified.py:52
+msgid "Misclassified (total): {m}"
+msgstr "Неверно классифицировано (всего): {m}"
+
+#: mb/evaluate/misclassified.py:53
+msgid "Rows printed: {k}"
+msgstr "Выведено строк: {k}"
+
+#: mb/evaluate/misclassified.py:57
+msgid ""
+"(Increase --max-report to print more rows; totals above are for the full "
+"split.)"
+msgstr ""
+"(Увеличьте --max-report, чтобы вывести больше строк; итоги выше относятся ко"
+" всему разбиению.)"
+
+#: mb/evaluate/misclassified.py:93
+msgid ""
+"Dry-run OK: would list misclassified for model {model} on {data} "
+"(framework={fw})"
+msgstr ""
+"Пробный запуск выполнен: будет выведен список неверных классификаций модели "
+"{model} на {data} (фреймворк={fw})"
+
+#: mb/evaluate/misclassified.py:110
+msgid "--max-report must be at least 1 when provided."
+msgstr "Если указан --max-report, значение должно быть не меньше 1."
+
+#: mb/evaluate/misclassified.py:114
+msgid ""
+"Misclassified evaluation failed for model type {mt} (subcommand {sub}). This"
+" flow only supports image classification checkpoints that match the dataset "
+"layout, --architecture (PyTorch), and class counts. Underlying error: {err}"
+msgstr ""
+"Оценка неверных классификаций не выполнена для типа модели {mt} (подкоманда "
+"{sub}). Этот процесс поддерживает только контрольные точки классификации "
+"изображений, которые соответствуют структуре набора данных, --architecture "
+"(PyTorch) и числу классов. Базовая ошибка: {err}"
+
+#: mb/evaluate/misclassified.py:131
+msgid "Import error during misclassified evaluation: {err}"
+msgstr "Ошибка импорта во время оценки неверных классификаций: {err}"
+
+#: mb/evaluate/misclassified.py:142
+msgid "Wrote {n} rows to {path}"
+msgstr "Записано строк: {n} в {path}"
+
+#: mb/evaluate/classification/image_compare.py:29
+msgid ""
+"Compare requires both checkpoints to use the same framework (got {a} vs "
+"{b}). Mixed PyTorch / Keras is not supported yet."
+msgstr ""
+"Для сравнения обе контрольные точки должны использовать один фреймворк "
+"(получено {a} против {b}). Сочетание PyTorch / Keras пока не поддерживается."
+
+#: mb/evaluate/classification/image_compare.py:45
+msgid "--architecture is required for PyTorch compare (model A)."
+msgstr "Для сравнения PyTorch (модель A) требуется --architecture."
+
+#: mb/evaluate/classification/image_compare.py:48
+msgid ""
+"Model B needs --architecture-b or the same --architecture when B is PyTorch."
+msgstr ""
+"Модели B нужен --architecture-b или тот же --architecture, если B является "
+"PyTorch."
+
+#: mb/evaluate/classification/image_compare.py:58
+#: mb/evaluate/classification/image_compare.py:192
+#: mb/evaluate/classification/image_metrics.py:94
+#: mb/evaluate/classification/image_metrics.py:169
+#: mb/evaluate/classification/image_misclassified.py:39
+#: mb/evaluate/classification/image_misclassified.py:123
+msgid "--num-classes ({n}) does not match directory class count ({c})."
+msgstr "--num-classes ({n}) не совпадает с числом классов каталога ({c})."
+
+#: mb/evaluate/classification/image_compare.py:175
+msgid "TensorFlow is required for Keras compare: {err}"
+msgstr "Для сравнения Keras требуется TensorFlow: {err}"
+
+#: mb/evaluate/classification/image_compare.py:283
+msgid "Unsupported framework for compare: {fw}"
+msgstr "Неподдерживаемый фреймворк для сравнения: {fw}"
+
+#: mb/evaluate/classification/image_metrics.py:69
+msgid "Could not detect model framework from {path}"
+msgstr "Не удалось определить фреймворк модели по {path}"
+
+#: mb/evaluate/classification/image_metrics.py:73
+msgid "Framework {fw} is not supported for metrics (use PyTorch or Keras)."
+msgstr ""
+"Фреймворк {fw} не поддерживается для метрик (используйте PyTorch или Keras)."
+
+#: mb/evaluate/classification/image_metrics.py:85
+#: mb/evaluate/classification/image_multilabel_metrics.py:220
+msgid "--architecture is required for PyTorch metrics evaluation."
+msgstr "Для оценки метрик PyTorch требуется --architecture."
+
+#: mb/evaluate/classification/image_metrics.py:152
+msgid "TensorFlow is required for Keras metrics: {err}"
+msgstr "Для метрик Keras требуется TensorFlow: {err}"
+
+#: mb/evaluate/classification/image_metrics.py:213
+msgid "Unsupported framework for metrics: {fw}"
+msgstr "Неподдерживаемый фреймворк для метрик: {fw}"
+
+#: mb/evaluate/classification/image_misclassified.py:30
+msgid "--architecture is required for PyTorch misclassified listing."
+msgstr "Для списка неверных классификаций PyTorch требуется --architecture."
+
+#: mb/evaluate/classification/image_misclassified.py:106
+msgid "TensorFlow is required for Keras misclassified listing: {err}"
+msgstr "Для списка неверных классификаций Keras требуется TensorFlow: {err}"
+
+#: mb/evaluate/classification/image_misclassified.py:171
+msgid "Unsupported framework for misclassified: {fw}"
+msgstr "Неподдерживаемый фреймворк для неверных классификаций: {fw}"
+
+#: mb/evaluate/classification/image_multilabel_metrics.py:252
+msgid "Micro F1: {v:.4f}"
+msgstr "Микро F1: {v:.4f}"
+
+#: mb/evaluate/classification/image_multilabel_metrics.py:253
+msgid "Macro F1: {v:.4f}"
+msgstr "Макро F1: {v:.4f}"
+
+#: mb/evaluate/classification/image_multilabel_metrics.py:258
+msgid "Per-label metrics:"
+msgstr "Метрики по меткам:"
+
+#: mb/evaluate/classification/image_multilabel_metrics.py:271
+msgid "Macro F1 by axis:"
+msgstr "Макро F1 по осям:"
+
+#: mb/evaluate/classification/image_multilabel_metrics.py:277
+msgid "Macro averages exclude {n} label(s) with no positives in this split."
+msgstr ""
+"Макросредние исключают {n} метку(и) без положительных примеров в этом "
+"разбиении."
+
+#: mb/models/preprocessing.py:256
+msgid ""
+"Architecture {arch} expects {native}x{native} input; {requested} was "
+"requested. Pass --allow-resolution-mismatch to train at a different size "
+"anyway."
+msgstr ""
+"Архитектура {arch} ожидает вход {native}x{native}; запрошено {requested}. "
+"Передайте --allow-resolution-mismatch, чтобы все равно обучать с другим "
+"размером."
+
+#: mb/models/frameworks/pytorch/hf_architectures.py:206
+msgid ""
+"transformers>={version} is required for Hugging Face backbones. Install it "
+"with: pip install -e \".[transformers]\""
+msgstr ""
+"Для базовых моделей Hugging Face требуется transformers>={version}. "
+"Установите так: pip install -e \".[transformers]\""
+
+#: mb/training/lora_diffusion_trainer.py:82
+msgid ""
+"--architecture is required for --model-type image_generation_lora (the base "
+"image-generation model to fine-tune, e.g. a local path or hub id)."
+msgstr ""
+"--architecture обязателен для --model-type image_generation_lora (базовая "
+"модель генерации изображений для дообучения, напр. локальный путь или hub "
+"id)."
+
+#: mb/training/lora_diffusion_trainer.py:86
+msgid ""
+"Could not determine the base model's architecture from {path} (no readable "
+"model_index.json, or a hub id rather than a local path). Pass --base-model-"
+"architecture explicitly (one of: {choices})."
+msgstr ""
+"Не удалось определить архитектуру базовой модели по {path} (нет читаемого "
+"model_index.json, либо это hub id, а не локальный путь). Укажите --base-"
+"model-architecture явно (одно из: {choices})."
+
+#: mb/training/lora_diffusion_trainer.py:91
+msgid ""
+"Base architecture '{arch}' is recognized but not implemented yet — "
+"implemented architectures today: {implemented}."
+msgstr ""
+"Базовая архитектура '{arch}' распознана, но еще не реализована. "
+"Реализованные на сегодня архитектуры: {implemented}."
+
+#: mb/training/lora_diffusion_trainer.py:191
+msgid "No prepared images found under {path}"
+msgstr "Под {path} не найдены подготовленные изображения"
+
+#: mb/training/lora_diffusion_trainer.py:534
+msgid ""
+"Image-generation LoRA training requires the 'lora' extras: pip install -e "
+"\".[lora]\" (diffusers, peft, transformers). Underlying error: {err}"
+msgstr ""
+"Обучение LoRA для генерации изображений требует дополнительные компоненты "
+"'lora': pip install -e \".[lora]\" (diffusers, peft, transformers). Базовая "
+"ошибка: {err}"
+
+#: mb/training/lora_diffusion_trainer.py:564
+msgid ""
+"--model-type image_generation_lora only supports --framework pytorch (got: "
+"{fw})."
+msgstr ""
+"--model-type image_generation_lora поддерживает только --framework pytorch "
+"(получено: {fw})."
+
+#: mb/training/lora_diffusion_trainer.py:603
+msgid "LoRA training failed: {err}"
+msgstr "Обучение LoRA не выполнено: {err}"
+
+#: mb/training/lora_diffusion_trainer.py:608
+msgid "Training completed successfully. Adapter saved to: {path}"
+msgstr "Обучение успешно завершено. Адаптер сохранен в: {path}"
+
+#: mb/training/trainer.py:130
+msgid ""
+"Multi-label training is implemented for PyTorch only; --framework {fw} would"
+" silently train a single-label model."
+msgstr ""
+"Многометочное обучение реализовано только для PyTorch; --framework {fw} без "
+"предупреждения обучит модель с одной меткой."
+
+#: mb/utils/constants.py:82
+msgid "System"
+msgstr "Система"
+
+#: mb/utils/constants.py:101
+msgid "Access Password Administration"
+msgstr "Доступ Пароль Администрирование"
+
+#: mb/utils/recent_run_history.py:134
+msgid ""
+"No runs recorded yet.\n"
+"\n"
+"Completed and failed jobs from Data, Train, Convert, and Export are listed here."
+msgstr ""
+"Пока нет записанных запусков.\n"
+"\n"
+"Здесь перечислены завершенные и неудачные задания разделов Данные, Обучение, Преобразование и Экспорт."
+
+#: mb/utils/recent_run_history.py:140
+msgid "—"
+msgstr "—"
+
+#: mb/utils/recent_run_history.py:144
+msgid "ok"
+msgstr "успех"
+
+#: mb/utils/recent_run_history.py:144
+msgid "fail"
+msgstr "сбой"
+
+#: ui/app.py:28 ui/main_window.py:85 ui/main_window.py:121
+msgid "Model Builder"
+msgstr "Конструктор моделей"
+
+#: ui/main_window.py:266
+msgid "File"
+msgstr "Файл"
+
+#: ui/main_window.py:267
+msgid "Set workspace folder…"
+msgstr "Задать папку рабочей области…"
+
+#: ui/main_window.py:270
+msgid "Set config file…"
+msgstr "Задать файл конфигурации…"
+
+#: ui/main_window.py:273
+msgid "Open application settings (YAML)…"
+msgstr "Открыть параметры приложения (YAML)…"
+
+#: ui/main_window.py:277
+msgid ""
+"Desktop shell options (toasts, cache interval, …); see "
+"mb/config/application.example.yaml. Reload the app or use Set config file "
+"for pipeline YAML."
+msgstr ""
+"Параметры оболочки рабочего стола (всплывающие уведомления, интервал кэша, "
+"…); см. mb/config/application.example.yaml. Перезагрузите приложение или "
+"используйте Задать файл конфигурации для YAML конвейера."
+
+#: ui/main_window.py:283
+msgid "Exit"
+msgstr "выход"
+
+#: ui/main_window.py:288
+msgid "Help"
+msgstr "Справка"
+
+#: ui/main_window.py:289 ui/main_window.py:357
+msgid "About Model Builder"
+msgstr "О программе Model Builder"
+
+#: ui/main_window.py:301
+msgid " | Config: {path}"
+msgstr " | Конфигурация: {path}"
+
+#: ui/main_window.py:305
+msgid "Workspace: {root}{cfg}"
+msgstr "Рабочая область: {root}{cfg}"
+
+#: ui/main_window.py:306
+msgid "No workspace folder set — use File → Set workspace folder"
+msgstr ""
+"Папка рабочей области не задана — используйте Файл → Задать папку рабочей "
+"области"
+
+#: ui/main_window.py:317
+msgid "Application settings"
+msgstr "Параметры приложения"
+
+#: ui/main_window.py:318
+msgid ""
+"File not found:\n"
+"{path}"
+msgstr ""
+"Файл не найден:\n"
+"{path}"
+
+#: ui/main_window.py:327
+msgid "Workspace root folder"
+msgstr "Корневая папка рабочей области"
+
+#: ui/main_window.py:343
+msgid "Optional YAML config"
+msgstr "Необязательная конфигурация YAML"
+
+#: ui/main_window.py:345
+msgid "YAML (*.yaml *.yml);;All files (*.*)"
+msgstr "YAML (*.yaml *.yml);;Все файлы (*.*)"
+
+#: ui/main_window.py:369
+msgid "Background task"
+msgstr "Фоновая задача"
+
+#: ui/main_window.py:371
+msgid ""
+"A background task is still running. Closing now may leave partial outputs "
+"(checkpoints, datasets, copies). Exit anyway?"
+msgstr ""
+"Фоновая задача все еще выполняется. Закрытие сейчас может оставить неполные "
+"результаты (контрольные точки, наборы данных, копии). Все равно выйти?"
+
+#: ui/controllers/notification_controller.py:175
+msgid "Error"
+msgstr "Ошибка"
+
+#: ui/controllers/train_page_controller.py:76
+msgid "Architecture is required."
+msgstr "Необходимо указать архитектуру."
+
+#: ui/controllers/train_page_controller.py:79
+msgid "Unknown architecture: {a}"
+msgstr "Неизвестная архитектура: {a}"
+
+#: ui/controllers/train_page_controller.py:81
+#: ui/controllers/train_page_controller.py:136
+msgid "Data directory does not exist."
+msgstr "Каталог данных не существует."
+
+#: ui/controllers/train_page_controller.py:85
+msgid "Resume checkpoint path does not exist."
+msgstr "Путь контрольной точки возобновления не существует."
+
+#: ui/controllers/train_page_controller.py:123
+msgid ""
+"Image-generation LoRA training only supports the PyTorch framework (got: "
+"{fw})."
+msgstr ""
+"Обучение LoRA для генерации изображений поддерживает только фреймворк "
+"PyTorch (получено: {fw})."
+
+#: ui/controllers/train_page_controller.py:131
+msgid ""
+"Base model (a local checkpoint path or hub id) is required for image-"
+"generation LoRA."
+msgstr ""
+"Для LoRA генерации изображений требуется базовая модель (локальный путь "
+"контрольной точки или hub id)."
+
+#: ui/controllers/train_page_controller.py:145
+msgid ""
+"Could not determine the base model's architecture from {path}. Select one "
+"explicitly."
+msgstr ""
+"Не удалось определить архитектуру базовой модели по {path}. Выберите ее "
+"явно."
+
+#: ui/controllers/train_page_controller.py:151
+msgid "Base architecture '{arch}' is recognized but not implemented yet."
+msgstr "Базовая архитектура '{arch}' распознана, но еще не реализована."
+
+#: ui/controllers/train_page_controller.py:162
+msgid "Seed must be an integer."
+msgstr "Начальное значение должно быть целым числом."
+
+#: ui/lib/custom_dialogs_qt.py:120 ui/lib/fast_directory_picker_qt.py:410
+#: ui/lib/fast_directory_picker_qt.py:672
+#: ui/lib/fast_directory_picker_qt.py:993 ui/lib/qt_alert.py:28
+#: ui/lib/task_progress.py:38 ui/lib/training_progress_dialog.py:77
+msgid "Cancel"
+msgstr "Отмена"
+
+#: ui/lib/custom_dialogs_qt.py:126 ui/lib/qt_alert.py:27
+#: ui/lib/qt_alert.py:129
+msgid "OK"
+msgstr "OK"
+
+#: ui/lib/directory_line_edit_row.py:29 ui/pages/convert_page.py:201
+#: ui/pages/data_page.py:985 ui/pages/evaluate_page.py:389
+#: ui/pages/export_page.py:197 ui/pages/info_page.py:152
+#: ui/pages/train_page.py:488
+msgid "Select directory"
+msgstr "Выбрать каталог"
+
+#: ui/lib/directory_line_edit_row.py:30 ui/pages/convert_page.py:142
+#: ui/pages/convert_page.py:190 ui/pages/data_page.py:327
+#: ui/pages/data_page.py:974 ui/pages/evaluate_page.py:212
+#: ui/pages/evaluate_page.py:373 ui/pages/export_page.py:129
+#: ui/pages/export_page.py:181 ui/pages/info_page.py:67
+#: ui/pages/info_page.py:141 ui/pages/train_page.py:290
+#: ui/pages/train_page.py:430
+msgid "Browse..."
+msgstr "Просмотр..."
+
+#: ui/lib/duplicates_resolver_window.py:33
+msgid "Duplicate Resolver"
+msgstr "Разрешение дубликатов"
+
+#: ui/lib/duplicates_resolver_window.py:40
+msgid ""
+"Review potential duplicates from snapshot metadata. Select one path and copy"
+" it, or remove the non-selected peer when exactly two files remain in a "
+"group."
+msgstr ""
+"Просмотрите возможные дубликаты по метаданным снимка. Выберите один путь и "
+"скопируйте его или удалите невыбранный парный файл, когда в группе остаются "
+"ровно два файла."
+
+#: ui/lib/duplicates_resolver_window.py:59
+msgid "Close"
+msgstr "Закрыть"
+
+#: ui/lib/duplicates_resolver_window.py:76
+#: ui/lib/duplicates_resolver_window.py:157
+#: ui/lib/duplicates_resolver_window.py:164
+msgid "{gid} ({count} files)"
+msgstr "{gid} ({count} файлов)"
+
+#: ui/lib/duplicates_resolver_window.py:91
+msgid "Copy selected path"
+msgstr "Копировать выбранный путь"
+
+#: ui/lib/duplicates_resolver_window.py:93
+msgid "Remove non-selected peer"
+msgstr "Удалить невыбранный парный файл"
+
+#: ui/lib/duplicates_resolver_window.py:111
+#: ui/lib/duplicates_resolver_window.py:129
+msgid "No selection"
+msgstr "Нет выбора"
+
+#: ui/lib/duplicates_resolver_window.py:111
+msgid "Select a file path first."
+msgstr "Сначала выберите путь к файлу."
+
+#: ui/lib/duplicates_resolver_window.py:115
+#: ui/lib/duplicates_resolver_window.py:143
+#: ui/lib/duplicates_resolver_window.py:149
+msgid "Unavailable"
+msgstr "Нет в наличии"
+
+#: ui/lib/duplicates_resolver_window.py:115
+msgid "Selected item has no path."
+msgstr "У выбранного элемента нет пути."
+
+#: ui/lib/duplicates_resolver_window.py:123
+msgid "Action not allowed"
+msgstr "Действие не разрешено"
+
+#: ui/lib/duplicates_resolver_window.py:124
+msgid "This action requires exactly two files in the group."
+msgstr "Для этого действия в группе должно быть ровно два файла."
+
+#: ui/lib/duplicates_resolver_window.py:129
+msgid "Select the file you want to keep."
+msgstr "Выберите файл, который нужно оставить."
+
+#: ui/lib/duplicates_resolver_window.py:143
+msgid "Could not resolve peer file path."
+msgstr "Не удалось определить путь парного файла."
+
+#: ui/lib/duplicates_resolver_window.py:149
+msgid "Peer file path is empty."
+msgstr "Путь парного файла пуст."
+
+#: ui/lib/duplicates_resolver_window.py:152 ui/pages/info_page.py:183
+msgid "Missing file"
+msgstr "Файл отсутствует"
+
+#: ui/lib/duplicates_resolver_window.py:152
+msgid ""
+"Peer file no longer exists:\n"
+"{p}"
+msgstr ""
+"Парный файл больше не существует:\n"
+"{p}"
+
+#: ui/lib/fast_directory_picker_qt.py:216
+#: ui/lib/fast_directory_picker_qt.py:277
+msgid "Home"
+msgstr "Главная"
+
+#: ui/lib/fast_directory_picker_qt.py:226
+msgid "Removable"
+msgstr "Съёмный"
+
+#: ui/lib/fast_directory_picker_qt.py:227
+msgid "Local"
+msgstr "Локальный"
+
+#: ui/lib/fast_directory_picker_qt.py:228
+msgid "Network"
+msgstr "Сеть"
+
+#: ui/lib/fast_directory_picker_qt.py:229
+msgid "CD/DVD"
+msgstr "CD/DVD"
+
+#: ui/lib/fast_directory_picker_qt.py:230
+msgid "RAM Disk"
+msgstr "RAM-диск"
+
+#: ui/lib/fast_directory_picker_qt.py:242
+msgid "Unknown"
+msgstr "Неизвестный"
+
+#: ui/lib/fast_directory_picker_qt.py:334
+#: ui/lib/fast_directory_picker_qt.py:1235
+msgid "Select Directory"
+msgstr "Выберите директорию"
+
+#: ui/lib/fast_directory_picker_qt.py:357
+#: ui/lib/fast_directory_picker_qt.py:614
+#: ui/lib/fast_directory_picker_qt.py:927
+msgid "Locations"
+msgstr "Расположения"
+
+#: ui/lib/fast_directory_picker_qt.py:362
+#: ui/lib/fast_directory_picker_qt.py:619
+#: ui/lib/fast_directory_picker_qt.py:932
+msgid "Refresh locations"
+msgstr "Обновить локации"
+
+#: ui/lib/fast_directory_picker_qt.py:375
+#: ui/lib/fast_directory_picker_qt.py:945
+msgid "Type or paste a directory path"
+msgstr "Введите или вставьте путь каталога"
+
+#: ui/lib/fast_directory_picker_qt.py:379
+#: ui/lib/fast_directory_picker_qt.py:636
+#: ui/lib/fast_directory_picker_qt.py:949
+msgid "Go"
+msgstr "Идите"
+
+#: ui/lib/fast_directory_picker_qt.py:383
+#: ui/lib/fast_directory_picker_qt.py:640
+#: ui/lib/fast_directory_picker_qt.py:953
+msgid "Up"
+msgstr "Вверх"
+
+#: ui/lib/fast_directory_picker_qt.py:387
+#: ui/lib/fast_directory_picker_qt.py:644
+#: ui/lib/fast_directory_picker_qt.py:957
+msgid "New Folder"
+msgstr "Новая Папка"
+
+#: ui/lib/fast_directory_picker_qt.py:391
+#: ui/lib/fast_directory_picker_qt.py:648
+#: ui/lib/fast_directory_picker_qt.py:961
+msgid "Refresh"
+msgstr "Обновить"
+
+#: ui/lib/fast_directory_picker_qt.py:395
+#: ui/lib/fast_directory_picker_qt.py:652
+#: ui/lib/fast_directory_picker_qt.py:965
+msgid "Folders"
+msgstr "Папки"
+
+#: ui/lib/fast_directory_picker_qt.py:414
+msgid "Select"
+msgstr "Выбрать"
+
+#: ui/lib/fast_directory_picker_qt.py:479
+#: ui/lib/fast_directory_picker_qt.py:749
+#: ui/lib/fast_directory_picker_qt.py:1071
+msgid "Create New Folder"
+msgstr "Создать новую папку"
+
+#: ui/lib/fast_directory_picker_qt.py:480
+#: ui/lib/fast_directory_picker_qt.py:750
+#: ui/lib/fast_directory_picker_qt.py:1072
+msgid "Folder name:"
+msgstr "Имя папки:"
+
+#: ui/lib/fast_directory_picker_qt.py:486
+#: ui/lib/fast_directory_picker_qt.py:756
+#: ui/lib/fast_directory_picker_qt.py:1078
+msgid "Folder name cannot be empty."
+msgstr "Имя папки не может быть пустым."
+
+#: ui/lib/fast_directory_picker_qt.py:498
+#: ui/lib/fast_directory_picker_qt.py:766
+#: ui/lib/fast_directory_picker_qt.py:1088
+msgid "A folder with that name already exists."
+msgstr "Папка с этим именем уже существует."
+
+#: ui/lib/fast_directory_picker_qt.py:503
+#: ui/lib/fast_directory_picker_qt.py:770
+#: ui/lib/fast_directory_picker_qt.py:1092
+msgid "Failed to create folder (check permissions/path)."
+msgstr "Не удалось создать папку (проверьте разрешения/путь)"
+
+#: ui/lib/fast_directory_picker_qt.py:552
+#: ui/lib/fast_directory_picker_qt.py:847
+#: ui/lib/fast_directory_picker_qt.py:1154
+msgid "No folders found (or folder is not currently accessible)."
+msgstr "Папки не найдены (или папка в настоящее время недоступна)"
+
+#: ui/lib/fast_directory_picker_qt.py:589
+#: ui/lib/fast_directory_picker_qt.py:1283
+msgid "Open File"
+msgstr "Открыть файл"
+
+#: ui/lib/fast_directory_picker_qt.py:632
+msgid "Type or paste a directory or file path"
+msgstr "Введите или вставьте путь к каталогу или файлу"
+
+#: ui/lib/fast_directory_picker_qt.py:657
+msgid "Files"
+msgstr "Файлы"
+
+#: ui/lib/fast_directory_picker_qt.py:676
+msgid "Open"
+msgstr "Открытые медиа"
+
+#: ui/lib/fast_directory_picker_qt.py:801
+#: ui/lib/fast_directory_picker_qt.py:1122
+msgid "Path not found or not accessible."
+msgstr "Путь не найден или недоступен."
+
+#: ui/lib/fast_directory_picker_qt.py:886
+msgid "Select a file or navigate into a folder."
+msgstr "Выберите файл или перейдите в папку."
+
+#: ui/lib/fast_directory_picker_qt.py:903
+#: ui/lib/fast_directory_picker_qt.py:1333
+msgid "Save File"
+msgstr "Сохранить файл"
+
+#: ui/lib/fast_directory_picker_qt.py:970
+msgid "Files (optional — double-click to fill name)"
+msgstr "Файлы (необязательно — двойной щелчок заполняет имя)"
+
+#: ui/lib/fast_directory_picker_qt.py:977
+msgid "File name"
+msgstr "Имя файла"
+
+#: ui/lib/fast_directory_picker_qt.py:979
+msgid "output.onnx"
+msgstr "output.onnx"
+
+#: ui/lib/fast_directory_picker_qt.py:997 ui/pages/config_page.py:82
+#: ui/pages/config_page.py:160 ui/pages/pipeline_config_page.py:226
+msgid "Save"
+msgstr "Сохранить"
+
+#: ui/lib/fast_directory_picker_qt.py:1172
+msgid "Enter a file name."
+msgstr "Введите имя файла."
+
+#: ui/lib/fast_directory_picker_qt.py:1176
+msgid "Use a simple file name (no path separators)."
+msgstr "Используйте простое имя файла (без разделителей пути)."
+
+#: ui/lib/fast_directory_picker_qt.py:1194
+msgid "Current Base Directory"
+msgstr "Текущий базовый каталог"
+
+#: ui/lib/qt_alert.py:29
+msgid "Yes"
+msgstr "Да"
+
+#: ui/lib/qt_alert.py:30
+msgid "No"
+msgstr "Нет"
+
+#: ui/lib/qt_alert.py:122
+msgid "Copy details"
+msgstr "Копировать сведения"
+
+#: ui/lib/qt_alert.py:123
+msgid "Open log folder"
+msgstr "Открыть папку журнала"
+
+#: ui/lib/task_progress.py:31 ui/lib/training_progress_dialog.py:56
+msgid "Starting…"
+msgstr "Запуск…"
+
+#: ui/lib/training_progress_dialog.py:32 ui/lib/training_progress_dialog.py:34
+#: ui/lib/training_progress_dialog.py:121
+#: ui/lib/training_progress_dialog.py:140
+msgid "Estimated time remaining: —"
+msgstr "Оценка оставшегося времени: —"
+
+#: ui/lib/training_progress_dialog.py:35
+msgid "Estimated time remaining: {eta}"
+msgstr "Оценка оставшегося времени: {eta}"
+
+#: ui/lib/training_progress_dialog.py:41
+msgid "Elapsed: {t}"
+msgstr "Прошло: {t}"
+
+#: ui/lib/training_progress_dialog.py:69
+#: ui/lib/training_progress_dialog.py:100
+#: ui/lib/training_progress_dialog.py:148
+msgid "Current epoch ETA: —"
+msgstr "Оценка времени текущей эпохи: —"
+
+#: ui/lib/training_progress_dialog.py:99
+#: ui/lib/training_progress_dialog.py:109
+msgid "ETA unknown"
+msgstr "Оценка времени неизвестна"
+
+#: ui/lib/training_progress_dialog.py:118
+msgid "Estimated time remaining: almost done"
+msgstr "Оценка оставшегося времени: почти готово"
+
+#: ui/lib/training_progress_dialog.py:134
+msgid "Estimated time remaining: calculating…"
+msgstr "Оценка оставшегося времени: вычисление…"
+
+#: ui/lib/training_progress_dialog.py:161
+#: ui/lib/training_progress_dialog.py:166
+#: ui/lib/training_progress_dialog.py:171
+msgid "Current epoch ETA: calculating…"
+msgstr "Оценка времени текущей эпохи: вычисление…"
+
+#: ui/lib/training_progress_dialog.py:177
+msgid "Current epoch ETA: {eta}"
+msgstr "Оценка времени текущей эпохи: {eta}"
+
+#: ui/lib/training_progress_dialog.py:200
+msgid "Cancel training"
+msgstr "Отменить обучение"
+
+#: ui/lib/training_progress_dialog.py:201
+msgid ""
+"Stop training? Partial checkpoints may already exist in the output folder."
+msgstr ""
+"Остановить обучение? В папке вывода уже могут быть частичные контрольные "
+"точки."
+
+#: ui/lib/training_progress_dialog.py:208
+#: ui/lib/training_progress_dialog.py:209
+msgid "Cancelling…"
+msgstr "Отмена…"
+
+#: ui/pages/config_page.py:80 ui/pages/config_page.py:159
+#: ui/pages/pipeline_config_page.py:224
+msgid "Reload from disk"
+msgstr "Перезагрузить с диска"
+
+#: ui/pages/config_page.py:85 ui/pages/config_page.py:161
+msgid "Set Default…"
+msgstr "Установить по умолчанию…"
+
+#: ui/pages/config_page.py:115
+msgid "App"
+msgstr "Приложение"
+
+#: ui/pages/config_page.py:118
+msgid ""
+"Application shell settings (<code>gui</code>, <code>app</code>). Save writes"
+" to your active config file, or to the user data folder when the packaged "
+"example is the only source."
+msgstr ""
+"Параметры оболочки приложения (<code>gui</code>, <code>app</code>). "
+"Сохранение записывает активный файл конфигурации, а если единственный "
+"источник - пример из пакета, то в папку данных пользователя."
+
+#: ui/pages/config_page.py:123
+msgid "gui"
+msgstr "gui"
+
+#: ui/pages/config_page.py:124
+msgid "app"
+msgstr "app"
+
+#: ui/pages/config_page.py:128 ui/pages/config_page.py:186
+msgid "Locale"
+msgstr "Языковая локаль"
+
+#: ui/pages/config_page.py:129 ui/pages/config_page.py:190
+msgid "Foreground color"
+msgstr "Цвет переднего плана"
+
+#: ui/pages/config_page.py:130 ui/pages/config_page.py:194
+msgid "Background color"
+msgstr "Цвет фона"
+
+#: ui/pages/config_page.py:131 ui/pages/config_page.py:198
+msgid "Toast color (warning)"
+msgstr "Цвет уведомления (предупреждение)"
+
+#: ui/pages/config_page.py:132 ui/pages/config_page.py:202
+msgid "Toast color (success)"
+msgstr "Цвет уведомления (успех)"
+
+#: ui/pages/config_page.py:133 ui/pages/config_page.py:206
+msgid "Accent (primary)"
+msgstr "Акцент (основной)"
+
+#: ui/pages/config_page.py:134 ui/pages/config_page.py:210
+msgid "Accent (secondary)"
+msgstr "Акцент (дополнительный)"
+
+#: ui/pages/config_page.py:136 ui/pages/config_page.py:217
+msgid "Default main window size"
+msgstr "Размер главного окна по умолчанию"
+
+#: ui/pages/config_page.py:137 ui/pages/config_page.py:221
+msgid "Toast duration (seconds)"
+msgstr "Длительность уведомления (секунды)"
+
+#: ui/pages/config_page.py:138 ui/pages/config_page.py:225
+msgid "Title notify duration (seconds)"
+msgstr "Длительность уведомления заголовка (секунды)"
+
+#: ui/pages/config_page.py:139 ui/pages/config_page.py:229
+msgid "Font size"
+msgstr "Размер шрифта"
+
+#: ui/pages/config_page.py:140 ui/pages/config_page.py:235
+msgid "GUI cache store interval"
+msgstr "Интервал сохранения кэша интерфейса"
+
+#: ui/pages/config_page.py:148 ui/pages/config_page.py:260
+msgid "Log level"
+msgstr "Уровень журнала"
+
+#: ui/pages/config_page.py:152 ui/pages/config_page.py:183
+msgid "System default (follow OS)"
+msgstr "Системное значение (следовать ОС)"
+
+#: ui/pages/config_page.py:153 ui/pages/config_page.py:216
+msgid "e.g. 1200x960"
+msgstr "напр. 1200x960"
+
+#: ui/pages/config_page.py:154 ui/pages/config_page.py:234
+msgid " s"
+msgstr " с"
+
+#: ui/pages/config_page.py:155 ui/pages/config_page.py:212
+msgid "Show toasts"
+msgstr "Показывать уведомления"
+
+#: ui/pages/config_page.py:156 ui/pages/config_page.py:251
+msgid "Debug logging"
+msgstr "Журнал отладки"
+
+#: ui/pages/config_page.py:157 ui/pages/config_page.py:254
+msgid "Debug logging (verbose)"
+msgstr "Журнал отладки (подробный)"
+
+#: ui/pages/config_page.py:158 ui/pages/config_page.py:262
+msgid "Print settings to log on load"
+msgstr "Записывать конфигурацию в журнал при загрузке"
+
+#: ui/pages/config_page.py:164
+msgid ""
+"Replace your user application.yaml (next to the log folder) with built-in "
+"defaults. Does not change workspace-specific YAML."
+msgstr ""
+"Заменяет пользовательский application.yaml (рядом с папкой журнала) "
+"встроенными значениями по умолчанию. YAML конкретной рабочей области не "
+"изменяется."
+
+#: ui/pages/config_page.py:367
+msgid "Reading: {path}"
+msgstr "Чтение: {path}"
+
+#: ui/pages/config_page.py:369
+msgid "Reading: (built-in defaults — no file on disk)"
+msgstr "Чтение: (встроенные значения по умолчанию — на диске нет файла)"
+
+#: ui/pages/config_page.py:378 ui/pages/config_page.py:390
+#: ui/pages/config_page.py:401 ui/pages/config_page.py:413
+#: ui/pages/config_page.py:425
+msgid "Config"
+msgstr "Конфиг"
+
+#: ui/pages/config_page.py:379
+msgid "Default main window size must look like WIDTHxHEIGHT (e.g. 1200x960)."
+msgstr ""
+"Размер главного окна по умолчанию должен иметь вид ШИРИНАxВЫСОТА (напр. "
+"1200x960)."
+
+#: ui/pages/config_page.py:390 ui/pages/pipeline_config_page.py:744
+msgid ""
+"Could not write:\n"
+"{path}\n"
+"\n"
+"{err}"
+msgstr ""
+"Не удалось записать:\n"
+"{path}\n"
+"\n"
+"{err}"
+
+#: ui/pages/config_page.py:401 ui/pages/pipeline_config_page.py:759
+msgid ""
+"Saved to:\n"
+"{path}"
+msgstr ""
+"Сохранено в:\n"
+"{path}"
+
+#: ui/pages/config_page.py:414 ui/pages/pipeline_config_page.py:781
+msgid ""
+"Could not write defaults to:\n"
+"{path}\n"
+"\n"
+"{err}"
+msgstr ""
+"Не удалось записать значения по умолчанию в:\n"
+"{path}\n"
+"\n"
+"{err}"
+
+#: ui/pages/config_page.py:425
+msgid ""
+"Reset user config to defaults:\n"
+"{path}"
+msgstr ""
+"Конфигурация пользователя сброшена к значениям по умолчанию:\n"
+"{path}"
+
+#: ui/pages/convert_page.py:77 ui/pages/convert_page.py:130
+msgid "Required only for PyTorch -> ONNX"
+msgstr "Нужно только для PyTorch -> ONNX"
+
+#: ui/pages/convert_page.py:82 ui/pages/convert_page.py:121
+#: ui/pages/export_page.py:67 ui/pages/export_page.py:104
+msgid "Input model"
+msgstr "Входная модель"
+
+#: ui/pages/convert_page.py:83 ui/pages/convert_page.py:122
+msgid "Output model"
+msgstr "Выходная модель"
+
+#: ui/pages/convert_page.py:84 ui/pages/convert_page.py:123
+msgid "Source framework"
+msgstr "Исходный фреймворк"
+
+#: ui/pages/convert_page.py:85 ui/pages/convert_page.py:124
+msgid "Target format"
+msgstr "Целевой формат"
+
+#: ui/pages/convert_page.py:86 ui/pages/convert_page.py:125
+#: ui/pages/evaluate_page.py:111 ui/pages/evaluate_page.py:157
+#: ui/pages/export_page.py:68 ui/pages/export_page.py:105
+#: ui/pages/train_page.py:103 ui/pages/train_page.py:225
+msgid "Architecture"
+msgstr "Архитектура"
+
+#: ui/pages/convert_page.py:87 ui/pages/convert_page.py:126
+#: ui/pages/evaluate_page.py:112 ui/pages/evaluate_page.py:158
+#: ui/pages/export_page.py:69 ui/pages/export_page.py:106
+msgid "Num classes"
+msgstr "Число классов"
+
+#: ui/pages/convert_page.py:88 ui/pages/convert_page.py:127
+#: ui/pages/evaluate_page.py:113 ui/pages/evaluate_page.py:159
+#: ui/pages/export_page.py:71 ui/pages/export_page.py:108
+#: ui/pages/train_page.py:107 ui/pages/train_page.py:229
+msgid "Image size"
+msgstr "Размер изображения"
+
+#: ui/pages/convert_page.py:96 ui/pages/convert_page.py:132
+msgid "Validate Conversion"
+msgstr "Проверить преобразование"
+
+#: ui/pages/convert_page.py:97 ui/pages/convert_page.py:133
+msgid "Run Conversion"
+msgstr "Запустить преобразование"
+
+#: ui/pages/convert_page.py:106 ui/pages/convert_page.py:135
+msgid "Conversion validation and execution messages will appear here."
+msgstr "Здесь будут сообщения проверки и выполнения преобразования."
+
+#: ui/pages/convert_page.py:117
+msgid "Prepare conversion jobs for ONNX and SafeTensors targets."
+msgstr "Подготовьте задания преобразования для целей ONNX и SafeTensors."
+
+#: ui/pages/convert_page.py:131
+msgid "Note: architecture/num_classes are needed for PyTorch -> ONNX."
+msgstr "Примечание: для PyTorch -> ONNX нужны архитектура и число классов."
+
+#: ui/pages/convert_page.py:209
+msgid "Select output file"
+msgstr "Выбрать файл вывода"
+
+#: ui/pages/convert_page.py:211
+msgid "Model files (*.onnx *.safetensors);;All files (*.*)"
+msgstr "Файлы моделей (*.onnx *.safetensors);;Все файлы (*.*)"
+
+#: ui/pages/convert_page.py:218 ui/pages/export_page.py:192
+#: ui/pages/info_page.py:160
+msgid "Select model file"
+msgstr "Выберите модельный файл"
+
+#: ui/pages/convert_page.py:220 ui/pages/info_page.py:162
+msgid ""
+"Model files (*.pth *.pt *.h5 *.keras *.onnx *.safetensors);;All files (*.*)"
+msgstr ""
+"Файлы моделей (*.pth *.pt *.h5 *.keras *.onnx *.safetensors);;Все файлы "
+"(*.*)"
+
+#: ui/pages/convert_page.py:237 ui/pages/export_page.py:212
+msgid "Input model file does not exist."
+msgstr "Файл входной модели не существует."
+
+#: ui/pages/convert_page.py:239
+msgid "Output model parent directory does not exist."
+msgstr "Родительский каталог выходной модели не существует."
+
+#: ui/pages/convert_page.py:250
+msgid "PyTorch -> ONNX requires architecture and num classes."
+msgstr "PyTorch -> ONNX требует архитектуру и число классов."
+
+#: ui/pages/convert_page.py:275
+msgid "[ok] conversion inputs valid (source={src})"
+msgstr "[верно] входные данные преобразования допустимы (источник={src})"
+
+#: ui/pages/convert_page.py:282 ui/pages/export_page.py:304
+#: ui/pages/train_page.py:618
+msgid "[invalid] {err}"
+msgstr "[неверно] {err}"
+
+#: ui/pages/convert_page.py:300
+msgid "Convert model"
+msgstr "Преобразовать модель"
+
+#: ui/pages/convert_page.py:317
+msgid "[stopped] Conversion cancelled before completion."
+msgstr "[остановлено] Преобразование отменено до завершения."
+
+#: ui/pages/convert_page.py:328
+msgid "[done] Conversion succeeded."
+msgstr "[готово] Преобразование выполнено успешно."
+
+#: ui/pages/convert_page.py:331
+msgid "[failed] Conversion failed."
+msgstr "[сбой] Преобразование не выполнено."
+
+#: ui/pages/convert_page.py:335 ui/pages/export_page.py:352
+#: ui/pages/train_page.py:674 ui/pages/train_page.py:776
+msgid "[error] {err}"
+msgstr "[ошибка] {err}"
+
+#: ui/pages/convert_page.py:345
+msgid ""
+"Model conversion reported an error. See Details for the underlying message."
+msgstr ""
+"Преобразование модели сообщило об ошибке. Исходное сообщение см. в разделе "
+"Подробности."
+
+#: ui/pages/data_page.py:158
+msgid ""
+"Typical order: Gather → Convert → Deduplicate (optional) → Upscale "
+"(optional) → Create Dataset. If class folders are already under your raw "
+"data root, skip Gather and start at Convert. If sources were mislabeled as "
+".jpg, run fix-jpeg-extension-mismatch before Create Dataset (it repairs "
+"CONVERTED/ and updates the unified snapshot—no separate full Convert needed "
+"for that). Create Dataset reads training JPEGs from each class’s CONVERTED/ "
+"folder only—not from small_images_review, upscaled_small_images, or "
+"visual_media_review."
+msgstr ""
+"Обычный порядок: Собрать → Преобразовать → Удалить дубликаты (необязательно)"
+" → Увеличить (необязательно) → Создать набор данных. Если папки классов уже "
+"находятся в корне необработанных данных, пропустите Собрать и начните с "
+"Преобразовать. Если источники были ошибочно помечены как .jpg, выполните "
+"fix-jpeg-extension-mismatch до шага Создать набор данных (он исправляет "
+"CONVERTED/ и обновляет единый снимок; отдельное полное Преобразовать для "
+"этого не нужно). Создать набор данных читает обучающие JPEG только из папки "
+"CONVERTED/ каждого класса; не из small_images_review, upscaled_small_images "
+"или visual_media_review."
+
+#: ui/pages/data_page.py:166
+msgid "Gather"
+msgstr "Собрать"
+
+#: ui/pages/data_page.py:167
+msgid "Convert"
+msgstr "Преобразовать"
+
+#: ui/pages/data_page.py:168
+msgid "Deduplicate"
+msgstr "Удалить дубликаты"
+
+#: ui/pages/data_page.py:169
+msgid "Upscale"
+msgstr "Увеличить"
+
+#: ui/pages/data_page.py:170
+msgid "Create Dataset"
+msgstr "Создать набор данных"
+
+#: ui/pages/data_page.py:171
+msgid "Wildcard"
+msgstr "Подстановочный знак"
+
+#: ui/pages/data_page.py:172
+msgid "Validate Inputs"
+msgstr "Проверить входные данные"
+
+#: ui/pages/data_page.py:173
+msgid "Run Data Command"
+msgstr "Выполнить команду данных"
+
+#: ui/pages/data_page.py:174
+msgid "Validation and run results will appear here."
+msgstr "Здесь появятся результаты проверки и выполнения."
+
+#: ui/pages/data_page.py:177
+msgid ""
+"Example:\n"
+"--dry-run --json\n"
+"--raw-data-dir C:\\path\\to\\raw_data"
+msgstr ""
+"Пример:\n"
+"--dry-run --json\n"
+"--raw-data-dir C:\\path\\to\\raw_data"
+
+#: ui/pages/data_page.py:184 ui/pages/data_page.py:1286
+msgid "Latest space check"
+msgstr "Последняя проверка места"
+
+#: ui/pages/data_page.py:189
+msgid ""
+"No space estimate yet. It updates after the disk-space check finishes (first"
+" phase of Convert or Create Dataset)."
+msgstr ""
+"Оценки места на диске пока нет. Она обновится после проверки свободного "
+"места (первая фаза шагов Преобразовать или Создать набор данных)."
+
+#: ui/pages/data_page.py:196 ui/pages/data_page.py:607
+msgid "Source dir"
+msgstr "Исходный каталог"
+
+#: ui/pages/data_page.py:197 ui/pages/data_page.py:608
+msgid "Subdirs (space-separated)"
+msgstr "Подкаталоги (через пробел)"
+
+#: ui/pages/data_page.py:198 ui/pages/data_page.py:609
+msgid "Target count"
+msgstr "Целевое число"
+
+#: ui/pages/data_page.py:199 ui/pages/data_page.py:610
+msgid "Target dir"
+msgstr "Целевой каталог"
+
+#: ui/pages/data_page.py:200 ui/pages/data_page.py:611
+msgid "Rejected dir"
+msgstr "Каталог отклонённых"
+
+#: ui/pages/data_page.py:201 ui/pages/data_page.py:612
+msgid "Subdir weights"
+msgstr "Веса подкаталогов"
+
+#: ui/pages/data_page.py:202 ui/pages/data_page.py:207
+#: ui/pages/data_page.py:211 ui/pages/data_page.py:221
+#: ui/pages/data_page.py:227 ui/pages/data_page.py:613
+#: ui/pages/data_page.py:631 ui/pages/data_page.py:650
+#: ui/pages/data_page.py:709 ui/pages/data_page.py:751
+msgid "Raw data dir"
+msgstr "Каталог необработанных данных"
+
+#: ui/pages/data_page.py:207 ui/pages/data_page.py:632
+msgid "Format (jpeg/jpg)"
+msgstr "Формат (jpeg/jpg)"
+
+#: ui/pages/data_page.py:207 ui/pages/data_page.py:233
+#: ui/pages/data_page.py:633 ui/pages/data_page.py:764
+#: ui/pages/export_page.py:72 ui/pages/export_page.py:109
+#: ui/pages/train_page.py:111 ui/pages/train_page.py:232
+msgid "Run ID (optional)"
+msgstr "ID запуска (необязательно)"
+
+#: ui/pages/data_page.py:211 ui/pages/data_page.py:663
+msgid "Snapshot Run ID (optional)"
+msgstr "ID запуска снимка (необязательно)"
+
+#: ui/pages/data_page.py:215 ui/pages/data_page.py:653
+msgid ""
+"Review cross-class duplicates only: same-class CONVERTED duplicates are "
+"removed automatically; JSON + resolver list cross-class groups after run"
+msgstr ""
+"Проверять только дубликаты между классами: дубликаты CONVERTED одного класса"
+" удаляются автоматически; JSON и средство разрешения перечисляют группы "
+"между классами после запуска"
+
+#: ui/pages/data_page.py:221 ui/pages/data_page.py:711
+msgid "Review dir (optional)"
+msgstr "Каталог проверки (необязательно)"
+
+#: ui/pages/data_page.py:226 ui/pages/data_page.py:750
+#: ui/pages/evaluate_page.py:107 ui/pages/evaluate_page.py:153
+#: ui/pages/train_page.py:100 ui/pages/train_page.py:222
+msgid "Model type"
+msgstr "Тип модели"
+
+#: ui/pages/data_page.py:228 ui/pages/data_page.py:752
+msgid "Output data dir"
+msgstr "Каталог выходных данных"
+
+#: ui/pages/data_page.py:229 ui/pages/data_page.py:753
+msgid "Test items per class"
+msgstr "Число тестовых элементов на класс"
+
+#: ui/pages/data_page.py:230 ui/pages/data_page.py:757
+#: ui/pages/pipeline_config_page.py:344
+msgid "Test split mode"
+msgstr "Режим тестового разбиения"
+
+#: ui/pages/data_page.py:231 ui/pages/data_page.py:762
+#: ui/pages/pipeline_config_page.py:350
+msgid "Small-class threshold (weighted)"
+msgstr "Порог малого класса (взвешенный)"
+
+#: ui/pages/data_page.py:232 ui/pages/data_page.py:763
+msgid "Seed (optional)"
+msgstr "Начальное значение (необязательно)"
+
+#: ui/pages/data_page.py:234 ui/pages/data_page.py:765
+msgid "Max train per class"
+msgstr "Макс. обучение на класс"
+
+#: ui/pages/data_page.py:240 ui/pages/data_page.py:746
+#: ui/pages/pipeline_config_page.py:354
+msgid "None"
+msgstr "Нет"
+
+#: ui/pages/data_page.py:241 ui/pages/data_page.py:747
+msgid "Balance train set to smallest class"
+msgstr "Сбалансировать обучающий набор по наименьшему классу"
+
+#: ui/pages/data_page.py:242 ui/pages/data_page.py:748
+msgid "Allow external/removable storage"
+msgstr "Разрешить внешнее/съёмное хранилище"
+
+#: ui/pages/data_page.py:245
+msgid ""
+"Before Create Dataset: (1) Raw data must use one folder per class under the "
+"raw data root (run Gather first if you do not already have that layout). (2)"
+" Run Convert so each class has normalized JPEGs under CONVERTED/ and the "
+"unified snapshot matches your sources. (3) If any files had the wrong "
+"extension for their actual image bytes, run mb data fix-jpeg-extension-"
+"mismatch (or the Wildcard tab with that subcommand)—it rewrites CONVERTED/ "
+"and patches the unified snapshot for those files; you do not need a second "
+"full Convert just to refresh the snapshot. (4) Optional: Deduplicate may "
+"move borderline-small files out of CONVERTED/ into each class’s "
+"small_images_review/; Upscale is optional. Create Dataset reads JPEGs from "
+"CONVERTED/ only—put any images you still want trained back under CONVERTED/ "
+"(from small_images_review or from upscaled_small_images after upscale) "
+"before Create Dataset. (5) Choose an output data directory with enough free "
+"space; check “Allow external/removable storage” when writing to removable "
+"drives."
+msgstr ""
+"Перед созданием набора данных: (1) Исходные данные должны использовать одну "
+"папку на класс в корне исходных данных (сначала выполните Сбор, если такой "
+"структуры ещё нет). (2) Выполните Преобразование, чтобы у каждого класса "
+"были нормализованные JPEG в CONVERTED/ и единый снимок совпадал с "
+"источниками. (3) Если у каких-либо файлов было неверное расширение для "
+"фактических байтов изображения, выполните mb data fix-jpeg-extension-"
+"mismatch (или вкладку Подстановка с этой подкомандой) - она перезаписывает "
+"CONVERTED/ и исправляет единый снимок для этих файлов; второй полный проход "
+"Преобразования не нужен только ради обновления снимка. (4) Необязательно: "
+"Дедупликация может переместить файлы на границе малого размера из CONVERTED/"
+" в small_images_review/ каждого класса; Увеличение необязательно. Создание "
+"набора данных читает JPEG только из CONVERTED/ - верните в CONVERTED/ любые "
+"изображения, которые всё ещё нужно обучать (из small_images_review или из "
+"upscaled_small_images после увеличения), до создания набора данных. (5) "
+"Выберите каталог выходных данных с достаточным свободным местом; установите "
+"флажок \"Разрешить внешнее/съёмное хранилище\" при записи на съёмные диски."
+
+#: ui/pages/data_page.py:265 ui/pages/data_page.py:266
+#: ui/pages/data_page.py:267 ui/pages/train_page.py:274
+msgid "Latest"
+msgstr "Последний"
+
+#: ui/pages/data_page.py:269
+msgid ""
+"Set Run ID from the newest snapshot_*.json file under the shared raw data "
+"directory (by file modification time)."
+msgstr ""
+"Задать ID запуска по самому новому файлу snapshot_*.json в общем каталоге "
+"исходных данных (по времени изменения файла)."
+
+#: ui/pages/data_page.py:276
+msgid ""
+"Set Run ID from the newest snapshot_*.json found across the same search "
+"paths as manual Run ID entry (raw dir, its parent, output data dir, and "
+"class folders)."
+msgstr ""
+"Задать ID запуска по самому новому snapshot_*.json, найденному по тем же "
+"путям поиска, что и при ручном вводе ID запуска (исходный каталог, его "
+"родитель, каталог выходных данных и папки классов)."
+
+#: ui/pages/data_page.py:281
+msgid "Open duplicate resolver from snapshot…"
+msgstr "Открыть разрешение дубликатов из снимка…"
+
+#: ui/pages/data_page.py:285
+msgid ""
+"If the resolver did not open after a list-only run (for example after a UI "
+"crash), use the button above to load duplicate groups from the snapshot on "
+"disk."
+msgstr ""
+"Если средство разрешения не открылось после запуска list-only (например, "
+"после сбоя интерфейса), используйте кнопку выше, чтобы загрузить группы "
+"дубликатов из снимка на диске."
+
+#: ui/pages/data_page.py:291
+msgid ""
+"Training sources for Create Dataset are JPEGs under each class’s CONVERTED/ "
+"only. Deduplicate moves borderline-small images from CONVERTED/ into that "
+"class’s small_images_review/ (and removes very small ones). Files that stay "
+"only in small_images_review are not used by Create Dataset unless you copy "
+"or move them back into CONVERTED/. visual_media_review holds duplicate "
+"copies of video/GIF frame extracts for review; the canonical frame JPEG is "
+"already in CONVERTED/, so you do not merge visual_media_review for Create "
+"Dataset."
+msgstr ""
+"Источники обучения для создания набора данных - это JPEG только в CONVERTED/"
+" каждого класса. Дедупликация перемещает изображения на границе малого "
+"размера из CONVERTED/ в small_images_review/ этого класса (и удаляет очень "
+"маленькие). Файлы, которые остаются только в small_images_review, не "
+"используются при создании набора данных, пока вы не скопируете или не "
+"переместите их обратно в CONVERTED/. visual_media_review хранит дубликаты "
+"извлечённых кадров видео/GIF для проверки; канонический JPEG кадра уже "
+"находится в CONVERTED/, поэтому не объединяйте visual_media_review для "
+"создания набора данных."
+
+#: ui/pages/data_page.py:301
+msgid ""
+"Upscale is optional. It enlarges images from the review tree; outputs go "
+"under <review-dir>/upscaled_small_images/. Default review dir when empty is "
+"<raw-data-dir>/small_images_review (one subfolder per class)—set Review dir "
+"explicitly if deduplicate placed files under "
+"raw_data/<class>/small_images_review/ instead. Create Dataset still reads "
+"only from CONVERTED/; copy any upscaled files you want trained into the "
+"right CONVERTED/ folder before Create Dataset. If you skip upscale, accept "
+"that images left only in small_images_review stay out of the split unless "
+"you return them to CONVERTED/ manually."
+msgstr ""
+"Увеличение необязательно. Оно увеличивает изображения из дерева проверки; "
+"результаты помещаются в <review-dir>/upscaled_small_images/. Каталог "
+"проверки по умолчанию, если он пуст, - <raw-data-dir>/small_images_review "
+"(одна подпапка на класс) - задайте каталог проверки явно, если дедупликация "
+"поместила файлы в raw_data/<class>/small_images_review/. Создание набора "
+"данных по-прежнему читает только из CONVERTED/; скопируйте увеличенные "
+"файлы, которые нужно обучать, в нужную папку CONVERTED/ до создания набора "
+"данных. Если пропустить увеличение, примите, что изображения, оставшиеся "
+"только в small_images_review, не попадут в разбиение, пока вы не вернёте их "
+"в CONVERTED/ вручную."
+
+#: ui/pages/data_page.py:635
+msgid "Skip free-space check (not recommended; use if you accept the risk)"
+msgstr ""
+"Пропустить проверку свободного места (не рекомендуется; используйте, если "
+"принимаете риск)"
+
+#: ui/pages/data_page.py:678
+msgid ""
+"Scope note: Deduplicate only processes files inside each class folder's "
+"CONVERTED directory (raw_data/<class>/CONVERTED). Other folders, including "
+"IMAGES and root-level utility directories, are not scanned."
+msgstr ""
+"Примечание об области: Дедупликация обрабатывает только файлы внутри "
+"каталога CONVERTED папки каждого класса (raw_data/<class>/CONVERTED). Другие"
+" папки, включая IMAGES и служебные каталоги на корневом уровне, не "
+"сканируются."
+
+#: ui/pages/data_page.py:755 ui/pages/pipeline_config_page.py:342
+msgid "Fixed count per class"
+msgstr "Фиксированное число на класс"
+
+#: ui/pages/data_page.py:756 ui/pages/pipeline_config_page.py:343
+msgid "Dataset-weighted (modulated)"
+msgstr "По весу набора данных (модулировано)"
+
+#: ui/pages/data_page.py:760
+msgid "Same as test per class"
+msgstr "Как тест на класс"
+
+#: ui/pages/data_page.py:769
+msgid "Skip free-space check on output drive (not recommended)"
+msgstr ""
+"Пропустить проверку свободного места на выходном диске (не рекомендуется)"
+
+#: ui/pages/data_page.py:808
+msgid ""
+"Pick the subcommand, then type any arguments for ``mb data <subcommand> …`` "
+"(line breaks are fine). The active pipeline config path is passed as "
+"``--config`` when you do not include it below. Cancellation is not applied "
+"to this path—use Ctrl+C in a terminal if you need to stop a long job."
+msgstr ""
+"Выберите подкоманду, затем введите аргументы для ``mb data <subcommand> …`` "
+"(переносы строк допустимы). Путь конфигурации активного конвейера передаётся"
+" как ``--config``, если вы не указали его ниже. Отмена к этому пути не "
+"применяется - используйте Ctrl+C в терминале, если нужно остановить долгую "
+"задачу."
+
+#: ui/pages/data_page.py:815
+msgid "Command"
+msgstr "Командование"
+
+#: ui/pages/data_page.py:817
+msgid "Arguments (optional)"
+msgstr "Аргументы (необязательно)"
+
+#: ui/pages/data_page.py:834
+msgid "Could not parse arguments (check quotes and line breaks): {err}"
+msgstr ""
+"Не удалось разобрать аргументы (проверьте кавычки и переносы строк): {err}"
+
+#: ui/pages/data_page.py:850
+msgid ""
+"Copy samples from source subdirectories into class folders under the raw "
+"data root. Skip this tab if your data is already organized as one folder per"
+" class."
+msgstr ""
+"Копирует образцы из исходных подкаталогов в папки классов в корне исходных "
+"данных. Пропустите эту вкладку, если данные уже организованы как одна папка "
+"на класс."
+
+#: ui/pages/data_page.py:854
+msgid ""
+"Normalize images to JPEG under each class’s CONVERTED/ folder. Video/GIF "
+"extracts: the frame JPEG is written to CONVERTED/ and a duplicate copy to "
+"visual_media_review/ for inspection only. Point Raw data dir at the same "
+"tree on an internal or external drive; outputs stay beside sources."
+msgstr ""
+"Нормализует изображения в JPEG в папке CONVERTED/ каждого класса. Извлечения"
+" видео/GIF: JPEG кадра записывается в CONVERTED/, а дубликат - в "
+"visual_media_review/ только для осмотра. Укажите каталог исходных данных на "
+"то же дерево на внутреннем или внешнем диске; результаты остаются рядом с "
+"источниками."
+
+#: ui/pages/data_page.py:860
+msgid ""
+"Remove duplicates and quarantine very small images from class CONVERTED/ "
+"folders only (raw_data/<class>/CONVERTED); other folders are ignored. "
+"Borderline-small files move to each class’s small_images_review/—Create "
+"Dataset does not read that folder unless you copy back into CONVERTED/."
+msgstr ""
+"Удаляет дубликаты и помещает в карантин очень маленькие изображения только в"
+" папках CONVERTED/ классов (raw_data/<class>/CONVERTED); остальные папки "
+"игнорируются. Файлы на границе малого размера перемещаются в "
+"small_images_review/ каждого класса - создание набора данных не читает эту "
+"папку, пока вы не скопируете их обратно в CONVERTED/."
+
+#: ui/pages/data_page.py:866
+msgid ""
+"Optional: enlarge undersized images from the review area. Outputs go under "
+"upscaled_small_images/; Create Dataset still uses CONVERTED/ only—merge "
+"copies there if needed. Default review dir when empty is "
+"raw_data/small_images_review (class subfolders); override Review dir if your"
+" review files live under raw_data/<class>/small_images_review/."
+msgstr ""
+"Необязательно: увеличивает слишком маленькие изображения из области "
+"проверки. Результаты помещаются в upscaled_small_images/; создание набора "
+"данных по-прежнему использует только CONVERTED/ - объедините туда копии при "
+"необходимости. Каталог проверки по умолчанию, если он пуст, - "
+"raw_data/small_images_review (подпапки классов); переопределите каталог "
+"проверки, если файлы проверки лежат в raw_data/<class>/small_images_review/."
+
+#: ui/pages/data_page.py:872
+msgid ""
+"After initial Convert (and any JPEG extension repair if needed), optionally "
+"Dedup/Upscale: copies from each class’s CONVERTED/ into train/ and test/ "
+"under the output data directory. Does not pull from small_images_review, "
+"upscaled_small_images, or visual_media_review. A good place to put the final"
+" dataset on your main drive while raw data stays external."
+msgstr ""
+"После начального преобразования (и ремонта расширения JPEG, если нужно), "
+"необязательно дедупликация/увеличение: копирует из CONVERTED/ каждого класса"
+" в train/ и test/ в каталоге выходных данных. Не берёт из "
+"small_images_review, upscaled_small_images или visual_media_review. Удобное "
+"место для итогового набора данных на основном диске, пока исходные данные "
+"остаются на внешнем носителе."
+
+#: ui/pages/data_page.py:878
+msgid ""
+"Choose a data subcommand and optional ``mb data …`` arguments in the text "
+"box (same flags as the CLI)."
+msgstr ""
+"Выберите подкоманду данных и при необходимости аргументы ``mb data …`` в "
+"текстовом поле (те же параметры, что в CLI)."
+
+#: ui/pages/data_page.py:898
+msgid ""
+"Gather copies files into timestamped runs under the target dir and tracks "
+"hashes so reruns skip already-seen files. Set raw data dir to the pipeline "
+"root used by later steps."
+msgstr ""
+"Сбор копирует файлы в запуски с меткой времени в целевом каталоге и "
+"учитывает хэши, чтобы повторные запуски пропускали уже виденные файлы. "
+"Задайте каталог исходных данных как корень конвейера, который используют "
+"последующие шаги."
+
+#: ui/pages/data_page.py:902
+msgid ""
+"Convert walks class folders, writes CONVERTED/ JPEGs, and records a unified "
+"snapshot. For image classification, videos and multi-frame GIFs may yield a "
+"random frame JPEG in CONVERTED/ plus a duplicate in visual_media_review/ for"
+" review only. Very large images are downscaled (max edge 4000px)."
+msgstr ""
+"Преобразование обходит папки классов, записывает JPEG в CONVERTED/ и "
+"сохраняет единый снимок. Для классификации изображений видео и многокадровые"
+" GIF могут дать JPEG случайного кадра в CONVERTED/ и дубликат в "
+"visual_media_review/ только для проверки. Очень большие изображения "
+"уменьшаются (макс. сторона 4000px)."
+
+#: ui/pages/data_page.py:908
+msgid ""
+"Deduplicate scans only class CONVERTED/ folders, removes duplicate images, "
+"and handles tiny dimensions: removes very small images and moves borderline-"
+"small ones to each class’s small_images_review/ for optional upscale. Create"
+" Dataset sources CONVERTED/ JPEGs only."
+msgstr ""
+"Дедупликация сканирует только папки CONVERTED/ классов, удаляет дубликаты "
+"изображений и обрабатывает крошечные размеры: удаляет очень маленькие "
+"изображения и перемещает погранично маленькие в small_images_review/ каждого"
+" класса для необязательного увеличения. Создание набора данных берёт JPEG "
+"только из CONVERTED/."
+
+#: ui/pages/data_page.py:913
+msgid ""
+"Optional: reads the small-image review tree and writes upscaled copies under"
+" upscaled_small_images/. Create Dataset does not read that output—copy "
+"wanted files into CONVERTED/ before create-dataset if they should appear in "
+"train/test."
+msgstr ""
+"Необязательно: читает дерево проверки маленьких изображений и записывает "
+"увеличенные копии в upscaled_small_images/. Создание набора данных не читает"
+" этот вывод - скопируйте нужные файлы в CONVERTED/ до create-dataset, если "
+"они должны попасть в train/test."
+
+#: ui/pages/data_page.py:918
+msgid ""
+"Prerequisite: Convert has been run (CONVERTED/ + snapshot). JPEG extension "
+"repair updates that snapshot for repaired files—you do not need another full"
+" Convert for snapshot alignment. Copies only from each class’s CONVERTED/ "
+"(not small_images_review or visual_media_review). Writes train/ and test/ to"
+" the output data dir. Set output on a spacious internal disk if raw data "
+"lives on external storage."
+msgstr ""
+"Предварительное условие: выполнено преобразование (CONVERTED/ + снимок). "
+"Ремонт расширения JPEG обновляет этот снимок для исправленных файлов - ещё "
+"одно полное преобразование для согласования снимка не нужно. Копирует только"
+" из CONVERTED/ каждого класса (не из small_images_review и не из "
+"visual_media_review). Записывает train/ и test/ в каталог выходных данных. "
+"Если исходные данные на внешнем хранилище, задайте вывод на просторном "
+"внутреннем диске."
+
+#: ui/pages/data_page.py:925
+msgid ""
+"Runs ``mb data <subcommand>`` with the optional argument text you provide "
+"(parsed like the shell). The GUI injects ``--config`` when it is not already"
+" present."
+msgstr ""
+"Запускает ``mb data <subcommand>`` с необязательным текстом аргументов, "
+"который вы задаёте (разбор как в оболочке). Интерфейс подставляет "
+"``--config``, если его ещё нет."
+
+#: ui/pages/data_page.py:942
+msgid ""
+"Storage: convert reads and writes under the raw data path you choose "
+"(including on removable drives). Create Dataset copies into the output data "
+"directory—often set that to your main disk. Large images: convert downscales"
+" long edges; tiny images: deduplicate moves small files to "
+"small_images_review/. JPEG extension mismatches: run fix-jpeg-extension-"
+"mismatch (updates CONVERTED/ and the unified snapshot for affected files; no"
+" extra Convert pass required for that). Create Dataset globs JPEGs from each"
+" class’s CONVERTED/ only. visual_media_review/ is a duplicate of video/GIF "
+"frame outputs for human review—not a second input. After deduplicate, files "
+"that remain only under small_images_review/ (or only under "
+"upscaled_small_images/ after upscale) are not used unless you copy the ones "
+"you want back into CONVERTED/."
+msgstr ""
+"Хранилище: преобразование читает и пишет по выбранному пути исходных данных "
+"(в том числе на съёмных дисках). Создание набора данных копирует в каталог "
+"выходных данных - часто его задают на основной диск. Большие изображения: "
+"преобразование уменьшает длинные стороны; крошечные изображения: "
+"дедупликация перемещает маленькие файлы в small_images_review/. Несовпадение"
+" расширений JPEG: выполните fix-jpeg-extension-mismatch (обновляет "
+"CONVERTED/ и единый снимок затронутых файлов; дополнительный проход "
+"преобразования для этого не нужен). Создание набора данных отбирает JPEG "
+"только из CONVERTED/ каждого класса. visual_media_review/ - это дубликат "
+"выходных кадров видео/GIF для проверки человеком, а не второй вход. После "
+"дедупликации файлы, которые остаются только в small_images_review/ (или "
+"только в upscaled_small_images/ после увеличения), не используются, пока вы "
+"не скопируете нужные обратно в CONVERTED/."
+
+#: ui/pages/data_page.py:993 ui/pages/evaluate_page.py:384
+msgid "Select file"
+msgstr "Выбрать файл"
+
+#: ui/pages/data_page.py:995
+msgid "All files (*.*)"
+msgstr "Все файлы (*.*)"
+
+#: ui/pages/data_page.py:1007 ui/pages/data_page.py:1023
+#: ui/pages/train_page.py:454
+msgid "No snapshot found"
+msgstr "Снимок не найден"
+
+#: ui/pages/data_page.py:1008 ui/pages/train_page.py:455
+msgid ""
+"No snapshot_*.json files were found under:\n"
+"{path}"
+msgstr ""
+"Файлы snapshot_*.json не найдены в:\n"
+"{path}"
+
+#: ui/pages/data_page.py:1024
+msgid ""
+"No snapshot_*.json files were found in the search paths for the current "
+"directories."
+msgstr "Файлы snapshot_*.json не найдены в путях поиска текущих каталогов."
+
+#: ui/pages/data_page.py:1054
+msgid ""
+"Optional. Leave empty to start a new conversion run and write a new snapshot file.\n"
+"\n"
+"If set, the job resumes that run: a unified snapshot file must exist and load correctly, named:\n"
+"  snapshot_<run_id>.json\n"
+"placed directly under the raw data directory:\n"
+"  {raw}\n"
+"Example: snapshot_20260408_abc123.json"
+msgstr ""
+"Необязательно. Оставьте пустым, чтобы начать новый запуск преобразования и записать новый файл снимка.\n"
+"\n"
+"Если задано, задача возобновляет этот запуск: файл единого снимка должен существовать и корректно загружаться, с именем:\n"
+"  snapshot_<run_id>.json\n"
+"размещённый непосредственно в каталоге исходных данных:\n"
+"  {raw}\n"
+"Пример: snapshot_20260408_abc123.json"
+
+#: ui/pages/data_page.py:1069
+msgid ""
+"  (Raw data directory must exist to list class folders; until then, search "
+"still includes the raw dir, its parent, and the output data dir.)"
+msgstr ""
+"  (Каталог исходных данных должен существовать, чтобы перечислить папки "
+"классов; до тех пор поиск всё ещё включает исходный каталог, его родителя и "
+"каталог выходных данных.)"
+
+#: ui/pages/data_page.py:1074
+msgid ""
+"Optional. Leave empty to use the latest unified snapshot found along the search order below.\n"
+"\n"
+"If set, the file must exist, load correctly, and be named:\n"
+"  snapshot_<run_id>.json\n"
+"The job searches these directories in order (first match wins):\n"
+"{paths}\n"
+"Output data directory (for context): {data_dir}"
+msgstr ""
+"Необязательно. Оставьте пустым, чтобы использовать последний единый снимок, найденный в порядке поиска ниже.\n"
+"\n"
+"Если задано, файл должен существовать, корректно загружаться и называться:\n"
+"  snapshot_<run_id>.json\n"
+"Задача ищет эти каталоги по порядку (побеждает первое совпадение):\n"
+"{paths}\n"
+"Каталог выходных данных (для контекста): {data_dir}"
+
+#: ui/pages/data_page.py:1088
+msgid ""
+"Optional. Same Run ID as Convert / Create Dataset (shared across the Data page). Leave empty to load the latest loadable snapshot under:\n"
+"  {raw}\n"
+"\n"
+"If set, the file must exist and be named:\n"
+"  snapshot_<run_id>.json\n"
+"in that directory. Used when opening the duplicate resolver from disk; deduplicate Run does not require a Run ID."
+msgstr ""
+"Необязательно. Тот же ID запуска, что у преобразования / создания набора данных (общий для страницы данных). Оставьте пустым, чтобы загрузить последний загружаемый снимок в:\n"
+"  {raw}\n"
+"\n"
+"Если задано, файл должен существовать и называться:\n"
+"  snapshot_<run_id>.json\n"
+"в этом каталоге. Используется при открытии разрешения дубликатов с диска; запуск дедупликации не требует ID запуска."
+
+#: ui/pages/data_page.py:1142
+msgid "[ok] {cmd}: inputs look valid"
+msgstr "[ok] {cmd}: входные данные выглядят допустимыми"
+
+#: ui/pages/data_page.py:1146
+msgid "[invalid] {cmd}: {err}"
+msgstr "[invalid] {cmd}: {err}"
+
+#: ui/pages/data_page.py:1155
+msgid "Source dir does not exist."
+msgstr "Исходный каталог не существует."
+
+#: ui/pages/data_page.py:1158
+msgid "Provide at least one subdirectory."
+msgstr "Укажите хотя бы один подкаталог."
+
+#: ui/pages/data_page.py:1164
+msgid "Subdir weights must be in subdir:weight format."
+msgstr "Веса подкаталогов должны быть в формате subdir:weight."
+
+#: ui/pages/data_page.py:1185
+msgid "Format must be jpeg or jpg."
+msgstr "Формат должен быть jpeg или jpg."
+
+#: ui/pages/data_page.py:1191
+msgid ""
+"Raw data directory must exist when a Run ID is set (snapshot is loaded from "
+"there)."
+msgstr ""
+"Каталог исходных данных должен существовать, если задан ID запуска (снимок "
+"загружается оттуда)."
+
+#: ui/pages/data_page.py:1195
+msgid ""
+"No loadable unified snapshot for Run ID {rid!r}. Expected {name} under:\n"
+"  {dir}"
+msgstr ""
+"Нет загружаемого единого снимка для ID запуска {rid!r}. Ожидался {name} в:\n"
+"  {dir}"
+
+#: ui/pages/data_page.py:1223
+msgid "Raw data dir does not exist."
+msgstr "Каталог исходных данных не существует."
+
+#: ui/pages/data_page.py:1238
+msgid ""
+"No loadable unified snapshot for Run ID {rid!r} in the search paths (see the"
+" Run ID field tooltip for locations checked)."
+msgstr ""
+"Нет загружаемого единого снимка для ID запуска {rid!r} в путях поиска (см. "
+"подсказку поля ID запуска для проверенных мест)."
+
+#: ui/pages/data_page.py:1305 ui/pages/data_page.py:1330
+msgid "Skipped (free-space estimate not run)."
+msgstr "Пропущено (оценка свободного места не выполнялась)."
+
+#: ui/pages/data_page.py:1313 ui/pages/data_page.py:1341
+msgid "Insufficient disk space (estimate)"
+msgstr "Недостаточно места на диске (оценка)"
+
+#: ui/pages/data_page.py:1314 ui/pages/data_page.py:1342
+msgid ""
+"{msg}\n"
+"\n"
+"Continue anyway?"
+msgstr ""
+"{msg}\n"
+"\n"
+"Все равно продолжить?"
+
+#: ui/pages/data_page.py:1359
+msgid "External storage"
+msgstr "Внешнее хранилище"
+
+#: ui/pages/data_page.py:1361
+msgid ""
+"The target data directory is on external or removable storage, and \"Allow "
+"external storage\" is not checked. Enable it on the Create Dataset tab or "
+"choose a different data directory."
+msgstr ""
+"Целевой каталог данных находится на внешнем или съёмном хранилище, и флажок "
+"\"Разрешить внешнее хранилище\" не установлен. Включите его на вкладке "
+"создания набора данных или выберите другой каталог данных."
+
+#: ui/pages/data_page.py:1371
+msgid "Confirm"
+msgstr "Подтвердите"
+
+#: ui/pages/data_page.py:1372
+msgid "Source and target are on the same drive. Continue dataset creation?"
+msgstr ""
+"Источник и назначение на одном диске. Продолжить создание набора данных?"
+
+#: ui/pages/data_page.py:1408
+msgid "Data: {cmd}"
+msgstr "Данные: {cmd}"
+
+#: ui/pages/data_page.py:1426
+msgid "Checking free space…"
+msgstr "Проверка свободного места…"
+
+#: ui/pages/data_page.py:1430
+msgid "Converting…"
+msgstr "Преобразование…"
+
+#: ui/pages/data_page.py:1432
+msgid "Creating dataset…"
+msgstr "Создание набора данных…"
+
+#: ui/pages/data_page.py:1510
+msgid "Running: {line}"
+msgstr "Выполнение: {line}"
+
+#: ui/pages/data_page.py:1522
+msgid "[done] Data command completed successfully."
+msgstr "[done] Команда данных успешно завершена."
+
+#: ui/pages/data_page.py:1538
+msgid "[failed] Data command reported failure."
+msgstr "[failed] Команда данных сообщила о сбое."
+
+#: ui/pages/data_page.py:1550
+msgid ""
+"[stopped] Data command cancelled — partial copies or snapshot updates may "
+"exist; check folders before re-running."
+msgstr ""
+"[stopped] Команда данных отменена - могут существовать частичные копии или "
+"обновления снимка; проверьте папки перед повторным запуском."
+
+#: ui/pages/data_page.py:1572
+msgid "Data command failed"
+msgstr "Сбой команды данных"
+
+#: ui/pages/data_page.py:1573
+msgid ""
+"A data pipeline step reported an error. See Details for the full message."
+msgstr ""
+"Шаг конвейера данных сообщил об ошибке. Полный текст см. в разделе "
+"Подробности."
+
+#: ui/pages/data_page.py:1608
+msgid "[dedup] No loadable snapshot found for duplicate resolver."
+msgstr "[dedup] Не найден загружаемый снимок для разрешения дубликатов."
+
+#: ui/pages/data_page.py:1611
+msgid "[dedup] No potential duplicates were recorded in the snapshot."
+msgstr "[dedup] В снимке не записаны потенциальные дубликаты."
+
+#: ui/pages/data_page.py:1616
+msgid "Duplicates found"
+msgstr "Найдены дубликаты"
+
+#: ui/pages/data_page.py:1617
+msgid "Open duplicate resolver window now?"
+msgstr "Открыть сейчас окно разрешения дубликатов?"
+
+#: ui/pages/data_page.py:1625
+msgid "Invalid raw data directory"
+msgstr "Недопустимый каталог исходных данных"
+
+#: ui/pages/data_page.py:1626
+msgid ""
+"Raw data directory does not exist:\n"
+"{path}"
+msgstr ""
+"Каталог исходных данных не существует:\n"
+"{path}"
+
+#: ui/pages/data_page.py:1637
+msgid "No snapshot"
+msgstr "Нет снимка"
+
+#: ui/pages/data_page.py:1639
+msgid ""
+"No loadable unified snapshot was found under:\n"
+"{path}\n"
+"\n"
+"Expected snapshot_<run_id>.json (leave Run ID empty for the latest file tried in sorted name order)."
+msgstr ""
+"Загружаемый единый снимок не найден в:\n"
+"{path}\n"
+"\n"
+"Ожидался snapshot_<run_id>.json (оставьте ID запуска пустым для последнего файла, проверенного в порядке имени)."
+
+#: ui/pages/data_page.py:1648
+msgid "Nothing to review"
+msgstr "Нечего проверять"
+
+#: ui/pages/data_page.py:1650
+msgid ""
+"A snapshot loaded, but it does not list any cross-class duplicate groups for"
+" the resolver. Run Deduplicate with list-only if you have not yet, or pick "
+"another Run ID."
+msgstr ""
+"Снимок загружен, но в нём нет групп дубликатов между классами для средства "
+"разрешения. Выполните дедупликацию с list-only, если ещё не делали этого, "
+"или выберите другой ID запуска."
+
+#: ui/pages/evaluate_page.py:85 ui/pages/evaluate_page.py:166
+msgid "Infer from file"
+msgstr "Определить по файлу"
+
+#: ui/pages/evaluate_page.py:92 ui/pages/evaluate_page.py:165
+#: ui/pages/export_page.py:57 ui/pages/export_page.py:61
+#: ui/pages/export_page.py:113 ui/pages/export_page.py:114
+#: ui/pages/train_page.py:86 ui/pages/train_page.py:267
+msgid "Auto"
+msgstr "Авто"
+
+#: ui/pages/evaluate_page.py:104 ui/pages/evaluate_page.py:168
+msgid "optional, e.g. cuda or cpu"
+msgstr "необязательно, напр. cuda или cpu"
+
+#: ui/pages/evaluate_page.py:106 ui/pages/evaluate_page.py:152
+msgid "Eval data dir (ImageFolder)"
+msgstr "Каталог данных оценки (ImageFolder)"
+
+#: ui/pages/evaluate_page.py:108 ui/pages/evaluate_page.py:154
+#: ui/pages/train_page.py:102 ui/pages/train_page.py:224
+msgid "Label mode"
+msgstr "Режим меток"
+
+#: ui/pages/evaluate_page.py:109 ui/pages/evaluate_page.py:155
+msgid "Model checkpoint"
+msgstr "Контрольная точка модели"
+
+#: ui/pages/evaluate_page.py:110 ui/pages/evaluate_page.py:156
+#: ui/pages/train_page.py:101 ui/pages/train_page.py:223
+msgid "Framework"
+msgstr "Фреймворк"
+
+#: ui/pages/evaluate_page.py:114 ui/pages/evaluate_page.py:160
+#: ui/pages/train_page.py:106 ui/pages/train_page.py:228
+msgid "Batch size"
+msgstr "Размер пакета"
+
+#: ui/pages/evaluate_page.py:115 ui/pages/evaluate_page.py:161
+#: ui/pages/pipeline_config_page.py:208 ui/pages/pipeline_config_page.py:458
+msgid "DataLoader workers"
+msgstr "Процессы DataLoader"
+
+#: ui/pages/evaluate_page.py:116 ui/pages/evaluate_page.py:162
+msgid "Device"
+msgstr "Устройство"
+
+#: ui/pages/evaluate_page.py:144
+msgid ""
+"Score checkpoints on a labeled split, list disagreements with folder labels,"
+" or compare two models in one pass (CLI: {cmd})."
+msgstr ""
+"Оцените контрольные точки на размеченной выборке, перечислите расхождения с "
+"метками папок или сравните две модели за один проход (CLI: {cmd})."
+
+#: ui/pages/evaluate_page.py:148
+msgid "Shared with metrics / misclassified"
+msgstr "Общее с метриками / неверно классифицированными"
+
+#: ui/pages/evaluate_page.py:167 ui/pages/evaluate_page.py:462
+msgid "Same as primary"
+msgstr "Как у основного"
+
+#: ui/pages/evaluate_page.py:169
+msgid "Metrics"
+msgstr "Метрики"
+
+#: ui/pages/evaluate_page.py:170
+msgid "Misclassified"
+msgstr "Неверно классифицированные"
+
+#: ui/pages/evaluate_page.py:171
+msgid "Compare"
+msgstr "Сравнить"
+
+#: ui/pages/evaluate_page.py:175 ui/pages/evaluate_page.py:440
+msgid "Max rows (0 = no cap)"
+msgstr "Максимум строк (0 = без ограничения)"
+
+#: ui/pages/evaluate_page.py:175 ui/pages/evaluate_page.py:441
+msgid "Output CSV"
+msgstr "Выходной CSV"
+
+#: ui/pages/evaluate_page.py:179 ui/pages/evaluate_page.py:471
+msgid "Model A"
+msgstr "Модель A"
+
+#: ui/pages/evaluate_page.py:180 ui/pages/evaluate_page.py:472
+msgid "Model B"
+msgstr "Модель B"
+
+#: ui/pages/evaluate_page.py:181 ui/pages/evaluate_page.py:473
+msgid "Framework B"
+msgstr "Фреймворк B"
+
+#: ui/pages/evaluate_page.py:182 ui/pages/evaluate_page.py:474
+msgid "Architecture B"
+msgstr "Архитектура B"
+
+#: ui/pages/evaluate_page.py:183 ui/pages/evaluate_page.py:475
+msgid "Max disagreement rows (0 = no cap)"
+msgstr "Максимум строк расхождений (0 = без ограничения)"
+
+#: ui/pages/evaluate_page.py:184 ui/pages/evaluate_page.py:476
+msgid "Output TSV"
+msgstr "Выходной TSV"
+
+#: ui/pages/evaluate_page.py:187 ui/pages/evaluate_page.py:188
+#: ui/pages/evaluate_page.py:437 ui/pages/evaluate_page.py:468
+msgid "No cap"
+msgstr "Без ограничения"
+
+#: ui/pages/evaluate_page.py:189 ui/pages/evaluate_page.py:195
+#: ui/pages/evaluate_page.py:197
+msgid "Validate (dry-run)"
+msgstr "Проверить (пробный запуск)"
+
+#: ui/pages/evaluate_page.py:190
+msgid "Run metrics"
+msgstr "Запустить метрики"
+
+#: ui/pages/evaluate_page.py:192
+msgid ""
+"Per-class metrics (averages exclude classes with no samples in the split)"
+msgstr ""
+"Метрики по классам (средние исключают классы без образцов в разбиении)"
+
+#: ui/pages/evaluate_page.py:194
+msgid "Confusion matrix (rows = true class, cols = predicted)"
+msgstr "Матрица ошибок (строки = истинный класс, столбцы = предсказанный)"
+
+#: ui/pages/evaluate_page.py:196
+msgid "Run misclassified"
+msgstr "Запустить неверно классифицированные"
+
+#: ui/pages/evaluate_page.py:198
+msgid "Run compare"
+msgstr "Запустить сравнение"
+
+#: ui/pages/evaluate_page.py:199
+msgid "Evaluation output will appear here."
+msgstr "Вывод оценки появится здесь."
+
+#: ui/pages/evaluate_page.py:218
+msgid "[info] Adjust paths and choose a tab, then Validate or Run."
+msgstr ""
+"[инфо] Настройте пути и выберите вкладку, затем Проверить или Запустить."
+
+#: ui/pages/evaluate_page.py:386
+msgid "Models (*.pth *.pt *.h5 *.keras);;All files (*.*)"
+msgstr "Модели (*.pth *.pt *.h5 *.keras);;Все файлы (*.*)"
+
+#: ui/pages/evaluate_page.py:482
+msgid ""
+"Compare uses the same eval directory, image size, batch, workers, and device"
+" as above. Model A uses the shared architecture; set architecture B if "
+"checkpoint B differs."
+msgstr ""
+"Сравнение использует тот же каталог оценки, размер изображения, размер "
+"пакета, рабочие процессы и устройство, что и выше. Модель A использует общую"
+" архитектуру; задайте архитектуру B, если контрольная точка B отличается."
+
+#: ui/pages/evaluate_page.py:604 ui/pages/evaluate_page.py:632
+msgid "Evaluate"
+msgstr "Оценить"
+
+#: ui/pages/evaluate_page.py:607
+msgid "[run] {cmd}"
+msgstr "[запуск] {cmd}"
+
+#: ui/pages/evaluate_page.py:635 ui/pages/evaluate_page.py:653
+msgid "Running…"
+msgstr "Выполняется…"
+
+#: ui/pages/evaluate_page.py:665 ui/pages/evaluate_page.py:839
+msgid "[done]"
+msgstr "[готово]"
+
+#: ui/pages/evaluate_page.py:674 ui/pages/evaluate_page.py:848
+msgid "[done] Exit code 0."
+msgstr "[готово] Код выхода 0."
+
+#: ui/pages/evaluate_page.py:681 ui/pages/evaluate_page.py:855
+msgid "[failed] Exit code {c}."
+msgstr "[сбой] Код выхода {c}."
+
+#: ui/pages/evaluate_page.py:703
+msgid "class"
+msgstr "класс"
+
+#: ui/pages/evaluate_page.py:703 ui/pages/evaluate_page.py:762
+msgid "precision"
+msgstr "точность"
+
+#: ui/pages/evaluate_page.py:703 ui/pages/evaluate_page.py:763
+msgid "recall"
+msgstr "полнота"
+
+#: ui/pages/evaluate_page.py:703 ui/pages/evaluate_page.py:764
+msgid "f1"
+msgstr "f1"
+
+#: ui/pages/evaluate_page.py:703 ui/pages/evaluate_page.py:765
+msgid "support"
+msgstr "поддержка"
+
+#: ui/pages/evaluate_page.py:703 ui/pages/evaluate_page.py:766
+msgid "predicted"
+msgstr "предсказанный"
+
+#: ui/pages/evaluate_page.py:706
+msgid "macro avg"
+msgstr "макросреднее"
+
+#: ui/pages/evaluate_page.py:706
+msgid "weighted avg"
+msgstr "взвешенное среднее"
+
+#: ui/pages/evaluate_page.py:761
+msgid "label"
+msgstr "метка"
+
+#: ui/pages/evaluate_page.py:767
+msgid "threshold"
+msgstr "порог"
+
+#: ui/pages/evaluate_page.py:795
+msgid "micro F1"
+msgstr "микро F1"
+
+#: ui/pages/evaluate_page.py:795
+msgid "macro F1"
+msgstr "макро F1"
+
+#: ui/pages/evaluate_page.py:864
+msgid "[error] {m}"
+msgstr "[ошибка] {m}"
+
+#: ui/pages/evaluate_page.py:873
+msgid "Evaluate failed"
+msgstr "Оценка не выполнена"
+
+#: ui/pages/evaluate_page.py:874
+msgid "The evaluation task reported an error."
+msgstr "Задача оценки сообщила об ошибке."
+
+#: ui/pages/export_page.py:70 ui/pages/export_page.py:107
+msgid "Dataset directory"
+msgstr "Каталог набора данных"
+
+#: ui/pages/export_page.py:73 ui/pages/export_page.py:110
+msgid "Generate architecture stub"
+msgstr "Создать заглушку архитектуры"
+
+#: ui/pages/export_page.py:81 ui/pages/export_page.py:121
+msgid "Validate Export"
+msgstr "Проверить экспорт"
+
+#: ui/pages/export_page.py:82 ui/pages/export_page.py:122
+msgid "Run Export"
+msgstr "Запустить экспорт"
+
+#: ui/pages/export_page.py:100
+msgid ""
+"Export a deployment bundle (SafeTensors + manifest) after "
+"conversion/training."
+msgstr ""
+"Экспортируйте пакет развертывания (SafeTensors + манифест) после конвертации"
+" или обучения."
+
+#: ui/pages/export_page.py:117
+msgid ""
+"Class names are auto-resolved from snapshot or dataset directory. Tip: leave"
+" architecture/num classes/image size on Auto to use defaults."
+msgstr ""
+"Имена классов определяются автоматически из снимка или каталога набора "
+"данных. Совет: оставьте архитектуру, число классов и размер изображения на "
+"Авто, чтобы использовать значения по умолчанию."
+
+#: ui/pages/export_page.py:123
+msgid "Export validation and execution messages will appear here."
+msgstr "Здесь появятся сообщения проверки и выполнения экспорта."
+
+#: ui/pages/export_page.py:194
+msgid "Model files (*.pth *.pt);;All files (*.*)"
+msgstr "Файлы модели (*.pth *.pt);;Все файлы (*.*)"
+
+#: ui/pages/export_page.py:215
+msgid "Input model parent directory does not exist."
+msgstr "Родительский каталог входной модели не существует."
+
+#: ui/pages/export_page.py:296
+msgid "[ok] export inputs valid (arch={arch}, classes={n})"
+msgstr ""
+"[ok] входные данные экспорта допустимы (архитектура={arch}, классы={n})"
+
+#: ui/pages/export_page.py:297 ui/pages/export_page.py:298
+msgid "auto"
+msgstr "авто"
+
+#: ui/pages/export_page.py:309
+msgid "[run] mb export bundle"
+msgstr "[запуск] mb export bundle"
+
+#: ui/pages/export_page.py:320
+msgid "Export bundle"
+msgstr "Экспортировать пакет"
+
+#: ui/pages/export_page.py:324
+msgid "Cancelled before export started"
+msgstr "Отменено до начала экспорта"
+
+#: ui/pages/export_page.py:328
+msgid "[stopped] Export cancelled before completion."
+msgstr "[останов] Экспорт отменен до завершения."
+
+#: ui/pages/export_page.py:337
+msgid "[done] Export succeeded."
+msgstr "[готово] Экспорт выполнен успешно."
+
+#: ui/pages/export_page.py:344
+msgid "[info] Architecture stub not generated (option disabled)."
+msgstr "[инфо] Заглушка архитектуры не создана (параметр отключен)."
+
+#: ui/pages/export_page.py:361
+msgid "Export failed"
+msgstr "Экспорт не выполнен"
+
+#: ui/pages/export_page.py:362
+msgid ""
+"Model export reported an error. See Details for the underlying message."
+msgstr ""
+"Экспорт модели сообщил об ошибке. Исходное сообщение см. в разделе "
+"Подробности."
+
+#: ui/pages/home_page.py:114
+msgid ""
+"Model Builder desktop shell for data prep, training, conversion, and info "
+"tools."
+msgstr ""
+"Настольная оболочка Model Builder для подготовки данных, обучения, "
+"конвертации и инструментов сведений."
+
+#: ui/pages/home_page.py:117
+msgid "Current scope"
+msgstr "Текущая область"
+
+#: ui/pages/home_page.py:118
+msgid "- Data pipeline: gather, convert, dedupe, upscale, create dataset"
+msgstr ""
+"- Конвейер данных: сбор, конвертация, дедупликация, увеличение, создание "
+"набора данных"
+
+#: ui/pages/home_page.py:120
+msgid "- Training: in-process or detached (CLI: {cmd})"
+msgstr "- Обучение: в процессе или в отдельном процессе (CLI: {cmd})"
+
+#: ui/pages/home_page.py:122
+msgid "- Model conversion to ONNX / SafeTensors"
+msgstr "- Конвертация модели в ONNX / SafeTensors"
+
+#: ui/pages/home_page.py:123
+msgid "- Model bundle export (manifest + deployment artifacts)"
+msgstr "- Экспорт пакета модели (манифест + артефакты развертывания)"
+
+#: ui/pages/home_page.py:125
+msgid ""
+"- Evaluation: metrics, misclassified, compare (shared paths with Train / "
+"Convert / Pipeline)"
+msgstr ""
+"- Оценка: метрики, неверно классифицированные, сравнение (общие пути с "
+"Обучение / Конвертация / Конвейер)"
+
+#: ui/pages/home_page.py:127
+msgid "- App shell (App) and ML defaults (Pipeline)"
+msgstr "- Оболочка приложения (App) и значения по умолчанию МО (Конвейер)"
+
+#: ui/pages/home_page.py:128
+msgid "Quick actions"
+msgstr "Быстрые действия"
+
+#: ui/pages/home_page.py:129
+msgid "Open Data Page"
+msgstr "Открыть страницу Данные"
+
+#: ui/pages/home_page.py:130
+msgid "Open Train Page"
+msgstr "Открыть страницу Обучение"
+
+#: ui/pages/home_page.py:131
+msgid "Open Convert Page"
+msgstr "Открыть страницу Конвертация"
+
+#: ui/pages/home_page.py:132
+msgid "Open Export Page"
+msgstr "Открыть страницу Экспорт"
+
+#: ui/pages/home_page.py:133
+msgid "Open Evaluate Page"
+msgstr "Открыть страницу Оценить"
+
+#: ui/pages/home_page.py:134
+msgid "Latest unified snapshot"
+msgstr "Последний единый снимок"
+
+#: ui/pages/home_page.py:135 ui/pages/home_page.py:137
+msgid "Loading…"
+msgstr "Загрузка…"
+
+#: ui/pages/home_page.py:136
+msgid "Recent run history"
+msgstr "Недавняя история запусков"
+
+#: ui/pages/home_page.py:160
+msgid ""
+"No snapshot_*.json found under the configured raw data or data directories.\n"
+"(Run convert and create-dataset to create one.)"
+msgstr ""
+"Файл snapshot_*.json не найден в настроенных каталогах необработанных данных или данных.\n"
+"(Запустите convert и create-dataset, чтобы создать его.)"
+
+#: ui/pages/info_page.py:53
+msgid "Inspect model metadata and dataset structure/statistics."
+msgstr ""
+"Просмотр метаданных модели, а также структуры и статистики набора данных."
+
+#: ui/pages/info_page.py:54 ui/pages/pipeline_config_page.py:164
+#: ui/pages/pipeline_config_page.py:169
+msgid "Model"
+msgstr "Модель"
+
+#: ui/pages/info_page.py:55
+msgid "Dataset"
+msgstr "Набор данных"
+
+#: ui/pages/info_page.py:56 ui/pages/info_page.py:97
+msgid "Model path"
+msgstr "Путь к модели"
+
+#: ui/pages/info_page.py:57 ui/pages/info_page.py:120
+#: ui/pages/train_page.py:104 ui/pages/train_page.py:226
+msgid "Data dir"
+msgstr "Каталог данных"
+
+#: ui/pages/info_page.py:58 ui/pages/info_page.py:101
+msgid "Inspect Model"
+msgstr "Просмотреть модель"
+
+#: ui/pages/info_page.py:59 ui/pages/info_page.py:124
+msgid "Inspect Dataset"
+msgstr "Просмотреть набор данных"
+
+#: ui/pages/info_page.py:60 ui/pages/info_page.py:108
+msgid "Model info output will appear here."
+msgstr "Сведения о модели появятся здесь."
+
+#: ui/pages/info_page.py:61 ui/pages/info_page.py:131
+msgid "Dataset info output will appear here."
+msgstr "Сведения о наборе данных появятся здесь."
+
+#: ui/pages/info_page.py:172
+msgid "Model path required"
+msgstr "Требуется путь к модели"
+
+#: ui/pages/info_page.py:173
+msgid "Please provide a model path."
+msgstr "Укажите путь к модели."
+
+#: ui/pages/info_page.py:188 ui/pages/info_page.py:202
+msgid "Invalid path"
+msgstr "Недопустимый путь"
+
+#: ui/pages/info_page.py:197
+msgid "Missing directory"
+msgstr "Каталог отсутствует"
+
+#: ui/pages/pipeline_config_page.py:155 ui/pages/pipeline_config_page.py:701
+#: ui/pages/pipeline_config_page.py:704 ui/pages/pipeline_config_page.py:710
+#: ui/pages/pipeline_config_page.py:722 ui/pages/pipeline_config_page.py:744
+#: ui/pages/pipeline_config_page.py:759 ui/pages/pipeline_config_page.py:780
+#: ui/pages/pipeline_config_page.py:789
+msgid "Pipeline"
+msgstr "Конвейер"
+
+#: ui/pages/pipeline_config_page.py:158
+msgid ""
+"Machine-learning defaults (<code>model</code>, <code>data</code>, "
+"<code>training</code>, <code>paths</code>). Save writes to your active "
+"pipeline file, or to <code>pipeline.yaml</code> beside "
+"<code>application.yaml</code> in app data when only packaged defaults are "
+"loaded."
+msgstr ""
+"Значения по умолчанию машинного обучения (<code>model</code>, "
+"<code>data</code>, <code>training</code>, <code>paths</code>). Сохранение "
+"записывает в активный файл конвейера или в <code>pipeline.yaml</code> рядом "
+"с <code>application.yaml</code> в данных приложения, если загружены только "
+"поставляемые значения по умолчанию."
+
+#: ui/pages/pipeline_config_page.py:165 ui/pages/pipeline_config_page.py:170
+msgid "Data"
+msgstr "Данные"
+
+#: ui/pages/pipeline_config_page.py:166 ui/pages/pipeline_config_page.py:172
+#: ui/pages/train_page.py:705
+msgid "Training"
+msgstr "Обучение"
+
+#: ui/pages/pipeline_config_page.py:167 ui/pages/pipeline_config_page.py:173
+msgid "Paths"
+msgstr "Пути"
+
+#: ui/pages/pipeline_config_page.py:168
+msgid "Advanced (YAML)"
+msgstr "Дополнительно (YAML)"
+
+#: ui/pages/pipeline_config_page.py:171
+msgid "Gather defaults"
+msgstr "Значения сбора по умолчанию"
+
+#: ui/pages/pipeline_config_page.py:176 ui/pages/pipeline_config_page.py:304
+msgid "Default model type"
+msgstr "Тип модели по умолчанию"
+
+#: ui/pages/pipeline_config_page.py:176 ui/pages/pipeline_config_page.py:307
+msgid "Default framework"
+msgstr "Фреймворк по умолчанию"
+
+#: ui/pages/pipeline_config_page.py:176 ui/pages/pipeline_config_page.py:310
+msgid "Default architecture"
+msgstr "Архитектура по умолчанию"
+
+#: ui/pages/pipeline_config_page.py:181 ui/pages/pipeline_config_page.py:327
+msgid "Raw data directory"
+msgstr "Каталог необработанных данных"
+
+#: ui/pages/pipeline_config_page.py:182 ui/pages/pipeline_config_page.py:333
+msgid "Dataset output directory"
+msgstr "Каталог вывода набора данных"
+
+#: ui/pages/pipeline_config_page.py:183 ui/pages/pipeline_config_page.py:339
+msgid "Test images per class"
+msgstr "Тестовые изображения на класс"
+
+#: ui/pages/pipeline_config_page.py:184 ui/pages/pipeline_config_page.py:360
+msgid "Image size (pixels)"
+msgstr "Размер изображения (пиксели)"
+
+#: ui/pages/pipeline_config_page.py:185 ui/pages/pipeline_config_page.py:366
+msgid "Training batch size"
+msgstr "Размер пакета обучения"
+
+#: ui/pages/pipeline_config_page.py:186 ui/pages/pipeline_config_page.py:370
+msgid "Image file extensions (one per line)"
+msgstr "Расширения файлов изображений (по одному на строку)"
+
+#: ui/pages/pipeline_config_page.py:187 ui/pages/pipeline_config_page.py:374
+msgid "Video file extensions (one per line)"
+msgstr "Расширения файлов видео (по одному на строку)"
+
+#: ui/pages/pipeline_config_page.py:188 ui/pages/pipeline_config_page.py:379
+msgid "Class folder names (empty = auto-discover)"
+msgstr "Имена папок классов (пусто = автоматическое обнаружение)"
+
+#: ui/pages/pipeline_config_page.py:189 ui/pages/pipeline_config_page.py:383
+msgid "Class qualifying subfolder"
+msgstr "Подпапка квалификации класса"
+
+#: ui/pages/pipeline_config_page.py:195 ui/pages/pipeline_config_page.py:395
+msgid "Default gather target count"
+msgstr "Целевое количество сбора по умолчанию"
+
+#: ui/pages/pipeline_config_page.py:196 ui/pages/pipeline_config_page.py:402
+msgid "Gather target subfolder"
+msgstr "Целевая подпапка сбора"
+
+#: ui/pages/pipeline_config_page.py:197 ui/pages/pipeline_config_page.py:413
+msgid "Rejected subfolder"
+msgstr "Подпапка отклонённых"
+
+#: ui/pages/pipeline_config_page.py:203 ui/pages/pipeline_config_page.py:434
+#: ui/pages/train_page.py:145 ui/pages/train_page.py:245
+msgid "Frozen epochs"
+msgstr "Замороженные эпохи"
+
+#: ui/pages/pipeline_config_page.py:204 ui/pages/pipeline_config_page.py:438
+#: ui/pages/train_page.py:146 ui/pages/train_page.py:246
+msgid "Unfrozen epochs"
+msgstr "Размороженные эпохи"
+
+#: ui/pages/pipeline_config_page.py:205 ui/pages/pipeline_config_page.py:444
+msgid "Frozen learning rate"
+msgstr "Замороженная скорость обучения"
+
+#: ui/pages/pipeline_config_page.py:206 ui/pages/pipeline_config_page.py:449
+msgid "Unfrozen LR (max)"
+msgstr "Размороженная скорость обучения (макс.)"
+
+#: ui/pages/pipeline_config_page.py:207 ui/pages/pipeline_config_page.py:454
+msgid "Unfrozen LR (min)"
+msgstr "Размороженная скорость обучения (мин.)"
+
+#: ui/pages/pipeline_config_page.py:209 ui/pages/pipeline_config_page.py:463
+msgid "Class weighting"
+msgstr "Взвешивание классов"
+
+#: ui/pages/pipeline_config_page.py:210 ui/pages/pipeline_config_page.py:468
+msgid "Max class weight"
+msgstr "Максимальный вес класса"
+
+#: ui/pages/pipeline_config_page.py:216 ui/pages/pipeline_config_page.py:488
+msgid "Models directory"
+msgstr "Каталог моделей"
+
+#: ui/pages/pipeline_config_page.py:216 ui/pages/pipeline_config_page.py:494
+msgid "Logs directory"
+msgstr "Каталог журналов"
+
+#: ui/pages/pipeline_config_page.py:216
+msgid "Timing data directory"
+msgstr "Каталог данных хронометража"
+
+#: ui/pages/pipeline_config_page.py:220
+msgid ""
+"Full pipeline document. Click “Apply YAML” to parse and refresh the tabs, or"
+" edit the tabs and Save — the Advanced view updates on reload."
+msgstr ""
+"Полный документ конвейера. Нажмите \"Применить YAML\", чтобы разобрать и "
+"обновить вкладки, либо измените вкладки и нажмите Сохранить - расширенное "
+"представление обновится при перезагрузке."
+
+#: ui/pages/pipeline_config_page.py:225
+msgid "Apply YAML"
+msgstr "Применить YAML"
+
+#: ui/pages/pipeline_config_page.py:227
+msgid "Reset to shipped defaults…"
+msgstr "Сбросить к поставляемым значениям по умолчанию…"
+
+#: ui/pages/pipeline_config_page.py:229
+msgid ""
+"Replace your user pipeline.yaml (app data) with the package "
+"default_pipeline.yaml."
+msgstr ""
+"Заменяет пользовательский pipeline.yaml (данные приложения) на "
+"default_pipeline.yaml из пакета."
+
+#: ui/pages/pipeline_config_page.py:231
+msgid "Save training checkpoints"
+msgstr "Сохранять контрольные точки обучения"
+
+#: ui/pages/pipeline_config_page.py:247
+msgid "Task type selected when you start a new model project."
+msgstr "Тип задачи, выбираемый при запуске нового проекта модели."
+
+#: ui/pages/pipeline_config_page.py:252
+msgid "Deep learning framework for new runs (e.g. pytorch)."
+msgstr "Фреймворк глубокого обучения для новых запусков (напр. pytorch)."
+
+#: ui/pages/pipeline_config_page.py:257
+msgid "Default backbone architecture name for new training runs."
+msgstr "Имя базовой архитектуры по умолчанию для новых запусков обучения."
+
+#: ui/pages/pipeline_config_page.py:263
+msgid ""
+"Root folder for raw images: one subfolder per class after gather/convert. "
+"Relative paths are resolved from the app working directory or project root."
+msgstr ""
+"Корневая папка необработанных изображений: одна подпапка на класс после "
+"сбора и конвертации. Относительные пути разрешаются от рабочего каталога "
+"приложения или от корня проекта."
+
+#: ui/pages/pipeline_config_page.py:271
+msgid ""
+"Output of create-dataset: this folder holds train/ and test/ used for "
+"training and snapshots. Keep it on a fast internal disk when raw data lives "
+"on external storage."
+msgstr ""
+"Результат create-dataset: эта папка содержит train/ и test/ для обучения и "
+"снимков. Храните её на быстром внутреннем диске, если необработанные данные "
+"лежат на внешнем носителе."
+
+#: ui/pages/pipeline_config_page.py:279
+msgid ""
+"Subfolder under raw data for accepted gather output (e.g. coherent). "
+"Relative to Raw data directory unless you enter an absolute path."
+msgstr ""
+"Подпапка в необработанных данных для принятого результата сбора (напр. "
+"coherent). Относительно каталога необработанных данных, если не указан "
+"абсолютный путь."
+
+#: ui/pages/pipeline_config_page.py:287
+msgid ""
+"Subfolder under raw data for files rejected during gather (e.g. rejected). "
+"Relative to Raw data directory unless you enter an absolute path."
+msgstr ""
+"Подпапка в необработанных данных для файлов, отклонённых при сборе (напр. "
+"rejected). Относительно каталога необработанных данных, если не указан "
+"абсолютный путь."
+
+#: ui/pages/pipeline_config_page.py:328
+msgid "Select raw data directory"
+msgstr "Выбрать каталог необработанных данных"
+
+#: ui/pages/pipeline_config_page.py:334
+msgid "Select dataset directory"
+msgstr "Выбрать каталог набора данных"
+
+#: ui/pages/pipeline_config_page.py:348
+msgid "Same as test anchor"
+msgstr "Как тестовый ориентир"
+
+#: ui/pages/pipeline_config_page.py:356
+msgid "Default create-dataset seed"
+msgstr "Начальное значение create-dataset по умолчанию"
+
+#: ui/pages/pipeline_config_page.py:364
+msgid ""
+"Leave empty for the model-type default batch size (omitted from saved YAML)."
+msgstr ""
+"Оставьте пустым для размера пакета по умолчанию данного типа модели (не "
+"записывается в сохранённый YAML)."
+
+#: ui/pages/pipeline_config_page.py:378
+msgid "One class folder name per line; empty = discover"
+msgstr "Одно имя папки класса на строку; пусто = обнаружить"
+
+#: ui/pages/pipeline_config_page.py:382
+msgid "empty = any"
+msgstr "пусто = любой"
+
+#: ui/pages/pipeline_config_page.py:399
+msgid "Relative to raw data directory (e.g. coherent); absolute path optional"
+msgstr ""
+"Относительно каталога необработанных данных (напр. coherent); абсолютный "
+"путь необязателен"
+
+#: ui/pages/pipeline_config_page.py:404
+msgid "Select default gather target directory"
+msgstr "Выбрать целевой каталог сбора по умолчанию"
+
+#: ui/pages/pipeline_config_page.py:410
+msgid "Relative to raw data directory (e.g. rejected); absolute path optional"
+msgstr ""
+"Относительно каталога необработанных данных (напр. rejected); абсолютный "
+"путь необязателен"
+
+#: ui/pages/pipeline_config_page.py:415
+msgid "Select default rejected directory"
+msgstr "Выбрать каталог отклонённых по умолчанию"
+
+#: ui/pages/pipeline_config_page.py:489
+msgid "Select models directory"
+msgstr "Выбрать каталог моделей"
+
+#: ui/pages/pipeline_config_page.py:495
+msgid "Select logs directory"
+msgstr "Выбрать каталог журналов"
+
+#: ui/pages/pipeline_config_page.py:682
+msgid ""
+"Loaded: {path}\n"
+"Save will write to: {save}"
+msgstr ""
+"Загружено: {path}\n"
+"Сохранение запишет в: {save}"
+
+#: ui/pages/pipeline_config_page.py:688
+msgid ""
+"Loaded: packaged defaults\n"
+"Save will write to: {path}"
+msgstr ""
+"Загружено: значения по умолчанию из пакета\n"
+"Сохранение запишет в: {path}"
+
+#: ui/pages/pipeline_config_page.py:701
+msgid ""
+"Invalid YAML:\n"
+"{err}"
+msgstr ""
+"Недопустимый YAML:\n"
+"{err}"
+
+#: ui/pages/pipeline_config_page.py:704
+msgid "Root value must be a mapping."
+msgstr "Корневое значение должно быть отображением."
+
+#: ui/pages/pipeline_config_page.py:712
+msgid ""
+"The document contains keys outside model/data/training/paths: {keys}\n"
+"They will be ignored when applying to the form. Continue?"
+msgstr ""
+"В документе есть ключи вне model/data/training/paths: {keys}\n"
+"При применении к форме они будут проигнорированы. Продолжить?"
+
+#: ui/pages/pipeline_config_page.py:722
+msgid "No model/data/training/paths keys found."
+msgstr "Ключи model/data/training/paths не найдены."
+
+#: ui/pages/pipeline_config_page.py:789
+msgid ""
+"Reset user pipeline to shipped defaults:\n"
+"{path}"
+msgstr ""
+"Сбросить пользовательский конвейер к поставляемым значениям по умолчанию:\n"
+"{path}"
+
+#: ui/pages/train_page.py:92 ui/pages/train_page.py:268
+msgid "Config default"
+msgstr "Значение из конфигурации"
+
+#: ui/pages/train_page.py:98 ui/pages/train_page.py:237
+msgid "Skip unified snapshot update"
+msgstr "Пропустить обновление единого снимка"
+
+#: ui/pages/train_page.py:105 ui/pages/train_page.py:227
+msgid "Output dir"
+msgstr "Каталог вывода"
+
+#: ui/pages/train_page.py:108 ui/pages/train_page.py:230
+msgid "Num workers"
+msgstr "Число процессов"
+
+#: ui/pages/train_page.py:110 ui/pages/train_page.py:231
+msgid "Resume checkpoint"
+msgstr "Контрольная точка возобновления"
+
+#: ui/pages/train_page.py:114 ui/pages/train_page.py:239
+msgid ""
+"Run training in a separate process (survives closing this app; see log file)"
+msgstr ""
+"Запускать обучение в отдельном процессе (продолжается после закрытия "
+"приложения; см. файл журнала)"
+
+#: ui/pages/train_page.py:147 ui/pages/train_page.py:247
+msgid "Frozen LR"
+msgstr "Замороженная скорость обучения"
+
+#: ui/pages/train_page.py:148 ui/pages/train_page.py:248
+msgid "Unfrozen LR max"
+msgstr "Размороженная скорость обучения макс."
+
+#: ui/pages/train_page.py:149 ui/pages/train_page.py:249
+msgid "Unfrozen LR min"
+msgstr "Размороженная скорость обучения мин."
+
+#: ui/pages/train_page.py:157 ui/pages/train_page.py:264
+msgid "Auto-detect"
+msgstr "Автоопределение"
+
+#: ui/pages/train_page.py:165 ui/pages/train_page.py:265
+msgid "Same as rank"
+msgstr "Как ранг"
+
+#: ui/pages/train_page.py:171 ui/pages/train_page.py:266
+msgid "optional, integer"
+msgstr "необязательно, целое"
+
+#: ui/pages/train_page.py:173 ui/pages/train_page.py:256
+msgid "Base model architecture"
+msgstr "Архитектура базовой модели"
+
+#: ui/pages/train_page.py:174 ui/pages/train_page.py:257
+msgid "LoRA rank"
+msgstr "Ранг LoRA"
+
+#: ui/pages/train_page.py:175 ui/pages/train_page.py:258
+msgid "LoRA alpha"
+msgstr "Альфа LoRA"
+
+#: ui/pages/train_page.py:176 ui/pages/train_page.py:259
+msgid "Learning rate"
+msgstr "Скорость обучения"
+
+#: ui/pages/train_page.py:177 ui/pages/train_page.py:260
+msgid "Max train steps"
+msgstr "Максимальное число шагов обучения"
+
+#: ui/pages/train_page.py:178 ui/pages/train_page.py:261
+msgid "Seed"
+msgstr "Семена"
+
+#: ui/pages/train_page.py:182 ui/pages/train_page.py:269
+msgid "Validate Training Config"
+msgstr "Проверить конфигурацию обучения"
+
+#: ui/pages/train_page.py:184 ui/pages/train_page.py:270
+msgid "Start Training"
+msgstr "Начать обучение"
+
+#: ui/pages/train_page.py:195 ui/pages/train_page.py:272
+msgid "Training validation and execution messages will appear here."
+msgstr "Здесь будут показаны сообщения проверки и выполнения обучения."
+
+#: ui/pages/train_page.py:214
+msgid ""
+"Configure framework, architecture, paths, and hyperparameters (training CLI:"
+" {cmd})."
+msgstr ""
+"Настройте фреймворк, архитектуру, пути и гиперпараметры (CLI обучения: "
+"{cmd})."
+
+#: ui/pages/train_page.py:218
+msgid "Core configuration"
+msgstr "Основная конфигурация"
+
+#: ui/pages/train_page.py:241
+msgid "Hyperparameters (image classification)"
+msgstr "Гиперпараметры (классификация изображений)"
+
+#: ui/pages/train_page.py:252
+msgid "Hyperparameters (image generation LoRA)"
+msgstr "Гиперпараметры (генерация изображений LoRA)"
+
+#: ui/pages/train_page.py:277
+msgid ""
+"Set Run ID from the newest snapshot_*.json under the data directory (by file"
+" modification time)."
+msgstr ""
+"Задаёт ID запуска по самому новому snapshot_*.json в каталоге данных (по "
+"времени изменения файла)."
+
+#: ui/pages/train_page.py:479
+msgid "Select checkpoint file"
+msgstr "Выбрать файл контрольной точки"
+
+#: ui/pages/train_page.py:481
+msgid ""
+"Model/checkpoint files (*.pth *.pt *.h5 *.keras *.ckpt);;All files (*.*)"
+msgstr ""
+"Файлы модели/контрольной точки (*.pth *.pt *.h5 *.keras *.ckpt);;Все файлы "
+"(*.*)"
+
+#: ui/pages/train_page.py:538
+msgid "local checkpoint path or hub id, e.g. black-forest-labs/FLUX.1-dev"
+msgstr ""
+"локальный путь контрольной точки или идентификатор хранилища, напр. black-"
+"forest-labs/FLUX.1-dev"
+
+#: ui/pages/train_page.py:544 ui/pages/train_page.py:566
+msgid "Enter architecture manually"
+msgstr "Ввести архитектуру вручную"
+
+#: ui/pages/train_page.py:546
+msgid "[warn] Unsupported framework for architecture list: {fw}"
+msgstr ""
+"[предупреждение] Неподдерживаемый фреймворк для списка архитектур: {fw}"
+
+#: ui/pages/train_page.py:561
+msgid "[info] {fw} architectures: {names}"
+msgstr "[информация] Архитектуры {fw}: {names}"
+
+#: ui/pages/train_page.py:568
+msgid "[warn] Could not load architecture list for {fw}: {err}"
+msgstr ""
+"[предупреждение] Не удалось загрузить список архитектур для {fw}: {err}"
+
+#: ui/pages/train_page.py:614
+msgid "[ok] training inputs look valid"
+msgstr "[ок] входные данные обучения выглядят допустимыми"
+
+#: ui/pages/train_page.py:629
+msgid "[error] Could not auto-save pipeline config; training cancelled."
+msgstr ""
+"[ошибка] Не удалось автоматически сохранить конфигурацию конвейера; обучение"
+" отменено."
+
+#: ui/pages/train_page.py:652
+msgid "[detached] PID {pid} — log: {log} — args JSON: {args}"
+msgstr "[отдельно] PID {pid} - журнал: {log} - JSON аргументов: {args}"
+
+#: ui/pages/train_page.py:664
+msgid "Training started (separate process)"
+msgstr "Обучение запущено (отдельный процесс)"
+
+#: ui/pages/train_page.py:666
+msgid ""
+"Training is running outside this window. Closing the app does not stop it.\n"
+"\n"
+"Process ID: {pid}\n"
+"Log file:\n"
+"{log}\n"
+"\n"
+"Training arguments were written to:\n"
+"{args}\n"
+"\n"
+"Stop the process from Task Manager or your OS if you need to abort."
+msgstr ""
+"Обучение выполняется вне этого окна. Закрытие приложения его не останавливает.\n"
+"\n"
+"Идентификатор процесса: {pid}\n"
+"Файл журнала:\n"
+"{log}\n"
+"\n"
+"Аргументы обучения записаны в:\n"
+"{args}\n"
+"\n"
+"Остановите процесс через Диспетчер задач или средствами операционной системы, если его нужно прервать."
+
+#: ui/pages/train_page.py:683
+msgid "Could not start detached training"
+msgstr "Не удалось запустить отдельное обучение"
+
+#: ui/pages/train_page.py:684
+msgid "Failed to launch the training subprocess. See Details for the error."
+msgstr ""
+"Не удалось запустить подпроцесс обучения. Текст ошибки см. в разделе "
+"Подробности."
+
+#: ui/pages/train_page.py:712
+msgid "Training LoRA adapter…"
+msgstr "Обучение адаптера LoRA…"
+
+#: ui/pages/train_page.py:731
+msgid "Architecture '{arch}' not supported for {fw}. Supported: {sup}"
+msgstr ""
+"Архитектура '{arch}' не поддерживается для {fw}. Поддерживаются: {sup}"
+
+#: ui/pages/train_page.py:746
+msgid "[done] Training complete. Model saved: {path}"
+msgstr "[готово] Обучение завершено. Модель сохранена: {path}"
+
+#: ui/pages/train_page.py:765
+msgid ""
+"[stopped] Training cancelled — partial checkpoints may exist; check the "
+"output folder before re-running."
+msgstr ""
+"[остановлено] Обучение отменено - могут остаться частичные контрольные "
+"точки; проверьте папку вывода перед повторным запуском."
+
+#: ui/pages/train_page.py:785
+msgid "Training failed"
+msgstr "Сбой обучения"
+
+#: ui/pages/train_page.py:786
+msgid ""
+"Training stopped with an error. See Details for the message from the "
+"trainer."
+msgstr ""
+"Обучение остановилось с ошибкой. Сообщение модуля обучения см. в разделе "
+"Подробности."
+
+#: utils/notification_manager.py:22
+msgid " etc."
+msgstr " и т.д."
