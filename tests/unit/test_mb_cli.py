@@ -254,3 +254,8 @@ def test_train_train_args_json_invokes_trainer_with_stub_trainer(
     assert calls[0][0] == "init"
     assert calls[1][0] == "train"
     assert calls[1][1].architecture == ArchitectureType.RESNET18
+
+
+def test_main_fails_when_named_config_is_missing(tmp_path: Path) -> None:
+    missing = tmp_path / "nope.yaml"
+    assert main(["--config", str(missing), "text", "verify", "--data-dir", str(tmp_path)]) == 1

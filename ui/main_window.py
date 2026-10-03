@@ -39,6 +39,7 @@ from ui.pages import (
     HomePage,
     InfoPage,
     PipelineConfigPage,
+    TextPage,
     TrainPage,
 )
 from ui.workspace import Workspace, default_settings, effective_pipeline_config_path
@@ -56,7 +57,7 @@ from utils.notification_manager import notification_manager
 
 class MainWindow(QMainWindow):
     #: (Page class, English gettext msgid for sidebar). Order mirrors
-    #: :attr:`mb.utils.constants.ModelBuilderTaskType.nav_row_index` (Data/Train/Convert/Export/Evaluate/Info rows).
+    #: :attr:`mb.utils.constants.ModelBuilderTaskType.nav_row_index` (Data/Train/Convert/Export/Evaluate/Text/Info rows).
     NAV_PAGE_SPECS: ClassVar[list[tuple[Type[QWidget], str]]] = [
         (HomePage, "Home"),
         (DataPage, "Data"),
@@ -64,6 +65,7 @@ class MainWindow(QMainWindow):
         (ConvertPage, "Convert"),
         (ExportPage, "Export"),
         (EvaluatePage, "Evaluate"),
+        (TextPage, "Text"),
         (ConfigPage, "App"),
         (PipelineConfigPage, "Pipeline"),
         (InfoPage, "Info"),

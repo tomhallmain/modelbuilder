@@ -23,6 +23,7 @@ from ui.pages import (
     HomePage,
     InfoPage,
     PipelineConfigPage,
+    TextPage,
     TrainPage,
 )
 
@@ -82,6 +83,7 @@ def test_page_widget_types_match_nav(qtbot, main_window: MainWindow) -> None:
         ConvertPage,
         ExportPage,
         EvaluatePage,
+        TextPage,
         ConfigPage,
         PipelineConfigPage,
         InfoPage,

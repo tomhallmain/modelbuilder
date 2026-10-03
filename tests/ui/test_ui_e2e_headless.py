@@ -32,6 +32,7 @@ from mb import __version__ as MB_VERSION
 from mb.data.class_layout import SYNTHETIC_DEFAULT_CLASS_NAMES
 from mb.data.dataset import DatasetCreator
 from mb.models.types import ArchitectureType, FrameworkType
+from mb.utils.constants import ModelBuilderTaskType
 from ui.main_window import MainWindow
 from ui.pages.convert_page import ConvertPage
 from ui.pages.info_page import InfoPage
@@ -43,9 +44,9 @@ from tests.ui.qt_helpers import main_nav_stacked_widget
 _RS = 'install PyTorch extras: pip install -e ".[pytorch]" or see requirements-ml.txt'
 _ONNX = "install ONNX for conversion: pip install onnx (see requirements-ml.txt)"
 
-_NAV_TRAIN = 2
-_NAV_CONVERT = 3
-_NAV_INFO = 8
+_NAV_TRAIN = ModelBuilderTaskType.TRAIN.nav_row_index
+_NAV_CONVERT = ModelBuilderTaskType.CONVERT.nav_row_index
+_NAV_INFO = ModelBuilderTaskType.INFO.nav_row_index
 
 
 def _sync_nav_and_stack(main_window: MainWindow, row: int) -> None:

@@ -43,6 +43,7 @@ class ModelBuilderTaskType(str, Enum):
     CONVERT = "convert"
     EXPORT = "export"
     EVALUATE = "evaluate"
+    TEXT = "text"
     INFO = "info"
 
     @property
@@ -58,7 +59,8 @@ _MODEL_BUILDER_TASK_NAV_ROW: dict[ModelBuilderTaskType, int] = {
     ModelBuilderTaskType.CONVERT: 3,
     ModelBuilderTaskType.EXPORT: 4,
     ModelBuilderTaskType.EVALUATE: 5,
-    ModelBuilderTaskType.INFO: 8,
+    ModelBuilderTaskType.TEXT: 6,
+    ModelBuilderTaskType.INFO: 9,
 }
 
 

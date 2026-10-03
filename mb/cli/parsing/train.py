@@ -6,7 +6,7 @@ from pathlib import Path
 
 from mb.cli.parsing.common import MODEL_TYPE_CLI_CHOICES
 from mb.models.generation_architectures import BaseGenerationArchitecture
-from mb.models.types import ClassWeightingMode, FrameworkType, LabelMode, ModelType
+from mb.models.types import ClassWeightingMode, FrameworkType, LabelMode, TextBackendType
 from mb.utils.constants import ModelBuilderTaskType
 from mb.utils.translations import _
 
@@ -23,8 +23,8 @@ def register(subparsers) -> None:
     train_parser.add_argument(
         "--model-type",
         choices=MODEL_TYPE_CLI_CHOICES,
-        default=ModelType.IMAGE_CLASSIFICATION.value,
-        help=_("Model type (default: image_classification)"),
+        default=None,
+        help=_("Model type (default: model.default_type from config, else image_classification)"),
     )
     train_parser.add_argument(
         "--framework",
@@ -42,12 +42,19 @@ def register(subparsers) -> None:
     train_parser.add_argument(
         "--data-dir",
         type=Path,
-        help=_("Data directory (default: from config)"),
+        help=_(
+            "Data directory (default: from config). For --model-type text_classification, "
+            "the directory holding dataset.tsv (default: text_classification.data_dir)."
+        ),
     )
     train_parser.add_argument(
         "--output-dir",
         type=Path,
-        help=_("Output directory for models (default: from config)"),
+        help=_(
+            "Output directory for models (default: from config). For --model-type "
+            "text_classification, the parent of the run directory (default: "
+            "text_classification.runs_dir)."
+        ),
     )
     train_parser.add_argument(
         "--frozen-epochs",
@@ -77,7 +84,10 @@ def register(subparsers) -> None:
     train_parser.add_argument(
         "--batch-size",
         type=int,
-        help=_("Batch size (default: from config or auto-detect)"),
+        help=_(
+            "Batch size (default: from config or auto-detect). For --model-type "
+            "text_classification, overrides text_classification.optim.batch_size."
+        ),
     )
     train_parser.add_argument(
         "--image-size",
@@ -132,8 +142,9 @@ def register(subparsers) -> None:
         "--seed",
         type=int,
         help=_(
-            "Random seed. Currently only consumed by --model-type image_generation_lora "
-            "(reproducible LoRA weight init and noise sampling)."
+            "Random seed. Consumed by --model-type image_generation_lora (reproducible LoRA "
+            "weight init and noise sampling) and text_classification (overrides "
+            "text_classification.seed)."
         ),
     )
     train_parser.add_argument(
@@ -154,7 +165,8 @@ def register(subparsers) -> None:
         type=float,
         help=_(
             "Learning rate for the LoRA adapter parameters (--model-type "
-            "image_generation_lora only; default: 1e-4). Unrelated to --frozen-lr/"
+            "image_generation_lora; default: 1e-4), or text_classification.optim.lr "
+            "(--model-type text_classification). Unrelated to --frozen-lr/"
             "--unfrozen-lr-* (image_classification only)."
         ),
     )
@@ -178,6 +190,34 @@ def register(subparsers) -> None:
             "auto-detected without a network call. flux (recommended default), chroma, and "
             "stable_diffusion_1x are implemented today — stable_diffusion_xl, "
             "stable_diffusion_3, and z_image_turbo are recognized but not yet supported."
+        ),
+    )
+    train_parser.add_argument(
+        "--text-backend",
+        choices=[b.value for b in TextBackendType],
+        default=None,
+        help=_(
+            "--model-type text_classification only: model family (default: "
+            "text_classification.backend)"
+        ),
+    )
+    train_parser.add_argument(
+        "--text-model-id",
+        type=str,
+        default=None,
+        help=_(
+            "--model-type text_classification only: Hugging Face id or local path of the "
+            "model within the family (default: text_classification.model_id, else the "
+            "backend's default)"
+        ),
+    )
+    train_parser.add_argument(
+        "--epochs",
+        type=int,
+        default=None,
+        help=_(
+            "--model-type text_classification only: maximum training epochs (default: "
+            "text_classification.optim.epochs, else the backend's default)"
         ),
     )
     train_parser.add_argument(

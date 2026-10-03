@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 from typing import TYPE_CHECKING, Any
 
 import yaml
@@ -34,7 +35,24 @@ from mb.pipeline_config import (
     reload_pipeline_config,
     save_pipeline_yaml,
 )
-from mb.models.types import ArchitectureType, ClassWeightingMode, FrameworkType, ModelType
+from mb.models.types import (
+    ArchitectureType,
+    ClassWeightingMode,
+    FrameworkType,
+    LabelMode,
+    ModelType,
+    TextBackendType,
+    TextCalibrationMethod,
+    TextThresholdPolicy,
+)
+from mb.training.text_config import (
+    CLASS_WEIGHT_BALANCED,
+    CLASS_WEIGHT_NONE,
+    PIPELINE_SECTION as TEXT_SECTION,
+    TEXT_CLASSIFICATION_DEFAULTS,
+    TextConfigError,
+    parse_text_run_config,
+)
 from mb.utils.logging_setup import get_logger
 from ui.lib.directory_line_edit_row import make_directory_line_edit_row
 from ui.lib.form_layout_i18n import apply_qform_label_column
@@ -47,6 +65,10 @@ if TYPE_CHECKING:
     from ui.main_window import MainWindow
 
 logger = get_logger(__name__)
+
+
+# Combo data for a loaded {0: w0, 1: w1} class_weight, which the form keeps as-is.
+_CUSTOM_CLASS_WEIGHT = "__custom__"
 
 
 def _ext_lines_to_list(text: str) -> list[str]:
@@ -111,6 +133,7 @@ class PipelineConfigPage(QWidget):
         self._tabs.addTab(self._build_data_tab(), "")
         self._tabs.addTab(self._build_training_tab(), "")
         self._tabs.addTab(self._build_paths_tab(), "")
+        self._tabs.addTab(self._build_text_tab(), "")
         self._tabs.addTab(self._build_advanced_tab(), "")
         root.addWidget(self._tabs, 1)
 
@@ -137,6 +160,8 @@ class PipelineConfigPage(QWidget):
         # the user pipeline with packaged defaults.
         QTimer.singleShot(0, self._startup_pipeline_refresh)
         self._last_saved_cfg: dict[str, Any] = {}
+        # Last loaded text_classification section; keys without a form field pass through.
+        self._loaded_text_cfg: dict[str, Any] = copy.deepcopy(TEXT_CLASSIFICATION_DEFAULTS)
 
     def collect_gui_state(self) -> dict:
         return {}
@@ -156,7 +181,8 @@ class PipelineConfigPage(QWidget):
         self._page_desc.setText(
             _(
                 "Machine-learning defaults (<code>model</code>, <code>data</code>, "
-                "<code>training</code>, <code>paths</code>). Save writes to your active pipeline file, "
+                "<code>training</code>, <code>paths</code>, <code>text_classification</code>). "
+                "Save writes to your active pipeline file, "
                 "or to <code>pipeline.yaml</code> beside <code>application.yaml</code> in app data when "
                 "only packaged defaults are loaded."
             )
@@ -165,7 +191,8 @@ class PipelineConfigPage(QWidget):
         self._tabs.setTabText(1, _("Data"))
         self._tabs.setTabText(2, _("Training"))
         self._tabs.setTabText(3, _("Paths"))
-        self._tabs.setTabText(4, _("Advanced (YAML)"))
+        self._tabs.setTabText(4, _("Text classification"))
+        self._tabs.setTabText(5, _("Advanced (YAML)"))
         self._model_group.setTitle(_("Model"))
         self._data_group.setTitle(_("Data"))
         self._gather_group.setTitle(_("Gather defaults"))
@@ -175,20 +202,7 @@ class PipelineConfigPage(QWidget):
             self._model_form,
             [_("Default model type"), _("Default framework"), _("Default architecture")],
         )
-        apply_qform_label_column(
-            self._data_form,
-            [
-                _("Raw data directory"),
-                _("Dataset output directory"),
-                _("Test images per class"),
-                _("Image size (pixels)"),
-                _("Training batch size"),
-                _("Image file extensions (one per line)"),
-                _("Video file extensions (one per line)"),
-                _("Class folder names (empty = auto-discover)"),
-                _("Class qualifying subfolder"),
-            ],
-        )
+        apply_qform_label_column(self._data_form, self._data_form_labels())
         apply_qform_label_column(
             self._gather_form,
             [
@@ -215,6 +229,22 @@ class PipelineConfigPage(QWidget):
             self._paths_form,
             [_("Models directory"), _("Logs directory"), _("Timing data directory")],
         )
+        self._text_group.setTitle(_("Text classification"))
+        apply_qform_label_column(self._text_form, self._text_form_labels())
+        self._x_pass_hint.setText(
+            _(
+                "tier_weight, gold_tiers, backend_options and an explicit class_weight mapping "
+                "are kept as loaded; edit them in the Advanced (YAML) tab. Unknown keys and "
+                "invalid values in this section are errors when training."
+            )
+        )
+        self._x_model.setPlaceholderText(_("empty = backend default"))
+        self._x_device.setPlaceholderText(_("empty = cuda when available, else cpu"))
+        for spin in (self._x_lr, self._x_epochs, self._x_batch):
+            spin.setSpecialValueText(_("Backend default"))
+        self._x_subsample.setSpecialValueText(_("Off"))
+        self._x_exclude.setText(_("Exclude label-conflict groups from training and metrics"))
+        self._x_rescore.setText(_("Score unlabeled_cut.tsv when present"))
         self._yaml_hint.setText(
             _(
                 "Full pipeline document. Click “Apply YAML” to parse and refresh the tabs, "
@@ -323,64 +353,69 @@ class PipelineConfigPage(QWidget):
         form.setLabelAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
 
         self._d_raw = QLineEdit()
-        form.addRow(
-            _("Raw data directory"),
-            make_directory_line_edit_row(w, self._d_raw, dialog_title=_("Select raw data directory")),
-        )
-
         self._d_out = QLineEdit()
-        form.addRow(
-            _("Dataset output directory"),
-            make_directory_line_edit_row(w, self._d_out, dialog_title=_("Select dataset directory")),
-        )
 
         self._d_test_pc = QSpinBox()
         self._d_test_pc.setRange(0, 10_000_000)
-        form.addRow(_("Test images per class"), self._d_test_pc)
 
         self._d_test_split_mode = QComboBox()
         self._d_test_split_mode.addItem(_("Fixed count per class"), "fixed")
         self._d_test_split_mode.addItem(_("Dataset-weighted (modulated)"), "dataset_weighted")
-        form.addRow(_("Test split mode"), self._d_test_split_mode)
 
         self._d_test_small_thr = QSpinBox()
         self._d_test_small_thr.setRange(0, 10_000_000)
         self._d_test_small_thr.setSpecialValueText(_("Same as test anchor"))
         self._d_test_small_thr.setValue(0)
-        form.addRow(_("Small-class threshold (weighted)"), self._d_test_small_thr)
 
         self._d_seed = QSpinBox()
         self._d_seed.setRange(0, 2_147_483_647)
         self._d_seed.setSpecialValueText(_("None"))
         self._d_seed.setValue(0)
-        form.addRow(_("Default create-dataset seed"), self._d_seed)
 
         self._d_im_size = QSpinBox()
         self._d_im_size.setRange(1, 4096)
-        form.addRow(_("Image size (pixels)"), self._d_im_size)
 
         self._d_batch = QLineEdit()
         self._d_batch.setPlaceholderText(
             _("Leave empty for the model-type default batch size (omitted from saved YAML).")
         )
-        form.addRow(_("Training batch size"), self._d_batch)
 
         self._d_img_types = QPlainTextEdit()
         self._d_img_types.setFixedHeight(100)
-        form.addRow(_("Image file extensions (one per line)"), self._d_img_types)
 
         self._d_vid_types = QPlainTextEdit()
         self._d_vid_types.setFixedHeight(80)
-        form.addRow(_("Video file extensions (one per line)"), self._d_vid_types)
 
         self._d_class_names = QPlainTextEdit()
         self._d_class_names.setFixedHeight(72)
         self._d_class_names.setPlaceholderText(_("One class folder name per line; empty = discover"))
-        form.addRow(_("Class folder names (empty = auto-discover)"), self._d_class_names)
 
         self._d_qual = QLineEdit()
         self._d_qual.setPlaceholderText(_("empty = any"))
-        form.addRow(_("Class qualifying subfolder"), self._d_qual)
+
+        self._d_label_mode = QComboBox()
+        for mode in LabelMode:
+            self._d_label_mode.addItem(mode.value, mode.value)
+
+        widgets = [
+            make_directory_line_edit_row(w, self._d_raw, dialog_title=_("Select raw data directory")),
+            make_directory_line_edit_row(w, self._d_out, dialog_title=_("Select dataset directory")),
+            self._d_test_pc,
+            self._d_test_split_mode,
+            self._d_test_small_thr,
+            self._d_seed,
+            self._d_im_size,
+            self._d_batch,
+            self._d_img_types,
+            self._d_vid_types,
+            self._d_class_names,
+            self._d_qual,
+            self._d_label_mode,
+        ]
+        labels = self._data_form_labels()
+        assert len(labels) == len(widgets)
+        for label, widget in zip(labels, widgets):
+            form.addRow(label, widget)
 
         lay.addWidget(box)
 
@@ -419,6 +454,25 @@ class PipelineConfigPage(QWidget):
         lay.addWidget(gbox)
         lay.addStretch(1)
         return w
+
+    @staticmethod
+    def _data_form_labels() -> list[str]:
+        """Data-tab row labels, in row order; used at construction and on retranslate."""
+        return [
+            _("Raw data directory"),
+            _("Dataset output directory"),
+            _("Test images per class"),
+            _("Test split mode"),
+            _("Small-class threshold (weighted)"),
+            _("Default create-dataset seed"),
+            _("Image size (pixels)"),
+            _("Training batch size"),
+            _("Image file extensions (one per line)"),
+            _("Video file extensions (one per line)"),
+            _("Class folder names (empty = auto-discover)"),
+            _("Class qualifying subfolder"),
+            _("Label mode"),
+        ]
 
     def _build_training_tab(self) -> QWidget:
         w = QWidget()
@@ -499,6 +553,223 @@ class PipelineConfigPage(QWidget):
         lay.addStretch(1)
         return w
 
+    @staticmethod
+    def _text_form_labels() -> list[str]:
+        return [
+            _("Dataset directory"),
+            _("Runs directory"),
+            _("Backend"),
+            _("Model id"),
+            _("Seed"),
+            _("Max length (tokens)"),
+            _("Class weight"),
+            "",
+            _("Subsample keep_unreviewed (x positives)"),
+            _("Learning rate"),
+            _("Epochs"),
+            _("Batch size"),
+            _("Warmup ratio"),
+            _("Weight decay"),
+            _("Early-stopping patience"),
+            _("Calibration"),
+            _("Threshold policy"),
+            _("Threshold target"),
+            _("Review queue size"),
+            "",
+            _("Device"),
+            _("Model card notes (Markdown)"),
+        ]
+
+    def _build_text_tab(self) -> QWidget:
+        w = QWidget()
+        lay = QVBoxLayout(w)
+        box = QGroupBox()
+        self._text_group = box
+        form = QFormLayout(box)
+        self._text_form = form
+        form.setLabelAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+
+        def opt_double(decimals: int, step: float, hi: float) -> QDoubleSpinBox:
+            spin = QDoubleSpinBox()
+            spin.setDecimals(decimals)
+            spin.setSingleStep(step)
+            spin.setRange(0.0, hi)
+            return spin
+
+        self._x_data = QLineEdit()
+        self._x_runs = QLineEdit()
+        self._x_backend = QComboBox()
+        for b in TextBackendType:
+            self._x_backend.addItem(b.value, b.value)
+        self._x_model = QLineEdit()
+        self._x_seed = QSpinBox()
+        self._x_seed.setRange(0, 2_147_483_647)
+        self._x_max_len = QSpinBox()
+        self._x_max_len.setRange(1, 100_000)
+        self._x_class_weight = QComboBox()
+        self._x_class_weight.addItem(CLASS_WEIGHT_BALANCED, CLASS_WEIGHT_BALANCED)
+        self._x_class_weight.addItem(CLASS_WEIGHT_NONE, CLASS_WEIGHT_NONE)
+        self._x_exclude = QCheckBox()
+        self._x_subsample = opt_double(2, 0.5, 1_000.0)
+        self._x_lr = opt_double(8, 0.00001, 1.0)
+        self._x_epochs = QSpinBox()
+        self._x_epochs.setRange(0, 100_000)
+        self._x_batch = QSpinBox()
+        self._x_batch.setRange(0, 1_000_000)
+        self._x_warmup = opt_double(3, 0.01, 1.0)
+        self._x_wd = opt_double(4, 0.001, 10.0)
+        self._x_patience = QSpinBox()
+        self._x_patience.setRange(0, 1000)
+        self._x_calibration = QComboBox()
+        for c in TextCalibrationMethod:
+            self._x_calibration.addItem(c.value, c.value)
+        self._x_threshold_kind = QComboBox()
+        for k in TextThresholdPolicy:
+            self._x_threshold_kind.addItem(k.value, k.value)
+        self._x_threshold_value = opt_double(3, 0.01, 1.0)
+        self._x_threshold_value.setMinimum(0.001)
+        self._x_queue = QSpinBox()
+        self._x_queue.setRange(0, 1_000_000)
+        self._x_rescore = QCheckBox()
+        self._x_device = QLineEdit()
+        self._x_notes = QPlainTextEdit()
+        self._x_notes.setFixedHeight(120)
+
+        labels = self._text_form_labels()
+        widgets = [
+            make_directory_line_edit_row(w, self._x_data, dialog_title=_("Select text dataset directory")),
+            make_directory_line_edit_row(w, self._x_runs, dialog_title=_("Select runs directory")),
+            self._x_backend,
+            self._x_model,
+            self._x_seed,
+            self._x_max_len,
+            self._x_class_weight,
+            self._x_exclude,
+            self._x_subsample,
+            self._x_lr,
+            self._x_epochs,
+            self._x_batch,
+            self._x_warmup,
+            self._x_wd,
+            self._x_patience,
+            self._x_calibration,
+            self._x_threshold_kind,
+            self._x_threshold_value,
+            self._x_queue,
+            self._x_rescore,
+            self._x_device,
+            self._x_notes,
+        ]
+        for label, widget in zip(labels, widgets):
+            form.addRow(label, widget)
+        lay.addWidget(box)
+        self._x_pass_hint = QLabel()
+        self._x_pass_hint.setWordWrap(True)
+        lay.addWidget(self._x_pass_hint)
+        lay.addStretch(1)
+        return w
+
+    def _text_dict_from_form(self) -> dict[str, Any]:
+        out = copy.deepcopy(self._loaded_text_cfg)
+
+        def opt(v: float, cast):
+            return None if v <= 0 else cast(v)
+
+        cw = self._x_class_weight.currentData()
+        out.update(
+            {
+                "data_dir": self._x_data.text().strip() or TEXT_CLASSIFICATION_DEFAULTS["data_dir"],
+                "runs_dir": self._x_runs.text().strip() or TEXT_CLASSIFICATION_DEFAULTS["runs_dir"],
+                "backend": str(self._x_backend.currentData()),
+                "model_id": self._x_model.text().strip() or None,
+                "seed": int(self._x_seed.value()),
+                "max_length": int(self._x_max_len.value()),
+                # The "custom" entry stands for the loaded mapping, already in *out*.
+                "class_weight": out.get("class_weight") if cw == _CUSTOM_CLASS_WEIGHT else str(cw),
+                "exclude_conflicts": self._x_exclude.isChecked(),
+                "subsample_keep_unreviewed": opt(float(self._x_subsample.value()), float),
+                "calibration": str(self._x_calibration.currentData()),
+                "model_card_notes": self._x_notes.toPlainText(),
+                "device": self._x_device.text().strip() or None,
+            }
+        )
+        optim = dict(out.get("optim") or {})
+        optim.update(
+            {
+                "lr": opt(float(self._x_lr.value()), float),
+                "epochs": opt(int(self._x_epochs.value()), int),
+                "batch_size": opt(int(self._x_batch.value()), int),
+                "warmup_ratio": float(self._x_warmup.value()),
+                "weight_decay": float(self._x_wd.value()),
+            }
+        )
+        out["optim"] = optim
+        es = dict(out.get("early_stopping") or {})
+        es["patience"] = int(self._x_patience.value())
+        out["early_stopping"] = es
+        out["threshold_policy"] = {
+            **dict(out.get("threshold_policy") or {}),
+            "kind": str(self._x_threshold_kind.currentData()),
+            "value": float(self._x_threshold_value.value()),
+        }
+        out["reports"] = {
+            **dict(out.get("reports") or {}),
+            "review_queue_size": int(self._x_queue.value()),
+            "rescore_unlabeled_cut": self._x_rescore.isChecked(),
+        }
+        return out
+
+    def _apply_text_dict_to_form(self, raw: Any) -> None:
+        d = copy.deepcopy(TEXT_CLASSIFICATION_DEFAULTS)
+        if isinstance(raw, dict):
+            for key, value in raw.items():
+                if isinstance(value, dict) and isinstance(d.get(key), dict):
+                    d[key] = {**d[key], **value}
+                else:
+                    d[key] = copy.deepcopy(value)
+        self._loaded_text_cfg = d
+
+        def set_combo(combo: QComboBox, value: Any) -> None:
+            idx = combo.findData(str(value))
+            combo.setCurrentIndex(idx if idx >= 0 else 0)
+
+        def num(v: Any, default: float = 0.0) -> float:
+            return float(v) if isinstance(v, (int, float)) and not isinstance(v, bool) else default
+
+        self._x_data.setText(str(d.get("data_dir") or ""))
+        self._x_runs.setText(str(d.get("runs_dir") or ""))
+        set_combo(self._x_backend, d.get("backend"))
+        self._x_model.setText(str(d.get("model_id") or ""))
+        self._x_seed.setValue(int(num(d.get("seed"))))
+        self._x_max_len.setValue(int(num(d.get("max_length"), 64)))
+        custom_ix = self._x_class_weight.findData(_CUSTOM_CLASS_WEIGHT)
+        if custom_ix >= 0:
+            self._x_class_weight.removeItem(custom_ix)
+        cw = d.get("class_weight")
+        if isinstance(cw, dict):
+            self._x_class_weight.addItem(_("custom mapping (edit in YAML)"), _CUSTOM_CLASS_WEIGHT)
+            self._x_class_weight.setCurrentIndex(self._x_class_weight.count() - 1)
+        else:
+            set_combo(self._x_class_weight, cw)
+        self._x_exclude.setChecked(bool(d.get("exclude_conflicts")))
+        self._x_subsample.setValue(num(d.get("subsample_keep_unreviewed")))
+        optim = d.get("optim") or {}
+        self._x_lr.setValue(num(optim.get("lr")))
+        self._x_epochs.setValue(int(num(optim.get("epochs"))))
+        self._x_batch.setValue(int(num(optim.get("batch_size"))))
+        self._x_warmup.setValue(num(optim.get("warmup_ratio")))
+        self._x_wd.setValue(num(optim.get("weight_decay")))
+        self._x_patience.setValue(int(num((d.get("early_stopping") or {}).get("patience"))))
+        set_combo(self._x_calibration, d.get("calibration"))
+        tp = d.get("threshold_policy") or {}
+        set_combo(self._x_threshold_kind, tp.get("kind"))
+        self._x_threshold_value.setValue(num(tp.get("value"), 0.9))
+        rep_cfg = d.get("reports") or {}
+        self._x_queue.setValue(int(num(rep_cfg.get("review_queue_size"))))
+        self._x_rescore.setChecked(bool(rep_cfg.get("rescore_unlabeled_cut")))
+        self._x_device.setText(str(d.get("device") or ""))
+        self._x_notes.setPlainText(str(d.get("model_card_notes") or ""))
+
     def _build_advanced_tab(self) -> QWidget:
         w = QWidget()
         lay = QVBoxLayout(w)
@@ -552,6 +823,7 @@ class PipelineConfigPage(QWidget):
             "video_types": _ext_lines_to_list(self._d_vid_types.toPlainText()),
             "class_names": _parse_class_names(self._d_class_names.toPlainText()),
             "class_qualifying_subdir": class_qual,
+            "label_mode": str(self._d_label_mode.currentData() or LabelMode.get_default().value),
             "gather": gather,
         }
 
@@ -582,6 +854,7 @@ class PipelineConfigPage(QWidget):
                 "models_dir": self._p_models.text().strip() or "data/models",
                 "logs_dir": self._p_logs.text().strip() or "logs",
             },
+            TEXT_SECTION: self._text_dict_from_form(),
         }
 
     def _apply_dict_to_form(self, cfg: dict[str, Any]) -> None:
@@ -616,6 +889,9 @@ class PipelineConfigPage(QWidget):
         self._d_class_names.setPlainText(_class_names_to_text(d.get("class_names")))
         cq = d.get("class_qualifying_subdir")
         self._d_qual.setText("" if cq is None else str(cq))
+        lm = LabelMode.try_from(d.get("label_mode")) or LabelMode.get_default()
+        lm_idx = self._d_label_mode.findData(lm.value)
+        self._d_label_mode.setCurrentIndex(lm_idx if lm_idx >= 0 else 0)
 
         g = d.get("gather") or {}
         self._g_target_n.setValue(int(g.get("default_target_count") or 100000))
@@ -642,6 +918,8 @@ class PipelineConfigPage(QWidget):
         p = cfg.get("paths") or {}
         self._p_models.setText(str(p.get("models_dir") or ""))
         self._p_logs.setText(str(p.get("logs_dir") or ""))
+
+        self._apply_text_dict_to_form(cfg.get(TEXT_SECTION))
 
     def _sync_yaml_editor(self, cfg: dict[str, Any]) -> None:
         sub = {k: cfg[k] for k in PIPELINE_ROOT_KEYS if k in cfg}
@@ -709,7 +987,8 @@ class PipelineConfigPage(QWidget):
                 self,
                 _("Pipeline"),
                 _(
-                    "The document contains keys outside model/data/training/paths: {keys}\n"
+                    "The document contains keys outside model/data/training/paths/"
+                    "text_classification: {keys}\n"
                     "They will be ignored when applying to the form. Continue?"
                 ).format(keys=", ".join(extra)),
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
@@ -719,7 +998,7 @@ class PipelineConfigPage(QWidget):
                 return
         merged = {k: parsed[k] for k in PIPELINE_ROOT_KEYS if k in parsed}
         if len(merged) < 1:
-            qt_alert(self, _("Pipeline"), _("No model/data/training/paths keys found."))
+            qt_alert(self, _("Pipeline"), _("No model/data/training/paths/text_classification keys found."))
             return
         self._apply_dict_to_form(merged)
         self._sync_yaml_editor(merged)
@@ -756,7 +1035,12 @@ class PipelineConfigPage(QWidget):
         self._refresh_from_disk(force=False)
         self._last_saved_cfg = self._full_pipeline_dict_from_form()
         if show_success:
-            qt_alert(self, _("Pipeline"), _("Saved to:\n{path}").format(path=target))
+            message = _("Saved to:\n{path}").format(path=target)
+            try:
+                parse_text_run_config(cfg[TEXT_SECTION])
+            except TextConfigError as e:
+                message += "\n\n" + str(e)
+            qt_alert(self, _("Pipeline"), message)
         return True
 
     def _on_save(self) -> None:

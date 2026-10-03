@@ -1,8 +1,9 @@
 """
 TrainPageController — resolves :class:`TrainPage` widget values into a training request:
-:class:`~mb.training.run_args.TrainingRunArgs` for image classification, or
+:class:`~mb.training.run_args.TrainingRunArgs` for image classification,
 :class:`~mb.training.lora_diffusion_trainer.LoraTrainingConfig` for
-``image_generation_lora``.
+``image_generation_lora``, or :class:`~mb.training.text_config.TextRunConfig` for
+``text_classification``.
 
 Extracted out of ``ui/pages/train_page.py`` because which of ~20 fields matter, and how
 they validate, now differs by :class:`~mb.models.types.ModelType` — keeping that decision
@@ -14,11 +15,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Union
+from typing import Any, Optional, Union
 
 from mb.models.types import ArchitectureType, FrameworkType, LabelMode, ModelType
+from mb.data.text_dataset import DATASET_FILE
 from mb.training.lora_diffusion_trainer import LoraTrainingConfig
 from mb.training.run_args import TrainingRunArgs
+from mb.training.text_config import TextRunConfig, resolve_text_run_config
 from mb.utils.translations import _
 
 
@@ -54,15 +57,60 @@ class TrainPageFieldValues:
     max_train_steps: int = 1000
     seed_text: str = ""
 
+    # text_classification only. Empty / 0 = keep the pipeline's text_classification value;
+    # the architecture field holds the model id and seed_text the seed.
+    text_backend: str = ""
+    text_epochs: int = 0
+    text_learning_rate: float = 0.0
 
-TrainingRequest = Union[TrainingRunArgs, LoraTrainingConfig]
+
+TrainingRequest = Union[TrainingRunArgs, LoraTrainingConfig, TextRunConfig]
 
 
-def build_training_request(values: TrainPageFieldValues) -> TrainingRequest:
-    """Raises ``ValueError`` with a user-facing message on invalid input."""
+def build_training_request(values: TrainPageFieldValues, pipeline: Any = None) -> TrainingRequest:
+    """
+    Raises ``ValueError`` with a user-facing message on invalid input.
+
+    *pipeline* supplies ``text_classification`` defaults (default: the active pipeline).
+    """
     if values.model_type == ModelType.IMAGE_GENERATION_LORA:
         return _build_lora_config(values)
+    if values.model_type == ModelType.TEXT_CLASSIFICATION:
+        if pipeline is None:
+            from mb.pipeline_config import get_pipeline_config
+
+            pipeline = get_pipeline_config()
+        return _build_text_config(values, pipeline)
     return _build_classification_run_args(values)
+
+
+def _parse_optional_seed(text: str) -> Optional[int]:
+    raw = text.strip()
+    if not raw:
+        return None
+    try:
+        return int(raw)
+    except ValueError:
+        raise ValueError(_("Seed must be an integer.")) from None
+
+
+def _build_text_config(values: TrainPageFieldValues, pipeline: Any) -> TextRunConfig:
+    overrides = {
+        "data_dir": values.data_dir_text.strip() or None,
+        "runs_dir": values.output_dir_text.strip() or None,
+        "backend": values.text_backend.strip() or None,
+        "model_id": values.architecture_text.strip() or None,
+        "seed": _parse_optional_seed(values.seed_text),
+        "optim.epochs": values.text_epochs if values.text_epochs > 0 else None,
+        "optim.lr": values.text_learning_rate if values.text_learning_rate > 0 else None,
+        "optim.batch_size": values.batch_size if values.batch_size > 0 else None,
+    }
+    config = resolve_text_run_config(pipeline, overrides)
+    if not (config.data_dir / DATASET_FILE).is_file():
+        raise ValueError(
+            _("No {file} in the data directory: {path}").format(file=DATASET_FILE, path=config.data_dir)
+        )
+    return config
 
 
 def _build_classification_run_args(values: TrainPageFieldValues) -> TrainingRunArgs:
@@ -153,15 +201,7 @@ def _build_lora_config(values: TrainPageFieldValues) -> LoraTrainingConfig:
             )
         )
 
-    seed_raw = values.seed_text.strip()
-    seed: Optional[int]
-    if seed_raw:
-        try:
-            seed = int(seed_raw)
-        except ValueError:
-            raise ValueError(_("Seed must be an integer.")) from None
-    else:
-        seed = None
+    seed = _parse_optional_seed(values.seed_text)
 
     rank = values.lora_rank
     alpha = values.lora_alpha if values.lora_alpha > 0 else rank

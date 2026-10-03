@@ -21,6 +21,7 @@ subcommands (see :func:`resolve_create_dataset_cli`, :func:`resolve_model_type_c
 
 from __future__ import annotations
 
+import copy
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Sequence
@@ -35,6 +36,8 @@ from mb.models.types import (
     ModelType,
 )
 from mb.utils.constants import DatasetSplitMode
+from mb.training.text_config import PIPELINE_SECTION as TEXT_PIPELINE_SECTION
+from mb.training.text_config import TEXT_CLASSIFICATION_DEFAULTS
 from mb.utils.logging_setup import get_logger
 
 logger = get_logger("mb.pipeline_config")
@@ -42,7 +45,7 @@ logger = get_logger("mb.pipeline_config")
 _MB_ROOT = Path(__file__).resolve().parent
 DEFAULT_PIPELINE_YAML = _MB_ROOT / "config" / "default_pipeline.yaml"
 
-_PIPELINE_KEYS = frozenset({"model", "data", "training", "paths"})
+_PIPELINE_KEYS = frozenset({"model", "data", "training", "paths", TEXT_PIPELINE_SECTION})
 PIPELINE_ROOT_KEYS = _PIPELINE_KEYS
 
 _global_pipeline: Optional["PipelineConfig"] = None
@@ -250,6 +253,8 @@ class PipelineConfig:
                 "models_dir": "data/models",
                 "logs_dir": "logs",
             },
+            # Validated strictly when used (see mb.training.text_config), not coerced here.
+            TEXT_PIPELINE_SECTION: copy.deepcopy(TEXT_CLASSIFICATION_DEFAULTS),
         }
 
     def load_from_file(self, config_path: Path) -> None:
@@ -588,10 +593,10 @@ def default_pipeline_yaml_dict() -> Dict[str, Any]:
 
 def save_pipeline_yaml(path: Path, pipeline_config: Dict[str, Any]) -> None:
     """
-    Persist ``model`` / ``data`` / ``training`` / ``paths``.
+    Persist ``model`` / ``data`` / ``training`` / ``paths`` / ``text_classification``.
 
     If *path* already exists and contains other top-level YAML keys (e.g. legacy
-    combined ``gui`` + pipeline), only those four keys are updated.
+    combined ``gui`` + pipeline), only the pipeline keys are updated.
     """
     path.parent.mkdir(parents=True, exist_ok=True)
     subset = {k: pipeline_config[k] for k in _PIPELINE_KEYS if k in pipeline_config}

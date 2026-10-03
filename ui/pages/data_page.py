@@ -1217,6 +1217,13 @@ class DataPage(QWidget):
             }
         if command == ModelBuildStepCommand.CREATE_DATASET:
             mt = ModelType.from_pipeline_value(self.dataset_model_type.currentText())
+            if mt == ModelType.TEXT_CLASSIFICATION:
+                raise ValueError(
+                    _(
+                        "Text classification datasets are prepared outside mb as a dataset.tsv "
+                        "with a fixed split column; check one on the Text page (Verify)."
+                    )
+                )
             raw_data_dir = self._pipeline_raw_path()
             data_dir = Path(self.dataset_data_dir.text().strip() or "data")
             if not raw_data_dir.exists():

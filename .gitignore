@@ -1,4 +1,5 @@
 .cursorignore
+data/*
 raw_data/*
 timing_data/
 configs/*

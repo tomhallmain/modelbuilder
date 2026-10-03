@@ -335,6 +335,105 @@ class EvaluateSubcommand(str, Enum):
             return None
 
 
+class TextSubcommand(str, Enum):
+    """``mb text <subcommand>`` — text-classification operations other than training."""
+
+    VERIFY = "verify"
+    """Dataset integrity checks (hashes, counts, uniqueness, group/split isolation)."""
+    EVALUATE = "evaluate"
+    """Re-run thresholds, metrics and reports for an existing run directory."""
+    SCORE = "score"
+    """Score one string per input line with a run's calibrated model."""
+    COMPARE = "compare"
+    """Tabulate headline metrics across run directories."""
+
+    @classmethod
+    def try_from(cls, raw: object) -> TextSubcommand | None:
+        if raw is None:
+            return None
+        s = str(raw).strip().lower()
+        try:
+            return cls(s)
+        except ValueError:
+            return None
+
+
+class TextBackendType(str, Enum):
+    """
+    ``text_classification.backend`` — model family for a text-classification run.
+
+    Implementations are registered in :mod:`mb.models.text_backends`. Within a family the
+    concrete model is ``text_classification.model_id``, so a new model needs config only.
+    """
+
+    CHAR_NGRAM_LINEAR = "char_ngram_linear"
+    """TF-IDF over character n-grams + logistic regression (CPU, scikit-learn)."""
+    EMBEDDING_PROBE = "embedding_probe"
+    """Frozen sentence-embedding model + a trained linear or MLP head."""
+    ENCODER_FINETUNE = "encoder_finetune"
+    """Full fine-tune of a Hugging Face encoder with a one-logit classification head."""
+
+    @classmethod
+    def get_default(cls) -> TextBackendType:
+        """Default backend (matches packaged :file:`mb/config/default_pipeline.yaml`)."""
+        return cls.CHAR_NGRAM_LINEAR
+
+    @classmethod
+    def try_from(cls, raw: object) -> TextBackendType | None:
+        if raw is None:
+            return None
+        if isinstance(raw, TextBackendType):
+            return raw
+        s = str(raw).strip().lower()
+        try:
+            return cls(s)
+        except ValueError:
+            return None
+
+
+class TextCalibrationMethod(str, Enum):
+    """``text_classification.calibration`` — how raw scores are calibrated on ``val``."""
+
+    AUTO = "auto"
+    """The backend's own default: temperature for neural backends, Platt for linear ones."""
+    TEMPERATURE = "temperature"
+    PLATT = "platt"
+    ISOTONIC = "isotonic"
+
+    @classmethod
+    def try_from(cls, raw: object) -> TextCalibrationMethod | None:
+        if raw is None:
+            return None
+        if isinstance(raw, TextCalibrationMethod):
+            return raw
+        s = str(raw).strip().lower()
+        try:
+            return cls(s)
+        except ValueError:
+            return None
+
+
+class TextThresholdPolicy(str, Enum):
+    """``text_classification.threshold_policy.kind`` — which stored threshold is the decision one."""
+
+    PRECISION_TARGET = "precision_target"
+    """Lowest threshold whose val-gold precision reaches the target."""
+    RECALL_TARGET = "recall_target"
+    """Highest threshold whose val-gold recall reaches the target."""
+
+    @classmethod
+    def try_from(cls, raw: object) -> TextThresholdPolicy | None:
+        if raw is None:
+            return None
+        if isinstance(raw, TextThresholdPolicy):
+            return raw
+        s = str(raw).strip().lower()
+        try:
+            return cls(s)
+        except ValueError:
+            return None
+
+
 class ConversionTargetFormat(str, Enum):
     """``mb convert --target`` output format."""
 
@@ -404,6 +503,10 @@ class ModelType(str, Enum):
     # and evaluation). ``mb data create-dataset``/``mb train`` support this type; ``mb
     # evaluate``/``mb convert``/``mb export`` still reject or ignore it (not yet wired).
     IMAGE_GENERATION_LORA = "image_generation_lora"
+    # Binary classifier over short strings, trained from a labelled TSV (no image data steps).
+    # Configured by the pipeline's ``text_classification`` section; trained by ``mb train``,
+    # checked/evaluated/scored/compared by ``mb text`` (see mb.training.text_trainer).
+    TEXT_CLASSIFICATION = "text_classification"
 
     @classmethod
     def from_pipeline_value(cls, value: Optional[object]) -> ModelType:

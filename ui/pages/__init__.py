@@ -8,6 +8,7 @@ from ui.pages.export_page import ExportPage
 from ui.pages.home_page import HomePage
 from ui.pages.info_page import InfoPage
 from ui.pages.pipeline_config_page import PipelineConfigPage
+from ui.pages.text_page import TextPage
 from ui.pages.train_page import TrainPage
 
 __all__ = [
@@ -17,6 +18,7 @@ __all__ = [
     "ConvertPage",
     "ExportPage",
     "EvaluatePage",
+    "TextPage",
     "ConfigPage",
     "PipelineConfigPage",
     "InfoPage",

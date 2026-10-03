@@ -145,3 +145,64 @@ def test_lora_valid_seed_parsed() -> None:
     request = build_training_request(_lora_values(seed_text="42"))
     assert isinstance(request, LoraTrainingConfig)
     assert request.seed == 42
+
+
+class _FakePipeline:
+    def __init__(self, section: dict) -> None:
+        self._section = section
+
+    def get(self, key: str, default=None):
+        return self._section if key == "text_classification" else default
+
+
+def _text_values(data_dir: Path, **overrides) -> TrainPageFieldValues:
+    defaults = dict(
+        model_type=ModelType.TEXT_CLASSIFICATION,
+        framework_text="pytorch",
+        architecture_text="",
+        data_dir_text=str(data_dir),
+        output_dir_text="",
+        batch_size=0,
+        image_size=224,
+        num_workers=0,
+    )
+    defaults.update(overrides)
+    return TrainPageFieldValues(**defaults)
+
+
+def _text_pipeline(**section) -> _FakePipeline:
+    from mb.training.text_config import TEXT_CLASSIFICATION_DEFAULTS
+
+    return _FakePipeline({**TEXT_CLASSIFICATION_DEFAULTS, **section})
+
+
+def test_text_builds_config_from_pipeline_and_overrides(tmp_path: Path) -> None:
+    from mb.models.types import TextBackendType
+    from mb.training.text_config import TextRunConfig
+
+    (tmp_path / "dataset.tsv").write_text("text\tlabel\tsplit\n", encoding="utf-8")
+    values = _text_values(
+        tmp_path,
+        architecture_text="some/encoder",
+        text_backend=TextBackendType.ENCODER_FINETUNE.value,
+        text_epochs=2,
+        batch_size=32,
+        seed_text="5",
+    )
+    cfg = build_training_request(values, _text_pipeline(runs_dir="runs_here"))
+    assert isinstance(cfg, TextRunConfig)
+    assert cfg.backend == TextBackendType.ENCODER_FINETUNE
+    assert (cfg.model_id, cfg.optim.epochs, cfg.optim.batch_size, cfg.seed) == ("some/encoder", 2, 32, 5)
+    assert cfg.optim.lr is None
+    assert cfg.runs_dir == Path("runs_here")
+
+
+def test_text_missing_dataset_file_raises(tmp_path: Path) -> None:
+    with pytest.raises(ValueError):
+        build_training_request(_text_values(tmp_path), _text_pipeline())
+
+
+def test_text_invalid_pipeline_section_raises(tmp_path: Path) -> None:
+    (tmp_path / "dataset.tsv").write_text("text\tlabel\tsplit\n", encoding="utf-8")
+    with pytest.raises(ValueError):
+        build_training_request(_text_values(tmp_path), _text_pipeline(bogus=1))

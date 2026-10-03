@@ -70,3 +70,56 @@ training:
 paths:
   models_dir: data/models
   logs_dir: logs
+
+# Text classification (model.default_type: text_classification). Trained with
+# `mb train --model-type text_classification`; checked/evaluated/scored/compared with `mb text`.
+# Unlike the sections above, unknown keys and invalid values here are errors, not defaults.
+text_classification:
+  # Directory with dataset.tsv (text, label, split; optional tier, source, category_hint,
+  # group, stage7_score) plus optional manifest.json, label_conflicts.tsv, unlabeled_cut.tsv.
+  data_dir: text_classifier_training_set
+  # Each run writes <runs_dir>/<timestamp>_<backend>_<model-slug>/.
+  runs_dir: data/models/text_runs
+  # char_ngram_linear | embedding_probe | encoder_finetune
+  backend: char_ngram_linear
+  # Hugging Face id or local path; null = the backend's default (none for char_ngram_linear).
+  model_id: null
+  seed: 13
+  # Token limit for subword models; rows longer than this are counted and reported.
+  max_length: 64
+  # none | balanced | {0: w0, 1: w1}
+  class_weight: balanced
+  # Per-tier loss multiplier, e.g. {keep_unreviewed: 0.5}; unlisted tiers get 1.0.
+  tier_weight: {}
+  # Drop label_conflicts.tsv groups from training and from every metric.
+  exclude_conflicts: true
+  # null, or keep this many train keep_unreviewed rows per train positive (val/test untouched).
+  subsample_keep_unreviewed: null
+  # Tiers forming the human-read "gold" evaluation set (the headline metrics).
+  gold_tiers: [reject_reviewed, keep_reviewed]
+  optim:
+    # null = backend default.
+    lr: null
+    epochs: null
+    batch_size: null
+    warmup_ratio: 0.06
+    weight_decay: 0.01
+  early_stopping:
+    metric: val_ap
+    patience: 2
+  # auto (temperature for neural backends, platt for linear) | temperature | platt | isotonic
+  calibration: auto
+  # kind picks the decision threshold; both policies are chosen on val gold at `value`.
+  threshold_policy:
+    kind: precision_target
+    value: 0.9
+  reports:
+    # Highest-scoring keep_unreviewed rows (all splits) written as a review queue; 0 disables.
+    review_queue_size: 200
+    rescore_unlabeled_cut: true
+  # Markdown placed in MODEL_CARD.md under "Intended use and label policy".
+  model_card_notes: ""
+  # null = cuda when available, else cpu.
+  device: null
+  # Backend-specific settings (each backend rejects keys it does not know).
+  backend_options: {}

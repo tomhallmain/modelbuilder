@@ -45,6 +45,40 @@ mb convert --input model.pth --output model.onnx --target onnx \
 
 Use `mb --help` and `mb <subcommand> --help` for full flags. Config precedence: defaults → YAML (e.g. `configs/default.yaml`) → CLI.
 
+## Quick start (text classification)
+
+Binary classifiers over short strings, trained from a labelled `dataset.tsv` (`text`,
+`label`, `split`; optional `tier`, `source`, `category_hint`, `group`, `stage7_score`) plus an
+optional `manifest.json`, `label_conflicts.tsv` and `unlabeled_cut.tsv`. Everything is
+configured by the pipeline YAML's `text_classification` section (see
+`mb/config/text_classification.example.yaml`); unknown keys there are errors.
+
+On Windows, PyPI only has CPU builds of torch. If installing an extra makes pip upgrade torch
+(e.g. to satisfy a newer `transformers`), a CUDA build is silently replaced by a CPU one. Check
+afterwards with `python -c "import torch; print(torch.version.cuda, torch.cuda.is_available())"`
+and, if needed, restore CUDA without touching other packages:
+`pip install --force-reinstall --no-deps torch torchvision --index-url https://download.pytorch.org/whl/cu128`
+(choose the CUDA tag for your driver at https://pytorch.org/get-started/locally/).
+
+```bash
+pip install -e ".[text]"            # char_ngram_linear (CPU)
+pip install -e ".[pytorch,text]"    # also embedding_probe / encoder_finetune
+
+mb --config my_text_pipeline.yaml text verify     # hashes, counts, uniqueness, group/split isolation
+mb --config my_text_pipeline.yaml train           # model.default_type: text_classification
+mb train --model-type text_classification --text-backend encoder_finetune \
+    --text-model-id answerdotai/ModernBERT-base --epochs 3
+mb text evaluate --model data/models/text_runs/<run>
+mb text score --model data/models/text_runs/<run> --input lines.txt --output scores.tsv
+mb text compare "data/models/text_runs/*"
+```
+
+Each run writes `<runs_dir>/<timestamp>_<backend>_<model>/` with `config.yaml`,
+`environment.json`, `model/`, `calibrator.json`, `thresholds.json`, `metrics.json`,
+`predictions_test.tsv`, `review_queue.tsv`, `cut_rescore.tsv`, `extra_reports.json` and
+`MODEL_CARD.md`. In the GUI: Train page (model type `text_classification`), Text page
+(verify/evaluate/score/compare), Pipeline page (Text classification tab).
+
 ## Architectures (examples)
 
 ```bash

@@ -43,6 +43,7 @@ from mb.models.types import (
     LabelMode,
     ModelBuildStepCommand,
     ModelType,
+    TextSubcommand,
 )
 
 logger = get_logger(__name__)
@@ -217,6 +218,15 @@ def handle_data_create_dataset(args):
 
         if mt == ModelType.IMAGE_GENERATION:
             logger.error(_("Image generation dataset creation is not implemented yet."))
+            return 1
+
+        if mt == ModelType.TEXT_CLASSIFICATION:
+            logger.error(
+                _(
+                    "Text classification datasets are prepared outside mb as a dataset.tsv "
+                    "with a fixed split column; check one with `mb text verify`."
+                )
+            )
             return 1
 
         from mb.utils.storage import check_target_external_storage, check_same_drive
@@ -406,6 +416,10 @@ def handle_train(args):
             from mb.training.lora_diffusion_trainer import run_train_image_generation_lora_cli
 
             return run_train_image_generation_lora_cli(args, pipeline)
+        if mt == ModelType.TEXT_CLASSIFICATION:
+            from mb.training.text_trainer import run_train_text_classification_cli
+
+            return run_train_text_classification_cli(args, pipeline)
         if mt != ModelType.IMAGE_CLASSIFICATION:
             logger.error(_("Unsupported model type: {t}").format(t=mt.value))
             return 1
@@ -688,6 +702,95 @@ def handle_evaluate_compare(args) -> int:
     return run_evaluate_compare_cli(args)
 
 
+def _text_data_dir_default() -> Path:
+    from mb.training.text_config import TEXT_CLASSIFICATION_DEFAULTS
+
+    raw = get_pipeline_config().get("text_classification.data_dir")
+    return Path(str(raw).strip() if raw else TEXT_CLASSIFICATION_DEFAULTS["data_dir"])
+
+
+def handle_text_verify(args) -> int:
+    """Handle ``mb text verify``."""
+    from mb.data.text_dataset import verify_text_dataset
+
+    reload_pipeline_config(getattr(args, "config", None), force=True)
+    data_dir = args.data_dir or _text_data_dir_default()
+    if not data_dir.is_dir():
+        logger.error(_("Data directory not found: {path}").format(path=data_dir))
+        return 1
+    report = verify_text_dataset(data_dir, progress=lambda m: logger.info(m))
+    print(report.format())
+    return 0 if report.ok else 1
+
+
+def handle_text_evaluate(args) -> int:
+    """Handle ``mb text evaluate``."""
+    from mb.evaluate.classification.text_evaluation import METRICS_FILE, evaluate_text_run
+
+    try:
+        result = evaluate_text_run(args.model, data_dir=args.data_dir, device=args.device)
+    except (FileNotFoundError, ValueError, ImportError) as e:
+        logger.error(str(e))
+        return 1
+    gold = result.metrics["test"]["gold"]
+    full = result.metrics["test"]["full"]
+    print(
+        _("Test gold AP: {g} — full AP: {f} — decision threshold: {t:.4f}").format(
+            g="-" if gold.get("ap") is None else f"{gold['ap']:.4f}",
+            f="-" if full.get("ap") is None else f"{full['ap']:.4f}",
+            t=result.thresholds.decision,
+        )
+    )
+    print(_("Wrote {path}").format(path=result.run_dir / METRICS_FILE))
+    return 0
+
+
+def handle_text_score(args) -> int:
+    """Handle ``mb text score``."""
+    from mb.evaluate.classification.text_evaluation import score_text_file
+
+    if not args.input.is_file():
+        logger.error(_("Input file not found: {path}").format(path=args.input))
+        return 1
+    try:
+        result = score_text_file(args.model, args.input, args.output, device=args.device)
+    except (FileNotFoundError, ValueError, ImportError) as e:
+        logger.error(str(e))
+        return 1
+    logger.info(
+        _("Scored {n} lines -> {path}").format(n=result.n_lines, path=result.output)
+    )
+    return 0
+
+
+def handle_text_compare(args) -> int:
+    """Handle ``mb text compare``."""
+    import glob
+
+    from mb.evaluate.classification.text_evaluation import compare_text_runs, format_compare_table
+
+    dirs: List[Path] = []
+    for pattern in args.runs:
+        matches = sorted(glob.glob(pattern)) if glob.has_magic(pattern) else [pattern]
+        dirs.extend(Path(m) for m in matches if Path(m).is_dir())
+    rows, skipped = compare_text_runs(dirs)
+    for d in skipped:
+        logger.warning(_("Skipped (no metrics.json): {path}").format(path=d))
+    if not rows:
+        logger.error(_("No run directories with metrics.json were found."))
+        return 1
+    print(format_compare_table(rows))
+    return 0
+
+
+_TEXT_HANDLERS = {
+    TextSubcommand.VERIFY: handle_text_verify,
+    TextSubcommand.EVALUATE: handle_text_evaluate,
+    TextSubcommand.SCORE: handle_text_score,
+    TextSubcommand.COMPARE: handle_text_compare,
+}
+
+
 _EVALUATE_HANDLERS = {
     EvaluateSubcommand.METRICS: handle_evaluate_metrics,
     EvaluateSubcommand.MISCLASSIFIED: handle_evaluate_misclassified,
@@ -711,6 +814,17 @@ def main(args: Optional[list] = None) -> int:
     # Set up logging
     log_level = logging.DEBUG if parsed_args.verbose else logging.INFO
     setup_logging(script_name="mb", log_level=log_level)
+
+    # An explicitly named config that is missing would otherwise fall back to the packaged
+    # defaults with only a warning, and the command would run with settings the user never chose.
+    config_path = getattr(parsed_args, "config", None)
+    if config_path is not None and not config_path.is_file():
+        logger.error(
+            _("Config file not found: {path} (relative paths resolve from {cwd})").format(
+                path=config_path, cwd=Path.cwd()
+            )
+        )
+        return 1
 
     # Handle commands
     if not parsed_args.command:
@@ -782,6 +896,17 @@ def main(args: Optional[list] = None) -> int:
                 logger.error(_("Unknown evaluate subcommand: {cmd}").format(cmd=raw_ev))
                 return 1
             return _EVALUATE_HANDLERS[ev_sub](parsed_args)
+
+        elif parsed_args.command == ModelBuilderTaskType.TEXT.value:
+            raw_text = parsed_args.text_command
+            if not raw_text:
+                logger.error(_("No text subcommand specified"))
+                return 1
+            text_sub = TextSubcommand.try_from(raw_text)
+            if text_sub is None:
+                logger.error(_("Unknown text subcommand: {cmd}").format(cmd=raw_text))
+                return 1
+            return _TEXT_HANDLERS[text_sub](parsed_args)
 
         else:
             logger.error(_("Unknown command: {cmd}").format(cmd=parsed_args.command))

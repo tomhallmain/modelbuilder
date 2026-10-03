@@ -5,8 +5,12 @@
 #   pip install -e ".[keras]"            # TensorFlow for Keras trainer
 #   pip install -e ".[transformers]"     # Hugging Face backbones (siglip2_base_patch16_*)
 #   pip install -e ".[lora]"             # image-generation LoRA training (mb train --model-type image_generation_lora)
+#   pip install -e ".[text]"             # text classification (mb train --model-type text_classification)
 #   pip install -e ".[all]"              # everything above
 
+# On Windows, PyPI torch wheels are CPU-only; for a GPU, install a CUDA build from
+# https://pytorch.org/get-started/locally/ first. A later install that upgrades torch from
+# PyPI (e.g. to satisfy a newer transformers) replaces it with a CPU build.
 torch>=2.0.0
 torchvision>=0.15.0
 
@@ -37,6 +41,14 @@ safetensors>=0.4.0
 # diffusers>=0.30.0 (Flux support; Stable Diffusion 1.x support is available in much older releases too)
 # peft>=0.10.0
 # transformers>=4.30.0
+
+# Text classification (mb train --model-type text_classification). char_ngram_linear needs
+# only scikit-learn/scipy (CPU); embedding_probe and encoder_finetune also need torch above.
+# 4.48.0 is the first transformers release with ModernBERT (the encoder_finetune default).
+# DeBERTa-v3 tokenizers additionally need sentencepiece.
+# scikit-learn>=1.3.0
+# scipy>=1.10.0
+# transformers>=4.48.0
 
 # Advanced / rarely needed
 # onnx-tf>=1.10.0

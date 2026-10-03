@@ -191,3 +191,35 @@ def test_train_page_lora_collect_and_restore_gui_state_roundtrip(qtbot, tmp_path
     assert page2.learning_rate.value() == pytest.approx(5e-5)
     assert page2.max_train_steps.value() == 500
     assert page2.seed.text() == "123"
+
+
+@pytest.mark.ui
+def test_train_page_text_mode_shows_text_fields_only(qtbot) -> None:
+    page = TrainPage()
+    qtbot.addWidget(page)
+    page.show()
+    page.model_type.setCurrentIndex(page.model_type.findText(ModelType.TEXT_CLASSIFICATION.value))
+
+    assert page._text_group.isVisible()
+    assert not page._hp_group.isVisible()
+    assert not page._lora_group.isVisible()
+    assert not page.framework.isVisible()
+    assert not page.image_size.isVisible()
+    assert not page.num_workers.isVisible()
+    assert not page.train_subprocess.isVisible()
+
+
+@pytest.mark.ui
+def test_train_page_text_validate_enables_start_with_dataset(
+    qtbot, english_gui_locale, tmp_path
+) -> None:
+    from tests.fixtures.text_dataset import write_text_dataset
+
+    data_dir = write_text_dataset(tmp_path / "ds")
+    page = TrainPage()
+    qtbot.addWidget(page)
+    page.model_type.setCurrentIndex(page.model_type.findText(ModelType.TEXT_CLASSIFICATION.value))
+    page.data_dir.setText(str(data_dir))
+    page.output_dir.setText(str(tmp_path / "runs"))
+    qtbot.mouseClick(page.btn_validate, Qt.MouseButton.LeftButton)
+    assert page.btn_start.isEnabled()

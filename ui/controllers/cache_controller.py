@@ -32,6 +32,7 @@ _PAGE_KEYS = (
     ModelBuilderTaskType.CONVERT.value,
     ModelBuilderTaskType.EXPORT.value,
     ModelBuilderTaskType.EVALUATE.value,
+    ModelBuilderTaskType.TEXT.value,
     "config",
     "pipeline",
     ModelBuilderTaskType.INFO.value,

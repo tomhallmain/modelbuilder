@@ -24,10 +24,11 @@ from PySide6.QtWidgets import (
 )
 
 from mb.models.generation_architectures import BaseGenerationArchitecture
-from mb.models.types import ArchitectureType, FrameworkType, LabelMode, ModelType
+from mb.models.types import ArchitectureType, FrameworkType, LabelMode, ModelType, TextBackendType
 from mb.pipeline_config import get_pipeline_config
 from mb.training.lora_diffusion_trainer import LoraTrainingConfig
 from mb.training.run_args import TrainingRunArgs
+from mb.training.text_config import TextRunConfig
 from mb.utils.logging_setup import setup_logging
 from ui.controllers.model_type_field_visibility import apply_model_type_field_visibility
 from ui.controllers.train_page_controller import TrainPageFieldValues, build_training_request
@@ -178,6 +179,30 @@ class TrainPage(QWidget):
         lora_form.addRow(_("Seed"), self.seed)
         root.addWidget(lora_group)
 
+        # text_classification: values left at their "config" setting fall through to the
+        # pipeline's text_classification section; the Architecture field holds the model id.
+        text_group = QGroupBox()
+        self._text_group = text_group
+        text_form = QFormLayout(text_group)
+        self._text_form = text_form
+        self.text_backend = QComboBox()
+        self.text_backend.setObjectName("train_text_backend_combo")
+        self.text_backend.addItem(_("Config default"), "")
+        for backend in TextBackendType:
+            self.text_backend.addItem(backend.value, backend.value)
+        self.text_epochs = QSpinBox()
+        self.text_epochs.setRange(0, 10000)
+        self.text_epochs.setSpecialValueText(_("Config default"))
+        self.text_learning_rate = self._lr_spin(0.0)
+        self.text_learning_rate.setSpecialValueText(_("Config default"))
+        self.text_seed = QLineEdit()
+        self.text_seed.setPlaceholderText(_("optional, integer (default: config)"))
+        text_form.addRow(_("Backend"), self.text_backend)
+        text_form.addRow(_("Epochs"), self.text_epochs)
+        text_form.addRow(_("Learning rate"), self.text_learning_rate)
+        text_form.addRow(_("Seed"), self.text_seed)
+        root.addWidget(text_group)
+
         actions = QHBoxLayout()
         self.btn_validate = QPushButton(_("Validate Training Config"))
         self.btn_validate.setObjectName("train_validate_btn")
@@ -198,6 +223,7 @@ class TrainPage(QWidget):
 
         self.model_type.currentIndexChanged.connect(self._on_model_type_changed)
         self.framework.currentTextChanged.connect(self._refresh_architecture_hint)
+        self.text_backend.currentIndexChanged.connect(self._on_text_backend_changed)
         self.btn_validate.clicked.connect(self._validate_inputs)
         self.btn_start.clicked.connect(self._start_training)
 
@@ -261,6 +287,15 @@ class TrainPage(QWidget):
                 _("Seed"),
             ],
         )
+        self._text_group.setTitle(_("Hyperparameters (text classification)"))
+        apply_qform_label_column(
+            self._text_form,
+            [_("Backend"), _("Epochs"), _("Learning rate"), _("Seed")],
+        )
+        self.text_backend.setItemText(0, _("Config default"))
+        self.text_epochs.setSpecialValueText(_("Config default"))
+        self.text_learning_rate.setSpecialValueText(_("Config default"))
+        self.text_seed.setPlaceholderText(_("optional, integer (default: config)"))
         self.base_model_architecture.setItemText(0, _("Auto-detect"))
         self.lora_alpha.setSpecialValueText(_("Same as rank"))
         self.seed.setPlaceholderText(_("optional, integer"))
@@ -327,6 +362,10 @@ class TrainPage(QWidget):
             "learning_rate": float(self.learning_rate.value()),
             "max_train_steps": int(self.max_train_steps.value()),
             "seed": self.seed.text(),
+            "text_backend": self.text_backend.currentData(),
+            "text_epochs": int(self.text_epochs.value()),
+            "text_learning_rate": float(self.text_learning_rate.value()),
+            "text_seed": self.text_seed.text(),
         }
 
     def restore_gui_state(self, state: dict) -> None:
@@ -414,6 +453,18 @@ class TrainPage(QWidget):
             if isinstance(lr, (int, float)):
                 self.learning_rate.setValue(float(lr))
             self.seed.setText(str(state.get("seed", "")))
+            tb = state.get("text_backend")
+            if isinstance(tb, str):
+                tbix = self.text_backend.findData(tb)
+                if tbix >= 0:
+                    self.text_backend.setCurrentIndex(tbix)
+            te = state.get("text_epochs")
+            if isinstance(te, int):
+                self.text_epochs.setValue(te)
+            tlr = state.get("text_learning_rate")
+            if isinstance(tlr, (int, float)):
+                self.text_learning_rate.setValue(float(tlr))
+            self.text_seed.setText(str(state.get("text_seed", "")))
         except Exception:
             pass
         finally:
@@ -505,8 +556,10 @@ class TrainPage(QWidget):
     def _apply_model_type_visibility(self) -> None:
         model_type = self._current_model_type()
         is_lora = model_type == ModelType.IMAGE_GENERATION_LORA
-        self._hp_group.setVisible(not is_lora)
+        is_text = model_type == ModelType.TEXT_CLASSIFICATION
+        self._hp_group.setVisible(not is_lora and not is_text)
         self._lora_group.setVisible(is_lora)
+        self._text_group.setVisible(is_text)
         visibility = {
             widget: (
                 ModelType.IMAGE_CLASSIFICATION,
@@ -517,6 +570,10 @@ class TrainPage(QWidget):
         }
         # Narrower than the rest: only classification has a notion of labels per image.
         visibility[self.label_mode] = (ModelType.IMAGE_CLASSIFICATION,)
+        # Text runs pick their framework through the backend and have no image inputs.
+        image_types = tuple(mt for mt in ModelType if mt != ModelType.TEXT_CLASSIFICATION)
+        for widget in (self.framework, self.image_size, self.num_workers):
+            visibility[widget] = image_types
         apply_model_type_field_visibility(self._core_form, model_type, visibility)
 
     def _on_model_type_changed(self) -> None:
@@ -529,14 +586,27 @@ class TrainPage(QWidget):
         (potentially heavyweight, e.g. PyTorch/Keras) architecture-listing trainer twice.
         """
         self._apply_model_type_visibility()
+        if self._current_model_type() == ModelType.TEXT_CLASSIFICATION:
+            self._prefill_text_paths()
         self._refresh_architecture_hint()
         self._validate_inputs()
+
+    def _prefill_text_paths(self) -> None:
+        """Swap untouched image defaults in the path fields for the pipeline's text paths."""
+        pc = get_pipeline_config()
+        if self.data_dir.text().strip() in ("", "data"):
+            self.data_dir.setText(str(pc.get("text_classification.data_dir") or ""))
+        if self.output_dir.text().strip() in ("", "data/models"):
+            self.output_dir.setText(str(pc.get("text_classification.runs_dir") or ""))
 
     def _refresh_architecture_hint(self) -> None:
         if self._current_model_type() == ModelType.IMAGE_GENERATION_LORA:
             self.architecture.setPlaceholderText(
                 _("local checkpoint path or hub id, e.g. black-forest-labs/FLUX.1-dev")
             )
+            return
+        if self._current_model_type() == ModelType.TEXT_CLASSIFICATION:
+            self._refresh_text_model_hint()
             return
         framework = self.framework.currentText()
         fw = FrameworkType.try_from(framework)
@@ -570,6 +640,23 @@ class TrainPage(QWidget):
                 )
             )
 
+    def _on_text_backend_changed(self) -> None:
+        if self._current_model_type() == ModelType.TEXT_CLASSIFICATION:
+            self._refresh_text_model_hint()
+
+    def _refresh_text_model_hint(self) -> None:
+        from mb.models.text_backends import get_backend_class
+
+        backend = TextBackendType.try_from(self.text_backend.currentData()) or TextBackendType.try_from(
+            get_pipeline_config().get("text_classification.backend")
+        )
+        default_id = get_backend_class(backend).default_model_id if backend is not None else None
+        self.architecture.setPlaceholderText(
+            _("model id (default: {model})").format(model=default_id)
+            if default_id
+            else _("not used by this backend")
+        )
+
     def _can_run(self) -> bool:
         try:
             self._collect_inputs()
@@ -577,7 +664,7 @@ class TrainPage(QWidget):
         except ValueError:
             return False
 
-    def _collect_inputs(self) -> Union[TrainingRunArgs, LoraTrainingConfig]:
+    def _collect_inputs(self) -> Union[TrainingRunArgs, LoraTrainingConfig, TextRunConfig]:
         values = TrainPageFieldValues(
             model_type=self._current_model_type(),
             framework_text=self.framework.currentText(),
@@ -602,7 +689,14 @@ class TrainPage(QWidget):
             lora_alpha=int(self.lora_alpha.value()),
             learning_rate=float(self.learning_rate.value()),
             max_train_steps=int(self.max_train_steps.value()),
-            seed_text=self.seed.text(),
+            seed_text=(
+                self.text_seed.text()
+                if self._current_model_type() == ModelType.TEXT_CLASSIFICATION
+                else self.seed.text()
+            ),
+            text_backend=str(self.text_backend.currentData() or ""),
+            text_epochs=int(self.text_epochs.value()),
+            text_learning_rate=float(self.text_learning_rate.value()),
         )
         return build_training_request(values)
 
@@ -630,13 +724,15 @@ class TrainPage(QWidget):
                         return
         request = self._collect_inputs()
         is_lora = isinstance(request, LoraTrainingConfig)
+        is_text = isinstance(request, TextRunConfig)
         args = request  # kept as `args` below for the (classification-only) detached-subprocess path
-        summary_base = (
-            f"image_generation_lora/{request.base_architecture.value}"
-            if is_lora
-            else f"{request.framework.value}/{request.architecture.value}"
-        )
-        if not is_lora and self.train_subprocess.isChecked():
+        if is_lora:
+            summary_base = f"image_generation_lora/{request.base_architecture.value}"
+        elif is_text:
+            summary_base = f"text_classification/{request.backend.value}"
+        else:
+            summary_base = f"{request.framework.value}/{request.architecture.value}"
+        if not is_lora and not is_text and self.train_subprocess.isChecked():
             self._append(f"[run] mb train — detached subprocess ({summary_base})")
             self._set_busy(True)
             try:
@@ -692,7 +788,12 @@ class TrainPage(QWidget):
         self._pending_train_summary = f"mb train ({summary_base})"
         self._pending_training_args = request
         self._set_busy(True)
-        worker = self._execute_training_lora if is_lora else self._execute_training_classification
+        if is_lora:
+            worker = self._execute_training_lora
+        elif is_text:
+            worker = self._execute_training_text
+        else:
+            worker = self._execute_training_classification
         handle = start_task(
             worker,
             self._on_training_success,
@@ -712,6 +813,17 @@ class TrainPage(QWidget):
         ctx.progress(_("Training LoRA adapter…"), None, True)
         output_dir = train_image_generation_lora(config, cancel_event=ctx.cancel_event)
         return str(output_dir)
+
+    def _execute_training_text(self, ctx: LongTaskContext, config: TextRunConfig) -> str:
+        from mb.training.text_trainer import train_text_classifier
+
+        setup_logging(script_name="train_gui")
+        run_dir = train_text_classifier(
+            config,
+            cancel_event=ctx.cancel_event,
+            progress=lambda m, p: ctx.progress(m, p),
+        )
+        return str(run_dir)
 
     def _execute_training_classification(self, ctx: LongTaskContext, args: TrainingRunArgs) -> str:
         from mb.training.trainer import ModelTrainer

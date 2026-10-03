@@ -75,6 +75,16 @@ setup(
             "transformers>=4.30.0",
             "safetensors>=0.4.0",
         ],
+        # Text classification (mb train --model-type text_classification). scikit-learn
+        # (with scipy) runs char_ngram_linear on CPU; the neural backends (embedding_probe,
+        # encoder_finetune) also need "pytorch". 4.48.0 is the first transformers release
+        # carrying ModernBERT, the encoder_finetune default.
+        "text": [
+            "scikit-learn>=1.3.0",
+            "scipy>=1.10.0",
+            "transformers>=4.48.0",
+            "safetensors>=0.4.0",
+        ],
         "post-quantum": [
             "liboqs-python @ git+https://github.com/open-quantum-safe/liboqs-python.git",
         ],
@@ -95,6 +105,8 @@ setup(
             "peft>=0.10.0",
             # 4.50.0 (SigLIP2) rather than the 4.30.0 the LoRA trainer alone needs.
             "transformers>=4.50.0",
+            "scikit-learn>=1.3.0",
+            "scipy>=1.10.0",
         ],
     },
     entry_points={
