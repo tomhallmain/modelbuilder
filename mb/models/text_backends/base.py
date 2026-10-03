@@ -13,7 +13,7 @@ import threading
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, ClassVar, Dict, List, Mapping, Optional, Sequence
+from typing import Any, Callable, ClassVar, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 
@@ -73,6 +73,15 @@ class TextBackend(ABC):
     default_batch_size: ClassVar[Optional[int]] = None
     # Allowed ``backend_options`` keys and their defaults.
     option_defaults: ClassVar[Dict[str, Any]] = {}
+    # Python source for the run's standalone ``predict.py``: defines
+    # ``load_model(model_dir, meta, device)`` returning an object whose
+    # ``predict_proba(texts)`` reproduces :meth:`predict_proba` with only the backend's
+    # third-party libraries (no ``mb`` import). It may use ``json``, ``Path``, ``np``,
+    # ``_sigmoid`` and ``_auto_device`` from the script's shared part; placeholders are
+    # filled from :meth:`standalone_values`.
+    standalone_template: ClassVar[str]
+    # pip packages ``predict.py`` needs besides numpy.
+    standalone_requirements: ClassVar[Tuple[str, ...]] = ()
 
     @classmethod
     def default_calibration(cls) -> TextCalibrationMethod:
@@ -91,6 +100,18 @@ class TextBackend(ABC):
                 )
             )
         return {**cls.option_defaults, **dict(raw)}
+
+    @classmethod
+    def standalone_values(cls) -> Dict[str, str]:
+        """Placeholder → Python literal substitutions for :attr:`standalone_template`."""
+        return {"__OPTION_DEFAULTS__": repr(cls.option_defaults)}
+
+    @classmethod
+    def standalone_source(cls) -> str:
+        src = cls.standalone_template
+        for key, value in cls.standalone_values().items():
+            src = src.replace(key, value)
+        return src
 
     @abstractmethod
     def fit(self, train: TextFitData, val: TextFitData, ctx: TextFitContext) -> Dict[str, Any]:

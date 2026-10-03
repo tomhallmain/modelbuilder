@@ -12,6 +12,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from mb.models.text_backends import get_backend_class
 from mb.training.text_config import TextRunConfig
 
 _CARD_FILE = "MODEL_CARD.md"
@@ -84,6 +85,24 @@ def write_model_card(
         f"- Max length: {config.max_length} tokens",
         f"- Calibration: `{config.calibration.value}` (fitted on val)",
         f"- Output: calibrated p(label = 1); flagged when p >= the decision threshold",
+        "",
+        "## Usage",
+        "",
+        "`predict.py` in this directory scores strings without `mb` installed. It needs "
+        + ", ".join(f"`{r}`" for r in ("numpy",) + tuple(get_backend_class(config.backend).standalone_requirements))
+        + ".",
+        "",
+        "```bash",
+        'python predict.py "some string" "another string"     # text, score, flagged',
+        "python predict.py --input lines.txt --output scores.tsv",
+        "```",
+        "",
+        "```python",
+        "from predict import load",
+        "clf = load()                     # run directory = the script's directory",
+        'clf.score(["some string"])       # calibrated p(label = 1)',
+        'clf.flag(["some string"])        # score >= decision threshold',
+        "```",
         "",
         "## Intended use and label policy",
         "",

@@ -65,6 +65,113 @@ class EmbeddingProbeBackend(TextBackend):
         "cache_embeddings": True,
     }
 
+    # The embedding model is loaded from the hub (or the local HF cache) by ``model_id``;
+    # only the head is stored in the run.
+    standalone_requirements = ("torch", "transformers", "safetensors")
+    standalone_template = '''
+_OPTION_DEFAULTS = __OPTION_DEFAULTS__
+
+
+class _EmbeddingProbe:
+    """Frozen embedding model + trained head (needs torch, transformers, safetensors)."""
+
+    def __init__(self, model_dir, meta, device):
+        import torch
+        import transformers
+        from safetensors.torch import load_file
+
+        self.torch = torch
+        self.options = o = {**_OPTION_DEFAULTS, **(meta.get("options") or {})}
+        self.device = _auto_device(device)
+        self.model_id = meta["model_id"]
+        self.tokenizer = transformers.AutoTokenizer.from_pretrained(self.model_id)
+        if self.tokenizer.pad_token is None and self.tokenizer.eos_token is not None:
+            self.tokenizer.pad_token = self.tokenizer.eos_token
+        dtype = torch.float16 if (self.device.startswith("cuda") and o["half_precision"]) else None
+        # transformers renamed ``torch_dtype`` to ``dtype`` in 4.56.
+        kwargs = {}
+        if dtype is not None:
+            major, minor = (int(x) for x in transformers.__version__.split(".")[:2])
+            kwargs = {"dtype" if (major, minor) >= (4, 56) else "torch_dtype": dtype}
+        self.encoder = transformers.AutoModel.from_pretrained(self.model_id, **kwargs).to(self.device)
+        self.encoder.eval()
+        revision = getattr(self.encoder.config, "_commit_hash", None)
+        saved = meta.get("model_revision")
+        if saved and revision and saved != revision:
+            print(
+                f"warning: {self.model_id} loaded at revision {revision}, "
+                f"but the head was trained on {saved}",
+                file=sys.stderr,
+            )
+        instr = str(o["instruction"])
+        self.prefix = str(o["prompt_format"]).replace("{instruction}", instr) if instr else "{text}"
+        empty = self.prefix.replace("{text}", "")
+        n_prefix = len(self.tokenizer(empty, add_special_tokens=False)["input_ids"])
+        self.token_limit = int(meta.get("max_length", 64)) + n_prefix
+        self.dim = int(meta["embedding_dim"])
+
+        nn = torch.nn
+        if o["head"] == "mlp":
+            hidden = int(o["mlp_hidden"])
+            self.head = nn.Sequential(
+                nn.Linear(self.dim, hidden),
+                nn.GELU(),
+                nn.Dropout(float(o["mlp_dropout"])),
+                nn.Linear(hidden, 1),
+            )
+        else:
+            self.head = nn.Sequential(nn.Linear(self.dim, 1))
+        self.head.load_state_dict(load_file(str(model_dir / __HEAD_FILE__)))
+        self.head.to(self.device).eval()
+
+    def _pool(self, hidden, mask):
+        torch = self.torch
+        pooling = self.options["pooling"]
+        if pooling == "cls":
+            return hidden[:, 0]
+        if pooling == "mean":
+            m = mask.unsqueeze(-1).to(hidden.dtype)
+            return (hidden * m).sum(1) / m.sum(1).clamp_min(1.0)
+        # last_token: the last attended position, whichever side the tokenizer pads on.
+        positions = torch.arange(mask.shape[1], device=mask.device).unsqueeze(0)
+        last = (mask * positions).argmax(dim=1)
+        return hidden[torch.arange(hidden.shape[0], device=hidden.device), last]
+
+    def predict_proba(self, texts):
+        torch = self.torch
+        bs = int(self.options["embed_batch_size"])
+        # Embeddings pass through float16, as during training.
+        emb = np.empty((len(texts), self.dim), dtype=np.float16)
+        with torch.inference_mode():
+            for start in range(0, len(texts), bs):
+                prompts = [self.prefix.replace("{text}", t) for t in texts[start : start + bs]]
+                enc = self.tokenizer(
+                    prompts,
+                    padding=True,
+                    truncation=True,
+                    max_length=self.token_limit,
+                    return_tensors="pt",
+                ).to(self.device)
+                hidden = self.encoder(**enc).last_hidden_state
+                vec = self._pool(hidden, enc["attention_mask"]).float()
+                if self.options["normalize"]:
+                    vec = torch.nn.functional.normalize(vec, dim=-1)
+                emb[start : start + vec.shape[0]] = vec.cpu().numpy()
+            out = np.empty(len(texts), dtype=np.float64)
+            for start in range(0, len(emb), 65_536):
+                x = torch.as_tensor(np.asarray(emb[start : start + 65_536], dtype=np.float32), device=self.device)
+                out[start : start + len(x)] = torch.sigmoid(self.head(x)[:, 0]).cpu().numpy()
+        return out
+
+
+def load_model(model_dir, meta, device):
+    return _EmbeddingProbe(model_dir, meta, device)
+'''
+
+    @classmethod
+    def standalone_values(cls) -> Dict[str, str]:
+        return {**super().standalone_values(), "__HEAD_FILE__": repr(_HEAD_FILE)}
+
     def __init__(self) -> None:
         self.options: Dict[str, Any] = dict(self.option_defaults)
         self.model_id: Optional[str] = None

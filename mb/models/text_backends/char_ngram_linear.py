@@ -65,6 +65,66 @@ class CharNgramLinearBackend(TextBackend):
         "solver": "liblinear",
     }
 
+    standalone_requirements = ("scikit-learn", "scipy")
+    standalone_template = '''
+_OPTION_DEFAULTS = __OPTION_DEFAULTS__
+_PREDICT_CHUNK = __PREDICT_CHUNK__
+
+
+class _CharNgramLinear:
+    """TF-IDF over character n-grams + logistic regression (needs scikit-learn, scipy)."""
+
+    def __init__(self, model_dir, meta):
+        from sklearn.feature_extraction.text import CountVectorizer
+
+        o = {**_OPTION_DEFAULTS, **(meta.get("options") or {})}
+        terms = json.loads((model_dir / __VOCAB_FILE__).read_text(encoding="utf-8"))
+        self.counter = CountVectorizer(
+            analyzer="char_wb",
+            ngram_range=(int(o["ngram_min"]), int(o["ngram_max"])),
+            lowercase=False,
+            vocabulary={t: i for i, t in enumerate(terms)},
+            dtype=np.float32,
+        )
+        self.sublinear_tf = bool(o["sublinear_tf"])
+        self.idf = np.load(model_dir / __IDF_FILE__).astype(np.float32)
+        lin = np.load(model_dir / __LINEAR_FILE__)
+        self.coef = lin["coef"].astype(np.float64)
+        self.intercept = float(lin["intercept"][0])
+
+    def _features(self, texts):
+        import scipy.sparse as sp
+        from sklearn.preprocessing import normalize
+
+        x = self.counter.transform(texts).tocsr().astype(np.float32)
+        if self.sublinear_tf:
+            np.log(x.data, out=x.data)
+            x.data += 1.0
+        x = x @ sp.diags(self.idf)
+        return normalize(x, norm="l2", copy=False)
+
+    def predict_proba(self, texts):
+        out = np.empty(len(texts), dtype=np.float64)
+        for start in range(0, len(texts), _PREDICT_CHUNK):
+            chunk = texts[start : start + _PREDICT_CHUNK]
+            out[start : start + len(chunk)] = _sigmoid(self._features(chunk) @ self.coef + self.intercept)
+        return out
+
+
+def load_model(model_dir, meta, device):
+    return _CharNgramLinear(model_dir, meta)
+'''
+
+    @classmethod
+    def standalone_values(cls) -> Dict[str, str]:
+        return {
+            **super().standalone_values(),
+            "__PREDICT_CHUNK__": repr(_PREDICT_CHUNK),
+            "__VOCAB_FILE__": repr(_VOCAB_FILE),
+            "__IDF_FILE__": repr(_IDF_FILE),
+            "__LINEAR_FILE__": repr(_LINEAR_FILE),
+        }
+
     def __init__(self) -> None:
         self.options: Dict[str, Any] = dict(self.option_defaults)
         self.vocabulary: Dict[str, int] = {}

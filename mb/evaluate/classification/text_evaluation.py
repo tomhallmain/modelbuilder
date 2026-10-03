@@ -4,7 +4,7 @@ Evaluation, scoring and comparison of text-classification run directories.
 :func:`evaluate_text_run` is shared by training (right after calibration) and by
 ``mb text evaluate``, so a re-evaluation rewrites exactly the files training produced:
 ``thresholds.json``, ``metrics.json``, ``predictions_test.tsv``, ``review_queue.tsv``,
-``cut_rescore.tsv``, ``extra_reports.json`` and ``MODEL_CARD.md``.
+``cut_rescore.tsv``, ``extra_reports.json``, ``predict.py`` and ``MODEL_CARD.md``.
 
 ``metrics.json`` holds only values derived from the data and model (no timestamps or
 durations), so two runs of a deterministic backend with the same config produce identical
@@ -218,6 +218,7 @@ def evaluate_text_run(
     *run_dir* (and *data_dir*, default: the run's own ``config.yaml``).
     """
     from mb.evaluate.classification.text_model_card import write_model_card
+    from mb.evaluate.classification.text_predict_script import write_predict_script
 
     run_dir = Path(run_dir)
     config = load_run_config(run_dir)
@@ -337,6 +338,7 @@ def evaluate_text_run(
 
     env_path = run_dir / ENVIRONMENT_FILE
     env = read_json(env_path) if env_path.is_file() else {}
+    write_predict_script(run_dir, type(backend))
     write_model_card(run_dir, config, metrics, thresholds.to_json(), env, extra)
     say(_("Evaluation complete."), 1.0)
     return TextEvaluationResult(run_dir=run_dir, metrics=metrics, thresholds=thresholds)

@@ -52,6 +52,65 @@ class EncoderFinetuneBackend(TextBackend):
         "gradient_checkpointing": False,
     }
 
+    standalone_requirements = ("torch", "transformers")
+    standalone_template = '''
+_OPTION_DEFAULTS = __OPTION_DEFAULTS__
+
+
+class _EncoderFinetune:
+    """Fine-tuned encoder with a one-logit head (needs torch, transformers)."""
+
+    def __init__(self, model_dir, meta, device):
+        import torch
+        import transformers
+
+        self.torch = torch
+        self.options = o = {**_OPTION_DEFAULTS, **(meta.get("options") or {})}
+        self.device = _auto_device(device)
+        self.max_length = int(meta.get("max_length", 64))
+        self.tokenizer = transformers.AutoTokenizer.from_pretrained(str(model_dir))
+        self.model = transformers.AutoModelForSequenceClassification.from_pretrained(str(model_dir), num_labels=1)
+        if self.tokenizer.pad_token is None and self.tokenizer.eos_token is not None:
+            self.tokenizer.pad_token = self.tokenizer.eos_token
+        if getattr(self.model.config, "pad_token_id", None) is None:
+            self.model.config.pad_token_id = self.tokenizer.pad_token_id
+        self.model.to(self.device).eval()
+        # Mixed precision as during training: precision auto | bf16 | fp16 | fp32, CUDA only.
+        precision = str(o["precision"])
+        self.amp = None
+        if self.device.startswith("cuda") and precision != "fp32":
+            if precision == "fp16":
+                self.amp = torch.float16
+            elif precision in ("bf16", "auto") and torch.cuda.is_bf16_supported():
+                self.amp = torch.bfloat16
+
+    def predict_proba(self, texts):
+        import contextlib
+
+        torch = self.torch
+        bs = int(self.options["eval_batch_size"])
+        out = np.empty(len(texts), dtype=np.float64)
+        with torch.inference_mode():
+            for start in range(0, len(texts), bs):
+                chunk = list(texts[start : start + bs])
+                enc = self.tokenizer(
+                    chunk, padding=True, truncation=True, max_length=self.max_length, return_tensors="pt"
+                ).to(self.device)
+                amp = (
+                    torch.autocast(device_type="cuda", dtype=self.amp)
+                    if self.amp is not None
+                    else contextlib.nullcontext()
+                )
+                with amp:
+                    logits = self.model(**enc).logits[:, 0]
+                out[start : start + len(chunk)] = torch.sigmoid(logits.float()).cpu().numpy()
+        return out
+
+
+def load_model(model_dir, meta, device):
+    return _EncoderFinetune(model_dir, meta, device)
+'''
+
     def __init__(self) -> None:
         self.model = None
         self.tokenizer = None

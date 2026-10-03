@@ -42,7 +42,8 @@ def register(subparsers) -> None:
         help=_("Re-run thresholds, metrics and reports for a run directory"),
         description=_(
             "Reloads the run's model and calibrator, chooses thresholds on val gold, and rewrites "
-            "metrics.json, thresholds.json, predictions, review queue, cut rescore and the model card."
+            "metrics.json, thresholds.json, predictions, review queue, cut rescore, predict.py and the "
+            "model card."
         ),
     )
     evaluate.add_argument("--model", type=Path, required=True, help=_("Run directory"))

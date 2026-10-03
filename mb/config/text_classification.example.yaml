@@ -1,10 +1,10 @@
-# Example pipeline for a text-classification project (the prompt-safety term classifier in
-# text_classifier_training_set/). Copy it, adjust, then:
+# Example pipeline for a text-classification project: a binary classifier over short strings.
+# Copy it, adjust, then:
 #
 #   mb --config my_text_pipeline.yaml text verify
 #   mb --config my_text_pipeline.yaml train
 #   mb text evaluate --model data/models/text_runs/<run>
-#   mb text score --model data/models/text_runs/<run> --input 07_kept.txt --output 07_scores.tsv
+#   mb text score --model data/models/text_runs/<run> --input lines.txt --output scores.tsv
 #   mb text compare "data/models/text_runs/*"
 #
 # Only the sections that differ from the shipped defaults need to be present; everything else
@@ -14,7 +14,7 @@ model:
   default_type: text_classification
 
 text_classification:
-  data_dir: text_classifier_training_set
+  data_dir: my_text_dataset
   runs_dir: data/models/text_runs
 
   # Cheapest baseline first. Other families, each with its own model_id:
@@ -26,33 +26,28 @@ text_classification:
   max_length: 64
 
   class_weight: balanced
-  # Down-weighting the noisy unreviewed negatives is the obvious experiment:
+  # Per-tier loss multipliers, e.g. to down-weight a noisier tier:
   # tier_weight: {keep_unreviewed: 0.5}
   tier_weight: {}
   exclude_conflicts: true
-  # e.g. 4 for -large encoders: all positives, all keep_reviewed, 4x positives of keep_unreviewed.
+  # Cap train keep_unreviewed rows at this many per train positive (null = keep all).
   subsample_keep_unreviewed: null
 
   threshold_policy:
     kind: precision_target
     value: 0.9
 
-  # Per-backend settings. For embedding_probe, name every rejectable reading in the instruction:
+  # Per-backend settings. For embedding_probe, an instruction describing what label 1 means:
   # backend_options:
   #   instruction: >-
-  #     Given a word or short phrase, decide whether it can carry a sexual, gore, or disgust
-  #     meaning when placed in an image-generation prompt
+  #     Given a word or short phrase, decide whether it <describes what label 1 means>
   #   head: linear
   backend_options: {}
 
+  # Markdown for MODEL_CARD.md's "Intended use and label policy" section. State what label 1
+  # means, what the model is for, and what it must not be used for.
   model_card_notes: |
-    Output is p(reject): whether the string, placed in a random image-generation prompt, can
-    carry a sexual, gore, or disgust reading, even as a joke, pun, band name or idiom.
+    Output is p(label = 1): <what a positive label means for this dataset>.
 
-    **This is not a general toxicity or hate-speech classifier.**
-
-    - By policy, sexuality terms (`gay`, `queer`) and slurs with a sexual reading are labelled
-      reject, because an image model will render the sexual reading. This model will flag
-      identity terms. It must not be reused for moderating people's speech.
-    - Slurs with no sexual, gore or disgust reading are not reliably labelled reject; the
-      hate-speech labelling pass was never run.
+    - Intended use: <where the scores are consumed and how>.
+    - Known limits: <readings or cases the labelling does not cover>.

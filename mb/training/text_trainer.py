@@ -11,6 +11,7 @@ A run is configured entirely by the pipeline's ``text_classification`` section
       calibrator.json      fitted on val
       thresholds.json, metrics.json, predictions_test.tsv, review_queue.tsv,
       cut_rescore.tsv, extra_reports.json, MODEL_CARD.md   (see text_evaluation)
+      predict.py           standalone scorer (see text_predict_script)
 
 The dataset is verified before the run directory is created, and training stops on any
 failed check. Like the LoRA trainer this is a standalone module rather than a branch of

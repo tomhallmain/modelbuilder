@@ -75,8 +75,10 @@ mb text compare "data/models/text_runs/*"
 
 Each run writes `<runs_dir>/<timestamp>_<backend>_<model>/` with `config.yaml`,
 `environment.json`, `model/`, `calibrator.json`, `thresholds.json`, `metrics.json`,
-`predictions_test.tsv`, `review_queue.tsv`, `cut_rescore.tsv`, `extra_reports.json` and
-`MODEL_CARD.md`. In the GUI: Train page (model type `text_classification`), Text page
+`predictions_test.tsv`, `review_queue.tsv`, `cut_rescore.tsv`, `extra_reports.json`,
+`MODEL_CARD.md` and `predict.py`. `predict.py` scores strings without `mb` installed (only numpy
+and the backend's libraries): `python predict.py "some string"`, or
+`from predict import load; load().score([...])`. In the GUI: Train page (model type `text_classification`), Text page
 (verify/evaluate/score/compare), Pipeline page (Text classification tab).
 
 ## Architectures (examples)

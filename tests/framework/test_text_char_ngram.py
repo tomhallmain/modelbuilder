@@ -8,6 +8,9 @@ line-preserving scoring, and no conflict-group or cross-split rows in prediction
 from __future__ import annotations
 
 import copy
+import json
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -28,6 +31,7 @@ RUN_FILES = (
     "cut_rescore.tsv",
     "extra_reports.json",
     "MODEL_CARD.md",
+    "predict.py",
 )
 
 
@@ -108,3 +112,39 @@ def test_score_keeps_line_count_and_order(char_ngram_runs, tmp_path: Path) -> No
     assert result.n_lines == len(lines)
     assert rows[0] == "term\tscore"
     assert [r.rsplit("\t", 1)[0] for r in rows[1:]] == lines
+
+
+@pytest.mark.slow
+def test_predict_script_matches_score_without_mb(char_ngram_runs, tmp_path: Path) -> None:
+    from mb.evaluate.classification.text_evaluation import score_text_file
+
+    _data, run, _ = char_ngram_runs
+    lines = ["zo blood", "", "line\u2028sep", "NA", "kalo"]
+    src = tmp_path / "lines.txt"
+    src.write_bytes(("\n".join(lines) + "\n").encode("utf-8"))
+    expected_out = tmp_path / "scores.tsv"
+    score_text_file(run, src, expected_out)
+    expected = [r.rsplit("\t", 1)[1] for r in expected_out.read_text(encoding="utf-8").split("\n")[1:-1]]
+
+    code = (
+        "import json, sys\n"
+        "sys.path.insert(0, sys.argv[1])\n"
+        "import predict\n"
+        "clf = predict.load()\n"
+        "lines = predict._read_lines(sys.argv[2])\n"
+        "print(json.dumps({'scores': [f'{s:.6f}' for s in clf.score(lines)],"
+        " 'flags': [bool(f) for f in clf.flag(lines)], 'threshold': clf.threshold,"
+        " 'mb_imported': any(m == 'mb' or m.startswith('mb.') for m in sys.modules)}))\n"
+    )
+    proc = subprocess.run(
+        [sys.executable, "-c", code, str(run), str(src)],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        check=True,
+    )
+    got = json.loads(proc.stdout)
+    assert got["scores"] == expected
+    assert got["flags"] == [float(s) >= got["threshold"] for s in got["scores"]]
+    assert got["mb_imported"] is False
