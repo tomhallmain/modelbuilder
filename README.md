@@ -48,8 +48,10 @@ Use `mb --help` and `mb <subcommand> --help` for full flags. Config precedence: 
 ## Quick start (text classification)
 
 Binary classifiers over short strings, trained from a labelled `dataset.tsv` (`text`,
-`label`, `split`; optional `tier`, `source`, `category_hint`, `group`, `stage7_score`) plus an
-optional `manifest.json`, `label_conflicts.tsv` and `unlabeled_cut.tsv`. Everything is
+`label`, `split`; optional `tier`, `source`, `category_hint`, `group` and a reference-score
+column) plus an optional `manifest.json`, `label_conflicts.tsv` and unlabeled file. Tier
+roles (`gold_tiers`, `unreviewed_tier`), the reference-score column and the unlabeled file
+name are set per dataset in the config. Everything is
 configured by the pipeline YAML's `text_classification` section (see
 `mb/config/text_classification.example.yaml`); unknown keys there are errors.
 
@@ -75,7 +77,7 @@ mb text compare "data/models/text_runs/*"
 
 Each run writes `<runs_dir>/<timestamp>_<backend>_<model>/` with `config.yaml`,
 `environment.json`, `model/`, `calibrator.json`, `thresholds.json`, `metrics.json`,
-`predictions_test.tsv`, `review_queue.tsv`, `cut_rescore.tsv`, `extra_reports.json`,
+`predictions_test.tsv`, `review_queue.tsv`, `unlabeled_scores.tsv`, `extra_reports.json`,
 `MODEL_CARD.md` and `predict.py`. `predict.py` scores strings without `mb` installed (only numpy
 and the backend's libraries): `python predict.py "some string"`, or
 `from predict import load; load().score([...])`. In the GUI: Train page (model type `text_classification`), Text page

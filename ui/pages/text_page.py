@@ -309,6 +309,7 @@ class TextPage(QWidget):
 
     def _run_verify(self) -> None:
         from mb.data.text_dataset import verify_text_dataset
+        from mb.training.text_config import dataset_file_options
 
         raw = self.verify_data_dir.text().strip() or str(get_pipeline_config().get("text_classification.data_dir") or "")
         data_dir = Path(raw)
@@ -321,9 +322,14 @@ class TextPage(QWidget):
             )
             return
 
+        file_options = dataset_file_options(get_pipeline_config())
+
         def work(ctx: LongTaskContext) -> str:
             report = verify_text_dataset(
-                data_dir, cancel_event=ctx.cancel_event, progress=lambda m: ctx.progress(m, None)
+                data_dir,
+                cancel_event=ctx.cancel_event,
+                progress=lambda m: ctx.progress(m, None),
+                **file_options,
             )
             if not report.ok:
                 raise ValueError(report.format())

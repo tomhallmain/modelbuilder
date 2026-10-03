@@ -12,6 +12,7 @@ from mb.data.text_dataset import (
     compute_sample_weights,
     gold_mask,
     load_text_dataset,
+    load_unlabeled,
     read_text_lines,
     select_training_indices,
     verify_text_dataset,
@@ -37,7 +38,7 @@ def test_load_keeps_awkward_texts_verbatim(text_data_dir: Path) -> None:
 def test_conflict_rows_marked(text_data_dir: Path) -> None:
     ds = load_text_dataset(text_data_dir)
     marked = {ds.texts[i] for i in np.flatnonzero(ds.conflict)}
-    assert marked == {"Afstab", "A_F_S_T_A_B"}
+    assert marked == {"Afvex", "A_F_V_E_X"}
 
 
 def test_verify_passes_on_intact_dataset(text_data_dir: Path) -> None:
@@ -99,7 +100,7 @@ def test_crlf_line_endings_read_like_lf(tmp_path: Path) -> None:
 
 def test_training_selection_excludes_conflicts(text_data_dir: Path) -> None:
     ds = load_text_dataset(text_data_dir)
-    idx, info = select_training_indices(ds, exclude_conflicts=True, subsample_keep_unreviewed=None, seed=1)
+    idx, info = select_training_indices(ds, exclude_conflicts=True, subsample_unreviewed=None, seed=1)
     assert info is None
     assert not ds.conflict[idx].any()
     assert set(ds.split.value(i) for i in idx) == {"train"}
@@ -107,9 +108,9 @@ def test_training_selection_excludes_conflicts(text_data_dir: Path) -> None:
 
 def test_subsample_keeps_positives_and_is_seeded(text_data_dir: Path) -> None:
     ds = load_text_dataset(text_data_dir)
-    a, info = select_training_indices(ds, exclude_conflicts=True, subsample_keep_unreviewed=0.5, seed=3)
-    b, _ = select_training_indices(ds, exclude_conflicts=True, subsample_keep_unreviewed=0.5, seed=3)
-    full, _ = select_training_indices(ds, exclude_conflicts=True, subsample_keep_unreviewed=None, seed=3)
+    a, info = select_training_indices(ds, exclude_conflicts=True, unreviewed_tier="unreviewed", subsample_unreviewed=0.5, seed=3)
+    b, _ = select_training_indices(ds, exclude_conflicts=True, unreviewed_tier="unreviewed", subsample_unreviewed=0.5, seed=3)
+    full, _ = select_training_indices(ds, exclude_conflicts=True, subsample_unreviewed=None, seed=3)
     assert np.array_equal(a, b)
     assert ds.labels[a].sum() == ds.labels[full].sum()
     assert info is not None and info.kept == min(info.available, round(0.5 * int(ds.labels[full].sum())))
@@ -117,7 +118,7 @@ def test_subsample_keeps_positives_and_is_seeded(text_data_dir: Path) -> None:
 
 def test_balanced_weights_equalize_classes(text_data_dir: Path) -> None:
     ds = load_text_dataset(text_data_dir)
-    idx, _ = select_training_indices(ds, exclude_conflicts=True, subsample_keep_unreviewed=None, seed=0)
+    idx, _ = select_training_indices(ds, exclude_conflicts=True, subsample_unreviewed=None, seed=0)
     w, _cw = compute_sample_weights(ds, idx, class_weight="balanced", tier_weight={})
     labels = ds.labels[idx]
     assert w[labels == 1].sum() == pytest.approx(w[labels == 0].sum(), rel=1e-5)
@@ -125,17 +126,45 @@ def test_balanced_weights_equalize_classes(text_data_dir: Path) -> None:
 
 def test_tier_weight_multiplies_and_rejects_unknown_tiers(text_data_dir: Path) -> None:
     ds = load_text_dataset(text_data_dir)
-    idx, _ = select_training_indices(ds, exclude_conflicts=True, subsample_keep_unreviewed=None, seed=0)
-    w, _ = compute_sample_weights(ds, idx, class_weight="none", tier_weight={"keep_unreviewed": 0.5})
+    idx, _ = select_training_indices(ds, exclude_conflicts=True, subsample_unreviewed=None, seed=0)
+    w, _ = compute_sample_weights(ds, idx, class_weight="none", tier_weight={"unreviewed": 0.5})
     tiers = np.array([ds.tier_of(i) for i in idx])
-    assert set(w[tiers == "keep_unreviewed"].tolist()) == {0.5}
-    assert set(w[tiers != "keep_unreviewed"].tolist()) == {1.0}
+    assert set(w[tiers == "unreviewed"].tolist()) == {0.5}
+    assert set(w[tiers != "unreviewed"].tolist()) == {1.0}
     with pytest.raises(TextDatasetError):
-        compute_sample_weights(ds, idx, class_weight="none", tier_weight={"keep_unreviwed": 0.5})
+        compute_sample_weights(ds, idx, class_weight="none", tier_weight={"unreviwed": 0.5})
 
 
 def test_gold_mask_uses_tiers(text_data_dir: Path) -> None:
     ds = load_text_dataset(text_data_dir)
     idx = ds.split_indices("test", exclude_conflicts=True)
-    gold = gold_mask(ds, idx, ("reject_reviewed", "keep_reviewed"))
-    assert {ds.tier_of(i) for i in idx[gold]} <= {"reject_reviewed", "keep_reviewed"}
+    gold = gold_mask(ds, idx, ("reviewed",))
+    assert gold.any() and not gold.all()
+    assert {ds.tier_of(i) for i in idx[gold]} == {"reviewed"}
+
+
+def test_gold_mask_without_gold_tiers_is_every_row(text_data_dir: Path) -> None:
+    ds = load_text_dataset(text_data_dir)
+    idx = ds.split_indices("test", exclude_conflicts=True)
+    assert gold_mask(ds, idx, None).all()
+
+
+def test_subsample_needs_unreviewed_tier(text_data_dir: Path) -> None:
+    ds = load_text_dataset(text_data_dir)
+    with pytest.raises(TextDatasetError):
+        select_training_indices(ds, exclude_conflicts=True, subsample_unreviewed=0.5, seed=0)
+
+
+def test_reference_column_and_unlabeled_file_are_configurable(text_data_dir: Path) -> None:
+    for old, new in (("dataset.tsv", "dataset.tsv"), ("unlabeled.tsv", "pool.tsv")):
+        text = (text_data_dir / old).read_text(encoding="utf-8").replace("reference_score", "prior_score", 1)
+        (text_data_dir / old).unlink()
+        (text_data_dir / new).write_text(text, encoding="utf-8", newline="\n")
+    (text_data_dir / "manifest.json").unlink()
+    assert load_text_dataset(text_data_dir).reference_score is None
+    ds = load_text_dataset(text_data_dir, reference_score_column="prior_score")
+    assert ds.reference_score is not None
+    assert load_unlabeled(text_data_dir) is None
+    texts, scores = load_unlabeled(text_data_dir, unlabeled_file="pool.tsv", reference_score_column="prior_score")
+    assert texts == ["Mystery phrase", "kalo mi", "zo vex"]
+    assert scores is not None

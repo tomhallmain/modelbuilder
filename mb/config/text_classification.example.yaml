@@ -26,12 +26,16 @@ text_classification:
   max_length: 64
 
   class_weight: balanced
-  # Per-tier loss multipliers, e.g. to down-weight a noisier tier:
-  # tier_weight: {keep_unreviewed: 0.5}
+  # With a `tier` column: the tiers forming the gold evaluation set (null = every row), and a
+  # tier of labels nobody checked, which the review queue draws from.
+  gold_tiers: null
+  unreviewed_tier: null
+  # Per-tier loss multipliers, e.g. to down-weight the unreviewed tier:
+  # tier_weight: {unreviewed: 0.5}
   tier_weight: {}
   exclude_conflicts: true
-  # Cap train keep_unreviewed rows at this many per train positive (null = keep all).
-  subsample_keep_unreviewed: null
+  # Cap train unreviewed_tier rows at this many per train positive (null = keep all).
+  subsample_unreviewed: null
 
   threshold_policy:
     kind: precision_target

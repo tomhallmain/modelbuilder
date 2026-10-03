@@ -10,7 +10,7 @@ A run is configured entirely by the pipeline's ``text_classification`` section
       model/               backend weights + backend.json
       calibrator.json      fitted on val
       thresholds.json, metrics.json, predictions_test.tsv, review_queue.tsv,
-      cut_rescore.tsv, extra_reports.json, MODEL_CARD.md   (see text_evaluation)
+      unlabeled_scores.tsv, extra_reports.json, MODEL_CARD.md   (see text_evaluation)
       predict.py           standalone scorer (see text_predict_script)
 
 The dataset is verified before the run directory is created, and training stops on any
@@ -161,9 +161,20 @@ def train_text_classifier(
         _warn_no_cuda(config)
 
     say(_("Loading dataset…"), None)
-    ds = load_text_dataset(config.data_dir, keep_groups=True, cancel_event=cancel_event)
+    ds = load_text_dataset(
+        config.data_dir,
+        keep_groups=True,
+        reference_score_column=config.reference_score_column,
+        cancel_event=cancel_event,
+    )
     say(_("Verifying dataset…"), None)
-    report = verify_text_dataset(config.data_dir, dataset=ds, cancel_event=cancel_event)
+    report = verify_text_dataset(
+        config.data_dir,
+        dataset=ds,
+        unlabeled_file=config.unlabeled_file,
+        reference_score_column=config.reference_score_column,
+        cancel_event=cancel_event,
+    )
     logger.info("Dataset verification:\n%s", report.format())
     if not report.ok:
         raise TextDatasetError(_("Dataset verification failed:\n{report}").format(report=report.format()))
@@ -173,7 +184,8 @@ def train_text_classifier(
     train_idx, subsample = select_training_indices(
         ds,
         exclude_conflicts=config.exclude_conflicts,
-        subsample_keep_unreviewed=config.subsample_keep_unreviewed,
+        unreviewed_tier=config.unreviewed_tier,
+        subsample_unreviewed=config.subsample_unreviewed,
         seed=config.seed,
     )
     weights, class_weights = compute_sample_weights(
@@ -211,7 +223,13 @@ def train_text_classifier(
         "class_weights": {str(k): v for k, v in class_weights.items()},
         "subsample": None
         if subsample is None
-        else {"ratio": subsample.ratio, "seed": subsample.seed, "available": subsample.available, "kept": subsample.kept},
+        else {
+            "tier": subsample.tier,
+            "ratio": subsample.ratio,
+            "seed": subsample.seed,
+            "available": subsample.available,
+            "kept": subsample.kept,
+        },
     }
     write_json(run_dir / ENVIRONMENT_FILE, env)
 

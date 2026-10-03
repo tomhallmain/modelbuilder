@@ -233,9 +233,10 @@ class PipelineConfigPage(QWidget):
         apply_qform_label_column(self._text_form, self._text_form_labels())
         self._x_pass_hint.setText(
             _(
-                "tier_weight, gold_tiers, backend_options and an explicit class_weight mapping "
-                "are kept as loaded; edit them in the Advanced (YAML) tab. Unknown keys and "
-                "invalid values in this section are errors when training."
+                "tier_weight, gold_tiers, unreviewed_tier, reference_score_column, "
+                "unlabeled_file, backend_options and an explicit class_weight mapping are kept "
+                "as loaded; edit them in the Advanced (YAML) tab. Unknown keys and invalid "
+                "values in this section are errors when training."
             )
         )
         self._x_model.setPlaceholderText(_("empty = backend default"))
@@ -244,7 +245,7 @@ class PipelineConfigPage(QWidget):
             spin.setSpecialValueText(_("Backend default"))
         self._x_subsample.setSpecialValueText(_("Off"))
         self._x_exclude.setText(_("Exclude label-conflict groups from training and metrics"))
-        self._x_rescore.setText(_("Score unlabeled_cut.tsv when present"))
+        self._x_rescore.setText(_("Score the unlabeled file when present"))
         self._yaml_hint.setText(
             _(
                 "Full pipeline document. Click “Apply YAML” to parse and refresh the tabs, "
@@ -564,7 +565,7 @@ class PipelineConfigPage(QWidget):
             _("Max length (tokens)"),
             _("Class weight"),
             "",
-            _("Subsample keep_unreviewed (x positives)"),
+            _("Subsample unreviewed tier (x positives)"),
             _("Learning rate"),
             _("Epochs"),
             _("Batch size"),
@@ -687,7 +688,7 @@ class PipelineConfigPage(QWidget):
                 # The "custom" entry stands for the loaded mapping, already in *out*.
                 "class_weight": out.get("class_weight") if cw == _CUSTOM_CLASS_WEIGHT else str(cw),
                 "exclude_conflicts": self._x_exclude.isChecked(),
-                "subsample_keep_unreviewed": opt(float(self._x_subsample.value()), float),
+                "subsample_unreviewed": opt(float(self._x_subsample.value()), float),
                 "calibration": str(self._x_calibration.currentData()),
                 "model_card_notes": self._x_notes.toPlainText(),
                 "device": self._x_device.text().strip() or None,
@@ -715,7 +716,7 @@ class PipelineConfigPage(QWidget):
         out["reports"] = {
             **dict(out.get("reports") or {}),
             "review_queue_size": int(self._x_queue.value()),
-            "rescore_unlabeled_cut": self._x_rescore.isChecked(),
+            "score_unlabeled": self._x_rescore.isChecked(),
         }
         return out
 
@@ -752,7 +753,7 @@ class PipelineConfigPage(QWidget):
         else:
             set_combo(self._x_class_weight, cw)
         self._x_exclude.setChecked(bool(d.get("exclude_conflicts")))
-        self._x_subsample.setValue(num(d.get("subsample_keep_unreviewed")))
+        self._x_subsample.setValue(num(d.get("subsample_unreviewed")))
         optim = d.get("optim") or {}
         self._x_lr.setValue(num(optim.get("lr")))
         self._x_epochs.setValue(int(num(optim.get("epochs"))))
@@ -766,7 +767,7 @@ class PipelineConfigPage(QWidget):
         self._x_threshold_value.setValue(num(tp.get("value"), 0.9))
         rep_cfg = d.get("reports") or {}
         self._x_queue.setValue(int(num(rep_cfg.get("review_queue_size"))))
-        self._x_rescore.setChecked(bool(rep_cfg.get("rescore_unlabeled_cut")))
+        self._x_rescore.setChecked(bool(rep_cfg.get("score_unlabeled")))
         self._x_device.setText(str(d.get("device") or ""))
         self._x_notes.setPlainText(str(d.get("model_card_notes") or ""))
 

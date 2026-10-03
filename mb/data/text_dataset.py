@@ -4,10 +4,13 @@ Text-classification dataset: reading, integrity checks, training selection and w
 Layout of a dataset directory (only ``dataset.tsv`` is required)::
 
     dataset.tsv          text, label (0/1), split (train/val/test); optional tier, source,
-                         category_hint, group, stage7_score
+                         category_hint, group and a reference-score column
     manifest.json        expected sha256/bytes per file and expected counts
     label_conflicts.tsv  ``group`` column: groups whose variants carry both labels
-    unlabeled_cut.tsv    ``text`` column (optional stage7_score): unlabeled, never trained on
+    unlabeled.tsv        ``text`` column (optional reference score): unlabeled, never trained on
+
+The reference-score column and the unlabeled file name are configurable
+(``reference_score_column``, ``unlabeled_file``); the names above are the defaults.
 
 TSVs are UTF-8 with a header row and no quoting or escaping, so lines are split on ``\\n``
 and fields on ``\\t`` only. ``csv`` and ``str.splitlines`` would both be wrong here: texts
@@ -35,7 +38,7 @@ logger = get_logger(__name__)
 DATASET_FILE = "dataset.tsv"
 MANIFEST_FILE = "manifest.json"
 CONFLICTS_FILE = "label_conflicts.tsv"
-UNLABELED_CUT_FILE = "unlabeled_cut.tsv"
+UNLABELED_FILE = "unlabeled.tsv"
 
 COL_TEXT = "text"
 COL_LABEL = "label"
@@ -44,13 +47,10 @@ COL_TIER = "tier"
 COL_SOURCE = "source"
 COL_CATEGORY_HINT = "category_hint"
 COL_GROUP = "group"
-COL_STAGE7 = "stage7_score"
+COL_REFERENCE_SCORE = "reference_score"
 
 REQUIRED_COLUMNS = (COL_TEXT, COL_LABEL, COL_SPLIT)
 SPLITS = ("train", "val", "test")
-
-# Tier whose rows ``subsample_keep_unreviewed`` thins out and the review queue draws from.
-KEEP_UNREVIEWED_TIER = "keep_unreviewed"
 
 
 class TextDatasetError(ValueError):
@@ -163,7 +163,7 @@ class TextDataset:
     tier: Optional[Categorical] = None
     source: Optional[Categorical] = None
     category_hint: Optional[Categorical] = None
-    stage7_score: Optional[np.ndarray] = None
+    reference_score: Optional[np.ndarray] = None
     # True for rows whose group is listed in label_conflicts.tsv.
     conflict: np.ndarray = field(default_factory=lambda: np.zeros(0, dtype=bool))
     # Kept only until verification; see :meth:`drop_groups`.
@@ -198,10 +198,12 @@ def load_text_dataset(
     data_dir: Path,
     *,
     keep_groups: bool = True,
+    reference_score_column: str = COL_REFERENCE_SCORE,
     cancel_event=None,
 ) -> TextDataset:
     """
-    Read ``dataset.tsv`` from *data_dir*.
+    Read ``dataset.tsv`` from *data_dir*; *reference_score_column*, when present, is read
+    as numbers (empty = missing).
 
     Raises:
         TextDatasetError: missing file/columns, a malformed row, or an invalid label/split.
@@ -224,7 +226,7 @@ def load_text_dataset(
     col = {name: i for i, name in enumerate(header)}
     i_text, i_label, i_split = col[COL_TEXT], col[COL_LABEL], col[COL_SPLIT]
     i_tier, i_source = col.get(COL_TIER), col.get(COL_SOURCE)
-    i_hint, i_group, i_s7 = col.get(COL_CATEGORY_HINT), col.get(COL_GROUP), col.get(COL_STAGE7)
+    i_hint, i_group, i_ref = col.get(COL_CATEGORY_HINT), col.get(COL_GROUP), col.get(reference_score_column)
 
     conflict_groups = load_conflict_groups(data_dir)
     if conflict_groups and i_group is None:
@@ -238,7 +240,7 @@ def load_text_dataset(
     labels: List[int] = []
     groups: List[str] = []
     conflict: List[bool] = []
-    s7: List[float] = []
+    ref: List[float] = []
     split_b, tier_b, source_b, hint_b = (
         _CategoricalBuilder(),
         _CategoricalBuilder(),
@@ -284,14 +286,14 @@ def load_text_dataset(
             conflict.append(g in conflict_groups)
             if keep_groups:
                 groups.append(g)
-        if i_s7 is not None:
-            raw = fields[i_s7]
+        if i_ref is not None:
+            raw = fields[i_ref]
             try:
-                s7.append(float(raw) if raw else float("nan"))
+                ref.append(float(raw) if raw else float("nan"))
             except ValueError:
                 raise TextDatasetError(
                     _("{path}:{line}: {col} must be a number or empty (got {v!r})").format(
-                        path=path, line=lineno, col=COL_STAGE7, v=raw
+                        path=path, line=lineno, col=reference_score_column, v=raw
                     )
                 ) from None
 
@@ -306,7 +308,7 @@ def load_text_dataset(
         tier=tier_b.build() if i_tier is not None else None,
         source=source_b.build() if i_source is not None else None,
         category_hint=hint_b.build() if i_hint is not None else None,
-        stage7_score=np.asarray(s7, dtype=np.float32) if i_s7 is not None else None,
+        reference_score=np.asarray(ref, dtype=np.float32) if i_ref is not None else None,
         conflict=np.asarray(conflict, dtype=bool) if i_group is not None else np.zeros(n, dtype=bool),
         groups=groups if (keep_groups and i_group is not None) else None,
         has_group_column=i_group is not None,
@@ -315,16 +317,21 @@ def load_text_dataset(
     return ds
 
 
-def load_unlabeled_cut(data_dir: Path) -> Optional[Tuple[List[str], Optional[np.ndarray]]]:
-    """``(texts, stage7_scores or None)`` from ``unlabeled_cut.tsv``, or ``None`` when absent."""
-    path = Path(data_dir) / UNLABELED_CUT_FILE
+def load_unlabeled(
+    data_dir: Path,
+    *,
+    unlabeled_file: str = UNLABELED_FILE,
+    reference_score_column: str = COL_REFERENCE_SCORE,
+) -> Optional[Tuple[List[str], Optional[np.ndarray]]]:
+    """``(texts, reference scores or None)`` from the unlabeled file, or ``None`` when absent."""
+    path = Path(data_dir) / unlabeled_file
     if not path.is_file():
         return None
     header = read_tsv_header(path)
     texts = read_tsv_column(path, COL_TEXT)
     scores = None
-    if COL_STAGE7 in header:
-        raw = read_tsv_column(path, COL_STAGE7)
+    if reference_score_column in header:
+        raw = read_tsv_column(path, reference_score_column)
         scores = np.asarray([float(v) if v else float("nan") for v in raw], dtype=np.float32)
     return texts, scores
 
@@ -397,6 +404,8 @@ def verify_text_dataset(
     data_dir: Path,
     *,
     dataset: Optional[TextDataset] = None,
+    unlabeled_file: str = UNLABELED_FILE,
+    reference_score_column: str = COL_REFERENCE_SCORE,
     cancel_event=None,
     progress: Optional[Callable[[str], None]] = None,
 ) -> TextVerifyReport:
@@ -404,9 +413,10 @@ def verify_text_dataset(
     Integrity checks for a dataset directory.
 
     With ``manifest.json``: every listed file's sha256 and size, then row/label/tier/
-    source/category-hint/split/group counts. Always: ``text`` values unique, and each
-    ``group`` in exactly one split. Pass an already loaded *dataset* (with groups) to avoid
-    reading ``dataset.tsv`` twice.
+    source/category-hint/split/group counts, and the unlabeled file's row count under the
+    key named after its stem (``unlabeled`` for ``unlabeled.tsv``). Always: ``text`` values
+    unique, and each ``group`` in exactly one split. Pass an already loaded *dataset* (with
+    groups) to avoid reading ``dataset.tsv`` twice.
     """
     data_dir = Path(data_dir)
     report = TextVerifyReport(data_dir=data_dir)
@@ -455,7 +465,12 @@ def verify_text_dataset(
     if dataset is None or (dataset.groups is None and dataset.has_group_column):
         say(_("Reading {name}…").format(name=DATASET_FILE))
         try:
-            dataset = load_text_dataset(data_dir, keep_groups=True, cancel_event=cancel_event)
+            dataset = load_text_dataset(
+                data_dir,
+                keep_groups=True,
+                reference_score_column=reference_score_column,
+                cancel_event=cancel_event,
+            )
         except TextDatasetError as e:
             report.add(DATASET_FILE, False, str(e))
             return report
@@ -508,12 +523,13 @@ def verify_text_dataset(
                 n_conf == int(manifest["conflict_groups"]),
                 f"{_('expected')} {manifest['conflict_groups']}, {_('found')} {n_conf}",
             )
-        if "unlabeled_cut" in manifest and (data_dir / UNLABELED_CUT_FILE).is_file():
-            n_cut = _count_tsv_rows(data_dir / UNLABELED_CUT_FILE)
+        unlabeled_key = Path(unlabeled_file).stem
+        if unlabeled_key in manifest and (data_dir / unlabeled_file).is_file():
+            n_unlabeled = _count_tsv_rows(data_dir / unlabeled_file)
             report.add(
-                _("unlabeled cut rows"),
-                n_cut == int(manifest["unlabeled_cut"]),
-                f"{_('expected')} {manifest['unlabeled_cut']}, {_('found')} {n_cut}",
+                _("unlabeled rows"),
+                n_unlabeled == int(manifest[unlabeled_key]),
+                f"{_('expected')} {manifest[unlabeled_key]}, {_('found')} {n_unlabeled}",
             )
 
     check_cancel_event(cancel_event)
@@ -562,8 +578,9 @@ def verify_text_dataset(
 
 @dataclass
 class SubsampleInfo:
-    """What ``subsample_keep_unreviewed`` did; recorded in the model card."""
+    """What ``subsample_unreviewed`` did; recorded in the model card."""
 
+    tier: str
     ratio: float
     seed: int
     available: int
@@ -574,38 +591,41 @@ def select_training_indices(
     ds: TextDataset,
     *,
     exclude_conflicts: bool,
-    subsample_keep_unreviewed: Optional[float],
+    unreviewed_tier: Optional[str] = None,
+    subsample_unreviewed: Optional[float] = None,
     seed: int,
 ) -> Tuple[np.ndarray, Optional[SubsampleInfo]]:
     """
-    Train-split rows to fit on: conflicts dropped when asked, then (optionally) all
-    positives and other tiers kept with ``keep_unreviewed`` thinned to *ratio* × positives.
+    Train-split rows to fit on: conflicts dropped when asked, then (optionally) the rows of
+    *unreviewed_tier* thinned to *subsample_unreviewed* × positives, all other rows kept.
     """
     idx = ds.split_indices("train", exclude_conflicts=exclude_conflicts)
-    if subsample_keep_unreviewed is None:
+    if subsample_unreviewed is None:
         return idx, None
+    if unreviewed_tier is None:
+        raise TextDatasetError(_("subsample_unreviewed needs unreviewed_tier to name the tier to thin out"))
     if ds.tier is None:
         raise TextDatasetError(
-            _("subsample_keep_unreviewed needs a '{col}' column in {file}").format(
-                col=COL_TIER, file=DATASET_FILE
-            )
+            _("subsample_unreviewed needs a '{col}' column in {file}").format(col=COL_TIER, file=DATASET_FILE)
         )
-    code = ds.tier.code_of(KEEP_UNREVIEWED_TIER)
+    code = ds.tier.code_of(unreviewed_tier)
     if code is None:
         raise TextDatasetError(
-            _("subsample_keep_unreviewed is set but no rows have tier '{tier}'").format(
-                tier=KEEP_UNREVIEWED_TIER
-            )
+            _("subsample_unreviewed is set but no rows have tier '{tier}'").format(tier=unreviewed_tier)
         )
-    is_ku = ds.tier.codes[idx] == code
-    pool = idx[is_ku]
+    is_unreviewed = ds.tier.codes[idx] == code
+    pool = idx[is_unreviewed]
     n_pos = int(ds.labels[idx].sum())
-    n_keep = min(len(pool), int(round(subsample_keep_unreviewed * n_pos)))
+    n_keep = min(len(pool), int(round(subsample_unreviewed * n_pos)))
     rng = np.random.default_rng(seed)
     chosen = rng.choice(pool, size=n_keep, replace=False) if n_keep < len(pool) else pool
-    out = np.sort(np.concatenate([idx[~is_ku], chosen]))
+    out = np.sort(np.concatenate([idx[~is_unreviewed], chosen]))
     info = SubsampleInfo(
-        ratio=float(subsample_keep_unreviewed), seed=seed, available=len(pool), kept=int(n_keep)
+        tier=unreviewed_tier,
+        ratio=float(subsample_unreviewed),
+        seed=seed,
+        available=len(pool),
+        kept=int(n_keep),
     )
     return out, info
 
@@ -656,13 +676,13 @@ def compute_sample_weights(
     return w, cw
 
 
-def gold_mask(ds: TextDataset, idx: np.ndarray, gold_tiers: Sequence[str]) -> np.ndarray:
+def gold_mask(ds: TextDataset, idx: np.ndarray, gold_tiers: Optional[Sequence[str]]) -> np.ndarray:
     """
     Which rows of *idx* belong to the gold set.
 
-    Without a tier column every row counts as gold (there is no other quality signal).
+    With *gold_tiers* ``None`` or no tier column, every row counts as gold.
     """
-    if ds.tier is None:
+    if gold_tiers is None or ds.tier is None:
         return np.ones(len(idx), dtype=bool)
     unknown = [t for t in gold_tiers if t not in ds.tier.categories]
     if unknown:

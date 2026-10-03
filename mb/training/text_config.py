@@ -34,9 +34,9 @@ CLASS_WEIGHT_BALANCED = "balanced"
 EARLY_STOPPING_METRICS = ("val_ap",)
 
 TEXT_CLASSIFICATION_DEFAULTS: Dict[str, Any] = {
-    # Directory holding dataset.tsv (plus optional manifest.json, label_conflicts.tsv,
-    # unlabeled_cut.tsv).
-    "data_dir": "text_classifier_training_set",
+    # Directory holding dataset.tsv (plus optional manifest.json, label_conflicts.tsv and
+    # the unlabeled file).
+    "data_dir": "text_dataset",
     # Parent of the per-run output directories.
     "runs_dir": "data/models/text_runs",
     "backend": TextBackendType.get_default().value,
@@ -51,10 +51,18 @@ TEXT_CLASSIFICATION_DEFAULTS: Dict[str, Any] = {
     "tier_weight": {},
     # Drop label_conflicts.tsv groups from training and from every metric.
     "exclude_conflicts": True,
-    # null, or train keep_unreviewed rows to keep as a multiple of train positives.
-    "subsample_keep_unreviewed": None,
-    # Tiers whose rows make up the human-read "gold" evaluation set.
-    "gold_tiers": ["reject_reviewed", "keep_reviewed"],
+    # Tier whose labels were not human-checked: subsample_unreviewed thins it and the review
+    # queue draws from it. null = no such tier.
+    "unreviewed_tier": None,
+    # null, or train rows of unreviewed_tier to keep as a multiple of train positives.
+    "subsample_unreviewed": None,
+    # Tiers whose rows make up the "gold" evaluation set; null = every row.
+    "gold_tiers": None,
+    # Optional dataset.tsv / unlabeled-file column holding a score from another model or
+    # heuristic; reported as rank correlation with this model's scores.
+    "reference_score_column": "reference_score",
+    # Optional file in data_dir with a ``text`` column: scored for a report, never trained on.
+    "unlabeled_file": "unlabeled.tsv",
     "optim": {
         # null = the backend's default.
         "lr": None,
@@ -75,10 +83,11 @@ TEXT_CLASSIFICATION_DEFAULTS: Dict[str, Any] = {
         "value": 0.90,
     },
     "reports": {
-        # Highest-scoring keep_unreviewed rows written to review_queue.tsv; 0 disables.
+        # unreviewed_tier rows whose score most disagrees with their label, written to
+        # review_queue.tsv; 0 disables.
         "review_queue_size": 200,
-        # Score unlabeled_cut.tsv (when present) for cut_rescore.tsv.
-        "rescore_unlabeled_cut": True,
+        # Score the unlabeled file (when present) into unlabeled_scores.tsv.
+        "score_unlabeled": True,
     },
     # Markdown copied into MODEL_CARD.md under "Intended use and label policy".
     "model_card_notes": "",
@@ -125,7 +134,7 @@ class TextThresholdConfig:
 @dataclass(frozen=True)
 class TextReportsConfig:
     review_queue_size: int
-    rescore_unlabeled_cut: bool
+    score_unlabeled: bool
 
 
 ClassWeight = Union[str, Dict[int, float]]
@@ -144,8 +153,11 @@ class TextRunConfig:
     class_weight: ClassWeight
     tier_weight: Dict[str, float]
     exclude_conflicts: bool
-    subsample_keep_unreviewed: Optional[float]
-    gold_tiers: Tuple[str, ...]
+    unreviewed_tier: Optional[str]
+    subsample_unreviewed: Optional[float]
+    gold_tiers: Optional[Tuple[str, ...]]
+    reference_score_column: str
+    unlabeled_file: str
     optim: TextOptimConfig
     early_stopping: TextEarlyStoppingConfig
     calibration: TextCalibrationMethod
@@ -193,8 +205,11 @@ class TextRunConfig:
             "class_weight": cw,
             "tier_weight": dict(self.tier_weight),
             "exclude_conflicts": self.exclude_conflicts,
-            "subsample_keep_unreviewed": self.subsample_keep_unreviewed,
-            "gold_tiers": list(self.gold_tiers),
+            "unreviewed_tier": self.unreviewed_tier,
+            "subsample_unreviewed": self.subsample_unreviewed,
+            "gold_tiers": None if self.gold_tiers is None else list(self.gold_tiers),
+            "reference_score_column": self.reference_score_column,
+            "unlabeled_file": self.unlabeled_file,
             "optim": {
                 "lr": self.optim.lr,
                 "epochs": self.optim.epochs,
@@ -213,7 +228,7 @@ class TextRunConfig:
             },
             "reports": {
                 "review_queue_size": self.reports.review_queue_size,
-                "rescore_unlabeled_cut": self.reports.rescore_unlabeled_cut,
+                "score_unlabeled": self.reports.score_unlabeled,
             },
             "model_card_notes": self.model_card_notes,
             "device": self.device,
@@ -337,11 +352,13 @@ def _parse_tier_weight(p: _Parser, v: Any) -> Dict[str, float]:
     }
 
 
-def _parse_gold_tiers(p: _Parser, v: Any) -> Tuple[str, ...]:
+def _parse_gold_tiers(p: _Parser, v: Any) -> Optional[Tuple[str, ...]]:
+    if v is None:
+        return None
     if isinstance(v, (list, tuple)) and v and all(isinstance(t, str) and t.strip() for t in v):
         return tuple(t.strip() for t in v)
-    p.problems.append(_("gold_tiers must be a non-empty list of tier names"))
-    return ()
+    p.problems.append(_("gold_tiers must be null or a non-empty list of tier names"))
+    return None
 
 
 def parse_text_run_config(raw: Mapping[str, Any]) -> TextRunConfig:
@@ -426,7 +443,7 @@ def parse_text_run_config(raw: Mapping[str, Any]) -> TextRunConfig:
     rd = {**d["reports"], **rep_raw}
     reports = TextReportsConfig(
         review_queue_size=p.int_min(rd["review_queue_size"], "reports.review_queue_size", 0),
-        rescore_unlabeled_cut=p.boolean(rd["rescore_unlabeled_cut"], "reports.rescore_unlabeled_cut"),
+        score_unlabeled=p.boolean(rd["score_unlabeled"], "reports.score_unlabeled"),
     )
 
     notes = get("model_card_notes")
@@ -443,6 +460,17 @@ def parse_text_run_config(raw: Mapping[str, Any]) -> TextRunConfig:
         p.problems.append(_("backend_options must be a mapping"))
         backend_options = {}
 
+    unreviewed_tier = p.optional_str(get("unreviewed_tier"), "unreviewed_tier")
+    subsample_unreviewed = p.optional_positive_float(get("subsample_unreviewed"), "subsample_unreviewed")
+    if subsample_unreviewed is not None and unreviewed_tier is None:
+        p.problems.append(_("subsample_unreviewed needs unreviewed_tier to name the tier to thin out"))
+    reference_score_column = p.optional_str(get("reference_score_column"), "reference_score_column")
+    if reference_score_column is None:
+        p.problems.append(_("reference_score_column must be a non-empty string"))
+    unlabeled_file = p.optional_str(get("unlabeled_file"), "unlabeled_file")
+    if unlabeled_file is None:
+        p.problems.append(_("unlabeled_file must be a non-empty file name"))
+
     cfg = TextRunConfig(
         data_dir=p.path(get("data_dir"), "data_dir"),
         runs_dir=p.path(get("runs_dir"), "runs_dir"),
@@ -453,10 +481,11 @@ def parse_text_run_config(raw: Mapping[str, Any]) -> TextRunConfig:
         class_weight=_parse_class_weight(p, get("class_weight")),
         tier_weight=_parse_tier_weight(p, get("tier_weight")),
         exclude_conflicts=p.boolean(get("exclude_conflicts"), "exclude_conflicts"),
-        subsample_keep_unreviewed=p.optional_positive_float(
-            get("subsample_keep_unreviewed"), "subsample_keep_unreviewed"
-        ),
+        unreviewed_tier=unreviewed_tier,
+        subsample_unreviewed=subsample_unreviewed,
         gold_tiers=_parse_gold_tiers(p, get("gold_tiers")),
+        reference_score_column=reference_score_column or d["reference_score_column"],
+        unlabeled_file=unlabeled_file or d["unlabeled_file"],
         optim=optim,
         early_stopping=early_stopping,
         calibration=calibration,
@@ -490,6 +519,21 @@ def apply_text_overrides(section: Mapping[str, Any], overrides: Mapping[str, Any
             out[head] = sub
         else:
             out[key] = value
+    return out
+
+
+def dataset_file_options(pipeline: Any) -> Dict[str, str]:
+    """
+    ``verify_text_dataset`` keyword arguments from the pipeline's ``text_classification``
+    section, falling back to the defaults; reads only these keys, so a section with
+    unrelated problems can still be verified.
+    """
+    section = pipeline.get(PIPELINE_SECTION)
+    section = section if isinstance(section, Mapping) else {}
+    out: Dict[str, str] = {}
+    for key in ("unlabeled_file", "reference_score_column"):
+        v = section.get(key)
+        out[key] = v.strip() if isinstance(v, str) and v.strip() else TEXT_CLASSIFICATION_DEFAULTS[key]
     return out
 
 

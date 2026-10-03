@@ -122,11 +122,11 @@ def write_model_card(
     ]
     if subsample:
         lines.append(
-            f"- keep_unreviewed subsampled to {subsample['ratio']}x positives "
+            f"- Tier `{subsample.get('tier', '-')}` subsampled to {subsample['ratio']}x positives "
             f"(seed {subsample['seed']}): kept {subsample['kept']} of {subsample['available']}"
         )
     else:
-        lines.append("- No negative subsampling")
+        lines.append("- No subsampling")
     trunc = metrics.get("truncated_rows")
     if trunc:
         lines.append(f"- Rows truncated at {config.max_length} tokens: {trunc}")
@@ -141,8 +141,12 @@ def write_model_card(
         "",
         "## Metrics",
         "",
-        "Gold = rows in tiers " + ", ".join(f"`{t}`" for t in config.gold_tiers) + " (the headline set). "
-        "Full = every evaluated row; where unreviewed negatives are noisy its precision is a lower bound.",
+        (
+            "Gold = rows in tiers " + ", ".join(f"`{t}`" for t in config.gold_tiers) + " (the headline set). "
+            "Full = every evaluated row."
+            if config.gold_tiers is not None
+            else "Gold = every evaluated row (no `gold_tiers` configured), so gold and full match."
+        ),
         "",
         *_metric_rows(metrics),
         "",
@@ -153,13 +157,14 @@ def write_model_card(
     ]
     tier_rows = _tier_rows(metrics)
     if tier_rows:
-        lines += ["Test by tier (FPR on human-kept negatives is the hard-negative score):", "", *tier_rows, ""]
-    if extra.get("unlabeled_cut"):
-        below = extra["unlabeled_cut"].get("below_threshold") or {}
+        lines += ["Test by tier:", "", *tier_rows, ""]
+    unlabeled = extra.get("unlabeled")
+    if unlabeled:
+        below = unlabeled.get("below_threshold") or {}
         lines += [
-            "## Unlabeled cut (not part of any metric)",
+            f"## Unlabeled rows: `{unlabeled.get('file', '-')}` (not part of any metric)",
             "",
-            f"- Lines scored: {extra['unlabeled_cut'].get('n')}; below the decision threshold: {below.get('decision')}",
+            f"- Lines scored: {unlabeled.get('n')}; below the decision threshold: {below.get('decision')}",
             "",
         ]
     lines += [

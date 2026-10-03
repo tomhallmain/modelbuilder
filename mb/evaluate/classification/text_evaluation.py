@@ -4,12 +4,12 @@ Evaluation, scoring and comparison of text-classification run directories.
 :func:`evaluate_text_run` is shared by training (right after calibration) and by
 ``mb text evaluate``, so a re-evaluation rewrites exactly the files training produced:
 ``thresholds.json``, ``metrics.json``, ``predictions_test.tsv``, ``review_queue.tsv``,
-``cut_rescore.tsv``, ``extra_reports.json``, ``predict.py`` and ``MODEL_CARD.md``.
+``unlabeled_scores.tsv``, ``extra_reports.json``, ``predict.py`` and ``MODEL_CARD.md``.
 
 ``metrics.json`` holds only values derived from the data and model (no timestamps or
 durations), so two runs of a deterministic backend with the same config produce identical
-files. Rows from conflict groups (when excluded) and ``unlabeled_cut.tsv`` never enter a
-metric; the cut is only scored for the separate extra report.
+files. Rows from conflict groups (when excluded) and the unlabeled file never enter a
+metric; the unlabeled file is only scored for the separate extra report.
 """
 
 from __future__ import annotations
@@ -25,11 +25,10 @@ import yaml
 
 from mb.cancellation import check_cancel_event
 from mb.data.text_dataset import (
-    KEEP_UNREVIEWED_TIER,
     TextDataset,
     gold_mask,
     load_text_dataset,
-    load_unlabeled_cut,
+    load_unlabeled,
     read_text_lines,
     verify_text_dataset,
 )
@@ -61,7 +60,7 @@ THRESHOLDS_FILE = "thresholds.json"
 METRICS_FILE = "metrics.json"
 PREDICTIONS_FILE = "predictions_test.tsv"
 REVIEW_QUEUE_FILE = "review_queue.tsv"
-CUT_RESCORE_FILE = "cut_rescore.tsv"
+UNLABELED_SCORES_FILE = "unlabeled_scores.tsv"
 EXTRA_REPORTS_FILE = "extra_reports.json"
 MODEL_CARD_FILE = "MODEL_CARD.md"
 
@@ -210,8 +209,8 @@ def evaluate_text_run(
     progress: Optional[ProgressFn] = None,
 ) -> TextEvaluationResult:
     """
-    Section-5 evaluation of a run: thresholds on val gold, metrics and slices for val and
-    test (gold and full), extra reports, and the model card.
+    Evaluate a run: thresholds on val gold, metrics and slices for val and test (gold and
+    full), extra reports, ``predict.py`` and the model card.
 
     Training passes its in-memory *backend*, *calibrator*, *dataset* and uncalibrated
     *val_raw*; ``mb text evaluate`` passes none of them and everything is reloaded from
@@ -227,8 +226,19 @@ def evaluate_text_run(
     if dataset is None:
         ddir = Path(data_dir) if data_dir is not None else config.data_dir
         say(_("Verifying dataset…"), None)
-        ds = load_text_dataset(ddir, keep_groups=True, cancel_event=cancel_event)
-        report = verify_text_dataset(ddir, dataset=ds, cancel_event=cancel_event)
+        ds = load_text_dataset(
+            ddir,
+            keep_groups=True,
+            reference_score_column=config.reference_score_column,
+            cancel_event=cancel_event,
+        )
+        report = verify_text_dataset(
+            ddir,
+            dataset=ds,
+            unlabeled_file=config.unlabeled_file,
+            reference_score_column=config.reference_score_column,
+            cancel_event=cancel_event,
+        )
         if not report.ok:
             raise ValueError(_("Dataset verification failed:\n{report}").format(report=report.format()))
         ds.drop_groups()
@@ -294,46 +304,57 @@ def evaluate_text_run(
     )
 
     extra: Dict[str, Any] = {}
-    if ds.stage7_score is not None:
-        keeps = ds.labels[test_idx] == 0
-        extra["stage7_spearman_test_keeps"] = spearman(p_test[keeps], ds.stage7_score[test_idx][keeps])
+    if ds.reference_score is not None:
+        ref = ds.reference_score[test_idx]
+        test_labels = ds.labels[test_idx]
+        extra["reference_spearman_test"] = {
+            "all": spearman(p_test, ref),
+            "label_0": spearman(p_test[test_labels == 0], ref[test_labels == 0]),
+            "label_1": spearman(p_test[test_labels == 1], ref[test_labels == 1]),
+        }
 
     n_queue = config.reports.review_queue_size
-    if n_queue > 0 and ds.tier is not None and ds.tier.code_of(KEEP_UNREVIEWED_TIER) is not None:
-        say(_("Scoring keep_unreviewed rows for the review queue…"), 0.4)
+    tier = config.unreviewed_tier
+    if n_queue > 0 and tier is not None and ds.tier is not None and ds.tier.code_of(tier) is not None:
+        say(_("Scoring {tier} rows for the review queue…").format(tier=tier), 0.4)
         _write_review_queue(
             run_dir, ds, config, backend, calibrator, p_val, val_idx, p_test, test_idx, n_queue,
             cancel_event, _sub_progress(say, 0.4, 0.85),
         )
 
-    if config.reports.rescore_unlabeled_cut:
-        cut = load_unlabeled_cut(ds.data_dir)
-        if cut is not None:
-            say(_("Scoring unlabeled cut…"), 0.85)
-            cut_texts, cut_s7 = cut
-            p_cut = calibrated_scores(
-                backend, calibrator, cut_texts, cancel_event=cancel_event, progress=_sub_progress(say, 0.85, 0.97)
+    if config.reports.score_unlabeled:
+        unlabeled = load_unlabeled(
+            ds.data_dir,
+            unlabeled_file=config.unlabeled_file,
+            reference_score_column=config.reference_score_column,
+        )
+        if unlabeled is not None:
+            say(_("Scoring unlabeled rows…"), 0.85)
+            u_texts, u_ref = unlabeled
+            p_u = calibrated_scores(
+                backend, calibrator, u_texts, cancel_event=cancel_event, progress=_sub_progress(say, 0.85, 0.97)
             )
             _write_tsv(
-                run_dir / CUT_RESCORE_FILE,
+                run_dir / UNLABELED_SCORES_FILE,
                 ("text", "score"),
-                [(t, _fmt_score(s)) for t, s in zip(cut_texts, p_cut)],
+                [(t, _fmt_score(s)) for t, s in zip(u_texts, p_u)],
             )
             below = {
-                name: (None if t is None else int(np.sum(p_cut < t)))
+                name: (None if t is None else int(np.sum(p_u < t)))
                 for name, t in (
                     ("precision_target", thresholds.precision_threshold),
                     ("recall_target", thresholds.recall_threshold),
                     ("decision", thresholds.decision),
                 )
             }
-            extra["unlabeled_cut"] = {
-                "n": len(cut_texts),
-                "histogram": histogram(p_cut),
+            extra["unlabeled"] = {
+                "file": config.unlabeled_file,
+                "n": len(u_texts),
+                "histogram": histogram(p_u),
                 "below_threshold": below,
             }
-            if cut_s7 is not None:
-                extra["unlabeled_cut"]["stage7_spearman"] = spearman(p_cut, cut_s7)
+            if u_ref is not None:
+                extra["unlabeled"]["reference_spearman"] = spearman(p_u, u_ref)
     write_json(run_dir / EXTRA_REPORTS_FILE, extra)
 
     env_path = run_dir / ENVIRONMENT_FILE
@@ -358,27 +379,34 @@ def _write_review_queue(
     cancel_event: Optional[threading.Event],
     progress: Optional[ProgressFn],
 ) -> None:
-    """Highest-scoring ``keep_unreviewed`` rows across all splits: likely label errors."""
-    ku = ds.tier.mask([KEEP_UNREVIEWED_TIER])
+    """
+    ``unreviewed_tier`` rows across all splits whose score most disagrees with their label
+    (``|score - label|``, largest first): the likeliest label errors.
+    """
+    unreviewed = ds.tier.mask([config.unreviewed_tier])
     if config.exclude_conflicts:
-        ku &= ~ds.conflict
+        unreviewed &= ~ds.conflict
     scores = np.full(len(ds), np.nan)
     scores[val_idx] = p_val
     scores[test_idx] = p_test
-    train_ku = np.flatnonzero(ku & ds.split.mask(["train"]))
-    if len(train_ku):
-        scores[train_ku] = calibrated_scores(
-            backend, calibrator, [ds.texts[i] for i in train_ku], cancel_event=cancel_event, progress=progress
+    train_unreviewed = np.flatnonzero(unreviewed & ds.split.mask(["train"]))
+    if len(train_unreviewed):
+        scores[train_unreviewed] = calibrated_scores(
+            backend,
+            calibrator,
+            [ds.texts[i] for i in train_unreviewed],
+            cancel_event=cancel_event,
+            progress=progress,
         )
-    cand = np.flatnonzero(ku)
-    cand_scores = scores[cand]
-    # Highest score first; ties keep dataset order so the file is deterministic.
-    order = np.lexsort((cand, -cand_scores))[:n_queue]
+    cand = np.flatnonzero(unreviewed)
+    disagreement = np.abs(scores[cand] - ds.labels[cand])
+    # Largest disagreement first; ties keep dataset order so the file is deterministic.
+    order = np.lexsort((cand, -disagreement))[:n_queue]
     top = cand[order]
-    s7 = ds.stage7_score
+    ref = ds.reference_score
     _write_tsv(
         run_dir / REVIEW_QUEUE_FILE,
-        ("text", "label", "tier", "source", "split", "score", "stage7_score"),
+        ("text", "label", "tier", "source", "split", "score", "reference_score"),
         [
             (
                 ds.texts[i],
@@ -387,7 +415,7 @@ def _write_review_queue(
                 ds.source.value(i) if ds.source is not None else "",
                 ds.split.value(i),
                 _fmt_score(scores[i]),
-                "" if s7 is None or np.isnan(s7[i]) else f"{float(s7[i]):.4f}",
+                "" if ref is None or np.isnan(ref[i]) else f"{float(ref[i]):.4f}",
             )
             for i in top.tolist()
         ],
@@ -458,7 +486,7 @@ class CompareRow:
     gold_ap: Optional[float]
     full_ap: Optional[float]
     recall_at_p90: Optional[float]
-    keep_reviewed_fpr: Optional[float]
+    gold_fpr: Optional[float]
     ece: Optional[float]
 
 
@@ -480,7 +508,6 @@ def compare_text_runs(run_dirs: Sequence[Path]) -> Tuple[List[CompareRow], List[
             backend, model_id = "?", ""
         test = m.get("test") or {}
         gold, full = test.get("gold") or {}, test.get("full") or {}
-        kr = ((test.get("slices") or {}).get("tier") or {}).get("keep_reviewed") or {}
         rows.append(
             CompareRow(
                 run=d.name,
@@ -489,7 +516,7 @@ def compare_text_runs(run_dirs: Sequence[Path]) -> Tuple[List[CompareRow], List[
                 gold_ap=gold.get("ap"),
                 full_ap=full.get("ap"),
                 recall_at_p90=(gold.get("recall_at_precision") or {}).get("0.90"),
-                keep_reviewed_fpr=kr.get("fpr"),
+                gold_fpr=gold.get("fpr"),
                 ece=gold.get("ece"),
             )
         )
@@ -507,11 +534,11 @@ def format_compare_table(rows: Sequence[CompareRow]) -> str:
         _("gold AP"),
         _("full AP"),
         _("R@P0.90"),
-        _("keep_reviewed FPR"),
+        _("gold FPR"),
         _("ECE"),
     ]
     body = [
-        [r.run, r.backend, r.model_id, f(r.gold_ap), f(r.full_ap), f(r.recall_at_p90), f(r.keep_reviewed_fpr), f(r.ece)]
+        [r.run, r.backend, r.model_id, f(r.gold_ap), f(r.full_ap), f(r.recall_at_p90), f(r.gold_fpr), f(r.ece)]
         for r in rows
     ]
     widths = [max(len(str(c)) for c in col) for col in zip(header, *body)]

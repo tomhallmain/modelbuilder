@@ -712,13 +712,16 @@ def _text_data_dir_default() -> Path:
 def handle_text_verify(args) -> int:
     """Handle ``mb text verify``."""
     from mb.data.text_dataset import verify_text_dataset
+    from mb.training.text_config import dataset_file_options
 
     reload_pipeline_config(getattr(args, "config", None), force=True)
     data_dir = args.data_dir or _text_data_dir_default()
     if not data_dir.is_dir():
         logger.error(_("Data directory not found: {path}").format(path=data_dir))
         return 1
-    report = verify_text_dataset(data_dir, progress=lambda m: logger.info(m))
+    report = verify_text_dataset(
+        data_dir, progress=lambda m: logger.info(m), **dataset_file_options(get_pipeline_config())
+    )
     print(report.format())
     return 0 if report.ok else 1
 

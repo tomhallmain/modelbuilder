@@ -72,8 +72,8 @@ def test_length_buckets() -> None:
 
 
 def test_recall_slices_skip_empty_keys_and_negatives() -> None:
-    out = recall_slices(np.array([1, 1, 0, 1]), np.array([0.9, 0.1, 0.9, 0.8]), 0.5, ["gore", "gore", "gore", ""])
-    assert out == {"gore": {"n_pos": 2, "recall": 0.5}}
+    out = recall_slices(np.array([1, 1, 0, 1]), np.array([0.9, 0.1, 0.9, 0.8]), 0.5, ["topic_a", "topic_a", "topic_a", ""])
+    assert out == {"topic_a": {"n_pos": 2, "recall": 0.5}}
 
 
 def test_spearman_ignores_nan() -> None:

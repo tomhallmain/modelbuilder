@@ -13,6 +13,7 @@ from mb.training.text_config import (
     TEXT_CLASSIFICATION_DEFAULTS,
     TextConfigError,
     apply_text_overrides,
+    dataset_file_options,
     parse_text_run_config,
     resolve_text_run_config,
 )
@@ -30,7 +31,8 @@ def test_defaults_parse() -> None:
     assert cfg.calibration == TextCalibrationMethod.AUTO
     assert cfg.threshold_policy.kind == TextThresholdPolicy.PRECISION_TARGET
     assert cfg.class_weight == "balanced"
-    assert cfg.gold_tiers == ("reject_reviewed", "keep_reviewed")
+    assert cfg.gold_tiers is None
+    assert cfg.unreviewed_tier is None
     assert cfg.optim.lr is None
 
 
@@ -42,7 +44,7 @@ def test_shipped_yaml_section_matches_code_defaults() -> None:
 
 def test_unknown_top_level_key_is_an_error() -> None:
     raw = _defaults()
-    raw["tier_weigth"] = {"keep_unreviewed": 0.5}
+    raw["tier_weigth"] = {"unreviewed": 0.5}
     with pytest.raises(TextConfigError) as exc:
         parse_text_run_config(raw)
     assert any("tier_weigth" in p for p in exc.value.problems)
@@ -83,10 +85,38 @@ def test_class_weight_mapping_needs_both_labels() -> None:
 def test_to_dict_round_trips() -> None:
     raw = _defaults()
     raw["class_weight"] = {0: 1.0, 1: 3.0}
-    raw["tier_weight"] = {"keep_unreviewed": 0.5}
-    raw["subsample_keep_unreviewed"] = 4
+    raw["tier_weight"] = {"unreviewed": 0.5}
+    raw["unreviewed_tier"] = "unreviewed"
+    raw["subsample_unreviewed"] = 4
+    raw["gold_tiers"] = ["reviewed"]
+    raw["reference_score_column"] = "prior_score"
+    raw["unlabeled_file"] = "pool.tsv"
     cfg = parse_text_run_config(raw)
     assert parse_text_run_config(cfg.to_dict()) == cfg
+
+
+def test_subsample_without_unreviewed_tier_is_an_error() -> None:
+    raw = _defaults()
+    raw["subsample_unreviewed"] = 4
+    with pytest.raises(TextConfigError) as exc:
+        parse_text_run_config(raw)
+    assert any("unreviewed_tier" in p for p in exc.value.problems)
+
+
+def test_dataset_file_options_default_and_override(tmp_path: Path) -> None:
+    yml = tmp_path / "pipe.yaml"
+    yml.write_text("text_classification:\n  unlabeled_file: pool.tsv\n", encoding="utf-8")
+    assert dataset_file_options(PipelineConfig(yml)) == {
+        "unlabeled_file": "pool.tsv",
+        "reference_score_column": TEXT_CLASSIFICATION_DEFAULTS["reference_score_column"],
+    }
+
+
+def test_dataset_defaults_match_text_dataset_constants() -> None:
+    from mb.data.text_dataset import COL_REFERENCE_SCORE, UNLABELED_FILE
+
+    assert TEXT_CLASSIFICATION_DEFAULTS["reference_score_column"] == COL_REFERENCE_SCORE
+    assert TEXT_CLASSIFICATION_DEFAULTS["unlabeled_file"] == UNLABELED_FILE
 
 
 def test_overrides_skip_none_and_reach_nested_keys() -> None:

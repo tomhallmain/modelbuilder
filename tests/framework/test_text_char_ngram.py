@@ -28,7 +28,7 @@ RUN_FILES = (
     "metrics.json",
     "predictions_test.tsv",
     "review_queue.tsv",
-    "cut_rescore.tsv",
+    "unlabeled_scores.tsv",
     "extra_reports.json",
     "MODEL_CARD.md",
     "predict.py",
@@ -42,6 +42,8 @@ def _config(data_dir: Path, runs_dir: Path):
             "data_dir": str(data_dir),
             "runs_dir": str(runs_dir),
             "backend_options": {"min_df": 1, "ngram_max": 4},
+            "gold_tiers": ["reviewed"],
+            "unreviewed_tier": "unreviewed",
             "model_card_notes": "Synthetic test data.",
         }
     )
@@ -95,7 +97,7 @@ def test_predictions_hold_only_test_rows_without_conflicts(char_ngram_runs) -> N
     lines = (run / "predictions_test.tsv").read_text(encoding="utf-8").split("\n")[1:-1]
     predicted = [line.split("\t")[0] for line in lines]
     assert set(predicted) == test_texts
-    assert "Afstab" not in predicted and "A_F_S_T_A_B" not in predicted
+    assert "Afvex" not in predicted and "A_F_V_E_X" not in predicted
 
 
 @pytest.mark.slow
@@ -103,7 +105,7 @@ def test_score_keeps_line_count_and_order(char_ngram_runs, tmp_path: Path) -> No
     from mb.evaluate.classification.text_evaluation import score_text_file
 
     _data, run, _ = char_ngram_runs
-    lines = ["zo blood", "", "line\u2028sep", "NA", "kalo"]
+    lines = ["zo vex", "", "line\u2028sep", "NA", "kalo"]
     src = tmp_path / "lines.txt"
     src.write_bytes(("\n".join(lines) + "\n").encode("utf-8"))
     out = tmp_path / "scores.tsv"
@@ -119,7 +121,7 @@ def test_predict_script_matches_score_without_mb(char_ngram_runs, tmp_path: Path
     from mb.evaluate.classification.text_evaluation import score_text_file
 
     _data, run, _ = char_ngram_runs
-    lines = ["zo blood", "", "line\u2028sep", "NA", "kalo"]
+    lines = ["zo vex", "", "line\u2028sep", "NA", "kalo"]
     src = tmp_path / "lines.txt"
     src.write_bytes(("\n".join(lines) + "\n").encode("utf-8"))
     expected_out = tmp_path / "scores.tsv"
@@ -148,3 +150,12 @@ def test_predict_script_matches_score_without_mb(char_ngram_runs, tmp_path: Path
     assert got["scores"] == expected
     assert got["flags"] == [float(s) >= got["threshold"] for s in got["scores"]]
     assert got["mb_imported"] is False
+
+
+@pytest.mark.slow
+def test_review_queue_holds_only_unreviewed_rows(char_ngram_runs) -> None:
+    _data, run, _ = char_ngram_runs
+    rows = (run / "review_queue.tsv").read_text(encoding="utf-8").split("\n")
+    header, body = rows[0].split("\t"), [r.split("\t") for r in rows[1:-1]]
+    assert header[-1] == "reference_score"
+    assert body and {r[header.index("tier")] for r in body} == {"unreviewed"}

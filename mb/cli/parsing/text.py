@@ -42,8 +42,8 @@ def register(subparsers) -> None:
         help=_("Re-run thresholds, metrics and reports for a run directory"),
         description=_(
             "Reloads the run's model and calibrator, chooses thresholds on val gold, and rewrites "
-            "metrics.json, thresholds.json, predictions, review queue, cut rescore, predict.py and the "
-            "model card."
+            "metrics.json, thresholds.json, predictions, review queue, unlabeled scores, predict.py "
+            "and the model card."
         ),
     )
     evaluate.add_argument("--model", type=Path, required=True, help=_("Run directory"))
@@ -71,8 +71,9 @@ def register(subparsers) -> None:
         TextSubcommand.COMPARE.value,
         help=_("Tabulate headline metrics across run directories"),
         description=_(
-            "One row per run: test gold AP, full AP, recall at precision 0.90, keep_reviewed "
-            "false-positive rate and ECE. Wildcards are expanded (e.g. data/models/text_runs/*)."
+            "One row per run: test gold AP, full AP, recall at precision 0.90, gold false-positive "
+            "rate at the decision threshold and ECE. Wildcards are expanded (e.g. "
+            "data/models/text_runs/*)."
         ),
     )
     compare.add_argument("runs", nargs="+", help=_("Run directories or wildcard patterns"))

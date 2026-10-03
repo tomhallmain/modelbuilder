@@ -82,9 +82,8 @@ def _fake_run(root: Path, name: str, gold_ap: float) -> Path:
     (run / "config.yaml").write_text(yaml.safe_dump(cfg.to_dict()), encoding="utf-8")
     metrics = {
         "test": {
-            "gold": {"ap": gold_ap, "ece": 0.01, "recall_at_precision": {"0.90": 0.7}},
+            "gold": {"ap": gold_ap, "ece": 0.01, "fpr": 0.05, "recall_at_precision": {"0.90": 0.7}},
             "full": {"ap": gold_ap - 0.1},
-            "slices": {"tier": {"keep_reviewed": {"fpr": 0.05}}},
         }
     }
     (run / "metrics.json").write_text(json.dumps(metrics), encoding="utf-8")
@@ -98,7 +97,7 @@ def test_text_compare_tabulates_runs(tmp_path: Path, capsys: pytest.CaptureFixtu
     code = main([TEXT, TextSubcommand.COMPARE.value, str(tmp_path / "runs" / "*")])
     out = capsys.readouterr().out
     assert code == 0
-    assert "run_a" in out and "run_b" in out and "0.9000" in out
+    assert "run_a" in out and "run_b" in out and "0.9000" in out and "0.0500" in out
     assert "not_a_run" not in out
 
 

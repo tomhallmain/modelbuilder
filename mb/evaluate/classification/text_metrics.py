@@ -155,7 +155,7 @@ def confusion_at(labels: np.ndarray, probs: np.ndarray, threshold: float) -> Dic
 
 def binary_metrics(labels: np.ndarray, probs: np.ndarray, threshold: float) -> Dict[str, Any]:
     """
-    Section-5.2 metrics for one evaluation set.
+    Ranking, calibration and threshold metrics for one evaluation set.
 
     Ranking/calibration metrics need both labels; with only one label present the entry
     still carries counts, ``flag_rate`` and whichever of ``recall``/``fpr`` is defined.
