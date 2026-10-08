@@ -2,9 +2,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
-"POT-Creation-Date: 2026-10-01 09:52-0400\n"
-"PO-Revision-Date: 2026-10-01 09:52-0400\n"
-"Last-Translator: Thomas Hall <tomhall.main@gmail.com>\n"
+"POT-Creation-Date: 2026-10-08 17:04-0400\n"
+"PO-Revision-Date: 2026-10-08 17:04-0400\n"
+"Last-Translator: Translator Name <translator@example.com>\n"
 "Language-Team: ko Team <<EMAIL>>\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
@@ -156,104 +156,104 @@ msgstr "  없음"
 msgid "  total: {n}"
 msgstr "  합계: {n}"
 
-#: mb/cli/__init__.py:57
+#: mb/cli/__init__.py:58
 msgid "Model Builder - A unified CLI for building ML models"
 msgstr "Model Builder - ML 모델을 만드는 통합 CLI"
 
-#: mb/cli/__init__.py:69
+#: mb/cli/__init__.py:70
 msgid "Path to configuration file (YAML)"
 msgstr "설정 파일 경로 (YAML)"
 
-#: mb/cli/__init__.py:74
+#: mb/cli/__init__.py:75
 msgid "Enable verbose logging"
 msgstr "자세한 로깅 사용"
 
-#: mb/cli/__init__.py:78
+#: mb/cli/__init__.py:79
 msgid "Available commands"
 msgstr "사용 가능한 명령"
 
-#: mb/cli/__init__.py:91
+#: mb/cli/__init__.py:92
 msgid "Please specify valid subdirectories using --subdirs argument"
 msgstr "--subdirs 인수로 유효한 하위 디렉터리를 지정하세요"
 
-#: mb/cli/__init__.py:100
+#: mb/cli/__init__.py:101
 msgid "Invalid weight format: {pair}. Expected format: subdir:weight"
 msgstr "가중치 형식이 올바르지 않습니다: {pair}. 예상 형식: subdir:weight"
 
-#: mb/cli/__init__.py:110
+#: mb/cli/__init__.py:111
 msgid "Weight must be non-negative: {subdir}={weight}"
 msgstr "가중치는 음수일 수 없습니다: {subdir}={weight}"
 
-#: mb/cli/__init__.py:121
+#: mb/cli/__init__.py:122
 msgid "Subdirectories in weights not found in --subdirs: {weights}"
 msgstr "가중치의 하위 디렉터리가 --subdirs에 없습니다: {weights}"
 
-#: mb/cli/__init__.py:219
+#: mb/cli/__init__.py:220
 msgid "Image generation dataset creation is not implemented yet."
 msgstr "이미지 생성 데이터셋 만들기는 아직 구현되지 않았습니다."
 
-#: mb/cli/__init__.py:229
+#: mb/cli/__init__.py:239
 msgid "Process terminated due to external storage detection."
 msgstr "외부 저장소가 감지되어 프로세스를 종료했습니다."
 
-#: mb/cli/__init__.py:278
+#: mb/cli/__init__.py:288
 msgid "--pillow and --quiet require --dry-run"
 msgstr "--pillow 및 --quiet에는 --dry-run이 필요합니다"
 
-#: mb/cli/__init__.py:281
+#: mb/cli/__init__.py:291
 msgid "--pillow requires --json"
 msgstr "--pillow에는 --json이 필요합니다"
 
-#: mb/cli/__init__.py:324
+#: mb/cli/__init__.py:334
 msgid "--data-dir is required when operation is create-dataset"
 msgstr "작업이 create-dataset이면 --data-dir이 필요합니다"
 
-#: mb/cli/__init__.py:356 mb/cli/__init__.py:403
+#: mb/cli/__init__.py:366 mb/cli/__init__.py:413
 msgid "Image generation training is not implemented yet."
 msgstr "이미지 생성 학습은 아직 구현되지 않았습니다."
 
-#: mb/cli/__init__.py:359
+#: mb/cli/__init__.py:369
 msgid "Image generation LoRA training is not implemented yet."
 msgstr "이미지 생성 LoRA 학습은 아직 구현되지 않았습니다."
 
-#: mb/cli/__init__.py:362
+#: mb/cli/__init__.py:372
 msgid "Unsupported model type from config: {t}"
 msgstr "설정의 모델 유형은 지원되지 않습니다: {t}"
 
-#: mb/cli/__init__.py:367 mb/cli/__init__.py:424
+#: mb/cli/__init__.py:377 mb/cli/__init__.py:438
 #: mb/training/lora_diffusion_trainer.py:587
 msgid "Data directory does not exist: {path}"
 msgstr "데이터 디렉터리가 없습니다: {path}"
 
-#: mb/cli/__init__.py:379 mb/cli/__init__.py:467
+#: mb/cli/__init__.py:389 mb/cli/__init__.py:481
 msgid "Architecture '{arch}' not supported for framework '{fw}'"
 msgstr "아키텍처 '{arch}'은(는) 프레임워크 '{fw}'에서 지원되지 않습니다"
 
-#: mb/cli/__init__.py:390 mb/cli/__init__.py:494
+#: mb/cli/__init__.py:400 mb/cli/__init__.py:508
 msgid "Training completed successfully. Model saved to: {path}"
 msgstr "학습이 성공적으로 완료되었습니다. 모델 저장 위치: {path}"
 
-#: mb/cli/__init__.py:398 ui/controllers/train_page_controller.py:73
+#: mb/cli/__init__.py:408 ui/controllers/train_page_controller.py:121
 msgid "Unsupported framework: {fw}"
 msgstr "지원되지 않는 프레임워크: {fw}"
 
-#: mb/cli/__init__.py:410
+#: mb/cli/__init__.py:424
 msgid "Unsupported model type: {t}"
 msgstr "지원되지 않는 모델 유형: {t}"
 
-#: mb/cli/__init__.py:418
+#: mb/cli/__init__.py:432
 msgid "Unsupported architecture: {arch}"
 msgstr "지원되지 않는 아키텍처: {arch}"
 
-#: mb/cli/__init__.py:499
+#: mb/cli/__init__.py:513
 msgid "Training failed: {err}"
 msgstr "학습에 실패했습니다: {err}"
 
-#: mb/cli/__init__.py:510 mb/cli/__init__.py:623
+#: mb/cli/__init__.py:524 mb/cli/__init__.py:637
 msgid "Input model file not found: {path}"
 msgstr "입력 모델 파일을 찾을 수 없습니다: {path}"
 
-#: mb/cli/__init__.py:518
+#: mb/cli/__init__.py:532
 msgid ""
 "{path} looks like a LoRA adapter (from `mb train --model-type "
 "image_generation_lora`), not a full model checkpoint — `mb convert` doesn't "
@@ -264,50 +264,51 @@ msgstr ""
 "image_generation_lora`의 결과). `mb convert`는 적용되지 않습니다. 이미 이식 가능한 safetensors "
 "산출물이므로 직접 사용할 수 있습니다 (예: diffusers 파이프라인의 load_lora_weights())."
 
-#: mb/cli/__init__.py:532
+#: mb/cli/__init__.py:546
 msgid "Could not detect source framework. Please specify --framework"
 msgstr "원본 프레임워크를 감지하지 못했습니다. --framework를 지정하세요"
 
-#: mb/cli/__init__.py:538
+#: mb/cli/__init__.py:552
 msgid "PyTorch -> ONNX conversion requires --architecture and --num-classes"
 msgstr "PyTorch -> ONNX로 변환하려면 --architecture 및 --num-classes가 필요합니다"
 
-#: mb/cli/__init__.py:558
+#: mb/cli/__init__.py:572
 msgid "Conversion completed successfully: {path}"
 msgstr "변환이 성공적으로 완료되었습니다: {path}"
 
-#: mb/cli/__init__.py:564
+#: mb/cli/__init__.py:578
 msgid "--quantize applies to --target onnx only; skipping quantization."
 msgstr "--quantize는 --target onnx에만 적용됩니다. 양자화를 건너뜁니다."
 
-#: mb/cli/__init__.py:572
+#: mb/cli/__init__.py:586
 msgid "Only {n} of {total} quantized variants were written."
 msgstr "양자화 변형은 {n}/{total}개만 기록되었습니다."
 
-#: mb/cli/__init__.py:578
+#: mb/cli/__init__.py:592
 msgid "Wrote quantized variant: {path}"
 msgstr "양자화 변형을 기록했습니다: {path}"
 
-#: mb/cli/__init__.py:581 ui/pages/convert_page.py:344
+#: mb/cli/__init__.py:595 ui/pages/convert_page.py:344
 msgid "Conversion failed"
 msgstr "변환에 실패했습니다"
 
-#: mb/cli/__init__.py:585
+#: mb/cli/__init__.py:599
 msgid "Conversion error: {err}"
 msgstr "변환 오류: {err}"
 
-#: mb/cli/__init__.py:594 ui/pages/info_page.py:184
+#: mb/cli/__init__.py:608 ui/pages/info_page.py:184
 msgid "Model path not found: {path}"
 msgstr "모델 경로를 찾을 수 없습니다: {path}"
 
-#: mb/cli/__init__.py:608 mb/evaluate/compare.py:157
+#: mb/cli/__init__.py:622 mb/cli/__init__.py:720 mb/evaluate/compare.py:157
 #: mb/evaluate/compare.py:193 mb/evaluate/metrics.py:162
 #: mb/evaluate/metrics.py:182 mb/evaluate/misclassified.py:84
 #: mb/evaluate/misclassified.py:104 ui/pages/info_page.py:198
+#: ui/pages/text_page.py:320
 msgid "Data directory not found: {path}"
 msgstr "데이터 디렉터리를 찾을 수 없습니다: {path}"
 
-#: mb/cli/__init__.py:631
+#: mb/cli/__init__.py:645
 msgid ""
 "{path} looks like a LoRA adapter (from `mb train --model-type "
 "image_generation_lora`), not a full model checkpoint — `mb export bundle` "
@@ -318,72 +319,72 @@ msgstr ""
 "image_generation_lora`의 결과). `mb export bundle`은 적용되지 않습니다. 이미 이식 가능한 "
 "safetensors 산출물이므로 직접 사용할 수 있습니다 (예: diffusers 파이프라인의 load_lora_weights())."
 
-#: mb/cli/__init__.py:656
+#: mb/cli/__init__.py:670
 msgid "Bundle export completed: {path}"
 msgstr "번들 내보내기가 완료되었습니다: {path}"
 
-#: mb/cli/__init__.py:657 ui/pages/export_page.py:338
+#: mb/cli/__init__.py:671 ui/pages/export_page.py:338
 msgid "Weights: {path}"
 msgstr "가중치: {path}"
 
-#: mb/cli/__init__.py:658 ui/pages/export_page.py:339
+#: mb/cli/__init__.py:672 ui/pages/export_page.py:339
 msgid "Manifest: {path}"
 msgstr "매니페스트: {path}"
 
-#: mb/cli/__init__.py:660 ui/pages/export_page.py:342
+#: mb/cli/__init__.py:674 ui/pages/export_page.py:342
 msgid "Architecture stub: {path}"
 msgstr "아키텍처 스텁: {path}"
 
-#: mb/cli/__init__.py:663
+#: mb/cli/__init__.py:677
 msgid "Export failed: {err}"
 msgstr "내보내기에 실패했습니다: {err}"
 
-#: mb/cli/__init__.py:724
+#: mb/cli/__init__.py:841
 msgid "No data subcommand specified"
 msgstr "데이터 하위 명령이 지정되지 않았습니다"
 
-#: mb/cli/__init__.py:729
+#: mb/cli/__init__.py:846
 msgid "Unknown data subcommand: {cmd}"
 msgstr "알 수 없는 데이터 하위 명령: {cmd}"
 
-#: mb/cli/__init__.py:751
+#: mb/cli/__init__.py:868
 msgid "No info subcommand specified"
 msgstr "정보 하위 명령이 지정되지 않았습니다"
 
-#: mb/cli/__init__.py:755
+#: mb/cli/__init__.py:872
 msgid "Unknown info subcommand: {cmd}"
 msgstr "알 수 없는 정보 하위 명령: {cmd}"
 
-#: mb/cli/__init__.py:764
+#: mb/cli/__init__.py:881
 msgid "No export subcommand specified"
 msgstr "내보내기 하위 명령이 지정되지 않았습니다"
 
-#: mb/cli/__init__.py:768
+#: mb/cli/__init__.py:885
 msgid "Unknown export subcommand: {cmd}"
 msgstr "알 수 없는 내보내기 하위 명령: {cmd}"
 
-#: mb/cli/__init__.py:772
+#: mb/cli/__init__.py:889
 msgid "Unhandled export subcommand: {cmd}"
 msgstr "처리되지 않은 내보내기 하위 명령: {cmd}"
 
-#: mb/cli/__init__.py:778
+#: mb/cli/__init__.py:895
 msgid "No evaluate subcommand specified"
 msgstr "평가 하위 명령이 지정되지 않았습니다"
 
-#: mb/cli/__init__.py:782
+#: mb/cli/__init__.py:899
 msgid "Unknown evaluate subcommand: {cmd}"
 msgstr "알 수 없는 평가 하위 명령: {cmd}"
 
-#: mb/cli/__init__.py:787 ui/pages/data_page.py:1263
-#: ui/pages/data_page.py:1493
+#: mb/cli/__init__.py:915 ui/pages/data_page.py:1270
+#: ui/pages/data_page.py:1500
 msgid "Unknown command: {cmd}"
 msgstr "알 수 없는 명령: {cmd}"
 
-#: mb/cli/__init__.py:791
+#: mb/cli/__init__.py:919
 msgid "Interrupted by user"
 msgstr "사용자가 중단함"
 
-#: mb/cli/__init__.py:794
+#: mb/cli/__init__.py:922
 msgid "Error: {err}"
 msgstr "오류: {err}"
 
@@ -613,7 +614,7 @@ msgid ""
 "set, else non-deterministic)"
 msgstr "재현성을 위한 난수 시드 (설정된 경우 기본값: 파이프라인 YAML의 data.seed, 아니면 비결정적)"
 
-#: mb/cli/parsing/data.py:267 mb/cli/parsing/train.py:191
+#: mb/cli/parsing/data.py:267 mb/cli/parsing/train.py:231
 msgid ""
 "Run ID of unified snapshot to update (auto-detects latest if not provided)"
 msgstr "업데이트할 통합 스냅샷의 실행 ID (지정하지 않으면 최신을 자동 감지)"
@@ -1127,23 +1128,23 @@ msgstr "데이터 디렉터리 (기본값: 설정에서)"
 msgid "Output directory for models (default: from config)"
 msgstr "모델 출력 디렉터리 (기본값: 설정에서)"
 
-#: mb/cli/parsing/train.py:55
+#: mb/cli/parsing/train.py:62
 msgid "Number of frozen training epochs (default: from config)"
 msgstr "동결 학습 에포크 수 (기본값: 설정에서)"
 
-#: mb/cli/parsing/train.py:60
+#: mb/cli/parsing/train.py:67
 msgid "Number of unfrozen training epochs (default: from config)"
 msgstr "비동결 학습 에포크 수 (기본값: 설정에서)"
 
-#: mb/cli/parsing/train.py:65
+#: mb/cli/parsing/train.py:72
 msgid "Learning rate for frozen phase (default: from config)"
 msgstr "동결 단계의 학습률 (기본값: 설정에서)"
 
-#: mb/cli/parsing/train.py:70
+#: mb/cli/parsing/train.py:77
 msgid "Maximum learning rate for unfrozen phase (default: from config)"
 msgstr "비동결 단계의 최대 학습률 (기본값: 설정에서)"
 
-#: mb/cli/parsing/train.py:75
+#: mb/cli/parsing/train.py:82
 msgid "Minimum learning rate for unfrozen phase (default: from config)"
 msgstr "비동결 단계의 최소 학습률 (기본값: 설정에서)"
 
@@ -1151,7 +1152,7 @@ msgstr "비동결 단계의 최소 학습률 (기본값: 설정에서)"
 msgid "Batch size (default: from config or auto-detect)"
 msgstr "배치 크기 (기본값: 설정 또는 자동 감지)"
 
-#: mb/cli/parsing/train.py:86
+#: mb/cli/parsing/train.py:96
 msgid ""
 "Image size (default: 224). For --model-type image_generation_lora, this is "
 "the training resolution instead (default: 512)."
@@ -1159,11 +1160,11 @@ msgstr ""
 "이미지 크기 (기본값: 224). --model-type image_generation_lora 에서는 대신 학습 해상도입니다 (기본값:"
 " 512)."
 
-#: mb/cli/parsing/train.py:93
+#: mb/cli/parsing/train.py:103
 msgid "Number of data loading workers (default: from config)"
 msgstr "데이터 적재 워커 수 (기본값: 설정에서)"
 
-#: mb/cli/parsing/train.py:99
+#: mb/cli/parsing/train.py:109
 msgid ""
 "Whether an image carries one class or several (image_classification only; "
 "default: from config, which ships as single_label). multi_label reads "
@@ -1174,7 +1175,7 @@ msgstr ""
 "single_label). multi_label 은 데이터셋 옆의 label_schema.json 과 labels.jsonl 을 읽고 "
 "레이블별 독립 시그모이드를 학습합니다. PyTorch 전용."
 
-#: mb/cli/parsing/train.py:109
+#: mb/cli/parsing/train.py:119
 msgid ""
 "Train at --image-size even when the architecture expects a different one. "
 "Only affects backbones with a fixed input resolution (e.g. siglip2_*), where"
@@ -1183,7 +1184,7 @@ msgstr ""
 "아키텍처가 다른 크기를 기대하더라도 --image-size 로 학습합니다. 입력 해상도가 고정된 백본 (예: siglip2_*) 에만 "
 "영향을 줍니다. 크기가 맞지 않으면 사전 학습된 위치 임베딩이 더 이상 정렬되지 않습니다."
 
-#: mb/cli/parsing/train.py:118
+#: mb/cli/parsing/train.py:128
 msgid ""
 "Compensate an imbalanced training set by weighting the training loss "
 "(image_classification only; default: from config). Validation loss stays "
@@ -1192,7 +1193,7 @@ msgstr ""
 "불균형한 학습 데이터셋을 학습 손실에 가중치를 적용하여 보정합니다 (image_classification 전용. 기본값: 설정에서). "
 "검증 손실은 가중치를 두지 않아 조건이 달라도 비교할 수 있습니다."
 
-#: mb/cli/parsing/train.py:127
+#: mb/cli/parsing/train.py:137
 msgid ""
 "Ceiling on any single class weight (--class-weighting inverse_frequency "
 "only; default: from config)"
@@ -1206,12 +1207,12 @@ msgstr ""
 "무작위 시드. 현재는 --model-type image_generation_lora 에서만 사용됩니다 (재현 가능한 LoRA 가중치 "
 "초기화와 노이즈 샘플링)."
 
-#: mb/cli/parsing/train.py:142
+#: mb/cli/parsing/train.py:153
 msgid ""
 "LoRA adapter rank (--model-type image_generation_lora only; default: 16)"
 msgstr "LoRA 어댑터 랭크 (--model-type image_generation_lora 전용. 기본값: 16)"
 
-#: mb/cli/parsing/train.py:148
+#: mb/cli/parsing/train.py:159
 msgid ""
 "LoRA adapter alpha scaling (--model-type image_generation_lora only; "
 "default: same as --lora-rank)"
@@ -1228,7 +1229,7 @@ msgstr ""
 "LoRA 어댑터 매개변수의 학습률 (--model-type image_generation_lora 전용. 기본값: 1e-4). "
 "--frozen-lr/--unfrozen-lr-* (image_classification 전용) 과는 무관합니다."
 
-#: mb/cli/parsing/train.py:165
+#: mb/cli/parsing/train.py:177
 msgid ""
 "Total optimizer steps to train (--model-type image_generation_lora only; "
 "default: 1000). LoRA training here is step-based, not epoch-based."
@@ -1236,7 +1237,7 @@ msgstr ""
 "학습할 옵티마이저 총 스텝 (--model-type image_generation_lora 전용. 기본값: 1000). 여기서 LoRA "
 "학습은 에포크가 아니라 스텝 기준입니다."
 
-#: mb/cli/parsing/train.py:174
+#: mb/cli/parsing/train.py:186
 msgid ""
 "--model-type image_generation_lora only: the base model's architecture "
 "(different architectures load different components and LoRA target layers). "
@@ -1253,15 +1254,15 @@ msgstr ""
 "flux (권장 기본값), chroma, stable_diffusion_1x 는 현재 구현되어 있습니다 - "
 "stable_diffusion_xl, stable_diffusion_3, z_image_turbo 는 인식되지만 아직 지원되지 않습니다."
 
-#: mb/cli/parsing/train.py:186
+#: mb/cli/parsing/train.py:226
 msgid "Path to checkpoint to resume training from"
 msgstr "학습을 재개할 체크포인트의 경로"
 
-#: mb/cli/parsing/train.py:196
+#: mb/cli/parsing/train.py:236
 msgid "Skip updating the unified snapshot with training data"
 msgstr "학습 데이터로 통합 스냅샷을 갱신하지 않음"
 
-#: mb/cli/parsing/train.py:203
+#: mb/cli/parsing/train.py:243
 msgid ""
 "Load TrainingRunArgs from JSON (see mb.training.run_args); other train flags"
 " are ignored"
@@ -1864,11 +1865,11 @@ msgid ""
 msgstr ""
 "다중 라벨 학습은 PyTorch에서만 구현되어 있습니다. --framework {fw} 는 알림 없이 단일 라벨 모델을 학습합니다."
 
-#: mb/utils/constants.py:82
+#: mb/utils/constants.py:84
 msgid "System"
 msgstr "시스템"
 
-#: mb/utils/constants.py:101
+#: mb/utils/constants.py:103
 msgid "Access Password Administration"
 msgstr "액세스 비밀번호 관리"
 
@@ -1894,27 +1895,27 @@ msgstr "성공"
 msgid "fail"
 msgstr "실패"
 
-#: ui/app.py:28 ui/main_window.py:85 ui/main_window.py:121
+#: ui/app.py:28 ui/main_window.py:87 ui/main_window.py:123
 msgid "Model Builder"
 msgstr "모델 빌더"
 
-#: ui/main_window.py:266
+#: ui/main_window.py:268
 msgid "File"
 msgstr "파일"
 
-#: ui/main_window.py:267
+#: ui/main_window.py:269
 msgid "Set workspace folder…"
 msgstr "작업 공간 폴더 설정…"
 
-#: ui/main_window.py:270
+#: ui/main_window.py:272
 msgid "Set config file…"
 msgstr "설정 파일 지정…"
 
-#: ui/main_window.py:273
+#: ui/main_window.py:275
 msgid "Open application settings (YAML)…"
 msgstr "애플리케이션 설정 열기 (YAML)…"
 
-#: ui/main_window.py:277
+#: ui/main_window.py:279
 msgid ""
 "Desktop shell options (toasts, cache interval, …); see "
 "mb/config/application.example.yaml. Reload the app or use Set config file "
@@ -1923,35 +1924,35 @@ msgstr ""
 "데스크톱 셸 옵션(토스트, 캐시 간격, …)입니다. mb/config/application.example.yaml 을 참조하십시오. 앱을"
 " 다시 로드하거나 파이프라인 YAML에는 설정 파일 지정을 사용하십시오."
 
-#: ui/main_window.py:283
+#: ui/main_window.py:285
 msgid "Exit"
 msgstr "종료"
 
-#: ui/main_window.py:288
+#: ui/main_window.py:290
 msgid "Help"
 msgstr "도움말"
 
-#: ui/main_window.py:289 ui/main_window.py:357
+#: ui/main_window.py:291 ui/main_window.py:359
 msgid "About Model Builder"
 msgstr "Model Builder 정보"
 
-#: ui/main_window.py:301
+#: ui/main_window.py:303
 msgid " | Config: {path}"
 msgstr " | 설정: {path}"
 
-#: ui/main_window.py:305
+#: ui/main_window.py:307
 msgid "Workspace: {root}{cfg}"
 msgstr "작업 공간: {root}{cfg}"
 
-#: ui/main_window.py:306
+#: ui/main_window.py:308
 msgid "No workspace folder set — use File → Set workspace folder"
 msgstr "작업 공간 폴더가 설정되지 않음 — 파일 → 작업 공간 폴더 설정 사용"
 
-#: ui/main_window.py:317
+#: ui/main_window.py:319
 msgid "Application settings"
 msgstr "애플리케이션 설정"
 
-#: ui/main_window.py:318
+#: ui/main_window.py:320
 msgid ""
 "File not found:\n"
 "{path}"
@@ -1959,23 +1960,23 @@ msgstr ""
 "파일을 찾을 수 없습니다:\n"
 "{path}"
 
-#: ui/main_window.py:327
+#: ui/main_window.py:329
 msgid "Workspace root folder"
 msgstr "작업 공간 루트 폴더"
 
-#: ui/main_window.py:343
+#: ui/main_window.py:345
 msgid "Optional YAML config"
 msgstr "선택적 YAML 설정"
 
-#: ui/main_window.py:345
+#: ui/main_window.py:347
 msgid "YAML (*.yaml *.yml);;All files (*.*)"
 msgstr "YAML (*.yaml *.yml);;모든 파일 (*.*)"
 
-#: ui/main_window.py:369
+#: ui/main_window.py:371
 msgid "Background task"
 msgstr "백그라운드 작업"
 
-#: ui/main_window.py:371
+#: ui/main_window.py:373
 msgid ""
 "A background task is still running. Closing now may leave partial outputs "
 "(checkpoints, datasets, copies). Exit anyway?"
@@ -1986,46 +1987,46 @@ msgstr ""
 msgid "Error"
 msgstr "오류"
 
-#: ui/controllers/train_page_controller.py:76
+#: ui/controllers/train_page_controller.py:124
 msgid "Architecture is required."
 msgstr "아키텍처가 필요합니다."
 
-#: ui/controllers/train_page_controller.py:79
+#: ui/controllers/train_page_controller.py:127
 msgid "Unknown architecture: {a}"
 msgstr "알 수 없는 아키텍처: {a}"
 
-#: ui/controllers/train_page_controller.py:81
-#: ui/controllers/train_page_controller.py:136
+#: ui/controllers/train_page_controller.py:129
+#: ui/controllers/train_page_controller.py:184
 msgid "Data directory does not exist."
 msgstr "데이터 디렉터리가 없습니다."
 
-#: ui/controllers/train_page_controller.py:85
+#: ui/controllers/train_page_controller.py:133
 msgid "Resume checkpoint path does not exist."
 msgstr "재개 체크포인트 경로가 없습니다."
 
-#: ui/controllers/train_page_controller.py:123
+#: ui/controllers/train_page_controller.py:171
 msgid ""
 "Image-generation LoRA training only supports the PyTorch framework (got: "
 "{fw})."
 msgstr "이미지 생성 LoRA 학습은 PyTorch 프레임워크만 지원합니다 (지정값: {fw})."
 
-#: ui/controllers/train_page_controller.py:131
+#: ui/controllers/train_page_controller.py:179
 msgid ""
 "Base model (a local checkpoint path or hub id) is required for image-"
 "generation LoRA."
 msgstr "이미지 생성 LoRA에는 기본 모델(로컬 체크포인트 경로 또는 hub id)이 필요합니다."
 
-#: ui/controllers/train_page_controller.py:145
+#: ui/controllers/train_page_controller.py:193
 msgid ""
 "Could not determine the base model's architecture from {path}. Select one "
 "explicitly."
 msgstr "{path}에서 기본 모델의 아키텍처를 확인할 수 없습니다. 하나를 명시적으로 선택하십시오."
 
-#: ui/controllers/train_page_controller.py:151
+#: ui/controllers/train_page_controller.py:199
 msgid "Base architecture '{arch}' is recognized but not implemented yet."
 msgstr "기본 아키텍처 '{arch}'는 인식되지만 아직 구현되지 않았습니다."
 
-#: ui/controllers/train_page_controller.py:162
+#: ui/controllers/train_page_controller.py:94
 msgid "Seed must be an integer."
 msgstr "시드는 정수여야 합니다."
 
@@ -2044,7 +2045,7 @@ msgstr "확인"
 #: ui/lib/directory_line_edit_row.py:29 ui/pages/convert_page.py:201
 #: ui/pages/data_page.py:985 ui/pages/evaluate_page.py:389
 #: ui/pages/export_page.py:197 ui/pages/info_page.py:152
-#: ui/pages/train_page.py:488
+#: ui/pages/text_page.py:174 ui/pages/train_page.py:539
 msgid "Select directory"
 msgstr "디렉터리 선택"
 
@@ -2053,8 +2054,9 @@ msgstr "디렉터리 선택"
 #: ui/pages/data_page.py:974 ui/pages/evaluate_page.py:212
 #: ui/pages/evaluate_page.py:373 ui/pages/export_page.py:129
 #: ui/pages/export_page.py:181 ui/pages/info_page.py:67
-#: ui/pages/info_page.py:141 ui/pages/train_page.py:290
-#: ui/pages/train_page.py:430
+#: ui/pages/info_page.py:141 ui/pages/text_page.py:165
+#: ui/pages/text_page.py:223 ui/pages/train_page.py:325
+#: ui/pages/train_page.py:481
 msgid "Browse..."
 msgstr "찾아보기..."
 
@@ -2305,7 +2307,7 @@ msgid "output.onnx"
 msgstr "output.onnx"
 
 #: ui/lib/fast_directory_picker_qt.py:997 ui/pages/config_page.py:82
-#: ui/pages/config_page.py:160 ui/pages/pipeline_config_page.py:226
+#: ui/pages/config_page.py:160 ui/pages/pipeline_config_page.py:257
 msgid "Save"
 msgstr "저장"
 
@@ -2399,7 +2401,7 @@ msgid "Cancelling…"
 msgstr "취소 중…"
 
 #: ui/pages/config_page.py:80 ui/pages/config_page.py:159
-#: ui/pages/pipeline_config_page.py:224
+#: ui/pages/pipeline_config_page.py:255
 msgid "Reload from disk"
 msgstr "디스크에서 다시 불러오기"
 
@@ -2533,7 +2535,7 @@ msgstr "설정"
 msgid "Default main window size must look like WIDTHxHEIGHT (e.g. 1200x960)."
 msgstr "기본 주 창 크기는 너비x높이 형식이어야 합니다 (예: 1200x960)."
 
-#: ui/pages/config_page.py:390 ui/pages/pipeline_config_page.py:744
+#: ui/pages/config_page.py:390 ui/pages/pipeline_config_page.py:1024
 msgid ""
 "Could not write:\n"
 "{path}\n"
@@ -2545,7 +2547,7 @@ msgstr ""
 "\n"
 "{err}"
 
-#: ui/pages/config_page.py:401 ui/pages/pipeline_config_page.py:759
+#: ui/pages/config_page.py:401 ui/pages/pipeline_config_page.py:1039
 msgid ""
 "Saved to:\n"
 "{path}"
@@ -2553,7 +2555,7 @@ msgstr ""
 "저장 위치:\n"
 "{path}"
 
-#: ui/pages/config_page.py:414 ui/pages/pipeline_config_page.py:781
+#: ui/pages/config_page.py:414 ui/pages/pipeline_config_page.py:1066
 msgid ""
 "Could not write defaults to:\n"
 "{path}\n"
@@ -2597,7 +2599,7 @@ msgstr "대상 형식"
 #: ui/pages/convert_page.py:86 ui/pages/convert_page.py:125
 #: ui/pages/evaluate_page.py:111 ui/pages/evaluate_page.py:157
 #: ui/pages/export_page.py:68 ui/pages/export_page.py:105
-#: ui/pages/train_page.py:103 ui/pages/train_page.py:225
+#: ui/pages/train_page.py:104 ui/pages/train_page.py:251
 msgid "Architecture"
 msgstr "건축"
 
@@ -2610,7 +2612,7 @@ msgstr "클래스 수"
 #: ui/pages/convert_page.py:88 ui/pages/convert_page.py:127
 #: ui/pages/evaluate_page.py:113 ui/pages/evaluate_page.py:159
 #: ui/pages/export_page.py:71 ui/pages/export_page.py:108
-#: ui/pages/train_page.py:107 ui/pages/train_page.py:229
+#: ui/pages/train_page.py:108 ui/pages/train_page.py:255
 msgid "Image size"
 msgstr "이미지 크기"
 
@@ -2669,7 +2671,7 @@ msgid "[ok] conversion inputs valid (source={src})"
 msgstr "[정상] 변환 입력이 유효함 (원본={src})"
 
 #: ui/pages/convert_page.py:282 ui/pages/export_page.py:304
-#: ui/pages/train_page.py:618
+#: ui/pages/train_page.py:712
 msgid "[invalid] {err}"
 msgstr "[유효하지 않음] {err}"
 
@@ -2690,7 +2692,8 @@ msgid "[failed] Conversion failed."
 msgstr "[실패] 변환에 실패했습니다."
 
 #: ui/pages/convert_page.py:335 ui/pages/export_page.py:352
-#: ui/pages/train_page.py:674 ui/pages/train_page.py:776
+#: ui/pages/text_page.py:280 ui/pages/train_page.py:770
+#: ui/pages/train_page.py:888
 msgid "[error] {err}"
 msgstr "[오류] {err}"
 
@@ -2762,7 +2765,7 @@ msgstr ""
 "--dry-run --json\n"
 "--raw-data-dir C:\\path\\to\\raw_data"
 
-#: ui/pages/data_page.py:184 ui/pages/data_page.py:1286
+#: ui/pages/data_page.py:184 ui/pages/data_page.py:1293
 msgid "Latest space check"
 msgstr "최근 공간 검사"
 
@@ -2811,7 +2814,7 @@ msgstr "형식 (jpeg/jpg)"
 #: ui/pages/data_page.py:207 ui/pages/data_page.py:233
 #: ui/pages/data_page.py:633 ui/pages/data_page.py:764
 #: ui/pages/export_page.py:72 ui/pages/export_page.py:109
-#: ui/pages/train_page.py:111 ui/pages/train_page.py:232
+#: ui/pages/train_page.py:112 ui/pages/train_page.py:258
 msgid "Run ID (optional)"
 msgstr "실행 ID (선택)"
 
@@ -2833,7 +2836,7 @@ msgstr "검토 디렉터리 (선택)"
 
 #: ui/pages/data_page.py:226 ui/pages/data_page.py:750
 #: ui/pages/evaluate_page.py:107 ui/pages/evaluate_page.py:153
-#: ui/pages/train_page.py:100 ui/pages/train_page.py:222
+#: ui/pages/train_page.py:101 ui/pages/train_page.py:248
 msgid "Model type"
 msgstr "모델 유형"
 
@@ -2846,12 +2849,12 @@ msgid "Test items per class"
 msgstr "클래스당 테스트 항목 수"
 
 #: ui/pages/data_page.py:230 ui/pages/data_page.py:757
-#: ui/pages/pipeline_config_page.py:344
+#: ui/pages/pipeline_config_page.py:466
 msgid "Test split mode"
 msgstr "테스트 분할 모드"
 
 #: ui/pages/data_page.py:231 ui/pages/data_page.py:762
-#: ui/pages/pipeline_config_page.py:350
+#: ui/pages/pipeline_config_page.py:467
 msgid "Small-class threshold (weighted)"
 msgstr "소규모 클래스 임계값 (가중)"
 
@@ -2864,7 +2867,7 @@ msgid "Max train per class"
 msgstr "클래스당 최대 학습 수"
 
 #: ui/pages/data_page.py:240 ui/pages/data_page.py:746
-#: ui/pages/pipeline_config_page.py:354
+#: ui/pages/pipeline_config_page.py:373
 msgid "None"
 msgstr "없음"
 
@@ -2905,7 +2908,7 @@ msgstr ""
 "디렉터리를 선택하고, 이동식 드라이브에 쓸 때는 \"외부/이동식 저장소 허용\"을 선택하세요."
 
 #: ui/pages/data_page.py:265 ui/pages/data_page.py:266
-#: ui/pages/data_page.py:267 ui/pages/train_page.py:274
+#: ui/pages/data_page.py:267 ui/pages/train_page.py:309
 msgid "Latest"
 msgstr "최신"
 
@@ -2988,11 +2991,11 @@ msgstr ""
 "(raw_data/<class>/CONVERTED). IMAGES와 루트 수준의 유틸리티 디렉터리를 포함한 다른 폴더는 검사하지 "
 "않습니다."
 
-#: ui/pages/data_page.py:755 ui/pages/pipeline_config_page.py:342
+#: ui/pages/data_page.py:755 ui/pages/pipeline_config_page.py:363
 msgid "Fixed count per class"
 msgstr "클래스당 고정 개수"
 
-#: ui/pages/data_page.py:756 ui/pages/pipeline_config_page.py:343
+#: ui/pages/data_page.py:756 ui/pages/pipeline_config_page.py:364
 msgid "Dataset-weighted (modulated)"
 msgstr "데이터셋 가중 (변조)"
 
@@ -3178,6 +3181,7 @@ msgstr ""
 "upscaled_small_images/에만 남는 파일)은 원하는 것을 CONVERTED/로 다시 복사하지 않으면 사용되지 않습니다."
 
 #: ui/pages/data_page.py:993 ui/pages/evaluate_page.py:384
+#: ui/pages/text_page.py:176
 msgid "Select file"
 msgstr "파일 선택"
 
@@ -3186,11 +3190,11 @@ msgid "All files (*.*)"
 msgstr "모든 파일 (*.*)"
 
 #: ui/pages/data_page.py:1007 ui/pages/data_page.py:1023
-#: ui/pages/train_page.py:454
+#: ui/pages/train_page.py:505
 msgid "No snapshot found"
 msgstr "스냅샷을 찾을 수 없음"
 
-#: ui/pages/data_page.py:1008 ui/pages/train_page.py:455
+#: ui/pages/data_page.py:1008 ui/pages/train_page.py:506
 msgid ""
 "No snapshot_*.json files were found under:\n"
 "{path}"
@@ -3302,26 +3306,26 @@ msgstr ""
 "실행 ID {rid!r}에 대해 로드 가능한 통합 스냅샷이 없습니다. 다음 위치에 {name}이 있어야 합니다:\n"
 "  {dir}"
 
-#: ui/pages/data_page.py:1223
+#: ui/pages/data_page.py:1230
 msgid "Raw data dir does not exist."
 msgstr "원본 데이터 디렉터리가 없습니다."
 
-#: ui/pages/data_page.py:1238
+#: ui/pages/data_page.py:1245
 msgid ""
 "No loadable unified snapshot for Run ID {rid!r} in the search paths (see the"
 " Run ID field tooltip for locations checked)."
 msgstr ""
 "검색 경로에 실행 ID {rid!r}의 로드 가능한 통합 스냅샷이 없습니다 (확인한 위치는 실행 ID 필드의 도구 설명을 보세요)."
 
-#: ui/pages/data_page.py:1305 ui/pages/data_page.py:1330
+#: ui/pages/data_page.py:1312 ui/pages/data_page.py:1337
 msgid "Skipped (free-space estimate not run)."
 msgstr "건너뜀 (여유 공간 추정을 실행하지 않음)."
 
-#: ui/pages/data_page.py:1313 ui/pages/data_page.py:1341
+#: ui/pages/data_page.py:1320 ui/pages/data_page.py:1348
 msgid "Insufficient disk space (estimate)"
 msgstr "디스크 공간 부족 (추정)"
 
-#: ui/pages/data_page.py:1314 ui/pages/data_page.py:1342
+#: ui/pages/data_page.py:1321 ui/pages/data_page.py:1349
 msgid ""
 "{msg}\n"
 "\n"
@@ -3331,11 +3335,11 @@ msgstr ""
 "\n"
 "그래도 계속할까요?"
 
-#: ui/pages/data_page.py:1359
+#: ui/pages/data_page.py:1366
 msgid "External storage"
 msgstr "외부 저장소"
 
-#: ui/pages/data_page.py:1361
+#: ui/pages/data_page.py:1368
 msgid ""
 "The target data directory is on external or removable storage, and \"Allow "
 "external storage\" is not checked. Enable it on the Create Dataset tab or "
@@ -3344,43 +3348,43 @@ msgstr ""
 "대상 데이터 디렉터리가 외부 또는 이동식 저장소에 있으며 \"외부 저장소 허용\"이 선택되어 있지 않습니다. 데이터셋 만들기 탭에서 "
 "켜거나 다른 데이터 디렉터리를 선택하세요."
 
-#: ui/pages/data_page.py:1371
+#: ui/pages/data_page.py:1378
 msgid "Confirm"
 msgstr "확인"
 
-#: ui/pages/data_page.py:1372
+#: ui/pages/data_page.py:1379
 msgid "Source and target are on the same drive. Continue dataset creation?"
 msgstr "소스와 대상이 같은 드라이브에 있습니다. 데이터셋 생성을 계속할까요?"
 
-#: ui/pages/data_page.py:1408
+#: ui/pages/data_page.py:1415
 msgid "Data: {cmd}"
 msgstr "데이터: {cmd}"
 
-#: ui/pages/data_page.py:1426
+#: ui/pages/data_page.py:1433
 msgid "Checking free space…"
 msgstr "여유 공간 확인 중…"
 
-#: ui/pages/data_page.py:1430
+#: ui/pages/data_page.py:1437
 msgid "Converting…"
 msgstr "변환 중…"
 
-#: ui/pages/data_page.py:1432
+#: ui/pages/data_page.py:1439
 msgid "Creating dataset…"
 msgstr "데이터셋 만드는 중…"
 
-#: ui/pages/data_page.py:1510
+#: ui/pages/data_page.py:1517
 msgid "Running: {line}"
 msgstr "실행 중: {line}"
 
-#: ui/pages/data_page.py:1522
+#: ui/pages/data_page.py:1529
 msgid "[done] Data command completed successfully."
 msgstr "[done] 데이터 명령이 성공적으로 완료되었습니다."
 
-#: ui/pages/data_page.py:1538
+#: ui/pages/data_page.py:1545
 msgid "[failed] Data command reported failure."
 msgstr "[failed] 데이터 명령이 실패를 보고했습니다."
 
-#: ui/pages/data_page.py:1550
+#: ui/pages/data_page.py:1557
 msgid ""
 "[stopped] Data command cancelled — partial copies or snapshot updates may "
 "exist; check folders before re-running."
@@ -3388,36 +3392,36 @@ msgstr ""
 "[stopped] 데이터 명령이 취소되었습니다. 부분 복사나 스냅샷 업데이트가 남아 있을 수 있습니다. 다시 실행하기 전에 폴더를 "
 "확인하세요."
 
-#: ui/pages/data_page.py:1572
+#: ui/pages/data_page.py:1579
 msgid "Data command failed"
 msgstr "데이터 명령 실패"
 
-#: ui/pages/data_page.py:1573
+#: ui/pages/data_page.py:1580
 msgid ""
 "A data pipeline step reported an error. See Details for the full message."
 msgstr "데이터 파이프라인 단계가 오류를 보고했습니다. 전체 메시지는 세부 정보를 보세요."
 
-#: ui/pages/data_page.py:1608
+#: ui/pages/data_page.py:1615
 msgid "[dedup] No loadable snapshot found for duplicate resolver."
 msgstr "[dedup] 중복 해결에 쓸 로드 가능한 스냅샷을 찾지 못했습니다."
 
-#: ui/pages/data_page.py:1611
+#: ui/pages/data_page.py:1618
 msgid "[dedup] No potential duplicates were recorded in the snapshot."
 msgstr "[dedup] 스냅샷에 잠재적 중복이 기록되어 있지 않습니다."
 
-#: ui/pages/data_page.py:1616
+#: ui/pages/data_page.py:1623
 msgid "Duplicates found"
 msgstr "중복을 찾았습니다"
 
-#: ui/pages/data_page.py:1617
+#: ui/pages/data_page.py:1624
 msgid "Open duplicate resolver window now?"
 msgstr "중복 해결 창을 지금 열까요?"
 
-#: ui/pages/data_page.py:1625
+#: ui/pages/data_page.py:1632
 msgid "Invalid raw data directory"
 msgstr "원본 데이터 디렉터리가 잘못되었습니다"
 
-#: ui/pages/data_page.py:1626
+#: ui/pages/data_page.py:1633
 msgid ""
 "Raw data directory does not exist:\n"
 "{path}"
@@ -3425,11 +3429,11 @@ msgstr ""
 "원본 데이터 디렉터리가 없습니다:\n"
 "{path}"
 
-#: ui/pages/data_page.py:1637
+#: ui/pages/data_page.py:1644
 msgid "No snapshot"
 msgstr "스냅샷 없음"
 
-#: ui/pages/data_page.py:1639
+#: ui/pages/data_page.py:1646
 msgid ""
 "No loadable unified snapshot was found under:\n"
 "{path}\n"
@@ -3441,11 +3445,11 @@ msgstr ""
 "\n"
 "snapshot_<run_id>.json이 필요합니다 (이름순으로 시도한 최신 파일을 쓰려면 실행 ID를 비워 두세요)."
 
-#: ui/pages/data_page.py:1648
+#: ui/pages/data_page.py:1655
 msgid "Nothing to review"
 msgstr "검토할 항목 없음"
 
-#: ui/pages/data_page.py:1650
+#: ui/pages/data_page.py:1657
 msgid ""
 "A snapshot loaded, but it does not list any cross-class duplicate groups for"
 " the resolver. Run Deduplicate with list-only if you have not yet, or pick "
@@ -3461,7 +3465,7 @@ msgstr "파일에서 추론"
 #: ui/pages/evaluate_page.py:92 ui/pages/evaluate_page.py:165
 #: ui/pages/export_page.py:57 ui/pages/export_page.py:61
 #: ui/pages/export_page.py:113 ui/pages/export_page.py:114
-#: ui/pages/train_page.py:86 ui/pages/train_page.py:267
+#: ui/pages/train_page.py:87 ui/pages/train_page.py:302
 msgid "Auto"
 msgstr "자동"
 
@@ -3474,7 +3478,8 @@ msgid "Eval data dir (ImageFolder)"
 msgstr "평가 데이터 디렉터리 (ImageFolder)"
 
 #: ui/pages/evaluate_page.py:108 ui/pages/evaluate_page.py:154
-#: ui/pages/train_page.py:102 ui/pages/train_page.py:224
+#: ui/pages/pipeline_config_page.py:475 ui/pages/train_page.py:103
+#: ui/pages/train_page.py:250
 msgid "Label mode"
 msgstr "레이블 모드"
 
@@ -3483,21 +3488,23 @@ msgid "Model checkpoint"
 msgstr "모델 체크포인트"
 
 #: ui/pages/evaluate_page.py:110 ui/pages/evaluate_page.py:156
-#: ui/pages/train_page.py:101 ui/pages/train_page.py:223
+#: ui/pages/train_page.py:102 ui/pages/train_page.py:249
 msgid "Framework"
 msgstr "프레임워크"
 
 #: ui/pages/evaluate_page.py:114 ui/pages/evaluate_page.py:160
-#: ui/pages/train_page.py:106 ui/pages/train_page.py:228
+#: ui/pages/pipeline_config_page.py:571 ui/pages/train_page.py:107
+#: ui/pages/train_page.py:254
 msgid "Batch size"
 msgstr "배치 크기"
 
 #: ui/pages/evaluate_page.py:115 ui/pages/evaluate_page.py:161
-#: ui/pages/pipeline_config_page.py:208 ui/pages/pipeline_config_page.py:458
+#: ui/pages/pipeline_config_page.py:222 ui/pages/pipeline_config_page.py:513
 msgid "DataLoader workers"
 msgstr "DataLoader 워커"
 
 #: ui/pages/evaluate_page.py:116 ui/pages/evaluate_page.py:162
+#: ui/pages/pipeline_config_page.py:580
 msgid "Device"
 msgstr "장치"
 
@@ -3525,7 +3532,7 @@ msgstr "메트릭"
 msgid "Misclassified"
 msgstr "오분류"
 
-#: ui/pages/evaluate_page.py:171
+#: ui/pages/evaluate_page.py:171 ui/pages/text_page.py:194
 msgid "Compare"
 msgstr "비교"
 
@@ -3558,6 +3565,8 @@ msgid "Max disagreement rows (0 = no cap)"
 msgstr "불일치 최대 행 수 (0 = 제한 없음)"
 
 #: ui/pages/evaluate_page.py:184 ui/pages/evaluate_page.py:476
+#: ui/pages/text_page.py:124 ui/pages/text_page.py:197
+#: ui/pages/text_page.py:375
 msgid "Output TSV"
 msgstr "출력 TSV"
 
@@ -3614,6 +3623,7 @@ msgstr ""
 " B가 다르면 아키텍처 B를 설정하세요."
 
 #: ui/pages/evaluate_page.py:604 ui/pages/evaluate_page.py:632
+#: ui/pages/text_page.py:192
 msgid "Evaluate"
 msgstr "평가"
 
@@ -3698,6 +3708,7 @@ msgid "The evaluation task reported an error."
 msgstr "평가 작업이 오류를 보고했습니다."
 
 #: ui/pages/export_page.py:70 ui/pages/export_page.py:107
+#: ui/pages/pipeline_config_page.py:560
 msgid "Dataset directory"
 msgstr "데이터셋 디렉터리"
 
@@ -3864,8 +3875,8 @@ msgstr ""
 msgid "Inspect model metadata and dataset structure/statistics."
 msgstr "모델 메타데이터와 데이터셋 구조 및 통계를 검사합니다."
 
-#: ui/pages/info_page.py:54 ui/pages/pipeline_config_page.py:164
-#: ui/pages/pipeline_config_page.py:169
+#: ui/pages/info_page.py:54 ui/pages/pipeline_config_page.py:190
+#: ui/pages/pipeline_config_page.py:196
 msgid "Model"
 msgstr "모델"
 
@@ -3877,8 +3888,9 @@ msgstr "데이터셋"
 msgid "Model path"
 msgstr "모델 경로"
 
-#: ui/pages/info_page.py:57 ui/pages/info_page.py:120
-#: ui/pages/train_page.py:104 ui/pages/train_page.py:226
+#: ui/pages/info_page.py:57 ui/pages/info_page.py:120 ui/pages/text_page.py:89
+#: ui/pages/text_page.py:195 ui/pages/train_page.py:105
+#: ui/pages/train_page.py:252
 msgid "Data dir"
 msgstr "데이터 디렉터리"
 
@@ -3910,15 +3922,15 @@ msgstr "모델 경로를 입력하세요."
 msgid "Invalid path"
 msgstr "잘못된 경로"
 
-#: ui/pages/info_page.py:197
+#: ui/pages/info_page.py:197 ui/pages/text_page.py:319
 msgid "Missing directory"
 msgstr "디렉터리 없음"
 
-#: ui/pages/pipeline_config_page.py:155 ui/pages/pipeline_config_page.py:701
-#: ui/pages/pipeline_config_page.py:704 ui/pages/pipeline_config_page.py:710
-#: ui/pages/pipeline_config_page.py:722 ui/pages/pipeline_config_page.py:744
-#: ui/pages/pipeline_config_page.py:759 ui/pages/pipeline_config_page.py:780
-#: ui/pages/pipeline_config_page.py:789
+#: ui/pages/pipeline_config_page.py:180 ui/pages/pipeline_config_page.py:980
+#: ui/pages/pipeline_config_page.py:983 ui/pages/pipeline_config_page.py:989
+#: ui/pages/pipeline_config_page.py:1002 ui/pages/pipeline_config_page.py:1024
+#: ui/pages/pipeline_config_page.py:1044 ui/pages/pipeline_config_page.py:1065
+#: ui/pages/pipeline_config_page.py:1074
 msgid "Pipeline"
 msgstr "파이프라인"
 
@@ -3934,130 +3946,130 @@ msgstr ""
 "<code>paths</code>). 저장하면 사용 중인 파이프라인 파일에 기록됩니다. 제공 기본값만 로드된 경우에는 앱 데이터의 "
 "<code>pipeline.yaml</code>(<code>application.yaml</code> 옆)에 기록됩니다."
 
-#: ui/pages/pipeline_config_page.py:165 ui/pages/pipeline_config_page.py:170
+#: ui/pages/pipeline_config_page.py:191 ui/pages/pipeline_config_page.py:197
 msgid "Data"
 msgstr "데이터"
 
-#: ui/pages/pipeline_config_page.py:166 ui/pages/pipeline_config_page.py:172
-#: ui/pages/train_page.py:705
+#: ui/pages/pipeline_config_page.py:192 ui/pages/pipeline_config_page.py:199
+#: ui/pages/train_page.py:806
 msgid "Training"
 msgstr "학습"
 
-#: ui/pages/pipeline_config_page.py:167 ui/pages/pipeline_config_page.py:173
+#: ui/pages/pipeline_config_page.py:193 ui/pages/pipeline_config_page.py:200
 msgid "Paths"
 msgstr "경로"
 
-#: ui/pages/pipeline_config_page.py:168
+#: ui/pages/pipeline_config_page.py:195
 msgid "Advanced (YAML)"
 msgstr "고급 (YAML)"
 
-#: ui/pages/pipeline_config_page.py:171
+#: ui/pages/pipeline_config_page.py:198
 msgid "Gather defaults"
 msgstr "수집 기본값"
 
-#: ui/pages/pipeline_config_page.py:176 ui/pages/pipeline_config_page.py:304
+#: ui/pages/pipeline_config_page.py:203 ui/pages/pipeline_config_page.py:335
 msgid "Default model type"
 msgstr "기본 모델 유형"
 
-#: ui/pages/pipeline_config_page.py:176 ui/pages/pipeline_config_page.py:307
+#: ui/pages/pipeline_config_page.py:203 ui/pages/pipeline_config_page.py:338
 msgid "Default framework"
 msgstr "기본 프레임워크"
 
-#: ui/pages/pipeline_config_page.py:176 ui/pages/pipeline_config_page.py:310
+#: ui/pages/pipeline_config_page.py:203 ui/pages/pipeline_config_page.py:341
 msgid "Default architecture"
 msgstr "기본 아키텍처"
 
-#: ui/pages/pipeline_config_page.py:181 ui/pages/pipeline_config_page.py:327
+#: ui/pages/pipeline_config_page.py:463
 msgid "Raw data directory"
 msgstr "원시 데이터 디렉터리"
 
-#: ui/pages/pipeline_config_page.py:182 ui/pages/pipeline_config_page.py:333
+#: ui/pages/pipeline_config_page.py:464
 msgid "Dataset output directory"
 msgstr "데이터셋 출력 디렉터리"
 
-#: ui/pages/pipeline_config_page.py:183 ui/pages/pipeline_config_page.py:339
+#: ui/pages/pipeline_config_page.py:465
 msgid "Test images per class"
 msgstr "클래스당 테스트 이미지"
 
-#: ui/pages/pipeline_config_page.py:184 ui/pages/pipeline_config_page.py:360
+#: ui/pages/pipeline_config_page.py:469
 msgid "Image size (pixels)"
 msgstr "이미지 크기 (픽셀)"
 
-#: ui/pages/pipeline_config_page.py:185 ui/pages/pipeline_config_page.py:366
+#: ui/pages/pipeline_config_page.py:470
 msgid "Training batch size"
 msgstr "학습 배치 크기"
 
-#: ui/pages/pipeline_config_page.py:186 ui/pages/pipeline_config_page.py:370
+#: ui/pages/pipeline_config_page.py:471
 msgid "Image file extensions (one per line)"
 msgstr "이미지 파일 확장자 (한 줄에 하나)"
 
-#: ui/pages/pipeline_config_page.py:187 ui/pages/pipeline_config_page.py:374
+#: ui/pages/pipeline_config_page.py:472
 msgid "Video file extensions (one per line)"
 msgstr "동영상 파일 확장자 (한 줄에 하나)"
 
-#: ui/pages/pipeline_config_page.py:188 ui/pages/pipeline_config_page.py:379
+#: ui/pages/pipeline_config_page.py:473
 msgid "Class folder names (empty = auto-discover)"
 msgstr "클래스 폴더 이름 (비움 = 자동 검색)"
 
-#: ui/pages/pipeline_config_page.py:189 ui/pages/pipeline_config_page.py:383
+#: ui/pages/pipeline_config_page.py:474
 msgid "Class qualifying subfolder"
 msgstr "클래스를 한정하는 하위 폴더"
 
-#: ui/pages/pipeline_config_page.py:195 ui/pages/pipeline_config_page.py:395
+#: ui/pages/pipeline_config_page.py:209 ui/pages/pipeline_config_page.py:431
 msgid "Default gather target count"
 msgstr "기본 수집 목표 개수"
 
-#: ui/pages/pipeline_config_page.py:196 ui/pages/pipeline_config_page.py:402
+#: ui/pages/pipeline_config_page.py:210 ui/pages/pipeline_config_page.py:438
 msgid "Gather target subfolder"
 msgstr "수집 대상 하위 폴더"
 
-#: ui/pages/pipeline_config_page.py:197 ui/pages/pipeline_config_page.py:413
+#: ui/pages/pipeline_config_page.py:211 ui/pages/pipeline_config_page.py:449
 msgid "Rejected subfolder"
 msgstr "거부 하위 폴더"
 
-#: ui/pages/pipeline_config_page.py:203 ui/pages/pipeline_config_page.py:434
-#: ui/pages/train_page.py:145 ui/pages/train_page.py:245
+#: ui/pages/pipeline_config_page.py:217 ui/pages/pipeline_config_page.py:489
+#: ui/pages/train_page.py:146 ui/pages/train_page.py:271
 msgid "Frozen epochs"
 msgstr "고정 에포크"
 
-#: ui/pages/pipeline_config_page.py:204 ui/pages/pipeline_config_page.py:438
-#: ui/pages/train_page.py:146 ui/pages/train_page.py:246
+#: ui/pages/pipeline_config_page.py:218 ui/pages/pipeline_config_page.py:493
+#: ui/pages/train_page.py:147 ui/pages/train_page.py:272
 msgid "Unfrozen epochs"
 msgstr "해제 에포크"
 
-#: ui/pages/pipeline_config_page.py:205 ui/pages/pipeline_config_page.py:444
+#: ui/pages/pipeline_config_page.py:219 ui/pages/pipeline_config_page.py:499
 msgid "Frozen learning rate"
 msgstr "고정 시 학습률"
 
-#: ui/pages/pipeline_config_page.py:206 ui/pages/pipeline_config_page.py:449
+#: ui/pages/pipeline_config_page.py:220 ui/pages/pipeline_config_page.py:504
 msgid "Unfrozen LR (max)"
 msgstr "해제 시 학습률(최대)"
 
-#: ui/pages/pipeline_config_page.py:207 ui/pages/pipeline_config_page.py:454
+#: ui/pages/pipeline_config_page.py:221 ui/pages/pipeline_config_page.py:509
 msgid "Unfrozen LR (min)"
 msgstr "해제 시 학습률(최소)"
 
-#: ui/pages/pipeline_config_page.py:209 ui/pages/pipeline_config_page.py:463
+#: ui/pages/pipeline_config_page.py:223 ui/pages/pipeline_config_page.py:518
 msgid "Class weighting"
 msgstr "클래스 가중치 적용"
 
-#: ui/pages/pipeline_config_page.py:210 ui/pages/pipeline_config_page.py:468
+#: ui/pages/pipeline_config_page.py:224 ui/pages/pipeline_config_page.py:523
 msgid "Max class weight"
 msgstr "최대 클래스 가중치"
 
-#: ui/pages/pipeline_config_page.py:216 ui/pages/pipeline_config_page.py:488
+#: ui/pages/pipeline_config_page.py:230 ui/pages/pipeline_config_page.py:543
 msgid "Models directory"
 msgstr "모델 디렉터리"
 
-#: ui/pages/pipeline_config_page.py:216 ui/pages/pipeline_config_page.py:494
+#: ui/pages/pipeline_config_page.py:230 ui/pages/pipeline_config_page.py:549
 msgid "Logs directory"
 msgstr "로그 디렉터리"
 
-#: ui/pages/pipeline_config_page.py:216
+#: ui/pages/pipeline_config_page.py:230
 msgid "Timing data directory"
 msgstr "시간 측정 데이터 디렉터리"
 
-#: ui/pages/pipeline_config_page.py:220
+#: ui/pages/pipeline_config_page.py:251
 msgid ""
 "Full pipeline document. Click “Apply YAML” to parse and refresh the tabs, or"
 " edit the tabs and Save — the Advanced view updates on reload."
@@ -4065,37 +4077,37 @@ msgstr ""
 "전체 파이프라인 문서입니다. \"YAML 적용\"을 클릭하면 해석하고 탭을 새로 고칩니다. 탭을 편집한 뒤 저장하면 다시 불러올 때 고급"
 " 보기가 갱신됩니다."
 
-#: ui/pages/pipeline_config_page.py:225
+#: ui/pages/pipeline_config_page.py:256
 msgid "Apply YAML"
 msgstr "YAML 적용"
 
-#: ui/pages/pipeline_config_page.py:227
+#: ui/pages/pipeline_config_page.py:258
 msgid "Reset to shipped defaults…"
 msgstr "제공된 기본값으로 재설정…"
 
-#: ui/pages/pipeline_config_page.py:229
+#: ui/pages/pipeline_config_page.py:260
 msgid ""
 "Replace your user pipeline.yaml (app data) with the package "
 "default_pipeline.yaml."
 msgstr "사용자의 pipeline.yaml(앱 데이터)을 패키지의 default_pipeline.yaml로 바꿉니다."
 
-#: ui/pages/pipeline_config_page.py:231
+#: ui/pages/pipeline_config_page.py:262
 msgid "Save training checkpoints"
 msgstr "학습 체크포인트 저장"
 
-#: ui/pages/pipeline_config_page.py:247
+#: ui/pages/pipeline_config_page.py:278
 msgid "Task type selected when you start a new model project."
 msgstr "새 모델 프로젝트를 시작할 때 선택되는 작업 유형입니다."
 
-#: ui/pages/pipeline_config_page.py:252
+#: ui/pages/pipeline_config_page.py:283
 msgid "Deep learning framework for new runs (e.g. pytorch)."
 msgstr "새 실행에 쓸 딥러닝 프레임워크입니다(예: pytorch)."
 
-#: ui/pages/pipeline_config_page.py:257
+#: ui/pages/pipeline_config_page.py:288
 msgid "Default backbone architecture name for new training runs."
 msgstr "새 학습 실행의 기본 백본 아키텍처 이름입니다."
 
-#: ui/pages/pipeline_config_page.py:263
+#: ui/pages/pipeline_config_page.py:294
 msgid ""
 "Root folder for raw images: one subfolder per class after gather/convert. "
 "Relative paths are resolved from the app working directory or project root."
@@ -4103,7 +4115,7 @@ msgstr ""
 "원본 이미지의 루트 폴더입니다. 수집과 변환 뒤에 클래스마다 하위 폴더가 하나씩 생깁니다. 상대 경로는 앱의 작업 디렉터리 또는 프로젝트"
 " 루트에서 해석됩니다."
 
-#: ui/pages/pipeline_config_page.py:271
+#: ui/pages/pipeline_config_page.py:302
 msgid ""
 "Output of create-dataset: this folder holds train/ and test/ used for "
 "training and snapshots. Keep it on a fast internal disk when raw data lives "
@@ -4112,7 +4124,7 @@ msgstr ""
 "create-dataset의 출력입니다. 이 폴더에는 학습과 스냅샷에 쓰는 train/ 및 test/가 있습니다. 원본 데이터가 외부 "
 "저장소에 있으면 빠른 내장 디스크에 두세요."
 
-#: ui/pages/pipeline_config_page.py:279
+#: ui/pages/pipeline_config_page.py:310
 msgid ""
 "Subfolder under raw data for accepted gather output (e.g. coherent). "
 "Relative to Raw data directory unless you enter an absolute path."
@@ -4120,7 +4132,7 @@ msgstr ""
 "수집에서 수락된 결과를 둘 원본 데이터 아래의 하위 폴더입니다(예: coherent). 절대 경로를 입력하지 않으면 원본 데이터 "
 "디렉터리에 대한 상대 경로입니다."
 
-#: ui/pages/pipeline_config_page.py:287
+#: ui/pages/pipeline_config_page.py:318
 msgid ""
 "Subfolder under raw data for files rejected during gather (e.g. rejected). "
 "Relative to Raw data directory unless you enter an absolute path."
@@ -4128,60 +4140,60 @@ msgstr ""
 "수집 중 거부된 파일을 둘 원본 데이터 아래의 하위 폴더입니다(예: rejected). 절대 경로를 입력하지 않으면 원본 데이터 "
 "디렉터리에 대한 상대 경로입니다."
 
-#: ui/pages/pipeline_config_page.py:328
+#: ui/pages/pipeline_config_page.py:402
 msgid "Select raw data directory"
 msgstr "원본 데이터 디렉터리 선택"
 
-#: ui/pages/pipeline_config_page.py:334
+#: ui/pages/pipeline_config_page.py:403
 msgid "Select dataset directory"
 msgstr "데이터셋 디렉터리 선택"
 
-#: ui/pages/pipeline_config_page.py:348
+#: ui/pages/pipeline_config_page.py:368
 msgid "Same as test anchor"
 msgstr "테스트 기준과 동일"
 
-#: ui/pages/pipeline_config_page.py:356
+#: ui/pages/pipeline_config_page.py:468
 msgid "Default create-dataset seed"
 msgstr "create-dataset 기본 시드"
 
-#: ui/pages/pipeline_config_page.py:364
+#: ui/pages/pipeline_config_page.py:381
 msgid ""
 "Leave empty for the model-type default batch size (omitted from saved YAML)."
 msgstr "비워 두면 모델 유형의 기본 배치 크기를 사용합니다(저장 YAML에서는 생략)."
 
-#: ui/pages/pipeline_config_page.py:378
+#: ui/pages/pipeline_config_page.py:392
 msgid "One class folder name per line; empty = discover"
 msgstr "한 줄에 클래스 폴더 이름 하나. 비움 = 검색"
 
-#: ui/pages/pipeline_config_page.py:382
+#: ui/pages/pipeline_config_page.py:395
 msgid "empty = any"
 msgstr "비움 = 제한 없음"
 
-#: ui/pages/pipeline_config_page.py:399
+#: ui/pages/pipeline_config_page.py:435
 msgid "Relative to raw data directory (e.g. coherent); absolute path optional"
 msgstr "원본 데이터 디렉터리 기준 상대 경로(예: coherent). 절대 경로 선택 가능"
 
-#: ui/pages/pipeline_config_page.py:404
+#: ui/pages/pipeline_config_page.py:440
 msgid "Select default gather target directory"
 msgstr "기본 수집 대상 디렉터리 선택"
 
-#: ui/pages/pipeline_config_page.py:410
+#: ui/pages/pipeline_config_page.py:446
 msgid "Relative to raw data directory (e.g. rejected); absolute path optional"
 msgstr "원본 데이터 디렉터리 기준 상대 경로(예: rejected). 절대 경로 선택 가능"
 
-#: ui/pages/pipeline_config_page.py:415
+#: ui/pages/pipeline_config_page.py:451
 msgid "Select default rejected directory"
 msgstr "기본 거부 디렉터리 선택"
 
-#: ui/pages/pipeline_config_page.py:489
+#: ui/pages/pipeline_config_page.py:544
 msgid "Select models directory"
 msgstr "모델 디렉터리 선택"
 
-#: ui/pages/pipeline_config_page.py:495
+#: ui/pages/pipeline_config_page.py:550
 msgid "Select logs directory"
 msgstr "로그 디렉터리 선택"
 
-#: ui/pages/pipeline_config_page.py:682
+#: ui/pages/pipeline_config_page.py:961
 msgid ""
 "Loaded: {path}\n"
 "Save will write to: {save}"
@@ -4189,7 +4201,7 @@ msgstr ""
 "불러옴: {path}\n"
 "저장 위치: {save}"
 
-#: ui/pages/pipeline_config_page.py:688
+#: ui/pages/pipeline_config_page.py:967
 msgid ""
 "Loaded: packaged defaults\n"
 "Save will write to: {path}"
@@ -4197,7 +4209,7 @@ msgstr ""
 "불러옴: 패키지 기본값\n"
 "저장 위치: {path}"
 
-#: ui/pages/pipeline_config_page.py:701
+#: ui/pages/pipeline_config_page.py:980
 msgid ""
 "Invalid YAML:\n"
 "{err}"
@@ -4205,7 +4217,7 @@ msgstr ""
 "유효하지 않은 YAML:\n"
 "{err}"
 
-#: ui/pages/pipeline_config_page.py:704
+#: ui/pages/pipeline_config_page.py:983
 msgid "Root value must be a mapping."
 msgstr "루트 값은 매핑이어야 합니다."
 
@@ -4221,7 +4233,7 @@ msgstr ""
 msgid "No model/data/training/paths keys found."
 msgstr "model/data/training/paths 키를 찾지 못했습니다."
 
-#: ui/pages/pipeline_config_page.py:789
+#: ui/pages/pipeline_config_page.py:1074
 msgid ""
 "Reset user pipeline to shipped defaults:\n"
 "{path}"
@@ -4229,161 +4241,168 @@ msgstr ""
 "사용자 파이프라인을 제공된 기본값으로 재설정:\n"
 "{path}"
 
-#: ui/pages/train_page.py:92 ui/pages/train_page.py:268
+#: ui/pages/train_page.py:93 ui/pages/train_page.py:190
+#: ui/pages/train_page.py:195 ui/pages/train_page.py:197
+#: ui/pages/train_page.py:295 ui/pages/train_page.py:296
+#: ui/pages/train_page.py:297 ui/pages/train_page.py:303
 msgid "Config default"
 msgstr "설정 기본값"
 
-#: ui/pages/train_page.py:98 ui/pages/train_page.py:237
+#: ui/pages/train_page.py:99 ui/pages/train_page.py:263
 msgid "Skip unified snapshot update"
 msgstr "통합 스냅샷 업데이트 건너뛰기"
 
-#: ui/pages/train_page.py:105 ui/pages/train_page.py:227
+#: ui/pages/train_page.py:106 ui/pages/train_page.py:253
 msgid "Output dir"
 msgstr "출력 디렉터리"
 
-#: ui/pages/train_page.py:108 ui/pages/train_page.py:230
+#: ui/pages/train_page.py:109 ui/pages/train_page.py:256
 msgid "Num workers"
 msgstr "워커 수"
 
-#: ui/pages/train_page.py:110 ui/pages/train_page.py:231
+#: ui/pages/train_page.py:111 ui/pages/train_page.py:257
 msgid "Resume checkpoint"
 msgstr "재개 체크포인트"
 
-#: ui/pages/train_page.py:114 ui/pages/train_page.py:239
+#: ui/pages/train_page.py:115 ui/pages/train_page.py:265
 msgid ""
 "Run training in a separate process (survives closing this app; see log file)"
 msgstr "학습을 별도 프로세스로 실행(이 앱을 닫아도 계속됨. 로그 파일 참조)"
 
-#: ui/pages/train_page.py:147 ui/pages/train_page.py:247
+#: ui/pages/train_page.py:148 ui/pages/train_page.py:273
 msgid "Frozen LR"
 msgstr "고정 시 학습률"
 
-#: ui/pages/train_page.py:148 ui/pages/train_page.py:248
+#: ui/pages/train_page.py:149 ui/pages/train_page.py:274
 msgid "Unfrozen LR max"
 msgstr "해제 시 학습률 최대"
 
-#: ui/pages/train_page.py:149 ui/pages/train_page.py:249
+#: ui/pages/train_page.py:150 ui/pages/train_page.py:275
 msgid "Unfrozen LR min"
 msgstr "해제 시 학습률 최소"
 
-#: ui/pages/train_page.py:157 ui/pages/train_page.py:264
+#: ui/pages/train_page.py:158 ui/pages/train_page.py:299
 msgid "Auto-detect"
 msgstr "자동 감지"
 
-#: ui/pages/train_page.py:165 ui/pages/train_page.py:265
+#: ui/pages/train_page.py:166 ui/pages/train_page.py:300
 msgid "Same as rank"
 msgstr "랭크와 같음"
 
-#: ui/pages/train_page.py:171 ui/pages/train_page.py:266
+#: ui/pages/train_page.py:172 ui/pages/train_page.py:301
 msgid "optional, integer"
 msgstr "선택, 정수"
 
-#: ui/pages/train_page.py:173 ui/pages/train_page.py:256
+#: ui/pages/train_page.py:174 ui/pages/train_page.py:282
 msgid "Base model architecture"
 msgstr "기본 모델 아키텍처"
 
-#: ui/pages/train_page.py:174 ui/pages/train_page.py:257
+#: ui/pages/train_page.py:175 ui/pages/train_page.py:283
 msgid "LoRA rank"
 msgstr "LoRA 랭크"
 
-#: ui/pages/train_page.py:175 ui/pages/train_page.py:258
+#: ui/pages/train_page.py:176 ui/pages/train_page.py:284
 msgid "LoRA alpha"
 msgstr "LoRA 알파"
 
-#: ui/pages/train_page.py:176 ui/pages/train_page.py:259
+#: ui/pages/pipeline_config_page.py:569 ui/pages/train_page.py:177
+#: ui/pages/train_page.py:202 ui/pages/train_page.py:285
+#: ui/pages/train_page.py:293
 msgid "Learning rate"
 msgstr "학습률"
 
-#: ui/pages/train_page.py:177 ui/pages/train_page.py:260
+#: ui/pages/train_page.py:178 ui/pages/train_page.py:286
 msgid "Max train steps"
 msgstr "최대 학습 스텝 수"
 
-#: ui/pages/train_page.py:178 ui/pages/train_page.py:261
+#: ui/pages/pipeline_config_page.py:564 ui/pages/train_page.py:179
+#: ui/pages/train_page.py:203 ui/pages/train_page.py:287
+#: ui/pages/train_page.py:293
 msgid "Seed"
 msgstr "시드"
 
-#: ui/pages/train_page.py:182 ui/pages/train_page.py:269
+#: ui/pages/train_page.py:207 ui/pages/train_page.py:304
 msgid "Validate Training Config"
 msgstr "학습 설정 검증"
 
-#: ui/pages/train_page.py:184 ui/pages/train_page.py:270
+#: ui/pages/train_page.py:209 ui/pages/train_page.py:305
 msgid "Start Training"
 msgstr "학습 시작"
 
-#: ui/pages/train_page.py:195 ui/pages/train_page.py:272
+#: ui/pages/train_page.py:220 ui/pages/train_page.py:307
 msgid "Training validation and execution messages will appear here."
 msgstr "학습 검증 및 실행 메시지가 여기에 표시됩니다."
 
-#: ui/pages/train_page.py:214
+#: ui/pages/train_page.py:240
 msgid ""
 "Configure framework, architecture, paths, and hyperparameters (training CLI:"
 " {cmd})."
 msgstr "프레임워크, 아키텍처, 경로 및 하이퍼파라미터를 설정합니다(학습 CLI: {cmd})."
 
-#: ui/pages/train_page.py:218
+#: ui/pages/train_page.py:244
 msgid "Core configuration"
 msgstr "핵심 설정"
 
-#: ui/pages/train_page.py:241
+#: ui/pages/train_page.py:267
 msgid "Hyperparameters (image classification)"
 msgstr "하이퍼파라미터(이미지 분류)"
 
-#: ui/pages/train_page.py:252
+#: ui/pages/train_page.py:278
 msgid "Hyperparameters (image generation LoRA)"
 msgstr "하이퍼파라미터(이미지 생성 LoRA)"
 
-#: ui/pages/train_page.py:277
+#: ui/pages/train_page.py:312
 msgid ""
 "Set Run ID from the newest snapshot_*.json under the data directory (by file"
 " modification time)."
 msgstr "데이터 디렉터리에서 파일 수정 시각이 가장 최근인 snapshot_*.json으로 실행 ID를 설정합니다."
 
-#: ui/pages/train_page.py:479
+#: ui/pages/train_page.py:530
 msgid "Select checkpoint file"
 msgstr "체크포인트 파일 선택"
 
-#: ui/pages/train_page.py:481
+#: ui/pages/train_page.py:532
 msgid ""
 "Model/checkpoint files (*.pth *.pt *.h5 *.keras *.ckpt);;All files (*.*)"
 msgstr "모델/체크포인트 파일 (*.pth *.pt *.h5 *.keras *.ckpt);;모든 파일 (*.*)"
 
-#: ui/pages/train_page.py:538
+#: ui/pages/train_page.py:605
 msgid "local checkpoint path or hub id, e.g. black-forest-labs/FLUX.1-dev"
 msgstr "로컬 체크포인트 경로 또는 허브 ID. 예: black-forest-labs/FLUX.1-dev"
 
-#: ui/pages/train_page.py:544 ui/pages/train_page.py:566
+#: ui/pages/train_page.py:614 ui/pages/train_page.py:636
 msgid "Enter architecture manually"
 msgstr "아키텍처 직접 입력"
 
-#: ui/pages/train_page.py:546
+#: ui/pages/train_page.py:616
 msgid "[warn] Unsupported framework for architecture list: {fw}"
 msgstr "[경고] 아키텍처 목록에서 지원하지 않는 프레임워크: {fw}"
 
-#: ui/pages/train_page.py:561
+#: ui/pages/train_page.py:631
 msgid "[info] {fw} architectures: {names}"
 msgstr "[정보] {fw} 아키텍처: {names}"
 
-#: ui/pages/train_page.py:568
+#: ui/pages/train_page.py:638
 msgid "[warn] Could not load architecture list for {fw}: {err}"
 msgstr "[경고] {fw}의 아키텍처 목록을 불러오지 못했습니다: {err}"
 
-#: ui/pages/train_page.py:614
+#: ui/pages/train_page.py:708
 msgid "[ok] training inputs look valid"
 msgstr "[확인] 학습 입력이 유효해 보입니다"
 
-#: ui/pages/train_page.py:629
+#: ui/pages/train_page.py:723
 msgid "[error] Could not auto-save pipeline config; training cancelled."
 msgstr "[오류] 파이프라인 설정을 자동 저장하지 못했습니다. 학습이 취소되었습니다."
 
-#: ui/pages/train_page.py:652
+#: ui/pages/train_page.py:748
 msgid "[detached] PID {pid} — log: {log} — args JSON: {args}"
 msgstr "[분리] PID {pid} - 로그: {log} - 인자 JSON: {args}"
 
-#: ui/pages/train_page.py:664
+#: ui/pages/train_page.py:760
 msgid "Training started (separate process)"
 msgstr "학습 시작됨(별도 프로세스)"
 
-#: ui/pages/train_page.py:666
+#: ui/pages/train_page.py:762
 msgid ""
 "Training is running outside this window. Closing the app does not stop it.\n"
 "\n"
@@ -4407,37 +4426,37 @@ msgstr ""
 "\n"
 "중단해야 하면 작업 관리자나 운영체제에서 프로세스를 중지하세요."
 
-#: ui/pages/train_page.py:683
+#: ui/pages/train_page.py:779
 msgid "Could not start detached training"
 msgstr "분리된 학습을 시작하지 못했습니다"
 
-#: ui/pages/train_page.py:684
+#: ui/pages/train_page.py:780
 msgid "Failed to launch the training subprocess. See Details for the error."
 msgstr "학습 하위 프로세스를 시작하지 못했습니다. 오류는 자세히를 참조하세요."
 
-#: ui/pages/train_page.py:712
+#: ui/pages/train_page.py:813
 msgid "Training LoRA adapter…"
 msgstr "LoRA 어댑터 학습 중…"
 
-#: ui/pages/train_page.py:731
+#: ui/pages/train_page.py:843
 msgid "Architecture '{arch}' not supported for {fw}. Supported: {sup}"
 msgstr "아키텍처 '{arch}'은(는) {fw}에서 지원되지 않습니다. 지원: {sup}"
 
-#: ui/pages/train_page.py:746
+#: ui/pages/train_page.py:858
 msgid "[done] Training complete. Model saved: {path}"
 msgstr "[완료] 학습이 완료되었습니다. 저장된 모델: {path}"
 
-#: ui/pages/train_page.py:765
+#: ui/pages/train_page.py:877
 msgid ""
 "[stopped] Training cancelled — partial checkpoints may exist; check the "
 "output folder before re-running."
 msgstr "[중지] 학습이 취소되었습니다. 부분 체크포인트가 있을 수 있습니다. 다시 실행하기 전에 출력 폴더를 확인하세요."
 
-#: ui/pages/train_page.py:785
+#: ui/pages/train_page.py:897
 msgid "Training failed"
 msgstr "학습 실패"
 
-#: ui/pages/train_page.py:786
+#: ui/pages/train_page.py:898
 msgid ""
 "Training stopped with an error. See Details for the message from the "
 "trainer."
@@ -4446,3 +4465,1018 @@ msgstr "학습이 오류와 함께 중지되었습니다. 학습 모듈의 메�
 #: utils/notification_manager.py:22
 msgid " etc."
 msgstr " 등"
+
+#: mb/cli/__init__.py:226
+msgid ""
+"Text classification datasets are prepared outside mb as a dataset.tsv with a"
+" fixed split column; check one with `mb text verify`."
+msgstr ""
+"텍스트 분류 데이터셋은 mb 외부에서 dataset.tsv 파일로 고정된 split 열을 포함하여 준비됩니다; `mb text "
+"verify` 로 확인하세요."
+
+#: mb/cli/__init__.py:741 ui/pages/text_page.py:361
+msgid "Test gold AP: {g} — full AP: {f} — decision threshold: {t:.4f}"
+msgstr "테스트 골드 AP: {g} — 전체 AP: {f} — 결정 임계값: {t:.4f}"
+
+#: mb/cli/__init__.py:747 ui/pages/text_page.py:364
+msgid "Wrote {path}"
+msgstr "작성함 {path}"
+
+#: mb/cli/__init__.py:756
+msgid "Input file not found: {path}"
+msgstr "입력 파일을 찾을 수 없습니다: {path}"
+
+#: mb/cli/__init__.py:764 ui/pages/text_page.py:383
+msgid "Scored {n} lines -> {path}"
+msgstr "획득한 {n}줄 -> {path}"
+
+#: mb/cli/__init__.py:781
+msgid "Skipped (no metrics.json): {path}"
+msgstr "건너뜀 (metrics.json 없음): {path}"
+
+#: mb/cli/__init__.py:783 tests/ui/test_text_page.py:44
+#: ui/pages/text_page.py:422
+msgid "No run directories with metrics.json were found."
+msgstr "metrics.json가 포함된 실행 디렉터리를 찾을 수 없습니다."
+
+#: mb/cli/__init__.py:826
+msgid "Config file not found: {path} (relative paths resolve from {cwd})"
+msgstr "구성 파일을 찾을 수 없습니다: {path} (상대 경로는 {cwd}를 기준으로 해석됩니다)"
+
+#: mb/cli/__init__.py:906
+msgid "No text subcommand specified"
+msgstr "텍스트 하위 명령이 지정되지 않았습니다"
+
+#: mb/cli/__init__.py:910
+msgid "Unknown text subcommand: {cmd}"
+msgstr "알 수 없는 텍스트 서브명령: {cmd}"
+
+#: mb/cli/parsing/text.py:15
+msgid "Text classification: verify data, evaluate, score, compare runs"
+msgstr "텍스트 분류: 데이터 검증, 평가, 점수 매기기, 실행 비교"
+
+#: mb/cli/parsing/text.py:17
+msgid ""
+"Operations on text-classification datasets and run directories. Train with "
+"`mb train --model-type text_classification`; defaults come from the "
+"pipeline's text_classification section."
+msgstr ""
+"텍스트 분류 데이터셋 및 실행 디렉터리 작업. `mb train --model-type text_classification`으로 "
+"학습합니다; 기본값은 파이프라인의 text_classification 섹션에서 가져옵니다."
+
+#: mb/cli/parsing/text.py:22
+msgid "Text subcommands"
+msgstr "텍스트 하위 명령"
+
+#: mb/cli/parsing/text.py:26
+msgid "Check a dataset directory's integrity"
+msgstr "데이터셋 디렉터리 무결성 확인"
+
+#: mb/cli/parsing/text.py:28
+msgid ""
+"Compares file hashes and row/label/tier/split/group counts with "
+"manifest.json (when present), and checks that texts are unique and each "
+"group sits in one split. Exits non-zero on any failed check."
+msgstr ""
+"manifest.json(있는 경우)과 파일 해시 및 행/라벨/티어/스플릿/그룹 수를 비교하고, 텍스트가 고유하며 각 그룹이 하나의 "
+"스플릿에만 속하는지 확인합니다. 검증에 실패하면 비‑0 종료 코드로 종료합니다."
+
+#: mb/cli/parsing/text.py:37
+msgid "Dataset directory (default: text_classification.data_dir)"
+msgstr "데이터셋 디렉터리 (기본값: text_classification.data_dir)"
+
+#: mb/cli/parsing/text.py:42
+msgid "Re-run thresholds, metrics and reports for a run directory"
+msgstr "실행 디렉터리의 임계값, 메트릭 및 보고서를 다시 실행"
+
+#: mb/cli/parsing/text.py:44
+msgid ""
+"Reloads the run's model and calibrator, chooses thresholds on val gold, and "
+"rewrites metrics.json, thresholds.json, predictions, review queue, unlabeled"
+" scores, predict.py and the model card."
+msgstr ""
+"실행의 모델과 캘리브레이터를 다시 로드하고, 검증 골드에 대한 임계값을 선택하며, metrics.json, thresholds.json,"
+" predictions, 리뷰 큐, 라벨되지 않은 점수, predict.py 및 모델 카드 파일을 다시 씁니다."
+
+#: mb/cli/parsing/text.py:49 mb/cli/parsing/text.py:65
+msgid "Run directory"
+msgstr "디렉터리 실행"
+
+#: mb/cli/parsing/text.py:54
+msgid "Dataset directory (default: the run's config.yaml)"
+msgstr "데이터셋 디렉터리 (기본값: 실행의 config.yaml)"
+
+#: mb/cli/parsing/text.py:56 mb/cli/parsing/text.py:68
+msgid "Device override, e.g. cuda or cpu"
+msgstr "디바이스 오버라이드, 예: CUDA 또는 CPU"
+
+#: mb/cli/parsing/text.py:60
+msgid "Score one string per line with a run's calibrated model"
+msgstr "실행의 보정된 모델로 한 줄에 하나의 문자열을 스코어링합니다"
+
+#: mb/cli/parsing/text.py:62
+msgid ""
+"Writes term<TAB>score with a header, one row per input line in input order."
+msgstr "헤더와 함께 term<TAB>score를 기록하고, 입력 순서대로 각 입력 줄마다 한 행씩 출력합니다."
+
+#: mb/cli/parsing/text.py:66
+msgid "UTF-8 text file, one string per line"
+msgstr "UTF-8 텍스트 파일, 줄당 하나의 문자열"
+
+#: mb/cli/parsing/text.py:67
+msgid "Output TSV path"
+msgstr "TSV 출력 경로"
+
+#: mb/cli/parsing/text.py:72
+msgid "Tabulate headline metrics across run directories"
+msgstr "실행 디렉터리 전반에 걸친 헤드라인 메트릭을 표로 정리"
+
+#: mb/cli/parsing/text.py:74
+msgid ""
+"One row per run: test gold AP, full AP, recall at precision 0.90, gold "
+"false-positive rate at the decision threshold and ECE. Wildcards are "
+"expanded (e.g. data/models/text_runs/*)."
+msgstr ""
+"실행당 한 행: 테스트 골드 AP, 전체 AP, 정밀도 0.90에서의 리콜, 의사결정 임계값에서의 골드 위양성 비율 및 ECE. "
+"와일드카드가 확장됩니다(예: data/models/text_runs/*)."
+
+#: mb/cli/parsing/text.py:79
+msgid "Run directories or wildcard patterns"
+msgstr "디렉터리 또는 와일드카드 패턴 실행"
+
+#: mb/cli/parsing/train.py:27
+msgid ""
+"Model type (default: model.default_type from config, else "
+"image_classification)"
+msgstr "모델 유형(기본값: config에서 model.default_type, 그렇지 않으면 image_classification)"
+
+#: mb/cli/parsing/train.py:46
+msgid ""
+"Data directory (default: from config). For --model-type text_classification,"
+" the directory holding dataset.tsv (default: text_classification.data_dir)."
+msgstr ""
+"데이터 디렉터리(기본값: 설정에서). --model-type text_classification의 경우 dataset.tsv를 포함하는 "
+"디렉터리(기본값: text_classification.data_dir)."
+
+#: mb/cli/parsing/train.py:54
+msgid ""
+"Output directory for models (default: from config). For --model-type "
+"text_classification, the parent of the run directory (default: "
+"text_classification.runs_dir)."
+msgstr ""
+"모델 출력 디렉터리(기본값: 구성에서 가져옴). --model-type이 text_classification인 경우 실행 디렉터리의 상위"
+" 디렉터리(기본값: text_classification.runs_dir)."
+
+#: mb/cli/parsing/train.py:88
+msgid ""
+"Batch size (default: from config or auto-detect). For --model-type "
+"text_classification, overrides text_classification.optim.batch_size."
+msgstr ""
+"배치 크기(기본값: 구성 또는 자동 감지). --model-type text_classification 에서는 "
+"text_classification.optim.batch_size 를 재정의합니다."
+
+#: mb/cli/parsing/train.py:145
+msgid ""
+"Random seed. Consumed by --model-type image_generation_lora (reproducible "
+"LoRA weight init and noise sampling) and text_classification (overrides "
+"text_classification.seed)."
+msgstr ""
+"무작위 시드. --model-type image_generation_lora(재현 가능한 LoRA 가중치 초기화 및 노이즈 샘플링)와 "
+"text_classification(text_classification.seed를 재정의함)에서 사용됩니다."
+
+#: mb/cli/parsing/train.py:167
+msgid ""
+"Learning rate for the LoRA adapter parameters (--model-type "
+"image_generation_lora; default: 1e-4), or text_classification.optim.lr "
+"(--model-type text_classification). Unrelated to --frozen-lr/--unfrozen-lr-*"
+" (image_classification only)."
+msgstr ""
+"LoRA 어댑터 매개변수의 학습률(--model-type image_generation_lora; 기본값: 1e-4) 또는 "
+"text_classification.optim.lr(--model-type text_classification). --frozen-"
+"lr/--unfrozen-lr-* (image_classification 전용)와는 무관합니다."
+
+#: mb/cli/parsing/train.py:200
+msgid ""
+"--model-type text_classification only: model family (default: "
+"text_classification.backend)"
+msgstr ""
+"--model-type text_classification 전용: 모델 패밀리 (기본값: "
+"text_classification.backend)"
+
+#: mb/cli/parsing/train.py:209
+msgid ""
+"--model-type text_classification only: Hugging Face id or local path of the "
+"model within the family (default: text_classification.model_id, else the "
+"backend's default)"
+msgstr ""
+"--model-type text_classification only: Hugging Face ID 또는 패밀리 내 모델의 로컬 "
+"경로(기본값: text_classification.model_id, 그렇지 않으면 백엔드 기본값)"
+
+#: mb/cli/parsing/train.py:219
+msgid ""
+"--model-type text_classification only: maximum training epochs (default: "
+"text_classification.optim.epochs, else the backend's default)"
+msgstr ""
+"--model-type text_classification only: 최대 훈련 에포크 수 (기본값: "
+"text_classification.optim.epochs, 아니면 백엔드 기본값)"
+
+#: mb/data/text_dataset.py:82 mb/data/text_dataset.py:91
+#: mb/data/text_dataset.py:220
+msgid "{path} is empty (expected a header row)"
+msgstr "{path}이(가) 비었습니다 (헤더 행이 필요합니다)"
+
+#: mb/data/text_dataset.py:94
+msgid "{path} has no '{col}' column (header: {header})"
+msgstr "{path}에 '{col}' 열이 없습니다 (헤더: {header})"
+
+#: mb/data/text_dataset.py:103 mb/data/text_dataset.py:256
+msgid "{path}:{line}: expected {n} fields, found {m}"
+msgstr "{path}:{line}: 예상된 필드 {n}개, 찾은 필드 {m}개"
+
+#: mb/data/text_dataset.py:214
+msgid "Dataset file not found: {path}"
+msgstr "데이터셋 파일을 찾을 수 없습니다: {path}"
+
+#: mb/data/text_dataset.py:224
+msgid "{path} is missing required column(s): {cols}"
+msgstr "{path}에 필요한 열이 없습니다: {cols}"
+
+#: mb/data/text_dataset.py:234
+msgid ""
+"{conflicts} exists but {path} has no '{col}' column to match it against"
+msgstr "{conflicts} 가 존재하지만, {path} 에는 이를 매칭할 '{col}' 열이 없습니다"
+
+#: mb/data/text_dataset.py:267
+msgid "{path}:{line}: label must be 0 or 1 (got {v!r})"
+msgstr "{path}:{line}: label은 0 또는 1이어야 합니다 (받은 값 {v!r})"
+
+#: mb/data/text_dataset.py:272
+msgid "{path}:{line}: split must be one of {choices} (got {v!r})"
+msgstr "{path}:{line}: split은 {choices} 중 하나여야 합니다 (받은 {v!r})"
+
+#: mb/data/text_dataset.py:295
+msgid "{path}:{line}: {col} must be a number or empty (got {v!r})"
+msgstr "{path}:{line}: {col}은(는) 숫자이거나 비어 있어야 합니다 (받은 값 {v!r})"
+
+#: mb/data/text_dataset.py:302
+msgid "{path} has no data rows"
+msgstr "{path}에 데이터 행이 없습니다"
+
+#: mb/data/text_dataset.py:363
+msgid "Dataset: {path}"
+msgstr "데이터 세트: {path}"
+
+#: mb/data/text_dataset.py:367
+msgid "Result: {r}"
+msgstr "결과: {r}"
+
+#: mb/data/text_dataset.py:367
+msgid "PASS"
+msgstr "통과"
+
+#: mb/data/text_dataset.py:367
+msgid "FAIL"
+msgstr "실패"
+
+#: mb/data/text_dataset.py:437
+msgid "not present; hash and count checks skipped"
+msgstr "존재하지 않음; 해시 및 개수 검사가 건너뛰어짐"
+
+#: mb/data/text_dataset.py:444
+msgid "Hashing {name}…"
+msgstr "해싱 중 {name}…"
+
+#: mb/data/text_dataset.py:447
+msgid "file missing"
+msgstr "파일이 없습니다"
+
+#: mb/data/text_dataset.py:457
+msgid "size {a} != {b}"
+msgstr "크기 {a} != {b}"
+
+#: mb/data/text_dataset.py:466
+msgid "Reading {name}…"
+msgstr "{name} 읽는 중…"
+
+#: mb/data/text_dataset.py:478
+msgid "Checking counts…"
+msgstr "카운트를 확인 중…"
+
+#: mb/data/text_dataset.py:483
+msgid "row count"
+msgstr "행 수"
+
+#: mb/data/text_dataset.py:489
+msgid "label counts"
+msgstr "레이블 수"
+
+#: mb/data/text_dataset.py:491
+msgid "tier counts"
+msgstr "티어 수"
+
+#: mb/data/text_dataset.py:493
+msgid "source counts"
+msgstr "소스 카운트"
+
+#: mb/data/text_dataset.py:497
+msgid "category hint counts"
+msgstr "카테고리 힌트 수"
+
+#: mb/data/text_dataset.py:511
+msgid "split counts"
+msgstr "카운트 분할"
+
+#: mb/data/text_dataset.py:515
+msgid "group count"
+msgstr "그룹 수"
+
+#: mb/data/text_dataset.py:522
+msgid "conflict group count"
+msgstr "충돌 그룹 수"
+
+#: mb/data/text_dataset.py:530
+msgid "unlabeled rows"
+msgstr "라벨이 없는 행"
+
+#: mb/data/text_dataset.py:536
+msgid "Checking uniqueness…"
+msgstr "고유성 확인 중…"
+
+#: mb/data/text_dataset.py:548 tests/unit/test_text_dataset.py:72
+msgid "text values unique"
+msgstr "텍스트 값 고유"
+
+#: mb/data/text_dataset.py:550
+msgid "duplicates include: {d}"
+msgstr "중복 포함: {d}"
+
+#: mb/data/text_dataset.py:565 mb/data/text_dataset.py:572
+#: tests/unit/test_text_dataset.py:72
+msgid "each group in one split"
+msgstr "각 그룹을 하나의 분할에"
+
+#: mb/data/text_dataset.py:567
+msgid "groups in several splits include: {g}"
+msgstr "여러 나눔에 포함된 그룹: {g}"
+
+#: mb/data/text_dataset.py:572
+msgid "no '{col}' column; skipped"
+msgstr "'{col}' 열이 없음; 건너뜀"
+
+#: mb/data/text_dataset.py:606 mb/training/text_config.py:466
+msgid ""
+"subsample_unreviewed needs unreviewed_tier to name the tier to thin out"
+msgstr ""
+"subsample_unreviewed 은(는) 얇게 할 계층의 이름을 지정하기 위해 unreviewed_tier 가 필요합니다"
+
+#: mb/data/text_dataset.py:609
+msgid "subsample_unreviewed needs a '{col}' column in {file}"
+msgstr "subsample_unreviewed 은(는) {file}에 '{col}' 열이 필요합니다"
+
+#: mb/data/text_dataset.py:614
+msgid "subsample_unreviewed is set but no rows have tier '{tier}'"
+msgstr "subsample_unreviewed가 설정되어 있지만 tier '{tier}'인 행이 없습니다"
+
+#: mb/data/text_dataset.py:654
+msgid "The training rows contain only one label; cannot train."
+msgstr "학습 행에 라벨이 하나만 있습니다. 학습할 수 없습니다."
+
+#: mb/data/text_dataset.py:663
+msgid "tier_weight is set but {file} has no '{col}' column"
+msgstr "tier_weight가 설정되어 있지만 {file}에 '{col}' 열이 없습니다"
+
+#: mb/data/text_dataset.py:668
+msgid "tier_weight names unknown tier(s): {bad} (known: {known})"
+msgstr "tier_weight 이름을 알 수 없는 티어: {bad} (알려진: {known})"
+
+#: mb/data/text_dataset.py:690
+msgid "gold_tiers names unknown tier(s): {bad} (known: {known})"
+msgstr "gold_tiers 이름 알 수 없는 티어: {bad} (알려진: {known})"
+
+#: mb/evaluate/classification/text_calibration.py:219
+msgid "No calibrator for method '{m}'"
+msgstr "메서드 '{m}'에 대한 보정기가 없습니다"
+
+#: mb/evaluate/classification/text_calibration.py:222
+msgid "Calibration needs both labels in the val split."
+msgstr "보정에는 val split에 두 라벨이 모두 필요합니다."
+
+#: mb/evaluate/classification/text_calibration.py:234
+msgid "Unknown calibrator in {path}: {m!r}"
+msgstr "아른 알 없는 보정기가 {path}에 있습니다: {m!r}"
+
+#: mb/evaluate/classification/text_evaluation.py:84
+msgid "Not a text-classification run directory (no {file}): {path}"
+msgstr "텍스트 분류 실행 디렉터리가 아닙니다({file} 없음): {path}"
+
+#: mb/evaluate/classification/text_evaluation.py:228
+#: mb/training/text_trainer.py:170
+msgid "Verifying dataset…"
+msgstr "데이터세트 확인 중…"
+
+#: mb/evaluate/classification/text_evaluation.py:243
+#: mb/training/text_trainer.py:180
+msgid ""
+"Dataset verification failed:\n"
+"{report}"
+msgstr ""
+"데이터셋 검증에 실패했습니다:\n"
+"{report}"
+
+#: mb/evaluate/classification/text_evaluation.py:248
+msgid "Loading model…"
+msgstr "모델 로드 중…"
+
+#: mb/evaluate/classification/text_evaluation.py:264
+msgid "Scoring test…"
+msgstr "채점 테스트…"
+
+#: mb/evaluate/classification/text_evaluation.py:276
+msgid "Computing metrics…"
+msgstr "메트릭을 계산 중…"
+
+#: mb/evaluate/classification/text_evaluation.py:287
+msgid "Counting truncated rows…"
+msgstr "잘린 행을 계산 중…"
+
+#: mb/evaluate/classification/text_evaluation.py:319
+msgid "Scoring {tier} rows for the review queue…"
+msgstr "검토 대기열에 있는 {tier}개의 행을 점수 매기는 중…"
+
+#: mb/evaluate/classification/text_evaluation.py:332
+msgid "Scoring unlabeled rows…"
+msgstr "라벨이 없는 행에 점수 매기기…"
+
+#: mb/evaluate/classification/text_evaluation.py:364
+msgid "Evaluation complete."
+msgstr "평가가 완료되었습니다."
+
+#: mb/evaluate/classification/text_evaluation.py:531
+msgid "run"
+msgstr "실행"
+
+#: mb/evaluate/classification/text_evaluation.py:532
+msgid "backend"
+msgstr "백엔드"
+
+#: mb/evaluate/classification/text_evaluation.py:533
+msgid "model"
+msgstr "모델"
+
+#: mb/evaluate/classification/text_evaluation.py:534
+msgid "gold AP"
+msgstr "골드 AP"
+
+#: mb/evaluate/classification/text_evaluation.py:535
+msgid "full AP"
+msgstr "전체 AP"
+
+#: mb/evaluate/classification/text_evaluation.py:536
+msgid "R@P0.90"
+msgstr "R@P0.90"
+
+#: mb/evaluate/classification/text_evaluation.py:537
+msgid "gold FPR"
+msgstr "골드 FPR"
+
+#: mb/evaluate/classification/text_evaluation.py:538
+msgid "ECE"
+msgstr "ECE"
+
+#: mb/models/text_backends/__init__.py:41
+msgid "No {file} in {path}"
+msgstr "{path}에 {file}이 없습니다"
+
+#: mb/models/text_backends/__init__.py:45
+msgid "Unknown backend in {path}: {b!r}"
+msgstr "알 수 없는 백엔드 ({path}): {b!r}"
+
+#: mb/models/text_backends/_torch_common.py:20
+msgid ""
+"Neural text backends require PyTorch and transformers: pip install -e "
+"\".[pytorch,text]\". Underlying error: {err}"
+msgstr ""
+"신경망 텍스트 백엔드에는 PyTorch와 transformers가 필요합니다: pip install -e "
+"\".[pytorch,text]\". 근본 오류: {err}"
+
+#: mb/models/text_backends/_torch_common.py:33
+msgid ""
+"Neural text backends require transformers: pip install -e \".[text]\". "
+"Underlying error: {err}"
+msgstr ""
+"신경망 텍스트 백엔드에는 transformers가 필요합니다: pip install -e \".[text]\". 근본적인 오류: "
+"{err}"
+
+#: mb/models/text_backends/base.py:96
+msgid "Unknown backend_options for {backend}: {bad} (allowed: {allowed})"
+msgstr "알 수 없는 backend_options for {backend}: {bad} (허용: {allowed})"
+
+#: mb/models/text_backends/base.py:99
+msgid "none"
+msgstr "없음"
+
+#: mb/models/text_backends/char_ngram_linear.py:44
+msgid ""
+"The char_ngram_linear backend requires scikit-learn: pip install -e "
+"\".[text]\". Underlying error: {err}"
+msgstr ""
+"char_ngram_linear 백엔드에 scikit-learn이 필요합니다: pip install -e \".[text]\". 기본 "
+"오류: {err}"
+
+#: mb/models/text_backends/char_ngram_linear.py:168
+msgid "backend_options: need 1 <= ngram_min <= ngram_max"
+msgstr "backend_options: 1 <= ngram_min <= ngram_max 필요합니다"
+
+#: mb/models/text_backends/char_ngram_linear.py:170
+msgid "Counting character n-grams…"
+msgstr "문자 n‑gram을 카운트 중…"
+
+#: mb/models/text_backends/char_ngram_linear.py:180
+msgid "Vectorizing val…"
+msgstr "벡터화 val…"
+
+#: mb/models/text_backends/char_ngram_linear.py:190
+msgid "Fitting logistic regression (C={c}, {i}/{n})…"
+msgstr "로지스틱 회귀를 적합 중 (C={c}, {i}/{n})…"
+
+#: mb/models/text_backends/char_ngram_linear.py:209
+msgid "Linear model fitted."
+msgstr "선형 모델이 적합되었습니다."
+
+#: mb/models/text_backends/char_ngram_linear.py:225
+#: mb/models/text_backends/encoder_finetune.py:272
+msgid "Scoring…"
+msgstr "점수 매기기…"
+
+#: mb/models/text_backends/embedding_probe.py:268
+msgid "Embedding {what}: {i}/{n}"
+msgstr "삽입 중 {what}: {i}/{n}"
+
+#: mb/models/text_backends/embedding_probe.py:347
+msgid "backend_options.pooling must be one of: {c}"
+msgstr "backend_options.pooling 은(는) 다음 중 하나여야 합니다: {c}"
+
+#: mb/models/text_backends/embedding_probe.py:349
+msgid "backend_options.head must be one of: {c}"
+msgstr "backend_options.head 은(는) 다음 중 하나이어야 합니다: {c}"
+
+#: mb/models/text_backends/embedding_probe.py:354
+#: mb/models/text_backends/encoder_finetune.py:156
+msgid "Loading {model}…"
+msgstr "로드 중 {model}…"
+
+#: mb/models/text_backends/embedding_probe.py:361
+msgid "train"
+msgstr "기차"
+
+#: mb/models/text_backends/embedding_probe.py:362
+msgid "val"
+msgstr "값"
+
+#: mb/models/text_backends/embedding_probe.py:393
+msgid "Head epoch {e}/{E} — val metric {m:.4f}"
+msgstr "헤드 에포크 {e}/{E} — 검증 메트릭 {m:.4f}"
+
+#: mb/models/text_backends/embedding_probe.py:412
+msgid "texts"
+msgstr "텍스트"
+
+#: mb/models/text_backends/encoder_finetune.py:221
+msgid "Epoch {e}/{E} — step {s}/{S} — loss {l:.4f}"
+msgstr "에포크 {e}/{E} — 스텝 {s}/{S} — 손실 {l:.4f}"
+
+#: mb/training/text_config.py:107
+msgid "Invalid text_classification config:"
+msgstr "잘못된 text_classification 구성:"
+
+#: mb/training/text_config.py:257
+msgid "Unknown key '{key}' in {where} (allowed: {allowed})"
+msgstr "알 수 없는 키 '{key}'이(가) {where}에 있습니다 (허용됨: {allowed})"
+
+#: mb/training/text_config.py:266
+msgid "{where}.{key} must be a mapping"
+msgstr "{where}.{key}은(는) 매핑이어야 합니다"
+
+#: mb/training/text_config.py:272
+msgid "{name} must be a non-empty path"
+msgstr "{name}은 비어 있지 않은 경로여야 합니다"
+
+#: mb/training/text_config.py:279
+msgid "{name} must be an integer >= {min} (got {v!r})"
+msgstr "{name}은(는) 정수이며 {min} 이상이어야 합니다 (받은 {v!r})"
+
+#: mb/training/text_config.py:294
+msgid "{name} must be a number in {range} (got {v!r})"
+msgstr "{name}은(는) {range} 범위의 숫자여야 합니다 (받은 {v!r})"
+
+#: mb/training/text_config.py:306
+msgid "{name} must be true or false (got {v!r})"
+msgstr "{name}은(는) true 또는 false 여야 합니다 (받은 값: {v!r})"
+
+#: mb/training/text_config.py:314
+msgid "{name} must be a non-empty string or null"
+msgstr "{name}은(는) 빈 문자열이 아니거나 null이어야 합니다"
+
+#: mb/training/text_config.py:331
+msgid "class_weight keys must be 0 and 1 (got {k!r})"
+msgstr "class_weight 키는 0과 1이어야 합니다 (받은 값 {k!r})"
+
+#: mb/training/text_config.py:336
+msgid "class_weight mapping must give a weight for both 0 and 1"
+msgstr "class_weight 매핑은 0과 1 모두에 대해 가중치를 제공해야 합니다"
+
+#: mb/training/text_config.py:339
+msgid ""
+"class_weight must be 'none', 'balanced' or {{0: w0, 1: w1}} (got {v!r})"
+msgstr ""
+"class_weight는 'none', 'balanced' 또는 {{0: w0, 1: w1}} 여야 합니다 (받은 값: {v!r})"
+
+#: mb/training/text_config.py:348
+msgid "tier_weight must be a mapping of tier name to multiplier"
+msgstr "tier_weight는 티어 이름을 승수에 매핑해야 합니다"
+
+#: mb/training/text_config.py:360
+msgid "gold_tiers must be null or a non-empty list of tier names"
+msgstr "gold_tiers는 null이거나 비어 있지 않은 계층 이름 목록이어야 합니다"
+
+#: mb/training/text_config.py:373 mb/training/text_config.py:550
+msgid "text_classification must be a mapping"
+msgstr "text_classification 은 매핑이어야 합니다"
+
+#: mb/training/text_config.py:383
+msgid "backend must be one of: {choices} (got {v!r})"
+msgstr "백엔드는 다음 중 하나여야 합니다: {choices} (받은 값은 {v!r})"
+
+#: mb/training/text_config.py:392
+msgid "calibration must be one of: {choices} (got {v!r})"
+msgstr "보정은 다음 중 하나여야 합니다: {choices} (받은 값 {v!r})"
+
+#: mb/training/text_config.py:415
+msgid "early_stopping.metric must be one of: {choices} (got {v!r})"
+msgstr "early_stopping.metric 은 다음 중 하나여야 합니다: {choices} (받은 값은 {v!r})"
+
+#: mb/training/text_config.py:431
+msgid "threshold_policy.kind must be one of: {choices} (got {v!r})"
+msgstr "threshold_policy.kind 은(는) 다음 중 하나여야 합니다: {choices} (받은 값은 {v!r})"
+
+#: mb/training/text_config.py:453
+msgid "model_card_notes must be a string"
+msgstr "model_card_notes는 문자열이어야 합니다"
+
+#: mb/training/text_config.py:460
+msgid "backend_options must be a mapping"
+msgstr "backend_options은(는) 매핑이어야 합니다"
+
+#: mb/training/text_config.py:469
+msgid "reference_score_column must be a non-empty string"
+msgstr "reference_score_column 은 비어 있지 않은 문자열이어야 합니다"
+
+#: mb/training/text_config.py:472
+msgid "unlabeled_file must be a non-empty file name"
+msgstr "unlabeled_file 은 비어 있지 않은 파일 이름이어야 합니다"
+
+#: mb/training/text_trainer.py:163
+msgid "Loading dataset…"
+msgstr "데이터세트 로드 중…"
+
+#: mb/training/text_trainer.py:199
+msgid "The val split needs both labels for model selection and calibration."
+msgstr "검증 분할에는 모델 선택 및 보정을 위한 두 라벨이 모두 필요합니다."
+
+#: mb/training/text_trainer.py:264
+msgid "Calibrating on val ({method})…"
+msgstr "val을 보정 중 ({method})…"
+
+#: mb/training/text_trainer.py:294
+msgid ""
+"this PyTorch build has no CUDA support (on Windows, plain `pip install "
+"torch` installs the CPU-only build; install a CUDA build from "
+"https://pytorch.org/get-started/locally/)"
+msgstr ""
+"이 PyTorch 빌드는 CUDA를 지원하지 않습니다(Windows에서는 일반 `pip install torch` 로 CPU‑only "
+"빌드가 설치됩니다; CUDA 빌드는 https://pytorch.org/get-started/locally/ 에서 설치하세요)"
+
+#: mb/training/text_trainer.py:297
+msgid ""
+"PyTorch was built for CUDA {v} but no usable GPU was found (check the "
+"driver)"
+msgstr "PyTorch는 CUDA {v}용으로 구축되었지만 사용 가능한 GPU를 찾을 수 없습니다 (드라이버를 확인하세요)"
+
+#: mb/training/text_trainer.py:301
+msgid ""
+"No GPU available for {backend} ({model}): training on CPU will be very slow."
+" Cause: {reason}. Set text_classification.device: cpu to run on CPU without "
+"this warning."
+msgstr ""
+"{backend} ({model})에 사용할 GPU가 없습니다. CPU에서 학습하면 매우 느립니다. 원인: {reason}. 이 경고 "
+"없이 CPU에서 실행하려면 text_classification.device를 cpu로 설정하세요."
+
+#: mb/training/text_trainer.py:357
+msgid "No {file} in the text-classification data directory: {path}"
+msgstr "텍스트 분류 데이터 디렉터리에 {file}이 없습니다: {path}"
+
+#: mb/training/text_trainer.py:370
+msgid "Training completed successfully. Run directory: {path}"
+msgstr "학습이 성공적으로 완료되었습니다. 실행 디렉터리: {path}"
+
+#: ui/controllers/train_page_controller.py:111
+msgid "No {file} in the data directory: {path}"
+msgstr "데이터 디렉터리에 {file}이 없습니다: {path}"
+
+#: ui/pages/data_page.py:1223
+msgid ""
+"Text classification datasets are prepared outside mb as a dataset.tsv with a"
+" fixed split column; check one on the Text page (Verify)."
+msgstr ""
+"텍스트 분류 데이터셋은 mb 외부에서 dataset.tsv 형식으로 고정된 분할 열을 포함해 준비됩니다; 텍스트 페이지에서 하나 "
+"확인하세요(검증)."
+
+#: ui/pages/pipeline_config_page.py:183
+msgid ""
+"Machine-learning defaults (<code>model</code>, <code>data</code>, "
+"<code>training</code>, <code>paths</code>, "
+"<code>text_classification</code>). Save writes to your active pipeline file,"
+" or to <code>pipeline.yaml</code> beside <code>application.yaml</code> in "
+"app data when only packaged defaults are loaded."
+msgstr ""
+"머신러닝 기본값(<code>model</code>, <code>data</code>, <code>training</code>, "
+"<code>paths</code>, <code>text_classification</code>). 저장은 활성 파이프라인 파일에 "
+"기록하거나, 패키지된 기본값만 로드된 경우 앱 데이터의 <code>application.yaml</code> 옆에 있는 "
+"<code>pipeline.yaml</code>에 기록합니다."
+
+#: ui/pages/pipeline_config_page.py:194 ui/pages/pipeline_config_page.py:232
+msgid "Text classification"
+msgstr "텍스트 분류"
+
+#: ui/pages/pipeline_config_page.py:236
+msgid ""
+"tier_weight, gold_tiers, unreviewed_tier, reference_score_column, "
+"unlabeled_file, backend_options and an explicit class_weight mapping are "
+"kept as loaded; edit them in the Advanced (YAML) tab. Unknown keys and "
+"invalid values in this section are errors when training."
+msgstr ""
+"tier_weight, gold_tiers, unreviewed_tier, reference_score_column, "
+"unlabeled_file, backend_options 및 명시적인 class_weight 매핑은 그대로 유지됩니다; Advanced "
+"(YAML) 탭에서 편집하세요. 이 섹션의 알 수 없는 키와 잘못된 값은 학습 시 오류가 됩니다."
+
+#: ui/pages/pipeline_config_page.py:242
+msgid "empty = backend default"
+msgstr "비어 있음 = 백엔드 기본값"
+
+#: ui/pages/pipeline_config_page.py:243
+msgid "empty = cuda when available, else cpu"
+msgstr "빈 = CUDA 사용 가능 시, 아니면 CPU"
+
+#: ui/pages/pipeline_config_page.py:245
+msgid "Backend default"
+msgstr "백엔드 기본값"
+
+#: ui/pages/pipeline_config_page.py:246
+msgid "Off"
+msgstr "끔"
+
+#: ui/pages/pipeline_config_page.py:247
+msgid "Exclude label-conflict groups from training and metrics"
+msgstr "라벨 충돌 그룹을 학습 및 메트릭에서 제외"
+
+#: ui/pages/pipeline_config_page.py:248
+msgid "Score the unlabeled file when present"
+msgstr "라벨이 없는 파일이 있을 경우 점수를 매깁니다"
+
+#: ui/pages/pipeline_config_page.py:561
+msgid "Runs directory"
+msgstr "Runs 디렉터리"
+
+#: ui/pages/pipeline_config_page.py:562 ui/pages/train_page.py:200
+#: ui/pages/train_page.py:293
+msgid "Backend"
+msgstr "백엔드"
+
+#: ui/pages/pipeline_config_page.py:563
+msgid "Model id"
+msgstr "모델 ID"
+
+#: ui/pages/pipeline_config_page.py:565
+msgid "Max length (tokens)"
+msgstr "최대 길이(토큰)"
+
+#: ui/pages/pipeline_config_page.py:566
+msgid "Class weight"
+msgstr "클래스 가중치"
+
+#: ui/pages/pipeline_config_page.py:568
+msgid "Subsample unreviewed tier (x positives)"
+msgstr "검토되지 않은 등급 서브샘플 (x 양성)"
+
+#: ui/pages/pipeline_config_page.py:570 ui/pages/train_page.py:201
+#: ui/pages/train_page.py:293
+msgid "Epochs"
+msgstr "시대"
+
+#: ui/pages/pipeline_config_page.py:572
+msgid "Warmup ratio"
+msgstr "워밍업 비율"
+
+#: ui/pages/pipeline_config_page.py:573
+msgid "Weight decay"
+msgstr "가중치 감소"
+
+#: ui/pages/pipeline_config_page.py:574
+msgid "Early-stopping patience"
+msgstr "조기 중단 인내"
+
+#: ui/pages/pipeline_config_page.py:575
+msgid "Calibration"
+msgstr "보정"
+
+#: ui/pages/pipeline_config_page.py:576
+msgid "Threshold policy"
+msgstr "임계값 정책"
+
+#: ui/pages/pipeline_config_page.py:577
+msgid "Threshold target"
+msgstr "임계값 대상"
+
+#: ui/pages/pipeline_config_page.py:578
+msgid "Review queue size"
+msgstr "리뷰 대기열 크기"
+
+#: ui/pages/pipeline_config_page.py:581
+msgid "Model card notes (Markdown)"
+msgstr "모델 카드 메모 (Markdown)"
+
+#: ui/pages/pipeline_config_page.py:641
+msgid "Select text dataset directory"
+msgstr "텍스트 데이터셋 디렉터리 선택"
+
+#: ui/pages/pipeline_config_page.py:642
+msgid "Select runs directory"
+msgstr "실행 디렉터리 선택"
+
+#: ui/pages/pipeline_config_page.py:751
+msgid "custom mapping (edit in YAML)"
+msgstr "사용자 정의 매핑 (YAML에서 편집)"
+
+#: ui/pages/pipeline_config_page.py:991
+msgid ""
+"The document contains keys outside model/data/training/paths/text_classification: {keys}\n"
+"They will be ignored when applying to the form. Continue?"
+msgstr ""
+"문서에 model/data/training/paths/text_classification 외부의 키가 포함되어 있습니다: {keys}\n"
+"양식에 적용할 때 무시됩니다. 계속하시겠습니까?"
+
+#: ui/pages/pipeline_config_page.py:1002
+msgid "No model/data/training/paths/text_classification keys found."
+msgstr "model/data/training/paths/text_classification 키를 찾을 수 없습니다."
+
+#: ui/pages/text_page.py:105 ui/pages/text_page.py:122
+#: ui/pages/text_page.py:196 ui/pages/text_page.py:197
+#: ui/pages/text_page.py:343 ui/pages/text_page.py:373
+msgid "Run dir"
+msgstr "dir 실행"
+
+#: ui/pages/text_page.py:106 ui/pages/text_page.py:196
+msgid "Data dir (optional)"
+msgstr "데이터 디렉터리(선택)"
+
+#: ui/pages/text_page.py:123 ui/pages/text_page.py:197
+#: ui/pages/text_page.py:374
+msgid "Input lines"
+msgstr "입력 행"
+
+#: ui/pages/text_page.py:176
+msgid "Text files (*.txt *.tsv);;All files (*.*)"
+msgstr "텍스트 파일 (*.txt *.tsv);;모든 파일 (*.*)"
+
+#: ui/pages/text_page.py:178
+msgid "Save scores as"
+msgstr "점수를 다른 이름으로 저장"
+
+#: ui/pages/text_page.py:178
+msgid "TSV files (*.tsv);;All files (*.*)"
+msgstr "TSV 파일 (*.tsv);;모든 파일 (*.*)"
+
+#: ui/pages/text_page.py:186
+msgid ""
+"Text-classification datasets and runs ({cmd}). Train on the Train page with "
+"model type text_classification; defaults come from the Pipeline page's Text "
+"classification tab."
+msgstr ""
+"텍스트 분류 데이터셋 및 실행 ({cmd}). Train 페이지에서 모델 유형 text_classification으로 학습합니다; "
+"기본값은 Pipeline 페이지의 텍스트 분류 탭에서 가져옵니다."
+
+#: ui/pages/text_page.py:191
+msgid "Verify"
+msgstr "확인"
+
+#: ui/pages/text_page.py:193
+msgid "Score"
+msgstr "점수"
+
+#: ui/pages/text_page.py:198
+msgid "default: text_classification.data_dir"
+msgstr "기본값: text_classification.data_dir"
+
+#: ui/pages/text_page.py:199
+msgid "default: the run's config.yaml"
+msgstr "기본값: 실행의 config.yaml"
+
+#: ui/pages/text_page.py:200
+msgid "Verify Dataset"
+msgstr "데이터 세트 검증"
+
+#: ui/pages/text_page.py:201
+msgid "Evaluate Run"
+msgstr "실행 평가"
+
+#: ui/pages/text_page.py:202
+msgid "Score Lines"
+msgstr "점수 라인"
+
+#: ui/pages/text_page.py:203
+msgid "Compare Runs"
+msgstr "실행 비교"
+
+#: ui/pages/text_page.py:204
+msgid "Add run directory…"
+msgstr "실행 디렉터리 추가…"
+
+#: ui/pages/text_page.py:206
+msgid ""
+"One run directory or wildcard pattern per line (e.g. "
+"data/models/text_runs/*)."
+msgstr "한 줄에 하나의 실행 디렉터리 또는 와일드카드 패턴 (예: data/models/text_runs/*)."
+
+#: ui/pages/text_page.py:208
+msgid "Integrity check results will appear here."
+msgstr "무결성 검사 결과가 여기 표시됩니다."
+
+#: ui/pages/text_page.py:209
+msgid "Evaluation summary will appear here."
+msgstr "평가 요약이 여기 표시됩니다."
+
+#: ui/pages/text_page.py:210
+msgid "Scoring summary will appear here."
+msgstr "점수 요약이 여기 표시됩니다."
+
+#: ui/pages/text_page.py:211
+msgid "Comparison table will appear here."
+msgstr "비교 표가 여기 표시됩니다."
+
+#: ui/pages/text_page.py:285
+msgid "The operation stopped with an error. See Details for the message."
+msgstr "작업이 오류로 중지되었습니다. 자세한 내용에서 메시지를 확인하십시오."
+
+#: ui/pages/text_page.py:290
+msgid "[stopped] Cancelled."
+msgstr "[중지] 취소됨."
+
+#: ui/pages/text_page.py:306
+msgid "Missing input"
+msgstr "입력이 누락되었습니다"
+
+#: ui/pages/text_page.py:306
+msgid "Please provide: {what}"
+msgstr "제공해 주세요: {what}"
+
+#: ui/pages/text_page.py:338
+msgid "Verify dataset"
+msgstr "데이터 세트 확인"
+
+#: ui/pages/text_page.py:368
+msgid "Evaluate run"
+msgstr "실행 평가"
+
+#: ui/pages/text_page.py:387
+msgid ""
+"[warn] {n} input line(s) contain a tab; their output rows have extra "
+"columns."
+msgstr "[warn] {n} 입력 행에 탭이 포함되어 있습니다; 출력 행에 추가 열이 있습니다."
+
+#: ui/pages/text_page.py:394
+msgid "Score lines"
+msgstr "점수 라인"
+
+#: ui/pages/text_page.py:401
+msgid "Select run directory"
+msgstr "실행 디렉터리 선택"
+
+#: ui/pages/text_page.py:420
+msgid "[skip] no metrics.json: {path}"
+msgstr "[skip] metrics.json이 없습니다: {path}"
+
+#: ui/pages/train_page.py:199 ui/pages/train_page.py:298
+msgid "optional, integer (default: config)"
+msgstr "선택 사항, 정수 (기본값: config)"
+
+#: ui/pages/train_page.py:290
+msgid "Hyperparameters (text classification)"
+msgstr "하이퍼파라미터 (텍스트 분류)"
+
+#: ui/pages/train_page.py:655
+msgid "model id (default: {model})"
+msgstr "모델 ID (기본값: {model})"
+
+#: ui/pages/train_page.py:657
+msgid "not used by this backend"
+msgstr "이 백엔드에서는 사용되지 않습니다"

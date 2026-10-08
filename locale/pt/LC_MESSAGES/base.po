@@ -2,9 +2,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
-"POT-Creation-Date: 2026-10-01 09:52-0400\n"
-"PO-Revision-Date: 2026-10-01 09:52-0400\n"
-"Last-Translator: Thomas Hall <tomhall.main@gmail.com>\n"
+"POT-Creation-Date: 2026-10-08 17:04-0400\n"
+"PO-Revision-Date: 2026-10-08 17:04-0400\n"
+"Last-Translator: Translator Name <translator@example.com>\n"
 "Language-Team: pt Team <<EMAIL>>\n"
 "Language: pt\n"
 "MIME-Version: 1.0\n"
@@ -160,106 +160,106 @@ msgstr "  em falta"
 msgid "  total: {n}"
 msgstr "  no total: {n}"
 
-#: mb/cli/__init__.py:57
+#: mb/cli/__init__.py:58
 msgid "Model Builder - A unified CLI for building ML models"
 msgstr "Model Builder - Uma CLI unificada para construir modelos de ML"
 
-#: mb/cli/__init__.py:69
+#: mb/cli/__init__.py:70
 msgid "Path to configuration file (YAML)"
 msgstr "Caminho do ficheiro de configuração (YAML)"
 
-#: mb/cli/__init__.py:74
+#: mb/cli/__init__.py:75
 msgid "Enable verbose logging"
 msgstr "Ativar o registo detalhado"
 
-#: mb/cli/__init__.py:78
+#: mb/cli/__init__.py:79
 msgid "Available commands"
 msgstr "Comandos disponíveis"
 
-#: mb/cli/__init__.py:91
+#: mb/cli/__init__.py:92
 msgid "Please specify valid subdirectories using --subdirs argument"
 msgstr "Especifique subdiretórios válidos com o argumento --subdirs"
 
-#: mb/cli/__init__.py:100
+#: mb/cli/__init__.py:101
 msgid "Invalid weight format: {pair}. Expected format: subdir:weight"
 msgstr "Formato de peso inválido: {pair}. Formato esperado: subdir:weight"
 
-#: mb/cli/__init__.py:110
+#: mb/cli/__init__.py:111
 msgid "Weight must be non-negative: {subdir}={weight}"
 msgstr "O peso não pode ser negativo: {subdir}={weight}"
 
-#: mb/cli/__init__.py:121
+#: mb/cli/__init__.py:122
 msgid "Subdirectories in weights not found in --subdirs: {weights}"
 msgstr "Há subdiretórios nos pesos que não estão em --subdirs: {weights}"
 
-#: mb/cli/__init__.py:219
+#: mb/cli/__init__.py:220
 msgid "Image generation dataset creation is not implemented yet."
 msgstr ""
 "A criação do conjunto de dados de geração de imagens ainda não está "
 "implementada."
 
-#: mb/cli/__init__.py:229
+#: mb/cli/__init__.py:239
 msgid "Process terminated due to external storage detection."
 msgstr "O processo terminou devido à deteção de armazenamento externo."
 
-#: mb/cli/__init__.py:278
+#: mb/cli/__init__.py:288
 msgid "--pillow and --quiet require --dry-run"
 msgstr "--pillow e --quiet requerem --dry-run"
 
-#: mb/cli/__init__.py:281
+#: mb/cli/__init__.py:291
 msgid "--pillow requires --json"
 msgstr "--pillow requer --json"
 
-#: mb/cli/__init__.py:324
+#: mb/cli/__init__.py:334
 msgid "--data-dir is required when operation is create-dataset"
 msgstr "--data-dir é obrigatório quando a operação é create-dataset"
 
-#: mb/cli/__init__.py:356 mb/cli/__init__.py:403
+#: mb/cli/__init__.py:366 mb/cli/__init__.py:413
 msgid "Image generation training is not implemented yet."
 msgstr "O treino de geração de imagens ainda não está implementado."
 
-#: mb/cli/__init__.py:359
+#: mb/cli/__init__.py:369
 msgid "Image generation LoRA training is not implemented yet."
 msgstr "O treino LoRA de geração de imagens ainda não está implementado."
 
-#: mb/cli/__init__.py:362
+#: mb/cli/__init__.py:372
 msgid "Unsupported model type from config: {t}"
 msgstr "Tipo de modelo não suportado na configuração: {t}"
 
-#: mb/cli/__init__.py:367 mb/cli/__init__.py:424
+#: mb/cli/__init__.py:377 mb/cli/__init__.py:438
 #: mb/training/lora_diffusion_trainer.py:587
 msgid "Data directory does not exist: {path}"
 msgstr "O diretório de dados não existe: {path}"
 
-#: mb/cli/__init__.py:379 mb/cli/__init__.py:467
+#: mb/cli/__init__.py:389 mb/cli/__init__.py:481
 msgid "Architecture '{arch}' not supported for framework '{fw}'"
 msgstr "A arquitetura '{arch}' não é suportada para o framework '{fw}'"
 
-#: mb/cli/__init__.py:390 mb/cli/__init__.py:494
+#: mb/cli/__init__.py:400 mb/cli/__init__.py:508
 msgid "Training completed successfully. Model saved to: {path}"
 msgstr "Treino concluído com sucesso. Modelo guardado em: {path}"
 
-#: mb/cli/__init__.py:398 ui/controllers/train_page_controller.py:73
+#: mb/cli/__init__.py:408 ui/controllers/train_page_controller.py:121
 msgid "Unsupported framework: {fw}"
 msgstr "Framework não suportado: {fw}"
 
-#: mb/cli/__init__.py:410
+#: mb/cli/__init__.py:424
 msgid "Unsupported model type: {t}"
 msgstr "Tipo de modelo não suportado: {t}"
 
-#: mb/cli/__init__.py:418
+#: mb/cli/__init__.py:432
 msgid "Unsupported architecture: {arch}"
 msgstr "Arquitetura não suportada: {arch}"
 
-#: mb/cli/__init__.py:499
+#: mb/cli/__init__.py:513
 msgid "Training failed: {err}"
 msgstr "O treino falhou: {err}"
 
-#: mb/cli/__init__.py:510 mb/cli/__init__.py:623
+#: mb/cli/__init__.py:524 mb/cli/__init__.py:637
 msgid "Input model file not found: {path}"
 msgstr "Ficheiro do modelo de entrada não encontrado: {path}"
 
-#: mb/cli/__init__.py:518
+#: mb/cli/__init__.py:532
 msgid ""
 "{path} looks like a LoRA adapter (from `mb train --model-type "
 "image_generation_lora`), not a full model checkpoint — `mb convert` doesn't "
@@ -271,52 +271,53 @@ msgstr ""
 "convert` não se aplica. Já é um artefacto safetensors portátil, utilizável "
 "diretamente (p. ex. load_lora_weights() de um pipeline diffusers)."
 
-#: mb/cli/__init__.py:532
+#: mb/cli/__init__.py:546
 msgid "Could not detect source framework. Please specify --framework"
 msgstr ""
 "Não foi possível detetar o framework de origem. Especifique --framework"
 
-#: mb/cli/__init__.py:538
+#: mb/cli/__init__.py:552
 msgid "PyTorch -> ONNX conversion requires --architecture and --num-classes"
 msgstr "A conversão de PyTorch -> ONNX requer --architecture e --num-classes"
 
-#: mb/cli/__init__.py:558
+#: mb/cli/__init__.py:572
 msgid "Conversion completed successfully: {path}"
 msgstr "Conversão concluída com sucesso: {path}"
 
-#: mb/cli/__init__.py:564
+#: mb/cli/__init__.py:578
 msgid "--quantize applies to --target onnx only; skipping quantization."
 msgstr ""
 "--quantize aplica-se apenas a --target onnx; a quantização será ignorada."
 
-#: mb/cli/__init__.py:572
+#: mb/cli/__init__.py:586
 msgid "Only {n} of {total} quantized variants were written."
 msgstr "Foram escritas apenas {n} de {total} variantes quantizadas."
 
-#: mb/cli/__init__.py:578
+#: mb/cli/__init__.py:592
 msgid "Wrote quantized variant: {path}"
 msgstr "Variante quantizada escrita: {path}"
 
-#: mb/cli/__init__.py:581 ui/pages/convert_page.py:344
+#: mb/cli/__init__.py:595 ui/pages/convert_page.py:344
 msgid "Conversion failed"
 msgstr "A conversão falhou"
 
-#: mb/cli/__init__.py:585
+#: mb/cli/__init__.py:599
 msgid "Conversion error: {err}"
 msgstr "Erro de conversão: {err}"
 
-#: mb/cli/__init__.py:594 ui/pages/info_page.py:184
+#: mb/cli/__init__.py:608 ui/pages/info_page.py:184
 msgid "Model path not found: {path}"
 msgstr "Caminho do modelo não encontrado: {path}"
 
-#: mb/cli/__init__.py:608 mb/evaluate/compare.py:157
+#: mb/cli/__init__.py:622 mb/cli/__init__.py:720 mb/evaluate/compare.py:157
 #: mb/evaluate/compare.py:193 mb/evaluate/metrics.py:162
 #: mb/evaluate/metrics.py:182 mb/evaluate/misclassified.py:84
 #: mb/evaluate/misclassified.py:104 ui/pages/info_page.py:198
+#: ui/pages/text_page.py:320
 msgid "Data directory not found: {path}"
 msgstr "Diretório de dados não encontrado: {path}"
 
-#: mb/cli/__init__.py:631
+#: mb/cli/__init__.py:645
 msgid ""
 "{path} looks like a LoRA adapter (from `mb train --model-type "
 "image_generation_lora`), not a full model checkpoint — `mb export bundle` "
@@ -329,72 +330,72 @@ msgstr ""
 "utilizável diretamente (p. ex. load_lora_weights() de um pipeline "
 "diffusers)."
 
-#: mb/cli/__init__.py:656
+#: mb/cli/__init__.py:670
 msgid "Bundle export completed: {path}"
 msgstr "Exportação do pacote concluída: {path}"
 
-#: mb/cli/__init__.py:657 ui/pages/export_page.py:338
+#: mb/cli/__init__.py:671 ui/pages/export_page.py:338
 msgid "Weights: {path}"
 msgstr "Pesos: {path}"
 
-#: mb/cli/__init__.py:658 ui/pages/export_page.py:339
+#: mb/cli/__init__.py:672 ui/pages/export_page.py:339
 msgid "Manifest: {path}"
 msgstr "Manifesto: {path}"
 
-#: mb/cli/__init__.py:660 ui/pages/export_page.py:342
+#: mb/cli/__init__.py:674 ui/pages/export_page.py:342
 msgid "Architecture stub: {path}"
 msgstr "Esboço de arquitetura: {path}"
 
-#: mb/cli/__init__.py:663
+#: mb/cli/__init__.py:677
 msgid "Export failed: {err}"
 msgstr "A exportação falhou: {err}"
 
-#: mb/cli/__init__.py:724
+#: mb/cli/__init__.py:841
 msgid "No data subcommand specified"
 msgstr "Nenhum subcomando de dados foi especificado"
 
-#: mb/cli/__init__.py:729
+#: mb/cli/__init__.py:846
 msgid "Unknown data subcommand: {cmd}"
 msgstr "Subcomando de dados desconhecido: {cmd}"
 
-#: mb/cli/__init__.py:751
+#: mb/cli/__init__.py:868
 msgid "No info subcommand specified"
 msgstr "Nenhum subcomando de informação foi especificado"
 
-#: mb/cli/__init__.py:755
+#: mb/cli/__init__.py:872
 msgid "Unknown info subcommand: {cmd}"
 msgstr "Subcomando de informação desconhecido: {cmd}"
 
-#: mb/cli/__init__.py:764
+#: mb/cli/__init__.py:881
 msgid "No export subcommand specified"
 msgstr "Nenhum subcomando de exportação foi especificado"
 
-#: mb/cli/__init__.py:768
+#: mb/cli/__init__.py:885
 msgid "Unknown export subcommand: {cmd}"
 msgstr "Subcomando de exportação desconhecido: {cmd}"
 
-#: mb/cli/__init__.py:772
+#: mb/cli/__init__.py:889
 msgid "Unhandled export subcommand: {cmd}"
 msgstr "Subcomando de exportação não tratado: {cmd}"
 
-#: mb/cli/__init__.py:778
+#: mb/cli/__init__.py:895
 msgid "No evaluate subcommand specified"
 msgstr "Nenhum subcomando de avaliação foi especificado"
 
-#: mb/cli/__init__.py:782
+#: mb/cli/__init__.py:899
 msgid "Unknown evaluate subcommand: {cmd}"
 msgstr "Subcomando de avaliação desconhecido: {cmd}"
 
-#: mb/cli/__init__.py:787 ui/pages/data_page.py:1263
-#: ui/pages/data_page.py:1493
+#: mb/cli/__init__.py:915 ui/pages/data_page.py:1270
+#: ui/pages/data_page.py:1500
 msgid "Unknown command: {cmd}"
 msgstr "Comando desconhecido: {cmd}"
 
-#: mb/cli/__init__.py:791
+#: mb/cli/__init__.py:919
 msgid "Interrupted by user"
 msgstr "Interrompido pelo utilizador"
 
-#: mb/cli/__init__.py:794
+#: mb/cli/__init__.py:922
 msgid "Error: {err}"
 msgstr "Erro: {err}"
 
@@ -662,7 +663,7 @@ msgstr ""
 "Semente aleatória para reprodutibilidade (predefinição: data.seed do YAML da"
 " pipeline quando definida, caso contrário não determinística)"
 
-#: mb/cli/parsing/data.py:267 mb/cli/parsing/train.py:191
+#: mb/cli/parsing/data.py:267 mb/cli/parsing/train.py:231
 msgid ""
 "Run ID of unified snapshot to update (auto-detects latest if not provided)"
 msgstr ""
@@ -1264,31 +1265,31 @@ msgid "Output directory for models (default: from config)"
 msgstr ""
 "Diretório de saída dos modelos (predefinição: a partir da configuração)"
 
-#: mb/cli/parsing/train.py:55
+#: mb/cli/parsing/train.py:62
 msgid "Number of frozen training epochs (default: from config)"
 msgstr ""
 "Número de épocas de treino congelado (predefinição: a partir da "
 "configuração)"
 
-#: mb/cli/parsing/train.py:60
+#: mb/cli/parsing/train.py:67
 msgid "Number of unfrozen training epochs (default: from config)"
 msgstr ""
 "Número de épocas de treino descongelado (predefinição: a partir da "
 "configuração)"
 
-#: mb/cli/parsing/train.py:65
+#: mb/cli/parsing/train.py:72
 msgid "Learning rate for frozen phase (default: from config)"
 msgstr ""
 "Taxa de aprendizagem da fase congelada (predefinição: a partir da "
 "configuração)"
 
-#: mb/cli/parsing/train.py:70
+#: mb/cli/parsing/train.py:77
 msgid "Maximum learning rate for unfrozen phase (default: from config)"
 msgstr ""
 "Taxa de aprendizagem máxima da fase descongelada (predefinição: a partir da "
 "configuração)"
 
-#: mb/cli/parsing/train.py:75
+#: mb/cli/parsing/train.py:82
 msgid "Minimum learning rate for unfrozen phase (default: from config)"
 msgstr ""
 "Taxa de aprendizagem mínima da fase descongelada (predefinição: a partir da "
@@ -1300,7 +1301,7 @@ msgstr ""
 "Tamanho do lote (predefinição: a partir da configuração ou deteção "
 "automática)"
 
-#: mb/cli/parsing/train.py:86
+#: mb/cli/parsing/train.py:96
 msgid ""
 "Image size (default: 224). For --model-type image_generation_lora, this is "
 "the training resolution instead (default: 512)."
@@ -1309,13 +1310,13 @@ msgstr ""
 "image_generation_lora, passa a ser a resolução de treino (predefinição: "
 "512)."
 
-#: mb/cli/parsing/train.py:93
+#: mb/cli/parsing/train.py:103
 msgid "Number of data loading workers (default: from config)"
 msgstr ""
 "Número de processos de carregamento de dados (predefinição: a partir da "
 "configuração)"
 
-#: mb/cli/parsing/train.py:99
+#: mb/cli/parsing/train.py:109
 msgid ""
 "Whether an image carries one class or several (image_classification only; "
 "default: from config, which ships as single_label). multi_label reads "
@@ -1327,7 +1328,7 @@ msgstr ""
 "multi_label lê label_schema.json e labels.jsonl ao lado do conjunto de dados"
 " e treina sigmóides independentes por etiqueta. Apenas PyTorch."
 
-#: mb/cli/parsing/train.py:109
+#: mb/cli/parsing/train.py:119
 msgid ""
 "Train at --image-size even when the architecture expects a different one. "
 "Only affects backbones with a fixed input resolution (e.g. siglip2_*), where"
@@ -1338,7 +1339,7 @@ msgstr ""
 "que uma incompatibilidade faz com que os embeddings de posição pré-treinados"
 " deixem de ficar alinhados."
 
-#: mb/cli/parsing/train.py:118
+#: mb/cli/parsing/train.py:128
 msgid ""
 "Compensate an imbalanced training set by weighting the training loss "
 "(image_classification only; default: from config). Validation loss stays "
@@ -1349,7 +1350,7 @@ msgstr ""
 "configuração). A perda de validação permanece sem pesos para continuar "
 "comparável entre definições."
 
-#: mb/cli/parsing/train.py:127
+#: mb/cli/parsing/train.py:137
 msgid ""
 "Ceiling on any single class weight (--class-weighting inverse_frequency "
 "only; default: from config)"
@@ -1366,14 +1367,14 @@ msgstr ""
 "image_generation_lora (inicialização reproduzível dos pesos LoRA e "
 "amostragem do ruído)."
 
-#: mb/cli/parsing/train.py:142
+#: mb/cli/parsing/train.py:153
 msgid ""
 "LoRA adapter rank (--model-type image_generation_lora only; default: 16)"
 msgstr ""
 "Posto do adaptador LoRA (apenas --model-type image_generation_lora; "
 "predefinição: 16)"
 
-#: mb/cli/parsing/train.py:148
+#: mb/cli/parsing/train.py:159
 msgid ""
 "LoRA adapter alpha scaling (--model-type image_generation_lora only; "
 "default: same as --lora-rank)"
@@ -1391,7 +1392,7 @@ msgstr ""
 "image_generation_lora; predefinição: 1e-4). Sem relação com --frozen-"
 "lr/--unfrozen-lr-* (apenas image_classification)."
 
-#: mb/cli/parsing/train.py:165
+#: mb/cli/parsing/train.py:177
 msgid ""
 "Total optimizer steps to train (--model-type image_generation_lora only; "
 "default: 1000). LoRA training here is step-based, not epoch-based."
@@ -1400,7 +1401,7 @@ msgstr ""
 "image_generation_lora; predefinição: 1000). Aqui o treino LoRA conta-se em "
 "passos, não em épocas."
 
-#: mb/cli/parsing/train.py:174
+#: mb/cli/parsing/train.py:186
 msgid ""
 "--model-type image_generation_lora only: the base model's architecture "
 "(different architectures load different components and LoRA target layers). "
@@ -1421,15 +1422,15 @@ msgstr ""
 "stable_diffusion_xl, stable_diffusion_3 e z_image_turbo são reconhecidos, "
 "mas ainda não são suportados."
 
-#: mb/cli/parsing/train.py:186
+#: mb/cli/parsing/train.py:226
 msgid "Path to checkpoint to resume training from"
 msgstr "Caminho do ponto de verificação para retomar o treino"
 
-#: mb/cli/parsing/train.py:196
+#: mb/cli/parsing/train.py:236
 msgid "Skip updating the unified snapshot with training data"
 msgstr "Omitir a atualização do instantâneo unificado com os dados de treino"
 
-#: mb/cli/parsing/train.py:203
+#: mb/cli/parsing/train.py:243
 msgid ""
 "Load TrainingRunArgs from JSON (see mb.training.run_args); other train flags"
 " are ignored"
@@ -2094,11 +2095,11 @@ msgstr ""
 "O treino multirrótulo está implementado apenas para PyTorch; --framework "
 "{fw} treinaria sem aviso um modelo de rótulo único."
 
-#: mb/utils/constants.py:82
+#: mb/utils/constants.py:84
 msgid "System"
 msgstr "Sistema"
 
-#: mb/utils/constants.py:101
+#: mb/utils/constants.py:103
 msgid "Access Password Administration"
 msgstr "Acesso à administração da palavra-passe"
 
@@ -2124,27 +2125,27 @@ msgstr "sucesso"
 msgid "fail"
 msgstr "falha"
 
-#: ui/app.py:28 ui/main_window.py:85 ui/main_window.py:121
+#: ui/app.py:28 ui/main_window.py:87 ui/main_window.py:123
 msgid "Model Builder"
 msgstr "Construtor de Modelos"
 
-#: ui/main_window.py:266
+#: ui/main_window.py:268
 msgid "File"
 msgstr "Ficheiro"
 
-#: ui/main_window.py:267
+#: ui/main_window.py:269
 msgid "Set workspace folder…"
 msgstr "Definir pasta da área de trabalho…"
 
-#: ui/main_window.py:270
+#: ui/main_window.py:272
 msgid "Set config file…"
 msgstr "Definir ficheiro de configuração…"
 
-#: ui/main_window.py:273
+#: ui/main_window.py:275
 msgid "Open application settings (YAML)…"
 msgstr "Abrir definições da aplicação (YAML)…"
 
-#: ui/main_window.py:277
+#: ui/main_window.py:279
 msgid ""
 "Desktop shell options (toasts, cache interval, …); see "
 "mb/config/application.example.yaml. Reload the app or use Set config file "
@@ -2154,37 +2155,37 @@ msgstr ""
 "cache, …); consulte mb/config/application.example.yaml. Recarregue a "
 "aplicação ou use Definir ficheiro de configuração para o YAML do pipeline."
 
-#: ui/main_window.py:283
+#: ui/main_window.py:285
 msgid "Exit"
 msgstr "Sair"
 
-#: ui/main_window.py:288
+#: ui/main_window.py:290
 msgid "Help"
 msgstr "Ajuda"
 
-#: ui/main_window.py:289 ui/main_window.py:357
+#: ui/main_window.py:291 ui/main_window.py:359
 msgid "About Model Builder"
 msgstr "Acerca do Model Builder"
 
-#: ui/main_window.py:301
+#: ui/main_window.py:303
 msgid " | Config: {path}"
 msgstr " | Configuração: {path}"
 
-#: ui/main_window.py:305
+#: ui/main_window.py:307
 msgid "Workspace: {root}{cfg}"
 msgstr "Área de trabalho: {root}{cfg}"
 
-#: ui/main_window.py:306
+#: ui/main_window.py:308
 msgid "No workspace folder set — use File → Set workspace folder"
 msgstr ""
 "Nenhuma pasta de área de trabalho definida — use Ficheiro → Definir pasta da"
 " área de trabalho"
 
-#: ui/main_window.py:317
+#: ui/main_window.py:319
 msgid "Application settings"
 msgstr "Definições da aplicação"
 
-#: ui/main_window.py:318
+#: ui/main_window.py:320
 msgid ""
 "File not found:\n"
 "{path}"
@@ -2192,23 +2193,23 @@ msgstr ""
 "Ficheiro não encontrado:\n"
 "{path}"
 
-#: ui/main_window.py:327
+#: ui/main_window.py:329
 msgid "Workspace root folder"
 msgstr "Pasta raiz da área de trabalho"
 
-#: ui/main_window.py:343
+#: ui/main_window.py:345
 msgid "Optional YAML config"
 msgstr "Configuração YAML opcional"
 
-#: ui/main_window.py:345
+#: ui/main_window.py:347
 msgid "YAML (*.yaml *.yml);;All files (*.*)"
 msgstr "YAML (*.yaml *.yml);;Todos os ficheiros (*.*)"
 
-#: ui/main_window.py:369
+#: ui/main_window.py:371
 msgid "Background task"
 msgstr "Tarefa em segundo plano"
 
-#: ui/main_window.py:371
+#: ui/main_window.py:373
 msgid ""
 "A background task is still running. Closing now may leave partial outputs "
 "(checkpoints, datasets, copies). Exit anyway?"
@@ -2221,24 +2222,24 @@ msgstr ""
 msgid "Error"
 msgstr "Erro"
 
-#: ui/controllers/train_page_controller.py:76
+#: ui/controllers/train_page_controller.py:124
 msgid "Architecture is required."
 msgstr "A arquitetura é obrigatória."
 
-#: ui/controllers/train_page_controller.py:79
+#: ui/controllers/train_page_controller.py:127
 msgid "Unknown architecture: {a}"
 msgstr "Arquitetura desconhecida: {a}"
 
-#: ui/controllers/train_page_controller.py:81
-#: ui/controllers/train_page_controller.py:136
+#: ui/controllers/train_page_controller.py:129
+#: ui/controllers/train_page_controller.py:184
 msgid "Data directory does not exist."
 msgstr "O diretório de dados não existe."
 
-#: ui/controllers/train_page_controller.py:85
+#: ui/controllers/train_page_controller.py:133
 msgid "Resume checkpoint path does not exist."
 msgstr "O caminho do ponto de verificação de retoma não existe."
 
-#: ui/controllers/train_page_controller.py:123
+#: ui/controllers/train_page_controller.py:171
 msgid ""
 "Image-generation LoRA training only supports the PyTorch framework (got: "
 "{fw})."
@@ -2246,7 +2247,7 @@ msgstr ""
 "O treino LoRA de geração de imagens só suporta o framework PyTorch (obtido: "
 "{fw})."
 
-#: ui/controllers/train_page_controller.py:131
+#: ui/controllers/train_page_controller.py:179
 msgid ""
 "Base model (a local checkpoint path or hub id) is required for image-"
 "generation LoRA."
@@ -2254,7 +2255,7 @@ msgstr ""
 "O modelo base (um caminho local de ponto de verificação ou um id de hub) é "
 "obrigatório para LoRA de geração de imagens."
 
-#: ui/controllers/train_page_controller.py:145
+#: ui/controllers/train_page_controller.py:193
 msgid ""
 "Could not determine the base model's architecture from {path}. Select one "
 "explicitly."
@@ -2262,12 +2263,12 @@ msgstr ""
 "Não foi possível determinar a arquitetura do modelo base a partir de {path}."
 " Selecione uma explicitamente."
 
-#: ui/controllers/train_page_controller.py:151
+#: ui/controllers/train_page_controller.py:199
 msgid "Base architecture '{arch}' is recognized but not implemented yet."
 msgstr ""
 "A arquitetura base '{arch}' é reconhecida, mas ainda não está implementada."
 
-#: ui/controllers/train_page_controller.py:162
+#: ui/controllers/train_page_controller.py:94
 msgid "Seed must be an integer."
 msgstr "A semente deve ser um número inteiro."
 
@@ -2286,7 +2287,7 @@ msgstr "OK"
 #: ui/lib/directory_line_edit_row.py:29 ui/pages/convert_page.py:201
 #: ui/pages/data_page.py:985 ui/pages/evaluate_page.py:389
 #: ui/pages/export_page.py:197 ui/pages/info_page.py:152
-#: ui/pages/train_page.py:488
+#: ui/pages/text_page.py:174 ui/pages/train_page.py:539
 msgid "Select directory"
 msgstr "Selecione o diretório"
 
@@ -2295,8 +2296,9 @@ msgstr "Selecione o diretório"
 #: ui/pages/data_page.py:974 ui/pages/evaluate_page.py:212
 #: ui/pages/evaluate_page.py:373 ui/pages/export_page.py:129
 #: ui/pages/export_page.py:181 ui/pages/info_page.py:67
-#: ui/pages/info_page.py:141 ui/pages/train_page.py:290
-#: ui/pages/train_page.py:430
+#: ui/pages/info_page.py:141 ui/pages/text_page.py:165
+#: ui/pages/text_page.py:223 ui/pages/train_page.py:325
+#: ui/pages/train_page.py:481
 msgid "Browse..."
 msgstr "Navegar..."
 
@@ -2548,7 +2550,7 @@ msgid "output.onnx"
 msgstr "output.onnx"
 
 #: ui/lib/fast_directory_picker_qt.py:997 ui/pages/config_page.py:82
-#: ui/pages/config_page.py:160 ui/pages/pipeline_config_page.py:226
+#: ui/pages/config_page.py:160 ui/pages/pipeline_config_page.py:257
 msgid "Save"
 msgstr "Guardar"
 
@@ -2644,7 +2646,7 @@ msgid "Cancelling…"
 msgstr "A cancelar…"
 
 #: ui/pages/config_page.py:80 ui/pages/config_page.py:159
-#: ui/pages/pipeline_config_page.py:224
+#: ui/pages/pipeline_config_page.py:255
 msgid "Reload from disk"
 msgstr "Recarregar do disco"
 
@@ -2783,7 +2785,7 @@ msgstr ""
 "O tamanho predefinido da janela principal deve ter o formato LARGURAxALTURA "
 "(p. ex. 1200x960)."
 
-#: ui/pages/config_page.py:390 ui/pages/pipeline_config_page.py:744
+#: ui/pages/config_page.py:390 ui/pages/pipeline_config_page.py:1024
 msgid ""
 "Could not write:\n"
 "{path}\n"
@@ -2795,7 +2797,7 @@ msgstr ""
 "\n"
 "{err}"
 
-#: ui/pages/config_page.py:401 ui/pages/pipeline_config_page.py:759
+#: ui/pages/config_page.py:401 ui/pages/pipeline_config_page.py:1039
 msgid ""
 "Saved to:\n"
 "{path}"
@@ -2803,7 +2805,7 @@ msgstr ""
 "Guardado em:\n"
 "{path}"
 
-#: ui/pages/config_page.py:414 ui/pages/pipeline_config_page.py:781
+#: ui/pages/config_page.py:414 ui/pages/pipeline_config_page.py:1066
 msgid ""
 "Could not write defaults to:\n"
 "{path}\n"
@@ -2847,7 +2849,7 @@ msgstr "Formato de destino"
 #: ui/pages/convert_page.py:86 ui/pages/convert_page.py:125
 #: ui/pages/evaluate_page.py:111 ui/pages/evaluate_page.py:157
 #: ui/pages/export_page.py:68 ui/pages/export_page.py:105
-#: ui/pages/train_page.py:103 ui/pages/train_page.py:225
+#: ui/pages/train_page.py:104 ui/pages/train_page.py:251
 msgid "Architecture"
 msgstr "Arquitetura"
 
@@ -2860,7 +2862,7 @@ msgstr "N.º de classes"
 #: ui/pages/convert_page.py:88 ui/pages/convert_page.py:127
 #: ui/pages/evaluate_page.py:113 ui/pages/evaluate_page.py:159
 #: ui/pages/export_page.py:71 ui/pages/export_page.py:108
-#: ui/pages/train_page.py:107 ui/pages/train_page.py:229
+#: ui/pages/train_page.py:108 ui/pages/train_page.py:255
 msgid "Image size"
 msgstr "Tamanho da imagem"
 
@@ -2923,7 +2925,7 @@ msgid "[ok] conversion inputs valid (source={src})"
 msgstr "[ok] entradas de conversão válidas (origem={src})"
 
 #: ui/pages/convert_page.py:282 ui/pages/export_page.py:304
-#: ui/pages/train_page.py:618
+#: ui/pages/train_page.py:712
 msgid "[invalid] {err}"
 msgstr "[inválido] {err}"
 
@@ -2944,7 +2946,8 @@ msgid "[failed] Conversion failed."
 msgstr "[falha] A conversão falhou."
 
 #: ui/pages/convert_page.py:335 ui/pages/export_page.py:352
-#: ui/pages/train_page.py:674 ui/pages/train_page.py:776
+#: ui/pages/text_page.py:280 ui/pages/train_page.py:770
+#: ui/pages/train_page.py:888
 msgid "[error] {err}"
 msgstr "[erro] {err}"
 
@@ -3022,7 +3025,7 @@ msgstr ""
 "--dry-run --json\n"
 "--raw-data-dir C:\\path\\to\\raw_data"
 
-#: ui/pages/data_page.py:184 ui/pages/data_page.py:1286
+#: ui/pages/data_page.py:184 ui/pages/data_page.py:1293
 msgid "Latest space check"
 msgstr "Última verificação de espaço"
 
@@ -3074,7 +3077,7 @@ msgstr "Formato (jpeg/jpg)"
 #: ui/pages/data_page.py:207 ui/pages/data_page.py:233
 #: ui/pages/data_page.py:633 ui/pages/data_page.py:764
 #: ui/pages/export_page.py:72 ui/pages/export_page.py:109
-#: ui/pages/train_page.py:111 ui/pages/train_page.py:232
+#: ui/pages/train_page.py:112 ui/pages/train_page.py:258
 msgid "Run ID (optional)"
 msgstr "ID de execução (opcional)"
 
@@ -3097,7 +3100,7 @@ msgstr "Diretório de revisão (opcional)"
 
 #: ui/pages/data_page.py:226 ui/pages/data_page.py:750
 #: ui/pages/evaluate_page.py:107 ui/pages/evaluate_page.py:153
-#: ui/pages/train_page.py:100 ui/pages/train_page.py:222
+#: ui/pages/train_page.py:101 ui/pages/train_page.py:248
 msgid "Model type"
 msgstr "Tipo de modelo"
 
@@ -3110,12 +3113,12 @@ msgid "Test items per class"
 msgstr "Itens de teste por classe"
 
 #: ui/pages/data_page.py:230 ui/pages/data_page.py:757
-#: ui/pages/pipeline_config_page.py:344
+#: ui/pages/pipeline_config_page.py:466
 msgid "Test split mode"
 msgstr "Modo de divisão de teste"
 
 #: ui/pages/data_page.py:231 ui/pages/data_page.py:762
-#: ui/pages/pipeline_config_page.py:350
+#: ui/pages/pipeline_config_page.py:467
 msgid "Small-class threshold (weighted)"
 msgstr "Limiar de classe pequena (ponderado)"
 
@@ -3128,7 +3131,7 @@ msgid "Max train per class"
 msgstr "Máximo de treino por classe"
 
 #: ui/pages/data_page.py:240 ui/pages/data_page.py:746
-#: ui/pages/pipeline_config_page.py:354
+#: ui/pages/pipeline_config_page.py:373
 msgid "None"
 msgstr "Nenhuma"
 
@@ -3177,7 +3180,7 @@ msgstr ""
 "unidades amovíveis."
 
 #: ui/pages/data_page.py:265 ui/pages/data_page.py:266
-#: ui/pages/data_page.py:267 ui/pages/train_page.py:274
+#: ui/pages/data_page.py:267 ui/pages/train_page.py:309
 msgid "Latest"
 msgstr "Mais recente"
 
@@ -3276,11 +3279,11 @@ msgstr ""
 "pastas, incluindo IMAGES e diretórios utilitários ao nível da raiz, não são "
 "analisadas."
 
-#: ui/pages/data_page.py:755 ui/pages/pipeline_config_page.py:342
+#: ui/pages/data_page.py:755 ui/pages/pipeline_config_page.py:363
 msgid "Fixed count per class"
 msgstr "Contagem fixa por classe"
 
-#: ui/pages/data_page.py:756 ui/pages/pipeline_config_page.py:343
+#: ui/pages/data_page.py:756 ui/pages/pipeline_config_page.py:364
 msgid "Dataset-weighted (modulated)"
 msgstr "Ponderado pelo conjunto de dados (modulado)"
 
@@ -3500,6 +3503,7 @@ msgstr ""
 "são usados, salvo se copiar os pretendidos de volta para CONVERTED/."
 
 #: ui/pages/data_page.py:993 ui/pages/evaluate_page.py:384
+#: ui/pages/text_page.py:176
 msgid "Select file"
 msgstr "Selecionar ficheiro"
 
@@ -3508,11 +3512,11 @@ msgid "All files (*.*)"
 msgstr "Todos os ficheiros (*.*)"
 
 #: ui/pages/data_page.py:1007 ui/pages/data_page.py:1023
-#: ui/pages/train_page.py:454
+#: ui/pages/train_page.py:505
 msgid "No snapshot found"
 msgstr "Nenhum instantâneo encontrado"
 
-#: ui/pages/data_page.py:1008 ui/pages/train_page.py:455
+#: ui/pages/data_page.py:1008 ui/pages/train_page.py:506
 msgid ""
 "No snapshot_*.json files were found under:\n"
 "{path}"
@@ -3629,11 +3633,11 @@ msgstr ""
 "Não há um instantâneo unificado carregável para o ID de execução {rid!r}. Esperava-se {name} em:\n"
 "  {dir}"
 
-#: ui/pages/data_page.py:1223
+#: ui/pages/data_page.py:1230
 msgid "Raw data dir does not exist."
 msgstr "O diretório de dados brutos não existe."
 
-#: ui/pages/data_page.py:1238
+#: ui/pages/data_page.py:1245
 msgid ""
 "No loadable unified snapshot for Run ID {rid!r} in the search paths (see the"
 " Run ID field tooltip for locations checked)."
@@ -3642,15 +3646,15 @@ msgstr ""
 " caminhos de pesquisa (veja a dica do campo ID de execução para as "
 "localizações verificadas)."
 
-#: ui/pages/data_page.py:1305 ui/pages/data_page.py:1330
+#: ui/pages/data_page.py:1312 ui/pages/data_page.py:1337
 msgid "Skipped (free-space estimate not run)."
 msgstr "Ignorado (a estimativa de espaço livre não foi executada)."
 
-#: ui/pages/data_page.py:1313 ui/pages/data_page.py:1341
+#: ui/pages/data_page.py:1320 ui/pages/data_page.py:1348
 msgid "Insufficient disk space (estimate)"
 msgstr "Espaço em disco insuficiente (estimativa)"
 
-#: ui/pages/data_page.py:1314 ui/pages/data_page.py:1342
+#: ui/pages/data_page.py:1321 ui/pages/data_page.py:1349
 msgid ""
 "{msg}\n"
 "\n"
@@ -3660,11 +3664,11 @@ msgstr ""
 "\n"
 "Continuar mesmo assim?"
 
-#: ui/pages/data_page.py:1359
+#: ui/pages/data_page.py:1366
 msgid "External storage"
 msgstr "Armazenamento externo"
 
-#: ui/pages/data_page.py:1361
+#: ui/pages/data_page.py:1368
 msgid ""
 "The target data directory is on external or removable storage, and \"Allow "
 "external storage\" is not checked. Enable it on the Create Dataset tab or "
@@ -3674,45 +3678,45 @@ msgstr ""
 " \"Permitir armazenamento externo\" não está selecionado. Ative-o no "
 "separador Criar conjunto de dados ou escolha outro diretório de dados."
 
-#: ui/pages/data_page.py:1371
+#: ui/pages/data_page.py:1378
 msgid "Confirm"
 msgstr "Confirmar"
 
-#: ui/pages/data_page.py:1372
+#: ui/pages/data_page.py:1379
 msgid "Source and target are on the same drive. Continue dataset creation?"
 msgstr ""
 "A origem e o destino estão na mesma unidade. Continuar a criação do conjunto"
 " de dados?"
 
-#: ui/pages/data_page.py:1408
+#: ui/pages/data_page.py:1415
 msgid "Data: {cmd}"
 msgstr "Dados: {cmd}"
 
-#: ui/pages/data_page.py:1426
+#: ui/pages/data_page.py:1433
 msgid "Checking free space…"
 msgstr "A verificar o espaço livre…"
 
-#: ui/pages/data_page.py:1430
+#: ui/pages/data_page.py:1437
 msgid "Converting…"
 msgstr "A converter…"
 
-#: ui/pages/data_page.py:1432
+#: ui/pages/data_page.py:1439
 msgid "Creating dataset…"
 msgstr "A criar o conjunto de dados…"
 
-#: ui/pages/data_page.py:1510
+#: ui/pages/data_page.py:1517
 msgid "Running: {line}"
 msgstr "A executar: {line}"
 
-#: ui/pages/data_page.py:1522
+#: ui/pages/data_page.py:1529
 msgid "[done] Data command completed successfully."
 msgstr "[done] O comando de dados concluiu com sucesso."
 
-#: ui/pages/data_page.py:1538
+#: ui/pages/data_page.py:1545
 msgid "[failed] Data command reported failure."
 msgstr "[failed] O comando de dados comunicou uma falha."
 
-#: ui/pages/data_page.py:1550
+#: ui/pages/data_page.py:1557
 msgid ""
 "[stopped] Data command cancelled — partial copies or snapshot updates may "
 "exist; check folders before re-running."
@@ -3720,40 +3724,40 @@ msgstr ""
 "[stopped] Comando de dados cancelado - podem existir cópias parciais ou "
 "atualizações do instantâneo; verifique as pastas antes de voltar a executar."
 
-#: ui/pages/data_page.py:1572
+#: ui/pages/data_page.py:1579
 msgid "Data command failed"
 msgstr "Falha do comando de dados"
 
-#: ui/pages/data_page.py:1573
+#: ui/pages/data_page.py:1580
 msgid ""
 "A data pipeline step reported an error. See Details for the full message."
 msgstr ""
 "Um passo do pipeline de dados comunicou um erro. Veja Detalhes para a "
 "mensagem completa."
 
-#: ui/pages/data_page.py:1608
+#: ui/pages/data_page.py:1615
 msgid "[dedup] No loadable snapshot found for duplicate resolver."
 msgstr ""
 "[dedup] Não foi encontrado um instantâneo carregável para o resolvedor de "
 "duplicados."
 
-#: ui/pages/data_page.py:1611
+#: ui/pages/data_page.py:1618
 msgid "[dedup] No potential duplicates were recorded in the snapshot."
 msgstr "[dedup] Não foram registados potenciais duplicados no instantâneo."
 
-#: ui/pages/data_page.py:1616
+#: ui/pages/data_page.py:1623
 msgid "Duplicates found"
 msgstr "Duplicados encontrados"
 
-#: ui/pages/data_page.py:1617
+#: ui/pages/data_page.py:1624
 msgid "Open duplicate resolver window now?"
 msgstr "Abrir agora a janela do resolvedor de duplicados?"
 
-#: ui/pages/data_page.py:1625
+#: ui/pages/data_page.py:1632
 msgid "Invalid raw data directory"
 msgstr "Diretório de dados brutos inválido"
 
-#: ui/pages/data_page.py:1626
+#: ui/pages/data_page.py:1633
 msgid ""
 "Raw data directory does not exist:\n"
 "{path}"
@@ -3761,11 +3765,11 @@ msgstr ""
 "O diretório de dados brutos não existe:\n"
 "{path}"
 
-#: ui/pages/data_page.py:1637
+#: ui/pages/data_page.py:1644
 msgid "No snapshot"
 msgstr "Sem instantâneo"
 
-#: ui/pages/data_page.py:1639
+#: ui/pages/data_page.py:1646
 msgid ""
 "No loadable unified snapshot was found under:\n"
 "{path}\n"
@@ -3777,11 +3781,11 @@ msgstr ""
 "\n"
 "Esperava-se snapshot_<run_id>.json (deixe o ID de execução vazio para o ficheiro mais recente tentado por ordem de nome)."
 
-#: ui/pages/data_page.py:1648
+#: ui/pages/data_page.py:1655
 msgid "Nothing to review"
 msgstr "Nada para rever"
 
-#: ui/pages/data_page.py:1650
+#: ui/pages/data_page.py:1657
 msgid ""
 "A snapshot loaded, but it does not list any cross-class duplicate groups for"
 " the resolver. Run Deduplicate with list-only if you have not yet, or pick "
@@ -3798,7 +3802,7 @@ msgstr "Inferir a partir do ficheiro"
 #: ui/pages/evaluate_page.py:92 ui/pages/evaluate_page.py:165
 #: ui/pages/export_page.py:57 ui/pages/export_page.py:61
 #: ui/pages/export_page.py:113 ui/pages/export_page.py:114
-#: ui/pages/train_page.py:86 ui/pages/train_page.py:267
+#: ui/pages/train_page.py:87 ui/pages/train_page.py:302
 msgid "Auto"
 msgstr "Auto"
 
@@ -3811,7 +3815,8 @@ msgid "Eval data dir (ImageFolder)"
 msgstr "Diretório de dados de avaliação (ImageFolder)"
 
 #: ui/pages/evaluate_page.py:108 ui/pages/evaluate_page.py:154
-#: ui/pages/train_page.py:102 ui/pages/train_page.py:224
+#: ui/pages/pipeline_config_page.py:475 ui/pages/train_page.py:103
+#: ui/pages/train_page.py:250
 msgid "Label mode"
 msgstr "Modo de etiquetas"
 
@@ -3820,21 +3825,23 @@ msgid "Model checkpoint"
 msgstr "Ponto de verificação do modelo"
 
 #: ui/pages/evaluate_page.py:110 ui/pages/evaluate_page.py:156
-#: ui/pages/train_page.py:101 ui/pages/train_page.py:223
+#: ui/pages/train_page.py:102 ui/pages/train_page.py:249
 msgid "Framework"
 msgstr "Framework"
 
 #: ui/pages/evaluate_page.py:114 ui/pages/evaluate_page.py:160
-#: ui/pages/train_page.py:106 ui/pages/train_page.py:228
+#: ui/pages/pipeline_config_page.py:571 ui/pages/train_page.py:107
+#: ui/pages/train_page.py:254
 msgid "Batch size"
 msgstr "Tamanho do lote"
 
 #: ui/pages/evaluate_page.py:115 ui/pages/evaluate_page.py:161
-#: ui/pages/pipeline_config_page.py:208 ui/pages/pipeline_config_page.py:458
+#: ui/pages/pipeline_config_page.py:222 ui/pages/pipeline_config_page.py:513
 msgid "DataLoader workers"
 msgstr "Processos do DataLoader"
 
 #: ui/pages/evaluate_page.py:116 ui/pages/evaluate_page.py:162
+#: ui/pages/pipeline_config_page.py:580
 msgid "Device"
 msgstr "Dispositivo"
 
@@ -3863,7 +3870,7 @@ msgstr "Métricas"
 msgid "Misclassified"
 msgstr "Mal classificados"
 
-#: ui/pages/evaluate_page.py:171
+#: ui/pages/evaluate_page.py:171 ui/pages/text_page.py:194
 msgid "Compare"
 msgstr "Comparar"
 
@@ -3896,6 +3903,8 @@ msgid "Max disagreement rows (0 = no cap)"
 msgstr "Máximo de linhas em discordância (0 = sem limite)"
 
 #: ui/pages/evaluate_page.py:184 ui/pages/evaluate_page.py:476
+#: ui/pages/text_page.py:124 ui/pages/text_page.py:197
+#: ui/pages/text_page.py:375
 msgid "Output TSV"
 msgstr "TSV de saída"
 
@@ -3956,6 +3965,7 @@ msgstr ""
 "partilhada; defina a arquitetura B se o ponto de controlo B for diferente."
 
 #: ui/pages/evaluate_page.py:604 ui/pages/evaluate_page.py:632
+#: ui/pages/text_page.py:192
 msgid "Evaluate"
 msgstr "Avaliar"
 
@@ -4040,6 +4050,7 @@ msgid "The evaluation task reported an error."
 msgstr "A tarefa de avaliação comunicou um erro."
 
 #: ui/pages/export_page.py:70 ui/pages/export_page.py:107
+#: ui/pages/pipeline_config_page.py:560
 msgid "Dataset directory"
 msgstr "Diretório do conjunto de dados"
 
@@ -4221,8 +4232,8 @@ msgstr ""
 "Inspecione os metadados do modelo e a estrutura e as estatísticas do "
 "conjunto de dados."
 
-#: ui/pages/info_page.py:54 ui/pages/pipeline_config_page.py:164
-#: ui/pages/pipeline_config_page.py:169
+#: ui/pages/info_page.py:54 ui/pages/pipeline_config_page.py:190
+#: ui/pages/pipeline_config_page.py:196
 msgid "Model"
 msgstr "Modelo"
 
@@ -4234,8 +4245,9 @@ msgstr "Conjunto de dados"
 msgid "Model path"
 msgstr "Caminho do modelo"
 
-#: ui/pages/info_page.py:57 ui/pages/info_page.py:120
-#: ui/pages/train_page.py:104 ui/pages/train_page.py:226
+#: ui/pages/info_page.py:57 ui/pages/info_page.py:120 ui/pages/text_page.py:89
+#: ui/pages/text_page.py:195 ui/pages/train_page.py:105
+#: ui/pages/train_page.py:252
 msgid "Data dir"
 msgstr "Diretório de dados"
 
@@ -4267,15 +4279,15 @@ msgstr "Indique um caminho do modelo."
 msgid "Invalid path"
 msgstr "Caminho inválido"
 
-#: ui/pages/info_page.py:197
+#: ui/pages/info_page.py:197 ui/pages/text_page.py:319
 msgid "Missing directory"
 msgstr "Diretório em falta"
 
-#: ui/pages/pipeline_config_page.py:155 ui/pages/pipeline_config_page.py:701
-#: ui/pages/pipeline_config_page.py:704 ui/pages/pipeline_config_page.py:710
-#: ui/pages/pipeline_config_page.py:722 ui/pages/pipeline_config_page.py:744
-#: ui/pages/pipeline_config_page.py:759 ui/pages/pipeline_config_page.py:780
-#: ui/pages/pipeline_config_page.py:789
+#: ui/pages/pipeline_config_page.py:180 ui/pages/pipeline_config_page.py:980
+#: ui/pages/pipeline_config_page.py:983 ui/pages/pipeline_config_page.py:989
+#: ui/pages/pipeline_config_page.py:1002 ui/pages/pipeline_config_page.py:1024
+#: ui/pages/pipeline_config_page.py:1044 ui/pages/pipeline_config_page.py:1065
+#: ui/pages/pipeline_config_page.py:1074
 msgid "Pipeline"
 msgstr "Pipeline"
 
@@ -4293,130 +4305,130 @@ msgstr ""
 "lado de <code>application.yaml</code> nos dados da aplicação quando apenas "
 "estão carregadas as predefinições fornecidas."
 
-#: ui/pages/pipeline_config_page.py:165 ui/pages/pipeline_config_page.py:170
+#: ui/pages/pipeline_config_page.py:191 ui/pages/pipeline_config_page.py:197
 msgid "Data"
 msgstr "Dados"
 
-#: ui/pages/pipeline_config_page.py:166 ui/pages/pipeline_config_page.py:172
-#: ui/pages/train_page.py:705
+#: ui/pages/pipeline_config_page.py:192 ui/pages/pipeline_config_page.py:199
+#: ui/pages/train_page.py:806
 msgid "Training"
 msgstr "Treino"
 
-#: ui/pages/pipeline_config_page.py:167 ui/pages/pipeline_config_page.py:173
+#: ui/pages/pipeline_config_page.py:193 ui/pages/pipeline_config_page.py:200
 msgid "Paths"
 msgstr "Caminhos"
 
-#: ui/pages/pipeline_config_page.py:168
+#: ui/pages/pipeline_config_page.py:195
 msgid "Advanced (YAML)"
 msgstr "Avançado (YAML)"
 
-#: ui/pages/pipeline_config_page.py:171
+#: ui/pages/pipeline_config_page.py:198
 msgid "Gather defaults"
 msgstr "Predefinições de recolha"
 
-#: ui/pages/pipeline_config_page.py:176 ui/pages/pipeline_config_page.py:304
+#: ui/pages/pipeline_config_page.py:203 ui/pages/pipeline_config_page.py:335
 msgid "Default model type"
 msgstr "Tipo de modelo predefinido"
 
-#: ui/pages/pipeline_config_page.py:176 ui/pages/pipeline_config_page.py:307
+#: ui/pages/pipeline_config_page.py:203 ui/pages/pipeline_config_page.py:338
 msgid "Default framework"
 msgstr "Framework predefinido"
 
-#: ui/pages/pipeline_config_page.py:176 ui/pages/pipeline_config_page.py:310
+#: ui/pages/pipeline_config_page.py:203 ui/pages/pipeline_config_page.py:341
 msgid "Default architecture"
 msgstr "Arquitetura predefinida"
 
-#: ui/pages/pipeline_config_page.py:181 ui/pages/pipeline_config_page.py:327
+#: ui/pages/pipeline_config_page.py:463
 msgid "Raw data directory"
 msgstr "Diretório de dados brutos"
 
-#: ui/pages/pipeline_config_page.py:182 ui/pages/pipeline_config_page.py:333
+#: ui/pages/pipeline_config_page.py:464
 msgid "Dataset output directory"
 msgstr "Diretório de saída do conjunto de dados"
 
-#: ui/pages/pipeline_config_page.py:183 ui/pages/pipeline_config_page.py:339
+#: ui/pages/pipeline_config_page.py:465
 msgid "Test images per class"
 msgstr "Imagens de teste por classe"
 
-#: ui/pages/pipeline_config_page.py:184 ui/pages/pipeline_config_page.py:360
+#: ui/pages/pipeline_config_page.py:469
 msgid "Image size (pixels)"
 msgstr "Tamanho da imagem (píxeis)"
 
-#: ui/pages/pipeline_config_page.py:185 ui/pages/pipeline_config_page.py:366
+#: ui/pages/pipeline_config_page.py:470
 msgid "Training batch size"
 msgstr "Tamanho do lote de treino"
 
-#: ui/pages/pipeline_config_page.py:186 ui/pages/pipeline_config_page.py:370
+#: ui/pages/pipeline_config_page.py:471
 msgid "Image file extensions (one per line)"
 msgstr "Extensões de ficheiro de imagem (uma por linha)"
 
-#: ui/pages/pipeline_config_page.py:187 ui/pages/pipeline_config_page.py:374
+#: ui/pages/pipeline_config_page.py:472
 msgid "Video file extensions (one per line)"
 msgstr "Extensões de ficheiro de vídeo (uma por linha)"
 
-#: ui/pages/pipeline_config_page.py:188 ui/pages/pipeline_config_page.py:379
+#: ui/pages/pipeline_config_page.py:473
 msgid "Class folder names (empty = auto-discover)"
 msgstr "Nomes de pastas de classe (vazio = descoberta automática)"
 
-#: ui/pages/pipeline_config_page.py:189 ui/pages/pipeline_config_page.py:383
+#: ui/pages/pipeline_config_page.py:474
 msgid "Class qualifying subfolder"
 msgstr "Subpasta de qualificação da classe"
 
-#: ui/pages/pipeline_config_page.py:195 ui/pages/pipeline_config_page.py:395
+#: ui/pages/pipeline_config_page.py:209 ui/pages/pipeline_config_page.py:431
 msgid "Default gather target count"
 msgstr "Contagem alvo predefinida da recolha"
 
-#: ui/pages/pipeline_config_page.py:196 ui/pages/pipeline_config_page.py:402
+#: ui/pages/pipeline_config_page.py:210 ui/pages/pipeline_config_page.py:438
 msgid "Gather target subfolder"
 msgstr "Subpasta de destino da recolha"
 
-#: ui/pages/pipeline_config_page.py:197 ui/pages/pipeline_config_page.py:413
+#: ui/pages/pipeline_config_page.py:211 ui/pages/pipeline_config_page.py:449
 msgid "Rejected subfolder"
 msgstr "Subpasta de rejeitados"
 
-#: ui/pages/pipeline_config_page.py:203 ui/pages/pipeline_config_page.py:434
-#: ui/pages/train_page.py:145 ui/pages/train_page.py:245
+#: ui/pages/pipeline_config_page.py:217 ui/pages/pipeline_config_page.py:489
+#: ui/pages/train_page.py:146 ui/pages/train_page.py:271
 msgid "Frozen epochs"
 msgstr "Épocas congeladas"
 
-#: ui/pages/pipeline_config_page.py:204 ui/pages/pipeline_config_page.py:438
-#: ui/pages/train_page.py:146 ui/pages/train_page.py:246
+#: ui/pages/pipeline_config_page.py:218 ui/pages/pipeline_config_page.py:493
+#: ui/pages/train_page.py:147 ui/pages/train_page.py:272
 msgid "Unfrozen epochs"
 msgstr "Épocas descongeladas"
 
-#: ui/pages/pipeline_config_page.py:205 ui/pages/pipeline_config_page.py:444
+#: ui/pages/pipeline_config_page.py:219 ui/pages/pipeline_config_page.py:499
 msgid "Frozen learning rate"
 msgstr "Taxa de aprendizagem congelada"
 
-#: ui/pages/pipeline_config_page.py:206 ui/pages/pipeline_config_page.py:449
+#: ui/pages/pipeline_config_page.py:220 ui/pages/pipeline_config_page.py:504
 msgid "Unfrozen LR (max)"
 msgstr "Taxa de aprendizagem descongelada (máx.)"
 
-#: ui/pages/pipeline_config_page.py:207 ui/pages/pipeline_config_page.py:454
+#: ui/pages/pipeline_config_page.py:221 ui/pages/pipeline_config_page.py:509
 msgid "Unfrozen LR (min)"
 msgstr "Taxa de aprendizagem descongelada (mín.)"
 
-#: ui/pages/pipeline_config_page.py:209 ui/pages/pipeline_config_page.py:463
+#: ui/pages/pipeline_config_page.py:223 ui/pages/pipeline_config_page.py:518
 msgid "Class weighting"
 msgstr "Ponderação de classes"
 
-#: ui/pages/pipeline_config_page.py:210 ui/pages/pipeline_config_page.py:468
+#: ui/pages/pipeline_config_page.py:224 ui/pages/pipeline_config_page.py:523
 msgid "Max class weight"
 msgstr "Peso máximo da classe"
 
-#: ui/pages/pipeline_config_page.py:216 ui/pages/pipeline_config_page.py:488
+#: ui/pages/pipeline_config_page.py:230 ui/pages/pipeline_config_page.py:543
 msgid "Models directory"
 msgstr "Diretório de modelos"
 
-#: ui/pages/pipeline_config_page.py:216 ui/pages/pipeline_config_page.py:494
+#: ui/pages/pipeline_config_page.py:230 ui/pages/pipeline_config_page.py:549
 msgid "Logs directory"
 msgstr "Diretório de registos"
 
-#: ui/pages/pipeline_config_page.py:216
+#: ui/pages/pipeline_config_page.py:230
 msgid "Timing data directory"
 msgstr "Diretório de dados de temporização"
 
-#: ui/pages/pipeline_config_page.py:220
+#: ui/pages/pipeline_config_page.py:251
 msgid ""
 "Full pipeline document. Click “Apply YAML” to parse and refresh the tabs, or"
 " edit the tabs and Save — the Advanced view updates on reload."
@@ -4425,15 +4437,15 @@ msgstr ""
 "atualizar os separadores, ou edite os separadores e Guardar - a vista "
 "Avançada atualiza-se ao recarregar."
 
-#: ui/pages/pipeline_config_page.py:225
+#: ui/pages/pipeline_config_page.py:256
 msgid "Apply YAML"
 msgstr "Aplicar YAML"
 
-#: ui/pages/pipeline_config_page.py:227
+#: ui/pages/pipeline_config_page.py:258
 msgid "Reset to shipped defaults…"
 msgstr "Repor as predefinições incluídas…"
 
-#: ui/pages/pipeline_config_page.py:229
+#: ui/pages/pipeline_config_page.py:260
 msgid ""
 "Replace your user pipeline.yaml (app data) with the package "
 "default_pipeline.yaml."
@@ -4441,25 +4453,25 @@ msgstr ""
 "Substitui o seu pipeline.yaml de utilizador (dados da aplicação) pelo "
 "default_pipeline.yaml do pacote."
 
-#: ui/pages/pipeline_config_page.py:231
+#: ui/pages/pipeline_config_page.py:262
 msgid "Save training checkpoints"
 msgstr "Guardar pontos de verificação do treino"
 
-#: ui/pages/pipeline_config_page.py:247
+#: ui/pages/pipeline_config_page.py:278
 msgid "Task type selected when you start a new model project."
 msgstr "Tipo de tarefa selecionado ao iniciar um novo projeto de modelo."
 
-#: ui/pages/pipeline_config_page.py:252
+#: ui/pages/pipeline_config_page.py:283
 msgid "Deep learning framework for new runs (e.g. pytorch)."
 msgstr ""
 "Framework de aprendizagem profunda para novas execuções (p. ex. pytorch)."
 
-#: ui/pages/pipeline_config_page.py:257
+#: ui/pages/pipeline_config_page.py:288
 msgid "Default backbone architecture name for new training runs."
 msgstr ""
 "Nome predefinido da arquitetura de base para as novas execuções de treino."
 
-#: ui/pages/pipeline_config_page.py:263
+#: ui/pages/pipeline_config_page.py:294
 msgid ""
 "Root folder for raw images: one subfolder per class after gather/convert. "
 "Relative paths are resolved from the app working directory or project root."
@@ -4468,7 +4480,7 @@ msgstr ""
 "conversão. Os caminhos relativos resolvem-se a partir do diretório de "
 "trabalho da aplicação ou da raiz do projeto."
 
-#: ui/pages/pipeline_config_page.py:271
+#: ui/pages/pipeline_config_page.py:302
 msgid ""
 "Output of create-dataset: this folder holds train/ and test/ used for "
 "training and snapshots. Keep it on a fast internal disk when raw data lives "
@@ -4478,7 +4490,7 @@ msgstr ""
 "e nos instantâneos. Mantenha-a num disco interno rápido quando os dados em "
 "bruto estiverem em armazenamento externo."
 
-#: ui/pages/pipeline_config_page.py:279
+#: ui/pages/pipeline_config_page.py:310
 msgid ""
 "Subfolder under raw data for accepted gather output (e.g. coherent). "
 "Relative to Raw data directory unless you enter an absolute path."
@@ -4487,7 +4499,7 @@ msgstr ""
 "coherent). Relativa ao diretório de dados em bruto, salvo se introduzir um "
 "caminho absoluto."
 
-#: ui/pages/pipeline_config_page.py:287
+#: ui/pages/pipeline_config_page.py:318
 msgid ""
 "Subfolder under raw data for files rejected during gather (e.g. rejected). "
 "Relative to Raw data directory unless you enter an absolute path."
@@ -4496,66 +4508,66 @@ msgstr ""
 "recolha (p. ex. rejected). Relativa ao diretório de dados em bruto, salvo se"
 " introduzir um caminho absoluto."
 
-#: ui/pages/pipeline_config_page.py:328
+#: ui/pages/pipeline_config_page.py:402
 msgid "Select raw data directory"
 msgstr "Selecionar diretório de dados em bruto"
 
-#: ui/pages/pipeline_config_page.py:334
+#: ui/pages/pipeline_config_page.py:403
 msgid "Select dataset directory"
 msgstr "Selecionar diretório do conjunto de dados"
 
-#: ui/pages/pipeline_config_page.py:348
+#: ui/pages/pipeline_config_page.py:368
 msgid "Same as test anchor"
 msgstr "Igual à referência de teste"
 
-#: ui/pages/pipeline_config_page.py:356
+#: ui/pages/pipeline_config_page.py:468
 msgid "Default create-dataset seed"
 msgstr "Semente predefinida de create-dataset"
 
-#: ui/pages/pipeline_config_page.py:364
+#: ui/pages/pipeline_config_page.py:381
 msgid ""
 "Leave empty for the model-type default batch size (omitted from saved YAML)."
 msgstr ""
 "Deixe vazio para o tamanho do lote predefinido do tipo de modelo (omitido no"
 " YAML guardado)."
 
-#: ui/pages/pipeline_config_page.py:378
+#: ui/pages/pipeline_config_page.py:392
 msgid "One class folder name per line; empty = discover"
 msgstr "Um nome de pasta de classe por linha; vazio = descobrir"
 
-#: ui/pages/pipeline_config_page.py:382
+#: ui/pages/pipeline_config_page.py:395
 msgid "empty = any"
 msgstr "vazio = qualquer"
 
-#: ui/pages/pipeline_config_page.py:399
+#: ui/pages/pipeline_config_page.py:435
 msgid "Relative to raw data directory (e.g. coherent); absolute path optional"
 msgstr ""
 "Relativo ao diretório de dados em bruto (p. ex. coherent); caminho absoluto "
 "opcional"
 
-#: ui/pages/pipeline_config_page.py:404
+#: ui/pages/pipeline_config_page.py:440
 msgid "Select default gather target directory"
 msgstr "Selecionar o diretório de destino predefinido da recolha"
 
-#: ui/pages/pipeline_config_page.py:410
+#: ui/pages/pipeline_config_page.py:446
 msgid "Relative to raw data directory (e.g. rejected); absolute path optional"
 msgstr ""
 "Relativo ao diretório de dados em bruto (p. ex. rejected); caminho absoluto "
 "opcional"
 
-#: ui/pages/pipeline_config_page.py:415
+#: ui/pages/pipeline_config_page.py:451
 msgid "Select default rejected directory"
 msgstr "Selecionar o diretório predefinido de rejeitados"
 
-#: ui/pages/pipeline_config_page.py:489
+#: ui/pages/pipeline_config_page.py:544
 msgid "Select models directory"
 msgstr "Selecionar diretório de modelos"
 
-#: ui/pages/pipeline_config_page.py:495
+#: ui/pages/pipeline_config_page.py:550
 msgid "Select logs directory"
 msgstr "Selecionar diretório de registos"
 
-#: ui/pages/pipeline_config_page.py:682
+#: ui/pages/pipeline_config_page.py:961
 msgid ""
 "Loaded: {path}\n"
 "Save will write to: {save}"
@@ -4563,7 +4575,7 @@ msgstr ""
 "Carregado: {path}\n"
 "Guardar escreverá em: {save}"
 
-#: ui/pages/pipeline_config_page.py:688
+#: ui/pages/pipeline_config_page.py:967
 msgid ""
 "Loaded: packaged defaults\n"
 "Save will write to: {path}"
@@ -4571,7 +4583,7 @@ msgstr ""
 "Carregado: predefinições do pacote\n"
 "Guardar escreverá em: {path}"
 
-#: ui/pages/pipeline_config_page.py:701
+#: ui/pages/pipeline_config_page.py:980
 msgid ""
 "Invalid YAML:\n"
 "{err}"
@@ -4579,7 +4591,7 @@ msgstr ""
 "YAML inválido:\n"
 "{err}"
 
-#: ui/pages/pipeline_config_page.py:704
+#: ui/pages/pipeline_config_page.py:983
 msgid "Root value must be a mapping."
 msgstr "O valor raiz tem de ser um mapeamento."
 
@@ -4595,7 +4607,7 @@ msgstr ""
 msgid "No model/data/training/paths keys found."
 msgstr "Não foram encontradas chaves model/data/training/paths."
 
-#: ui/pages/pipeline_config_page.py:789
+#: ui/pages/pipeline_config_page.py:1074
 msgid ""
 "Reset user pipeline to shipped defaults:\n"
 "{path}"
@@ -4603,94 +4615,101 @@ msgstr ""
 "Repor o pipeline do utilizador para as predefinições incluídas:\n"
 "{path}"
 
-#: ui/pages/train_page.py:92 ui/pages/train_page.py:268
+#: ui/pages/train_page.py:93 ui/pages/train_page.py:190
+#: ui/pages/train_page.py:195 ui/pages/train_page.py:197
+#: ui/pages/train_page.py:295 ui/pages/train_page.py:296
+#: ui/pages/train_page.py:297 ui/pages/train_page.py:303
 msgid "Config default"
 msgstr "Predefinição da configuração"
 
-#: ui/pages/train_page.py:98 ui/pages/train_page.py:237
+#: ui/pages/train_page.py:99 ui/pages/train_page.py:263
 msgid "Skip unified snapshot update"
 msgstr "Ignorar a atualização do instantâneo unificado"
 
-#: ui/pages/train_page.py:105 ui/pages/train_page.py:227
+#: ui/pages/train_page.py:106 ui/pages/train_page.py:253
 msgid "Output dir"
 msgstr "Diretório de saída"
 
-#: ui/pages/train_page.py:108 ui/pages/train_page.py:230
+#: ui/pages/train_page.py:109 ui/pages/train_page.py:256
 msgid "Num workers"
 msgstr "N.º de processos"
 
-#: ui/pages/train_page.py:110 ui/pages/train_page.py:231
+#: ui/pages/train_page.py:111 ui/pages/train_page.py:257
 msgid "Resume checkpoint"
 msgstr "Ponto de verificação de retoma"
 
-#: ui/pages/train_page.py:114 ui/pages/train_page.py:239
+#: ui/pages/train_page.py:115 ui/pages/train_page.py:265
 msgid ""
 "Run training in a separate process (survives closing this app; see log file)"
 msgstr ""
 "Executar o treino num processo separado (continua depois de fechar esta "
 "aplicação; ver o ficheiro de registo)"
 
-#: ui/pages/train_page.py:147 ui/pages/train_page.py:247
+#: ui/pages/train_page.py:148 ui/pages/train_page.py:273
 msgid "Frozen LR"
 msgstr "Taxa de aprendizagem congelada"
 
-#: ui/pages/train_page.py:148 ui/pages/train_page.py:248
+#: ui/pages/train_page.py:149 ui/pages/train_page.py:274
 msgid "Unfrozen LR max"
 msgstr "Taxa de aprendizagem descongelada máx."
 
-#: ui/pages/train_page.py:149 ui/pages/train_page.py:249
+#: ui/pages/train_page.py:150 ui/pages/train_page.py:275
 msgid "Unfrozen LR min"
 msgstr "Taxa de aprendizagem descongelada mín."
 
-#: ui/pages/train_page.py:157 ui/pages/train_page.py:264
+#: ui/pages/train_page.py:158 ui/pages/train_page.py:299
 msgid "Auto-detect"
 msgstr "Deteção automática"
 
-#: ui/pages/train_page.py:165 ui/pages/train_page.py:265
+#: ui/pages/train_page.py:166 ui/pages/train_page.py:300
 msgid "Same as rank"
 msgstr "Igual ao posto"
 
-#: ui/pages/train_page.py:171 ui/pages/train_page.py:266
+#: ui/pages/train_page.py:172 ui/pages/train_page.py:301
 msgid "optional, integer"
 msgstr "opcional, inteiro"
 
-#: ui/pages/train_page.py:173 ui/pages/train_page.py:256
+#: ui/pages/train_page.py:174 ui/pages/train_page.py:282
 msgid "Base model architecture"
 msgstr "Arquitetura do modelo de base"
 
-#: ui/pages/train_page.py:174 ui/pages/train_page.py:257
+#: ui/pages/train_page.py:175 ui/pages/train_page.py:283
 msgid "LoRA rank"
 msgstr "Posto LoRA"
 
-#: ui/pages/train_page.py:175 ui/pages/train_page.py:258
+#: ui/pages/train_page.py:176 ui/pages/train_page.py:284
 msgid "LoRA alpha"
 msgstr "Alfa LoRA"
 
-#: ui/pages/train_page.py:176 ui/pages/train_page.py:259
+#: ui/pages/pipeline_config_page.py:569 ui/pages/train_page.py:177
+#: ui/pages/train_page.py:202 ui/pages/train_page.py:285
+#: ui/pages/train_page.py:293
 msgid "Learning rate"
 msgstr "Taxa de aprendizagem"
 
-#: ui/pages/train_page.py:177 ui/pages/train_page.py:260
+#: ui/pages/train_page.py:178 ui/pages/train_page.py:286
 msgid "Max train steps"
 msgstr "Passos máximos de treino"
 
-#: ui/pages/train_page.py:178 ui/pages/train_page.py:261
+#: ui/pages/pipeline_config_page.py:564 ui/pages/train_page.py:179
+#: ui/pages/train_page.py:203 ui/pages/train_page.py:287
+#: ui/pages/train_page.py:293
 msgid "Seed"
 msgstr "Semente"
 
-#: ui/pages/train_page.py:182 ui/pages/train_page.py:269
+#: ui/pages/train_page.py:207 ui/pages/train_page.py:304
 msgid "Validate Training Config"
 msgstr "Validar a configuração de treino"
 
-#: ui/pages/train_page.py:184 ui/pages/train_page.py:270
+#: ui/pages/train_page.py:209 ui/pages/train_page.py:305
 msgid "Start Training"
 msgstr "Iniciar treino"
 
-#: ui/pages/train_page.py:195 ui/pages/train_page.py:272
+#: ui/pages/train_page.py:220 ui/pages/train_page.py:307
 msgid "Training validation and execution messages will appear here."
 msgstr "As mensagens de validação e de execução do treino aparecerão aqui."
 
-#: ui/pages/train_page.py:214
+#: ui/pages/train_page.py:240
 msgid ""
 "Configure framework, architecture, paths, and hyperparameters (training CLI:"
 " {cmd})."
@@ -4698,19 +4717,19 @@ msgstr ""
 "Configure a framework, a arquitetura, os caminhos e os hiperparâmetros (CLI "
 "de treino: {cmd})."
 
-#: ui/pages/train_page.py:218
+#: ui/pages/train_page.py:244
 msgid "Core configuration"
 msgstr "Configuração principal"
 
-#: ui/pages/train_page.py:241
+#: ui/pages/train_page.py:267
 msgid "Hyperparameters (image classification)"
 msgstr "Hiperparâmetros (classificação de imagens)"
 
-#: ui/pages/train_page.py:252
+#: ui/pages/train_page.py:278
 msgid "Hyperparameters (image generation LoRA)"
 msgstr "Hiperparâmetros (geração de imagens LoRA)"
 
-#: ui/pages/train_page.py:277
+#: ui/pages/train_page.py:312
 msgid ""
 "Set Run ID from the newest snapshot_*.json under the data directory (by file"
 " modification time)."
@@ -4718,59 +4737,59 @@ msgstr ""
 "Define o ID de execução a partir do snapshot_*.json mais recente no "
 "diretório de dados (pela hora de modificação do ficheiro)."
 
-#: ui/pages/train_page.py:479
+#: ui/pages/train_page.py:530
 msgid "Select checkpoint file"
 msgstr "Selecionar ficheiro de ponto de verificação"
 
-#: ui/pages/train_page.py:481
+#: ui/pages/train_page.py:532
 msgid ""
 "Model/checkpoint files (*.pth *.pt *.h5 *.keras *.ckpt);;All files (*.*)"
 msgstr ""
 "Ficheiros de modelo/ponto de verificação (*.pth *.pt *.h5 *.keras "
 "*.ckpt);;Todos os ficheiros (*.*)"
 
-#: ui/pages/train_page.py:538
+#: ui/pages/train_page.py:605
 msgid "local checkpoint path or hub id, e.g. black-forest-labs/FLUX.1-dev"
 msgstr ""
 "caminho local do ponto de verificação ou identificador do repositório, p. "
 "ex. black-forest-labs/FLUX.1-dev"
 
-#: ui/pages/train_page.py:544 ui/pages/train_page.py:566
+#: ui/pages/train_page.py:614 ui/pages/train_page.py:636
 msgid "Enter architecture manually"
 msgstr "Introduzir a arquitetura manualmente"
 
-#: ui/pages/train_page.py:546
+#: ui/pages/train_page.py:616
 msgid "[warn] Unsupported framework for architecture list: {fw}"
 msgstr "[aviso] Framework não suportada para a lista de arquiteturas: {fw}"
 
-#: ui/pages/train_page.py:561
+#: ui/pages/train_page.py:631
 msgid "[info] {fw} architectures: {names}"
 msgstr "[info] Arquiteturas de {fw}: {names}"
 
-#: ui/pages/train_page.py:568
+#: ui/pages/train_page.py:638
 msgid "[warn] Could not load architecture list for {fw}: {err}"
 msgstr ""
 "[aviso] Não foi possível carregar a lista de arquiteturas de {fw}: {err}"
 
-#: ui/pages/train_page.py:614
+#: ui/pages/train_page.py:708
 msgid "[ok] training inputs look valid"
 msgstr "[ok] as entradas de treino parecem válidas"
 
-#: ui/pages/train_page.py:629
+#: ui/pages/train_page.py:723
 msgid "[error] Could not auto-save pipeline config; training cancelled."
 msgstr ""
 "[erro] Não foi possível guardar automaticamente a configuração do pipeline; "
 "treino cancelado."
 
-#: ui/pages/train_page.py:652
+#: ui/pages/train_page.py:748
 msgid "[detached] PID {pid} — log: {log} — args JSON: {args}"
 msgstr "[separado] PID {pid} - registo: {log} - JSON de argumentos: {args}"
 
-#: ui/pages/train_page.py:664
+#: ui/pages/train_page.py:760
 msgid "Training started (separate process)"
 msgstr "Treino iniciado (processo separado)"
 
-#: ui/pages/train_page.py:666
+#: ui/pages/train_page.py:762
 msgid ""
 "Training is running outside this window. Closing the app does not stop it.\n"
 "\n"
@@ -4794,29 +4813,29 @@ msgstr ""
 "\n"
 "Pare o processo no Gestor de Tarefas ou no sistema operativo, se precisar de o interromper."
 
-#: ui/pages/train_page.py:683
+#: ui/pages/train_page.py:779
 msgid "Could not start detached training"
 msgstr "Não foi possível iniciar o treino separado"
 
-#: ui/pages/train_page.py:684
+#: ui/pages/train_page.py:780
 msgid "Failed to launch the training subprocess. See Details for the error."
 msgstr ""
 "Não foi possível iniciar o subprocesso de treino. Consulte Detalhes para o "
 "erro."
 
-#: ui/pages/train_page.py:712
+#: ui/pages/train_page.py:813
 msgid "Training LoRA adapter…"
 msgstr "A treinar o adaptador LoRA…"
 
-#: ui/pages/train_page.py:731
+#: ui/pages/train_page.py:843
 msgid "Architecture '{arch}' not supported for {fw}. Supported: {sup}"
 msgstr "A arquitetura '{arch}' não é suportada em {fw}. Suportadas: {sup}"
 
-#: ui/pages/train_page.py:746
+#: ui/pages/train_page.py:858
 msgid "[done] Training complete. Model saved: {path}"
 msgstr "[concluído] Treino concluído. Modelo guardado: {path}"
 
-#: ui/pages/train_page.py:765
+#: ui/pages/train_page.py:877
 msgid ""
 "[stopped] Training cancelled — partial checkpoints may exist; check the "
 "output folder before re-running."
@@ -4824,11 +4843,11 @@ msgstr ""
 "[parado] Treino cancelado - podem existir pontos de verificação parciais; "
 "verifique a pasta de saída antes de executar novamente."
 
-#: ui/pages/train_page.py:785
+#: ui/pages/train_page.py:897
 msgid "Training failed"
 msgstr "Falha no treino"
 
-#: ui/pages/train_page.py:786
+#: ui/pages/train_page.py:898
 msgid ""
 "Training stopped with an error. See Details for the message from the "
 "trainer."
@@ -4839,3 +4858,1068 @@ msgstr ""
 #: utils/notification_manager.py:22
 msgid " etc."
 msgstr " etc."
+
+#: mb/cli/__init__.py:226
+msgid ""
+"Text classification datasets are prepared outside mb as a dataset.tsv with a"
+" fixed split column; check one with `mb text verify`."
+msgstr ""
+"Conjuntos de dados de classificação de texto são preparados fora do mb como "
+"um dataset.tsv com uma coluna de divisão fixa; verifique um usando `mb text "
+"verify`."
+
+#: mb/cli/__init__.py:741 ui/pages/text_page.py:361
+msgid "Test gold AP: {g} — full AP: {f} — decision threshold: {t:.4f}"
+msgstr ""
+"AP de ouro de teste: {g} — AP completa: {f} — limiar de decisão: {t:.4f}"
+
+#: mb/cli/__init__.py:747 ui/pages/text_page.py:364
+msgid "Wrote {path}"
+msgstr "Escreveu {path}"
+
+#: mb/cli/__init__.py:756
+msgid "Input file not found: {path}"
+msgstr "Arquivo de entrada não encontrado: {path}"
+
+#: mb/cli/__init__.py:764 ui/pages/text_page.py:383
+msgid "Scored {n} lines -> {path}"
+msgstr "Obteve {n} linhas -> {path}"
+
+#: mb/cli/__init__.py:781
+msgid "Skipped (no metrics.json): {path}"
+msgstr "Ignorado (sem metrics.json): {path}"
+
+#: mb/cli/__init__.py:783 tests/ui/test_text_page.py:44
+#: ui/pages/text_page.py:422
+msgid "No run directories with metrics.json were found."
+msgstr "Nenhum diretório de execução com metrics.json foi encontrado."
+
+#: mb/cli/__init__.py:826
+msgid "Config file not found: {path} (relative paths resolve from {cwd})"
+msgstr ""
+"Arquivo de configuração não encontrado: {path} (caminhos relativos são "
+"resolvidos a partir de {cwd})"
+
+#: mb/cli/__init__.py:906
+msgid "No text subcommand specified"
+msgstr "Nenhum subcomando de texto especificado"
+
+#: mb/cli/__init__.py:910
+msgid "Unknown text subcommand: {cmd}"
+msgstr "Subcomando de texto desconhecido: {cmd}"
+
+#: mb/cli/parsing/text.py:15
+msgid "Text classification: verify data, evaluate, score, compare runs"
+msgstr ""
+"Classificação de texto: verificar dados, avaliar, pontuar, comparar "
+"execuções"
+
+#: mb/cli/parsing/text.py:17
+msgid ""
+"Operations on text-classification datasets and run directories. Train with "
+"`mb train --model-type text_classification`; defaults come from the "
+"pipeline's text_classification section."
+msgstr ""
+"Operações em conjuntos de dados de classificação de texto e diretórios de "
+"execução. Treine com `mb train --model-type text_classification`; os padrões"
+" vêm da seção text_classification do pipeline."
+
+#: mb/cli/parsing/text.py:22
+msgid "Text subcommands"
+msgstr "Subcomandos de texto"
+
+#: mb/cli/parsing/text.py:26
+msgid "Check a dataset directory's integrity"
+msgstr "Verificar a integridade de um diretório de conjunto de dados"
+
+#: mb/cli/parsing/text.py:28
+msgid ""
+"Compares file hashes and row/label/tier/split/group counts with "
+"manifest.json (when present), and checks that texts are unique and each "
+"group sits in one split. Exits non-zero on any failed check."
+msgstr ""
+"Compara os hashes dos arquivos e as contagens de "
+"linha/etiqueta/nível/divisão/grupo com manifest.json (quando presente) e "
+"verifica se os textos são únicos e cada grupo está em apenas uma divisão. "
+"Sai com código de saída diferente de zero se alguma verificação falhar."
+
+#: mb/cli/parsing/text.py:37
+msgid "Dataset directory (default: text_classification.data_dir)"
+msgstr "Diretório do conjunto de dados (padrão: text_classification.data_dir)"
+
+#: mb/cli/parsing/text.py:42
+msgid "Re-run thresholds, metrics and reports for a run directory"
+msgstr ""
+"Reexecutar limites, métricas e relatórios para um diretório de execução"
+
+#: mb/cli/parsing/text.py:44
+msgid ""
+"Reloads the run's model and calibrator, chooses thresholds on val gold, and "
+"rewrites metrics.json, thresholds.json, predictions, review queue, unlabeled"
+" scores, predict.py and the model card."
+msgstr ""
+"Recarrega o modelo e o calibrador da execução, escolhe limites no val gold e"
+" reescreve metrics.json, thresholds.json, predictions, fila de revisão, "
+"pontuações não rotuladas, predict.py e a ficha do modelo."
+
+#: mb/cli/parsing/text.py:49 mb/cli/parsing/text.py:65
+msgid "Run directory"
+msgstr "Executar diretório"
+
+#: mb/cli/parsing/text.py:54
+msgid "Dataset directory (default: the run's config.yaml)"
+msgstr "Diretório do conjunto de dados (padrão: config.yaml da execução)"
+
+#: mb/cli/parsing/text.py:56 mb/cli/parsing/text.py:68
+msgid "Device override, e.g. cuda or cpu"
+msgstr "Sobrescrita de dispositivo, ex. cuda ou cpu"
+
+#: mb/cli/parsing/text.py:60
+msgid "Score one string per line with a run's calibrated model"
+msgstr "Pontue uma string por linha com o modelo calibrado de uma execução"
+
+#: mb/cli/parsing/text.py:62
+msgid ""
+"Writes term<TAB>score with a header, one row per input line in input order."
+msgstr ""
+"Escreve term<TAB>score com um cabeçalho, uma linha por linha de entrada na "
+"ordem de entrada."
+
+#: mb/cli/parsing/text.py:66
+msgid "UTF-8 text file, one string per line"
+msgstr "Arquivo de texto UTF-8, uma string por linha"
+
+#: mb/cli/parsing/text.py:67
+msgid "Output TSV path"
+msgstr "Caminho de saída TSV"
+
+#: mb/cli/parsing/text.py:72
+msgid "Tabulate headline metrics across run directories"
+msgstr "Tabular métricas principais nos diretórios de execução"
+
+#: mb/cli/parsing/text.py:74
+msgid ""
+"One row per run: test gold AP, full AP, recall at precision 0.90, gold "
+"false-positive rate at the decision threshold and ECE. Wildcards are "
+"expanded (e.g. data/models/text_runs/*)."
+msgstr ""
+"Uma linha por execução: AP gold de teste, AP completo, recall a precisão "
+"0,90, taxa de falsos positivos gold no limiar de decisão e ECE. Coringas são"
+" expandidos (ex.: data/models/text_runs/*)."
+
+#: mb/cli/parsing/text.py:79
+msgid "Run directories or wildcard patterns"
+msgstr "Executar diretórios ou padrões curinga"
+
+#: mb/cli/parsing/train.py:27
+msgid ""
+"Model type (default: model.default_type from config, else "
+"image_classification)"
+msgstr ""
+"Tipo de modelo (padrão: model.default_type da configuração, caso contrário "
+"image_classification)"
+
+#: mb/cli/parsing/train.py:46
+msgid ""
+"Data directory (default: from config). For --model-type text_classification,"
+" the directory holding dataset.tsv (default: text_classification.data_dir)."
+msgstr ""
+"Diretório de dados (padrão: da configuração). Para --model-type "
+"text_classification, o diretório que contém dataset.tsv (padrão: "
+"text_classification.data_dir)."
+
+#: mb/cli/parsing/train.py:54
+msgid ""
+"Output directory for models (default: from config). For --model-type "
+"text_classification, the parent of the run directory (default: "
+"text_classification.runs_dir)."
+msgstr ""
+"Diretório de saída para os modelos (padrão: da configuração). Para --model-"
+"type text_classification, o diretório pai do diretório de execução (padrão: "
+"text_classification.runs_dir)."
+
+#: mb/cli/parsing/train.py:88
+msgid ""
+"Batch size (default: from config or auto-detect). For --model-type "
+"text_classification, overrides text_classification.optim.batch_size."
+msgstr ""
+"Tamanho do lote (padrão: da configuração ou auto-detectado). Para --model-"
+"type text_classification, substitui text_classification.optim.batch_size."
+
+#: mb/cli/parsing/train.py:145
+msgid ""
+"Random seed. Consumed by --model-type image_generation_lora (reproducible "
+"LoRA weight init and noise sampling) and text_classification (overrides "
+"text_classification.seed)."
+msgstr ""
+"Seed aleatório. Consumido por --model-type image_generation_lora "
+"(inicialização reproduzível de pesos LoRA e amostragem de ruído) e "
+"text_classification (substitui text_classification.seed)."
+
+#: mb/cli/parsing/train.py:167
+msgid ""
+"Learning rate for the LoRA adapter parameters (--model-type "
+"image_generation_lora; default: 1e-4), or text_classification.optim.lr "
+"(--model-type text_classification). Unrelated to --frozen-lr/--unfrozen-lr-*"
+" (image_classification only)."
+msgstr ""
+"Taxa de aprendizado para os parâmetros do adaptador LoRA (--model-type "
+"image_generation_lora; padrão: 1e-4), ou text_classification.optim.lr "
+"(--model-type text_classification). Não relacionado a --frozen-"
+"lr/--unfrozen-lr-* (somente image_classification)."
+
+#: mb/cli/parsing/train.py:200
+msgid ""
+"--model-type text_classification only: model family (default: "
+"text_classification.backend)"
+msgstr ""
+"--model-type text_classification apenas: família de modelo (padrão: "
+"text_classification.backend)"
+
+#: mb/cli/parsing/train.py:209
+msgid ""
+"--model-type text_classification only: Hugging Face id or local path of the "
+"model within the family (default: text_classification.model_id, else the "
+"backend's default)"
+msgstr ""
+"--model-type text_classification only: ID do Hugging Face ou caminho local "
+"do modelo dentro da família (padrão: text_classification.model_id, caso "
+"contrário o padrão do backend)"
+
+#: mb/cli/parsing/train.py:219
+msgid ""
+"--model-type text_classification only: maximum training epochs (default: "
+"text_classification.optim.epochs, else the backend's default)"
+msgstr ""
+"--model-type text_classification only: número máximo de épocas de "
+"treinamento (padrão: text_classification.optim.epochs, caso contrário o "
+"padrão do backend)"
+
+#: mb/data/text_dataset.py:82 mb/data/text_dataset.py:91
+#: mb/data/text_dataset.py:220
+msgid "{path} is empty (expected a header row)"
+msgstr "{path} está vazio (esperava‑se uma linha de cabeçalho)"
+
+#: mb/data/text_dataset.py:94
+msgid "{path} has no '{col}' column (header: {header})"
+msgstr "{path} não tem a coluna '{col}' (cabeçalho: {header})"
+
+#: mb/data/text_dataset.py:103 mb/data/text_dataset.py:256
+msgid "{path}:{line}: expected {n} fields, found {m}"
+msgstr "{path}:{line}: esperados {n} campos, encontrados {m}"
+
+#: mb/data/text_dataset.py:214
+msgid "Dataset file not found: {path}"
+msgstr "Arquivo de conjunto de dados não encontrado: {path}"
+
+#: mb/data/text_dataset.py:224
+msgid "{path} is missing required column(s): {cols}"
+msgstr "{path} está sem a(s) coluna(s) obrigatória(s): {cols}"
+
+#: mb/data/text_dataset.py:234
+msgid ""
+"{conflicts} exists but {path} has no '{col}' column to match it against"
+msgstr ""
+"{conflicts} existe, mas {path} não tem a coluna '{col}' para compará‑la"
+
+#: mb/data/text_dataset.py:267
+msgid "{path}:{line}: label must be 0 or 1 (got {v!r})"
+msgstr "{path}:{line}: label deve ser 0 ou 1 (obteve {v!r})"
+
+#: mb/data/text_dataset.py:272
+msgid "{path}:{line}: split must be one of {choices} (got {v!r})"
+msgstr "{path}:{line}: split deve ser um dos {choices} (recebido {v!r})"
+
+#: mb/data/text_dataset.py:295
+msgid "{path}:{line}: {col} must be a number or empty (got {v!r})"
+msgstr "{path}:{line}: {col} deve ser um número ou vazio (recebido {v!r})"
+
+#: mb/data/text_dataset.py:302
+msgid "{path} has no data rows"
+msgstr "{path} não tem linhas de dados"
+
+#: mb/data/text_dataset.py:363
+msgid "Dataset: {path}"
+msgstr "Conjunto de dados: {path}"
+
+#: mb/data/text_dataset.py:367
+msgid "Result: {r}"
+msgstr "Resultado: {r}"
+
+#: mb/data/text_dataset.py:367
+msgid "PASS"
+msgstr "PASSAR"
+
+#: mb/data/text_dataset.py:367
+msgid "FAIL"
+msgstr "FALHA"
+
+#: mb/data/text_dataset.py:437
+msgid "not present; hash and count checks skipped"
+msgstr "não presente; verificações de hash e contagem ignoradas"
+
+#: mb/data/text_dataset.py:444
+msgid "Hashing {name}…"
+msgstr "Hashing {name}…"
+
+#: mb/data/text_dataset.py:447
+msgid "file missing"
+msgstr "Arquivo ausente"
+
+#: mb/data/text_dataset.py:457
+msgid "size {a} != {b}"
+msgstr "tamanho {a} != {b}"
+
+#: mb/data/text_dataset.py:466
+msgid "Reading {name}…"
+msgstr "Lendo {name}…"
+
+#: mb/data/text_dataset.py:478
+msgid "Checking counts…"
+msgstr "Verificando contagens…"
+
+#: mb/data/text_dataset.py:483
+msgid "row count"
+msgstr "contagem de linhas"
+
+#: mb/data/text_dataset.py:489
+msgid "label counts"
+msgstr "contagem de rótulos"
+
+#: mb/data/text_dataset.py:491
+msgid "tier counts"
+msgstr "Contagem de níveis"
+
+#: mb/data/text_dataset.py:493
+msgid "source counts"
+msgstr "contagens de origem"
+
+#: mb/data/text_dataset.py:497
+msgid "category hint counts"
+msgstr "contagens de dicas de categoria"
+
+#: mb/data/text_dataset.py:511
+msgid "split counts"
+msgstr "Dividir contagens"
+
+#: mb/data/text_dataset.py:515
+msgid "group count"
+msgstr "contagem de grupos"
+
+#: mb/data/text_dataset.py:522
+msgid "conflict group count"
+msgstr "Número de grupos de conflito"
+
+#: mb/data/text_dataset.py:530
+msgid "unlabeled rows"
+msgstr "linhas sem rótulo"
+
+#: mb/data/text_dataset.py:536
+msgid "Checking uniqueness…"
+msgstr "Verificando singularidade…"
+
+#: mb/data/text_dataset.py:548 tests/unit/test_text_dataset.py:72
+msgid "text values unique"
+msgstr "valores de texto únicos"
+
+#: mb/data/text_dataset.py:550
+msgid "duplicates include: {d}"
+msgstr "Os duplicados incluem: {d}"
+
+#: mb/data/text_dataset.py:565 mb/data/text_dataset.py:572
+#: tests/unit/test_text_dataset.py:72
+msgid "each group in one split"
+msgstr "cada grupo em uma divisão"
+
+#: mb/data/text_dataset.py:567
+msgid "groups in several splits include: {g}"
+msgstr "Grupos em várias divisões incluem: {g}"
+
+#: mb/data/text_dataset.py:572
+msgid "no '{col}' column; skipped"
+msgstr "não há coluna '{col}'; ignorada"
+
+#: mb/data/text_dataset.py:606 mb/training/text_config.py:466
+msgid ""
+"subsample_unreviewed needs unreviewed_tier to name the tier to thin out"
+msgstr ""
+"subsample_unreviewed precisa de unreviewed_tier para nomear o nível a "
+"reduzir"
+
+#: mb/data/text_dataset.py:609
+msgid "subsample_unreviewed needs a '{col}' column in {file}"
+msgstr "subsample_unreviewed precisa de uma coluna '{col}' em {file}"
+
+#: mb/data/text_dataset.py:614
+msgid "subsample_unreviewed is set but no rows have tier '{tier}'"
+msgstr ""
+"subsample_unreviewed está definido, mas nenhuma linha tem o nível '{tier}'"
+
+#: mb/data/text_dataset.py:654
+msgid "The training rows contain only one label; cannot train."
+msgstr "As linhas de treino contêm apenas um rótulo; não é possível treinar."
+
+#: mb/data/text_dataset.py:663
+msgid "tier_weight is set but {file} has no '{col}' column"
+msgstr "tier_weight está definido, mas {file} não possui a coluna '{col}'"
+
+#: mb/data/text_dataset.py:668
+msgid "tier_weight names unknown tier(s): {bad} (known: {known})"
+msgstr "tier_weight nomes de nível desconhecidos: {bad} (conhecidos: {known})"
+
+#: mb/data/text_dataset.py:690
+msgid "gold_tiers names unknown tier(s): {bad} (known: {known})"
+msgstr ""
+"gold_tiers nomes de nível(s) desconhecido(s): {bad} (conhecido(s): {known})"
+
+#: mb/evaluate/classification/text_calibration.py:219
+msgid "No calibrator for method '{m}'"
+msgstr "Nenhum calibrador para o método '{m}'"
+
+#: mb/evaluate/classification/text_calibration.py:222
+msgid "Calibration needs both labels in the val split."
+msgstr "A calibração precisa de ambas as etiquetas no val split."
+
+#: mb/evaluate/classification/text_calibration.py:234
+msgid "Unknown calibrator in {path}: {m!r}"
+msgstr "Calibrador desconhecido em {path}: {m!r}"
+
+#: mb/evaluate/classification/text_evaluation.py:84
+msgid "Not a text-classification run directory (no {file}): {path}"
+msgstr ""
+"Não é um diretório de execução de classificação de texto (sem {file}): "
+"{path}"
+
+#: mb/evaluate/classification/text_evaluation.py:228
+#: mb/training/text_trainer.py:170
+msgid "Verifying dataset…"
+msgstr "Verificando conjunto de dados…"
+
+#: mb/evaluate/classification/text_evaluation.py:243
+#: mb/training/text_trainer.py:180
+msgid ""
+"Dataset verification failed:\n"
+"{report}"
+msgstr ""
+"Falha na verificação do conjunto de dados:\n"
+"{report}"
+
+#: mb/evaluate/classification/text_evaluation.py:248
+msgid "Loading model…"
+msgstr "Carregando modelo…"
+
+#: mb/evaluate/classification/text_evaluation.py:264
+msgid "Scoring test…"
+msgstr "Teste de pontuação…"
+
+#: mb/evaluate/classification/text_evaluation.py:276
+msgid "Computing metrics…"
+msgstr "Calculando métricas…"
+
+#: mb/evaluate/classification/text_evaluation.py:287
+msgid "Counting truncated rows…"
+msgstr "Contando linhas truncadas…"
+
+#: mb/evaluate/classification/text_evaluation.py:319
+msgid "Scoring {tier} rows for the review queue…"
+msgstr "Pontuando {tier} linhas para a fila de revisão…"
+
+#: mb/evaluate/classification/text_evaluation.py:332
+msgid "Scoring unlabeled rows…"
+msgstr "Pontuando linhas não rotuladas…"
+
+#: mb/evaluate/classification/text_evaluation.py:364
+msgid "Evaluation complete."
+msgstr "Avaliação concluída."
+
+#: mb/evaluate/classification/text_evaluation.py:531
+msgid "run"
+msgstr "Executar"
+
+#: mb/evaluate/classification/text_evaluation.py:532
+msgid "backend"
+msgstr "backend"
+
+#: mb/evaluate/classification/text_evaluation.py:533
+msgid "model"
+msgstr "modelo"
+
+#: mb/evaluate/classification/text_evaluation.py:534
+msgid "gold AP"
+msgstr "Ouro AP"
+
+#: mb/evaluate/classification/text_evaluation.py:535
+msgid "full AP"
+msgstr "AP completo"
+
+#: mb/evaluate/classification/text_evaluation.py:536
+msgid "R@P0.90"
+msgstr "R@P0.90"
+
+#: mb/evaluate/classification/text_evaluation.py:537
+msgid "gold FPR"
+msgstr "Ouro FPR"
+
+#: mb/evaluate/classification/text_evaluation.py:538
+msgid "ECE"
+msgstr "ECE"
+
+#: mb/models/text_backends/__init__.py:41
+msgid "No {file} in {path}"
+msgstr "Nenhum {file} em {path}"
+
+#: mb/models/text_backends/__init__.py:45
+msgid "Unknown backend in {path}: {b!r}"
+msgstr "Backend desconhecido em {path}: {b!r}"
+
+#: mb/models/text_backends/_torch_common.py:20
+msgid ""
+"Neural text backends require PyTorch and transformers: pip install -e "
+"\".[pytorch,text]\". Underlying error: {err}"
+msgstr ""
+"Backends de texto neural requerem PyTorch e transformers: pip install -e "
+"\".[pytorch,text]\". Erro subjacente: {err}"
+
+#: mb/models/text_backends/_torch_common.py:33
+msgid ""
+"Neural text backends require transformers: pip install -e \".[text]\". "
+"Underlying error: {err}"
+msgstr ""
+"Backends de texto neural requerem transformers: pip install -e \".[text]\". "
+"Erro subjacente: {err}"
+
+#: mb/models/text_backends/base.py:96
+msgid "Unknown backend_options for {backend}: {bad} (allowed: {allowed})"
+msgstr ""
+"backend_options desconhecidas para {backend}: {bad} (permitidas: {allowed})"
+
+#: mb/models/text_backends/base.py:99
+msgid "none"
+msgstr "nenhum"
+
+#: mb/models/text_backends/char_ngram_linear.py:44
+msgid ""
+"The char_ngram_linear backend requires scikit-learn: pip install -e "
+"\".[text]\". Underlying error: {err}"
+msgstr ""
+"O backend char_ngram_linear requer scikit-learn: pip install -e \".[text]\"."
+" Erro subjacente: {err}"
+
+#: mb/models/text_backends/char_ngram_linear.py:168
+msgid "backend_options: need 1 <= ngram_min <= ngram_max"
+msgstr "backend_options: é necessário 1 <= ngram_min <= ngram_max"
+
+#: mb/models/text_backends/char_ngram_linear.py:170
+msgid "Counting character n-grams…"
+msgstr "Contando n‑gramas de caracteres…"
+
+#: mb/models/text_backends/char_ngram_linear.py:180
+msgid "Vectorizing val…"
+msgstr "Vetorizando val…"
+
+#: mb/models/text_backends/char_ngram_linear.py:190
+msgid "Fitting logistic regression (C={c}, {i}/{n})…"
+msgstr "Ajustando regressão logística (C={c}, {i}/{n})…"
+
+#: mb/models/text_backends/char_ngram_linear.py:209
+msgid "Linear model fitted."
+msgstr "Modelo linear ajustado."
+
+#: mb/models/text_backends/char_ngram_linear.py:225
+#: mb/models/text_backends/encoder_finetune.py:272
+msgid "Scoring…"
+msgstr "Pontuando…"
+
+#: mb/models/text_backends/embedding_probe.py:268
+msgid "Embedding {what}: {i}/{n}"
+msgstr "Inserindo {what}: {i}/{n}"
+
+#: mb/models/text_backends/embedding_probe.py:347
+msgid "backend_options.pooling must be one of: {c}"
+msgstr "backend_options.pooling deve ser um dos: {c}"
+
+#: mb/models/text_backends/embedding_probe.py:349
+msgid "backend_options.head must be one of: {c}"
+msgstr "backend_options.head deve ser um dos seguintes: {c}"
+
+#: mb/models/text_backends/embedding_probe.py:354
+#: mb/models/text_backends/encoder_finetune.py:156
+msgid "Loading {model}…"
+msgstr "Carregando {model}…"
+
+#: mb/models/text_backends/embedding_probe.py:361
+msgid "train"
+msgstr "trem"
+
+#: mb/models/text_backends/embedding_probe.py:362
+msgid "val"
+msgstr "valor"
+
+#: mb/models/text_backends/embedding_probe.py:393
+msgid "Head epoch {e}/{E} — val metric {m:.4f}"
+msgstr "Época head {e}/{E} — métrica de validação {m:.4f}"
+
+#: mb/models/text_backends/embedding_probe.py:412
+msgid "texts"
+msgstr "textos"
+
+#: mb/models/text_backends/encoder_finetune.py:221
+msgid "Epoch {e}/{E} — step {s}/{S} — loss {l:.4f}"
+msgstr "época {e}/{E} — passo {s}/{S} — perda {l:.4f}"
+
+#: mb/training/text_config.py:107
+msgid "Invalid text_classification config:"
+msgstr "Configuração de text_classification inválida:"
+
+#: mb/training/text_config.py:257
+msgid "Unknown key '{key}' in {where} (allowed: {allowed})"
+msgstr "Chave desconhecida '{key}' em {where} (permitidas: {allowed})"
+
+#: mb/training/text_config.py:266
+msgid "{where}.{key} must be a mapping"
+msgstr "{where}.{key} deve ser um mapeamento"
+
+#: mb/training/text_config.py:272
+msgid "{name} must be a non-empty path"
+msgstr "{name} deve ser um caminho não vazio"
+
+#: mb/training/text_config.py:279
+msgid "{name} must be an integer >= {min} (got {v!r})"
+msgstr "{name} deve ser um inteiro ≥ {min} (recebido {v!r})"
+
+#: mb/training/text_config.py:294
+msgid "{name} must be a number in {range} (got {v!r})"
+msgstr "{name} deve ser um número em {range} (obtido {v!r})"
+
+#: mb/training/text_config.py:306
+msgid "{name} must be true or false (got {v!r})"
+msgstr "{name} deve ser verdadeiro ou falso (recebido {v!r})"
+
+#: mb/training/text_config.py:314
+msgid "{name} must be a non-empty string or null"
+msgstr "{name} deve ser uma string não vazia ou nula"
+
+#: mb/training/text_config.py:331
+msgid "class_weight keys must be 0 and 1 (got {k!r})"
+msgstr "as chaves de class_weight devem ser 0 e 1 (recebido {k!r})"
+
+#: mb/training/text_config.py:336
+msgid "class_weight mapping must give a weight for both 0 and 1"
+msgstr ""
+"O mapeamento class_weight deve atribuir um peso tanto para 0 quanto para 1"
+
+#: mb/training/text_config.py:339
+msgid ""
+"class_weight must be 'none', 'balanced' or {{0: w0, 1: w1}} (got {v!r})"
+msgstr ""
+"class_weight deve ser 'none', 'balanced' ou {{0: w0, 1: w1}} (recebido "
+"{v!r})"
+
+#: mb/training/text_config.py:348
+msgid "tier_weight must be a mapping of tier name to multiplier"
+msgstr ""
+"tier_weight deve ser um mapeamento do nome do nível para o multiplicador"
+
+#: mb/training/text_config.py:360
+msgid "gold_tiers must be null or a non-empty list of tier names"
+msgstr "gold_tiers deve ser null ou uma lista não vazia de nomes de tiers"
+
+#: mb/training/text_config.py:373 mb/training/text_config.py:550
+msgid "text_classification must be a mapping"
+msgstr "text_classification deve ser um mapeamento"
+
+#: mb/training/text_config.py:383
+msgid "backend must be one of: {choices} (got {v!r})"
+msgstr "O backend deve ser um dos seguintes: {choices} (recebido {v!r})"
+
+#: mb/training/text_config.py:392
+msgid "calibration must be one of: {choices} (got {v!r})"
+msgstr "A calibração deve ser uma das: {choices} (recebido {v!r})"
+
+#: mb/training/text_config.py:415
+msgid "early_stopping.metric must be one of: {choices} (got {v!r})"
+msgstr ""
+"early_stopping.metric deve ser um dos seguintes: {choices} (recebeu {v!r})"
+
+#: mb/training/text_config.py:431
+msgid "threshold_policy.kind must be one of: {choices} (got {v!r})"
+msgstr "threshold_policy.kind deve ser um dos: {choices} (recebido {v!r})"
+
+#: mb/training/text_config.py:453
+msgid "model_card_notes must be a string"
+msgstr "model_card_notes deve ser uma string"
+
+#: mb/training/text_config.py:460
+msgid "backend_options must be a mapping"
+msgstr "backend_options deve ser um mapeamento"
+
+#: mb/training/text_config.py:469
+msgid "reference_score_column must be a non-empty string"
+msgstr "reference_score_column deve ser uma string não vazia"
+
+#: mb/training/text_config.py:472
+msgid "unlabeled_file must be a non-empty file name"
+msgstr "unlabeled_file deve ser um nome de arquivo não vazio"
+
+#: mb/training/text_trainer.py:163
+msgid "Loading dataset…"
+msgstr "Carregando conjunto de dados…"
+
+#: mb/training/text_trainer.py:199
+msgid "The val split needs both labels for model selection and calibration."
+msgstr ""
+"A divisão de validação precisa de ambas as etiquetas para a seleção do "
+"modelo e a calibração."
+
+#: mb/training/text_trainer.py:264
+msgid "Calibrating on val ({method})…"
+msgstr "Calibrando val ({method})…"
+
+#: mb/training/text_trainer.py:294
+msgid ""
+"this PyTorch build has no CUDA support (on Windows, plain `pip install "
+"torch` installs the CPU-only build; install a CUDA build from "
+"https://pytorch.org/get-started/locally/)"
+msgstr ""
+"Esta build do PyTorch não tem suporte a CUDA (no Windows, um simples `pip "
+"install torch` instala a versão apenas CPU; instale uma build com CUDA em "
+"https://pytorch.org/get-started/locally/)"
+
+#: mb/training/text_trainer.py:297
+msgid ""
+"PyTorch was built for CUDA {v} but no usable GPU was found (check the "
+"driver)"
+msgstr ""
+"PyTorch foi construído para CUDA {v}, mas nenhuma GPU utilizável foi "
+"encontrada (verifique o driver)"
+
+#: mb/training/text_trainer.py:301
+msgid ""
+"No GPU available for {backend} ({model}): training on CPU will be very slow."
+" Cause: {reason}. Set text_classification.device: cpu to run on CPU without "
+"this warning."
+msgstr ""
+"Nenhuma GPU disponível para {backend} ({model}): o treinamento na CPU será "
+"muito lento. Causa: {reason}. Defina text_classification.device: cpu para "
+"executar na CPU sem este aviso."
+
+#: mb/training/text_trainer.py:357
+msgid "No {file} in the text-classification data directory: {path}"
+msgstr "Nenhum {file} no diretório de dados de classificação de texto: {path}"
+
+#: mb/training/text_trainer.py:370
+msgid "Training completed successfully. Run directory: {path}"
+msgstr "Treinamento concluído com sucesso. Diretório de execução: {path}"
+
+#: ui/controllers/train_page_controller.py:111
+msgid "No {file} in the data directory: {path}"
+msgstr "Nenhum {file} no diretório de dados: {path}"
+
+#: ui/pages/data_page.py:1223
+msgid ""
+"Text classification datasets are prepared outside mb as a dataset.tsv with a"
+" fixed split column; check one on the Text page (Verify)."
+msgstr ""
+"Conjuntos de dados de classificação de texto são preparados fora do mb como "
+"dataset.tsv com uma coluna de divisão fixa; verifique um na página Texto "
+"(Verificar)."
+
+#: ui/pages/pipeline_config_page.py:183
+msgid ""
+"Machine-learning defaults (<code>model</code>, <code>data</code>, "
+"<code>training</code>, <code>paths</code>, "
+"<code>text_classification</code>). Save writes to your active pipeline file,"
+" or to <code>pipeline.yaml</code> beside <code>application.yaml</code> in "
+"app data when only packaged defaults are loaded."
+msgstr ""
+"Padrões de machine learning (<code>model</code>, <code>data</code>, "
+"<code>training</code>, <code>paths</code>, "
+"<code>text_classification</code>). Salvar grava no seu arquivo de pipeline "
+"ativo ou em <code>pipeline.yaml</code> ao lado de "
+"<code>application.yaml</code> nos dados do aplicativo quando apenas os "
+"padrões empacotados são carregados."
+
+#: ui/pages/pipeline_config_page.py:194 ui/pages/pipeline_config_page.py:232
+msgid "Text classification"
+msgstr "Classificação de texto"
+
+#: ui/pages/pipeline_config_page.py:236
+msgid ""
+"tier_weight, gold_tiers, unreviewed_tier, reference_score_column, "
+"unlabeled_file, backend_options and an explicit class_weight mapping are "
+"kept as loaded; edit them in the Advanced (YAML) tab. Unknown keys and "
+"invalid values in this section are errors when training."
+msgstr ""
+"tier_weight, gold_tiers, unreviewed_tier, reference_score_column, "
+"unlabeled_file, backend_options e um mapeamento explícito de class_weight "
+"são mantidos como carregados; edite-os na guia Avançado (YAML). Chaves "
+"desconhecidas e valores inválidos nesta seção são erros durante o "
+"treinamento."
+
+#: ui/pages/pipeline_config_page.py:242
+msgid "empty = backend default"
+msgstr "vazio = padrão do backend"
+
+#: ui/pages/pipeline_config_page.py:243
+msgid "empty = cuda when available, else cpu"
+msgstr "vazio = CUDA quando disponível, caso contrário CPU"
+
+#: ui/pages/pipeline_config_page.py:245
+msgid "Backend default"
+msgstr "Backend padrão"
+
+#: ui/pages/pipeline_config_page.py:246
+msgid "Off"
+msgstr "Desligado"
+
+#: ui/pages/pipeline_config_page.py:247
+msgid "Exclude label-conflict groups from training and metrics"
+msgstr "Excluir grupos com conflito de rótulo do treinamento e das métricas"
+
+#: ui/pages/pipeline_config_page.py:248
+msgid "Score the unlabeled file when present"
+msgstr "Pontuar o arquivo não rotulado quando presente"
+
+#: ui/pages/pipeline_config_page.py:561
+msgid "Runs directory"
+msgstr "Directório de execuções"
+
+#: ui/pages/pipeline_config_page.py:562 ui/pages/train_page.py:200
+#: ui/pages/train_page.py:293
+msgid "Backend"
+msgstr "Backend"
+
+#: ui/pages/pipeline_config_page.py:563
+msgid "Model id"
+msgstr "ID do modelo"
+
+#: ui/pages/pipeline_config_page.py:565
+msgid "Max length (tokens)"
+msgstr "Comprimento máximo (tokens)"
+
+#: ui/pages/pipeline_config_page.py:566
+msgid "Class weight"
+msgstr "Peso da classe"
+
+#: ui/pages/pipeline_config_page.py:568
+msgid "Subsample unreviewed tier (x positives)"
+msgstr "Subamostra de nível não revisado (x positivos)"
+
+#: ui/pages/pipeline_config_page.py:570 ui/pages/train_page.py:201
+#: ui/pages/train_page.py:293
+msgid "Epochs"
+msgstr "Épocas"
+
+#: ui/pages/pipeline_config_page.py:572
+msgid "Warmup ratio"
+msgstr "Razão de aquecimento"
+
+#: ui/pages/pipeline_config_page.py:573
+msgid "Weight decay"
+msgstr "Decaimento de peso"
+
+#: ui/pages/pipeline_config_page.py:574
+msgid "Early-stopping patience"
+msgstr "Paciência de parada antecipada"
+
+#: ui/pages/pipeline_config_page.py:575
+msgid "Calibration"
+msgstr "Calibração"
+
+#: ui/pages/pipeline_config_page.py:576
+msgid "Threshold policy"
+msgstr "Política de limiar"
+
+#: ui/pages/pipeline_config_page.py:577
+msgid "Threshold target"
+msgstr "Alvo de limite"
+
+#: ui/pages/pipeline_config_page.py:578
+msgid "Review queue size"
+msgstr "Tamanho da fila de revisão"
+
+#: ui/pages/pipeline_config_page.py:581
+msgid "Model card notes (Markdown)"
+msgstr "Anotações da ficha de modelo (Markdown)"
+
+#: ui/pages/pipeline_config_page.py:641
+msgid "Select text dataset directory"
+msgstr "Selecionar diretório de conjunto de dados de texto"
+
+#: ui/pages/pipeline_config_page.py:642
+msgid "Select runs directory"
+msgstr "Selecionar diretório de execuções"
+
+#: ui/pages/pipeline_config_page.py:751
+msgid "custom mapping (edit in YAML)"
+msgstr "mapeamento personalizado (editar em YAML)"
+
+#: ui/pages/pipeline_config_page.py:991
+msgid ""
+"The document contains keys outside model/data/training/paths/text_classification: {keys}\n"
+"They will be ignored when applying to the form. Continue?"
+msgstr ""
+"O documento contém chaves fora de model/data/training/paths/text_classification: {keys}\n"
+"Elas serão ignoradas ao aplicar ao formulário. Continuar?"
+
+#: ui/pages/pipeline_config_page.py:1002
+msgid "No model/data/training/paths/text_classification keys found."
+msgstr ""
+"Nenhuma chave para model/data/training/paths/text_classification encontrada."
+
+#: ui/pages/text_page.py:105 ui/pages/text_page.py:122
+#: ui/pages/text_page.py:196 ui/pages/text_page.py:197
+#: ui/pages/text_page.py:343 ui/pages/text_page.py:373
+msgid "Run dir"
+msgstr "Executar dir"
+
+#: ui/pages/text_page.py:106 ui/pages/text_page.py:196
+msgid "Data dir (optional)"
+msgstr "Diretório de dados (opcional)"
+
+#: ui/pages/text_page.py:123 ui/pages/text_page.py:197
+#: ui/pages/text_page.py:374
+msgid "Input lines"
+msgstr "Linhas de entrada"
+
+#: ui/pages/text_page.py:176
+msgid "Text files (*.txt *.tsv);;All files (*.*)"
+msgstr "Arquivos de texto (*.txt *.tsv);;Todos os arquivos (*.*)"
+
+#: ui/pages/text_page.py:178
+msgid "Save scores as"
+msgstr "Salvar pontuações como"
+
+#: ui/pages/text_page.py:178
+msgid "TSV files (*.tsv);;All files (*.*)"
+msgstr "Arquivos TSV (*.tsv);;Todos os arquivos (*.*)"
+
+#: ui/pages/text_page.py:186
+msgid ""
+"Text-classification datasets and runs ({cmd}). Train on the Train page with "
+"model type text_classification; defaults come from the Pipeline page's Text "
+"classification tab."
+msgstr ""
+"Conjuntos de dados e execuções de classificação de texto ({cmd}). Treine na "
+"página Train com o tipo de modelo text_classification; os padrões vêm da aba"
+" Classificação de texto da página Pipeline."
+
+#: ui/pages/text_page.py:191
+msgid "Verify"
+msgstr "Verificar"
+
+#: ui/pages/text_page.py:193
+msgid "Score"
+msgstr "Pontuação"
+
+#: ui/pages/text_page.py:198
+msgid "default: text_classification.data_dir"
+msgstr "padrão: text_classification.data_dir"
+
+#: ui/pages/text_page.py:199
+msgid "default: the run's config.yaml"
+msgstr "padrão: o config.yaml da execução"
+
+#: ui/pages/text_page.py:200
+msgid "Verify Dataset"
+msgstr "Verificar conjunto de dados"
+
+#: ui/pages/text_page.py:201
+msgid "Evaluate Run"
+msgstr "Avaliar execução"
+
+#: ui/pages/text_page.py:202
+msgid "Score Lines"
+msgstr "Linhas de Pontuação"
+
+#: ui/pages/text_page.py:203
+msgid "Compare Runs"
+msgstr "Comparar execuções"
+
+#: ui/pages/text_page.py:204
+msgid "Add run directory…"
+msgstr "Adicionar diretório de execução…"
+
+#: ui/pages/text_page.py:206
+msgid ""
+"One run directory or wildcard pattern per line (e.g. "
+"data/models/text_runs/*)."
+msgstr ""
+"Um diretório de execução ou padrão curinga por linha (ex.: "
+"data/models/text_runs/*)."
+
+#: ui/pages/text_page.py:208
+msgid "Integrity check results will appear here."
+msgstr "Os resultados da verificação de integridade aparecerão aqui."
+
+#: ui/pages/text_page.py:209
+msgid "Evaluation summary will appear here."
+msgstr "O resumo da avaliação aparecerá aqui."
+
+#: ui/pages/text_page.py:210
+msgid "Scoring summary will appear here."
+msgstr "O resumo de pontuação aparecerá aqui."
+
+#: ui/pages/text_page.py:211
+msgid "Comparison table will appear here."
+msgstr "A tabela de comparação aparecerá aqui."
+
+#: ui/pages/text_page.py:285
+msgid "The operation stopped with an error. See Details for the message."
+msgstr "A operação parou com um erro. Veja Detalhes para a mensagem."
+
+#: ui/pages/text_page.py:290
+msgid "[stopped] Cancelled."
+msgstr "[parado] Cancelado."
+
+#: ui/pages/text_page.py:306
+msgid "Missing input"
+msgstr "Entrada em falta"
+
+#: ui/pages/text_page.py:306
+msgid "Please provide: {what}"
+msgstr "Por favor forneça: {what}"
+
+#: ui/pages/text_page.py:338
+msgid "Verify dataset"
+msgstr "Verificar conjunto de dados"
+
+#: ui/pages/text_page.py:368
+msgid "Evaluate run"
+msgstr "Avaliar execução"
+
+#: ui/pages/text_page.py:387
+msgid ""
+"[warn] {n} input line(s) contain a tab; their output rows have extra "
+"columns."
+msgstr ""
+"[warn] {n} linha(s) de entrada contêm uma tabulação; suas linhas de saída "
+"têm colunas extras."
+
+#: ui/pages/text_page.py:394
+msgid "Score lines"
+msgstr "Linhas de pontuação"
+
+#: ui/pages/text_page.py:401
+msgid "Select run directory"
+msgstr "Selecionar diretório de execução"
+
+#: ui/pages/text_page.py:420
+msgid "[skip] no metrics.json: {path}"
+msgstr "[skip] não há metrics.json: {path}"
+
+#: ui/pages/train_page.py:199 ui/pages/train_page.py:298
+msgid "optional, integer (default: config)"
+msgstr "opcional, inteiro (padrão: config)"
+
+#: ui/pages/train_page.py:290
+msgid "Hyperparameters (text classification)"
+msgstr "Hiperparâmetros (classificação de texto)"
+
+#: ui/pages/train_page.py:655
+msgid "model id (default: {model})"
+msgstr "ID do modelo (padrão: {model})"
+
+#: ui/pages/train_page.py:657
+msgid "not used by this backend"
+msgstr "não usado por este backend"

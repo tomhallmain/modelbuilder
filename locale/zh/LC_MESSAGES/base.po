@@ -2,9 +2,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
-"POT-Creation-Date: 2026-10-01 09:52-0400\n"
-"PO-Revision-Date: 2026-10-01 09:52-0400\n"
-"Last-Translator: Thomas Hall <tomhall.main@gmail.com>\n"
+"POT-Creation-Date: 2026-10-08 17:04-0400\n"
+"PO-Revision-Date: 2026-10-08 17:04-0400\n"
+"Last-Translator: Translator Name <translator@example.com>\n"
 "Language-Team: zh Team <<EMAIL>>\n"
 "Language: zh\n"
 "MIME-Version: 1.0\n"
@@ -156,104 +156,104 @@ msgstr "  缺失"
 msgid "  total: {n}"
 msgstr "  合计: {n}"
 
-#: mb/cli/__init__.py:57
+#: mb/cli/__init__.py:58
 msgid "Model Builder - A unified CLI for building ML models"
 msgstr "Model Builder - 用于构建 ML 模型的统一 CLI"
 
-#: mb/cli/__init__.py:69
+#: mb/cli/__init__.py:70
 msgid "Path to configuration file (YAML)"
 msgstr "配置文件路径 (YAML)"
 
-#: mb/cli/__init__.py:74
+#: mb/cli/__init__.py:75
 msgid "Enable verbose logging"
 msgstr "启用详细日志"
 
-#: mb/cli/__init__.py:78
+#: mb/cli/__init__.py:79
 msgid "Available commands"
 msgstr "可用命令"
 
-#: mb/cli/__init__.py:91
+#: mb/cli/__init__.py:92
 msgid "Please specify valid subdirectories using --subdirs argument"
 msgstr "请使用 --subdirs 参数指定有效的子目录"
 
-#: mb/cli/__init__.py:100
+#: mb/cli/__init__.py:101
 msgid "Invalid weight format: {pair}. Expected format: subdir:weight"
 msgstr "权重格式无效: {pair}。预期格式: subdir:weight"
 
-#: mb/cli/__init__.py:110
+#: mb/cli/__init__.py:111
 msgid "Weight must be non-negative: {subdir}={weight}"
 msgstr "权重不能为负数: {subdir}={weight}"
 
-#: mb/cli/__init__.py:121
+#: mb/cli/__init__.py:122
 msgid "Subdirectories in weights not found in --subdirs: {weights}"
 msgstr "权重中的子目录未在 --subdirs 中找到: {weights}"
 
-#: mb/cli/__init__.py:219
+#: mb/cli/__init__.py:220
 msgid "Image generation dataset creation is not implemented yet."
 msgstr "图像生成数据集的创建尚未实现。"
 
-#: mb/cli/__init__.py:229
+#: mb/cli/__init__.py:239
 msgid "Process terminated due to external storage detection."
 msgstr "检测到外部存储, 进程已终止。"
 
-#: mb/cli/__init__.py:278
+#: mb/cli/__init__.py:288
 msgid "--pillow and --quiet require --dry-run"
 msgstr "--pillow 和 --quiet 需要 --dry-run"
 
-#: mb/cli/__init__.py:281
+#: mb/cli/__init__.py:291
 msgid "--pillow requires --json"
 msgstr "--pillow 需要 --json"
 
-#: mb/cli/__init__.py:324
+#: mb/cli/__init__.py:334
 msgid "--data-dir is required when operation is create-dataset"
 msgstr "当操作为 create-dataset 时, 必须指定 --data-dir"
 
-#: mb/cli/__init__.py:356 mb/cli/__init__.py:403
+#: mb/cli/__init__.py:366 mb/cli/__init__.py:413
 msgid "Image generation training is not implemented yet."
 msgstr "图像生成训练尚未实现。"
 
-#: mb/cli/__init__.py:359
+#: mb/cli/__init__.py:369
 msgid "Image generation LoRA training is not implemented yet."
 msgstr "图像生成 LoRA 训练尚未实现。"
 
-#: mb/cli/__init__.py:362
+#: mb/cli/__init__.py:372
 msgid "Unsupported model type from config: {t}"
 msgstr "配置中的模型类型不受支持: {t}"
 
-#: mb/cli/__init__.py:367 mb/cli/__init__.py:424
+#: mb/cli/__init__.py:377 mb/cli/__init__.py:438
 #: mb/training/lora_diffusion_trainer.py:587
 msgid "Data directory does not exist: {path}"
 msgstr "数据目录不存在: {path}"
 
-#: mb/cli/__init__.py:379 mb/cli/__init__.py:467
+#: mb/cli/__init__.py:389 mb/cli/__init__.py:481
 msgid "Architecture '{arch}' not supported for framework '{fw}'"
 msgstr "架构 '{arch}' 不支持框架 '{fw}'"
 
-#: mb/cli/__init__.py:390 mb/cli/__init__.py:494
+#: mb/cli/__init__.py:400 mb/cli/__init__.py:508
 msgid "Training completed successfully. Model saved to: {path}"
 msgstr "训练已成功完成。模型已保存到: {path}"
 
-#: mb/cli/__init__.py:398 ui/controllers/train_page_controller.py:73
+#: mb/cli/__init__.py:408 ui/controllers/train_page_controller.py:121
 msgid "Unsupported framework: {fw}"
 msgstr "不支持的框架: {fw}"
 
-#: mb/cli/__init__.py:410
+#: mb/cli/__init__.py:424
 msgid "Unsupported model type: {t}"
 msgstr "不支持的模型类型: {t}"
 
-#: mb/cli/__init__.py:418
+#: mb/cli/__init__.py:432
 msgid "Unsupported architecture: {arch}"
 msgstr "不支持的架构: {arch}"
 
-#: mb/cli/__init__.py:499
+#: mb/cli/__init__.py:513
 msgid "Training failed: {err}"
 msgstr "训练失败: {err}"
 
-#: mb/cli/__init__.py:510 mb/cli/__init__.py:623
+#: mb/cli/__init__.py:524 mb/cli/__init__.py:637
 msgid "Input model file not found: {path}"
 msgstr "未找到输入模型文件: {path}"
 
-#: mb/cli/__init__.py:518
+#: mb/cli/__init__.py:532
 msgid ""
 "{path} looks like a LoRA adapter (from `mb train --model-type "
 "image_generation_lora`), not a full model checkpoint — `mb convert` doesn't "
@@ -264,50 +264,51 @@ msgstr ""
 "而不是完整的模型检查点 — `mb convert` 不适用。它已是可移植的 safetensors 产物, 可直接使用 (例如 diffusers "
 "流水线的 load_lora_weights())。"
 
-#: mb/cli/__init__.py:532
+#: mb/cli/__init__.py:546
 msgid "Could not detect source framework. Please specify --framework"
 msgstr "无法检测源框架。请指定 --framework"
 
-#: mb/cli/__init__.py:538
+#: mb/cli/__init__.py:552
 msgid "PyTorch -> ONNX conversion requires --architecture and --num-classes"
 msgstr "将 PyTorch 转换为 ONNX 需要 --architecture 和 --num-classes"
 
-#: mb/cli/__init__.py:558
+#: mb/cli/__init__.py:572
 msgid "Conversion completed successfully: {path}"
 msgstr "转换已成功完成: {path}"
 
-#: mb/cli/__init__.py:564
+#: mb/cli/__init__.py:578
 msgid "--quantize applies to --target onnx only; skipping quantization."
 msgstr "--quantize 仅适用于 --target onnx; 将跳过量化。"
 
-#: mb/cli/__init__.py:572
+#: mb/cli/__init__.py:586
 msgid "Only {n} of {total} quantized variants were written."
 msgstr "仅写入 {n}/{total} 个量化变体。"
 
-#: mb/cli/__init__.py:578
+#: mb/cli/__init__.py:592
 msgid "Wrote quantized variant: {path}"
 msgstr "已写入量化变体: {path}"
 
-#: mb/cli/__init__.py:581 ui/pages/convert_page.py:344
+#: mb/cli/__init__.py:595 ui/pages/convert_page.py:344
 msgid "Conversion failed"
 msgstr "转换失败"
 
-#: mb/cli/__init__.py:585
+#: mb/cli/__init__.py:599
 msgid "Conversion error: {err}"
 msgstr "转换错误: {err}"
 
-#: mb/cli/__init__.py:594 ui/pages/info_page.py:184
+#: mb/cli/__init__.py:608 ui/pages/info_page.py:184
 msgid "Model path not found: {path}"
 msgstr "未找到模型路径: {path}"
 
-#: mb/cli/__init__.py:608 mb/evaluate/compare.py:157
+#: mb/cli/__init__.py:622 mb/cli/__init__.py:720 mb/evaluate/compare.py:157
 #: mb/evaluate/compare.py:193 mb/evaluate/metrics.py:162
 #: mb/evaluate/metrics.py:182 mb/evaluate/misclassified.py:84
 #: mb/evaluate/misclassified.py:104 ui/pages/info_page.py:198
+#: ui/pages/text_page.py:320
 msgid "Data directory not found: {path}"
 msgstr "未找到数据目录: {path}"
 
-#: mb/cli/__init__.py:631
+#: mb/cli/__init__.py:645
 msgid ""
 "{path} looks like a LoRA adapter (from `mb train --model-type "
 "image_generation_lora`), not a full model checkpoint — `mb export bundle` "
@@ -318,72 +319,72 @@ msgstr ""
 "而不是完整的模型检查点 — `mb export bundle` 不适用。它已是可移植的 safetensors 产物, 可直接使用 (例如 "
 "diffusers 流水线的 load_lora_weights())。"
 
-#: mb/cli/__init__.py:656
+#: mb/cli/__init__.py:670
 msgid "Bundle export completed: {path}"
 msgstr "捆绑包导出完成: {path}"
 
-#: mb/cli/__init__.py:657 ui/pages/export_page.py:338
+#: mb/cli/__init__.py:671 ui/pages/export_page.py:338
 msgid "Weights: {path}"
 msgstr "权重: {path}"
 
-#: mb/cli/__init__.py:658 ui/pages/export_page.py:339
+#: mb/cli/__init__.py:672 ui/pages/export_page.py:339
 msgid "Manifest: {path}"
 msgstr "清单: {path}"
 
-#: mb/cli/__init__.py:660 ui/pages/export_page.py:342
+#: mb/cli/__init__.py:674 ui/pages/export_page.py:342
 msgid "Architecture stub: {path}"
 msgstr "架构存根: {path}"
 
-#: mb/cli/__init__.py:663
+#: mb/cli/__init__.py:677
 msgid "Export failed: {err}"
 msgstr "导出失败: {err}"
 
-#: mb/cli/__init__.py:724
+#: mb/cli/__init__.py:841
 msgid "No data subcommand specified"
 msgstr "未指定数据子命令"
 
-#: mb/cli/__init__.py:729
+#: mb/cli/__init__.py:846
 msgid "Unknown data subcommand: {cmd}"
 msgstr "未知的数据子命令: {cmd}"
 
-#: mb/cli/__init__.py:751
+#: mb/cli/__init__.py:868
 msgid "No info subcommand specified"
 msgstr "未指定信息子命令"
 
-#: mb/cli/__init__.py:755
+#: mb/cli/__init__.py:872
 msgid "Unknown info subcommand: {cmd}"
 msgstr "未知的信息子命令: {cmd}"
 
-#: mb/cli/__init__.py:764
+#: mb/cli/__init__.py:881
 msgid "No export subcommand specified"
 msgstr "未指定导出子命令"
 
-#: mb/cli/__init__.py:768
+#: mb/cli/__init__.py:885
 msgid "Unknown export subcommand: {cmd}"
 msgstr "未知的导出子命令: {cmd}"
 
-#: mb/cli/__init__.py:772
+#: mb/cli/__init__.py:889
 msgid "Unhandled export subcommand: {cmd}"
 msgstr "未处理的导出子命令: {cmd}"
 
-#: mb/cli/__init__.py:778
+#: mb/cli/__init__.py:895
 msgid "No evaluate subcommand specified"
 msgstr "未指定评估子命令"
 
-#: mb/cli/__init__.py:782
+#: mb/cli/__init__.py:899
 msgid "Unknown evaluate subcommand: {cmd}"
 msgstr "未知的评估子命令: {cmd}"
 
-#: mb/cli/__init__.py:787 ui/pages/data_page.py:1263
-#: ui/pages/data_page.py:1493
+#: mb/cli/__init__.py:915 ui/pages/data_page.py:1270
+#: ui/pages/data_page.py:1500
 msgid "Unknown command: {cmd}"
 msgstr "未知命令: {cmd}"
 
-#: mb/cli/__init__.py:791
+#: mb/cli/__init__.py:919
 msgid "Interrupted by user"
 msgstr "用户已中断"
 
-#: mb/cli/__init__.py:794
+#: mb/cli/__init__.py:922
 msgid "Error: {err}"
 msgstr "错误: {err}"
 
@@ -600,7 +601,7 @@ msgid ""
 "set, else non-deterministic)"
 msgstr "用于可复现性的随机种子（若已设置则默认取流水线 YAML 中的 data.seed，否则为非确定）"
 
-#: mb/cli/parsing/data.py:267 mb/cli/parsing/train.py:191
+#: mb/cli/parsing/data.py:267 mb/cli/parsing/train.py:231
 msgid ""
 "Run ID of unified snapshot to update (auto-detects latest if not provided)"
 msgstr "要更新的统一快照运行 ID（未提供时自动检测最新）"
@@ -1103,23 +1104,23 @@ msgstr "数据目录 (默认: 来自配置)"
 msgid "Output directory for models (default: from config)"
 msgstr "模型输出目录 (默认: 来自配置)"
 
-#: mb/cli/parsing/train.py:55
+#: mb/cli/parsing/train.py:62
 msgid "Number of frozen training epochs (default: from config)"
 msgstr "冻结训练的轮数 (默认: 来自配置)"
 
-#: mb/cli/parsing/train.py:60
+#: mb/cli/parsing/train.py:67
 msgid "Number of unfrozen training epochs (default: from config)"
 msgstr "解冻训练的轮数 (默认: 来自配置)"
 
-#: mb/cli/parsing/train.py:65
+#: mb/cli/parsing/train.py:72
 msgid "Learning rate for frozen phase (default: from config)"
 msgstr "冻结阶段的学习率 (默认: 来自配置)"
 
-#: mb/cli/parsing/train.py:70
+#: mb/cli/parsing/train.py:77
 msgid "Maximum learning rate for unfrozen phase (default: from config)"
 msgstr "解冻阶段的最大学习率 (默认: 来自配置)"
 
-#: mb/cli/parsing/train.py:75
+#: mb/cli/parsing/train.py:82
 msgid "Minimum learning rate for unfrozen phase (default: from config)"
 msgstr "解冻阶段的最小学习率 (默认: 来自配置)"
 
@@ -1127,18 +1128,18 @@ msgstr "解冻阶段的最小学习率 (默认: 来自配置)"
 msgid "Batch size (default: from config or auto-detect)"
 msgstr "批大小 (默认: 来自配置或自动检测)"
 
-#: mb/cli/parsing/train.py:86
+#: mb/cli/parsing/train.py:96
 msgid ""
 "Image size (default: 224). For --model-type image_generation_lora, this is "
 "the training resolution instead (default: 512)."
 msgstr ""
 "图像尺寸 (默认: 224)。对于 --model-type image_generation_lora, 此处改为训练分辨率 (默认: 512)。"
 
-#: mb/cli/parsing/train.py:93
+#: mb/cli/parsing/train.py:103
 msgid "Number of data loading workers (default: from config)"
 msgstr "数据加载工作进程数 (默认: 来自配置)"
 
-#: mb/cli/parsing/train.py:99
+#: mb/cli/parsing/train.py:109
 msgid ""
 "Whether an image carries one class or several (image_classification only; "
 "default: from config, which ships as single_label). multi_label reads "
@@ -1149,7 +1150,7 @@ msgstr ""
 "single_label)。multi_label 读取数据集旁的 label_schema.json 和 labels.jsonl, "
 "并按标签训练独立的 sigmoid。仅 PyTorch。"
 
-#: mb/cli/parsing/train.py:109
+#: mb/cli/parsing/train.py:119
 msgid ""
 "Train at --image-size even when the architecture expects a different one. "
 "Only affects backbones with a fixed input resolution (e.g. siglip2_*), where"
@@ -1158,7 +1159,7 @@ msgstr ""
 "即使架构期望的尺寸不同, 也按 --image-size 训练。仅影响输入分辨率固定的骨干网络 (例如 siglip2_*)。尺寸不匹配时, "
 "预训练位置嵌入将不再对齐。"
 
-#: mb/cli/parsing/train.py:118
+#: mb/cli/parsing/train.py:128
 msgid ""
 "Compensate an imbalanced training set by weighting the training loss "
 "(image_classification only; default: from config). Validation loss stays "
@@ -1167,7 +1168,7 @@ msgstr ""
 "通过对训练损失施加权重, 补偿不平衡的训练数据集 (仅 image_classification; 默认: 来自配置)。验证损失保持不加权重, "
 "以便在不同设置下仍可比较。"
 
-#: mb/cli/parsing/train.py:127
+#: mb/cli/parsing/train.py:137
 msgid ""
 "Ceiling on any single class weight (--class-weighting inverse_frequency "
 "only; default: from config)"
@@ -1180,12 +1181,12 @@ msgid ""
 msgstr ""
 "随机种子。目前仅 --model-type image_generation_lora 会使用 (可复现的 LoRA 权重初始化和噪声采样)。"
 
-#: mb/cli/parsing/train.py:142
+#: mb/cli/parsing/train.py:153
 msgid ""
 "LoRA adapter rank (--model-type image_generation_lora only; default: 16)"
 msgstr "LoRA 适配器的秩 (仅 --model-type image_generation_lora; 默认: 16)"
 
-#: mb/cli/parsing/train.py:148
+#: mb/cli/parsing/train.py:159
 msgid ""
 "LoRA adapter alpha scaling (--model-type image_generation_lora only; "
 "default: same as --lora-rank)"
@@ -1202,7 +1203,7 @@ msgstr ""
 "LoRA 适配器参数的学习率 (仅 --model-type image_generation_lora; 默认: 1e-4)。与 --frozen-"
 "lr/--unfrozen-lr-* (仅 image_classification) 无关。"
 
-#: mb/cli/parsing/train.py:165
+#: mb/cli/parsing/train.py:177
 msgid ""
 "Total optimizer steps to train (--model-type image_generation_lora only; "
 "default: 1000). LoRA training here is step-based, not epoch-based."
@@ -1210,7 +1211,7 @@ msgstr ""
 "训练所用的优化器总步数 (仅 --model-type image_generation_lora; 默认: 1000)。此处的 LoRA "
 "训练按步计算, 不按轮次。"
 
-#: mb/cli/parsing/train.py:174
+#: mb/cli/parsing/train.py:186
 msgid ""
 "--model-type image_generation_lora only: the base model's architecture "
 "(different architectures load different components and LoRA target layers). "
@@ -1226,15 +1227,15 @@ msgstr ""
 "而不是本地路径时为必填, 因为没有网络调用就无法自动检测。flux (推荐默认值)、chroma 和 stable_diffusion_1x 目前已实现"
 " - stable_diffusion_xl、stable_diffusion_3 和 z_image_turbo 可被识别, 但尚未支持。"
 
-#: mb/cli/parsing/train.py:186
+#: mb/cli/parsing/train.py:226
 msgid "Path to checkpoint to resume training from"
 msgstr "用于恢复训练的检查点路径"
 
-#: mb/cli/parsing/train.py:196
+#: mb/cli/parsing/train.py:236
 msgid "Skip updating the unified snapshot with training data"
 msgstr "跳过使用训练数据更新统一快照"
 
-#: mb/cli/parsing/train.py:203
+#: mb/cli/parsing/train.py:243
 msgid ""
 "Load TrainingRunArgs from JSON (see mb.training.run_args); other train flags"
 " are ignored"
@@ -1825,11 +1826,11 @@ msgid ""
 " silently train a single-label model."
 msgstr "多标签训练仅对 PyTorch 实现；--framework {fw} 会在无提示的情况下训练单标签模型。"
 
-#: mb/utils/constants.py:82
+#: mb/utils/constants.py:84
 msgid "System"
 msgstr "系统"
 
-#: mb/utils/constants.py:101
+#: mb/utils/constants.py:103
 msgid "Access Password Administration"
 msgstr "访问密码管理"
 
@@ -1855,27 +1856,27 @@ msgstr "成功"
 msgid "fail"
 msgstr "失败"
 
-#: ui/app.py:28 ui/main_window.py:85 ui/main_window.py:121
+#: ui/app.py:28 ui/main_window.py:87 ui/main_window.py:123
 msgid "Model Builder"
 msgstr "模型构建器"
 
-#: ui/main_window.py:266
+#: ui/main_window.py:268
 msgid "File"
 msgstr "文件"
 
-#: ui/main_window.py:267
+#: ui/main_window.py:269
 msgid "Set workspace folder…"
 msgstr "设置工作区文件夹…"
 
-#: ui/main_window.py:270
+#: ui/main_window.py:272
 msgid "Set config file…"
 msgstr "设置配置文件…"
 
-#: ui/main_window.py:273
+#: ui/main_window.py:275
 msgid "Open application settings (YAML)…"
 msgstr "打开应用程序设置 (YAML)…"
 
-#: ui/main_window.py:277
+#: ui/main_window.py:279
 msgid ""
 "Desktop shell options (toasts, cache interval, …); see "
 "mb/config/application.example.yaml. Reload the app or use Set config file "
@@ -1884,35 +1885,35 @@ msgstr ""
 "桌面外壳选项 (提示、缓存间隔、…)；参见 mb/config/application.example.yaml。请重新加载应用，或对流水线 YAML "
 "使用设置配置文件。"
 
-#: ui/main_window.py:283
+#: ui/main_window.py:285
 msgid "Exit"
 msgstr "退出"
 
-#: ui/main_window.py:288
+#: ui/main_window.py:290
 msgid "Help"
 msgstr "帮助"
 
-#: ui/main_window.py:289 ui/main_window.py:357
+#: ui/main_window.py:291 ui/main_window.py:359
 msgid "About Model Builder"
 msgstr "关于 Model Builder"
 
-#: ui/main_window.py:301
+#: ui/main_window.py:303
 msgid " | Config: {path}"
 msgstr " | 配置: {path}"
 
-#: ui/main_window.py:305
+#: ui/main_window.py:307
 msgid "Workspace: {root}{cfg}"
 msgstr "工作区: {root}{cfg}"
 
-#: ui/main_window.py:306
+#: ui/main_window.py:308
 msgid "No workspace folder set — use File → Set workspace folder"
 msgstr "未设置工作区文件夹 — 请使用 文件 → 设置工作区文件夹"
 
-#: ui/main_window.py:317
+#: ui/main_window.py:319
 msgid "Application settings"
 msgstr "应用程序设置"
 
-#: ui/main_window.py:318
+#: ui/main_window.py:320
 msgid ""
 "File not found:\n"
 "{path}"
@@ -1920,23 +1921,23 @@ msgstr ""
 "未找到文件:\n"
 "{path}"
 
-#: ui/main_window.py:327
+#: ui/main_window.py:329
 msgid "Workspace root folder"
 msgstr "工作区根文件夹"
 
-#: ui/main_window.py:343
+#: ui/main_window.py:345
 msgid "Optional YAML config"
 msgstr "可选的 YAML 配置"
 
-#: ui/main_window.py:345
+#: ui/main_window.py:347
 msgid "YAML (*.yaml *.yml);;All files (*.*)"
 msgstr "YAML (*.yaml *.yml);;所有文件 (*.*)"
 
-#: ui/main_window.py:369
+#: ui/main_window.py:371
 msgid "Background task"
 msgstr "后台任务"
 
-#: ui/main_window.py:371
+#: ui/main_window.py:373
 msgid ""
 "A background task is still running. Closing now may leave partial outputs "
 "(checkpoints, datasets, copies). Exit anyway?"
@@ -1946,46 +1947,46 @@ msgstr "后台任务仍在运行。现在关闭可能会留下不完整的输出
 msgid "Error"
 msgstr "错误"
 
-#: ui/controllers/train_page_controller.py:76
+#: ui/controllers/train_page_controller.py:124
 msgid "Architecture is required."
 msgstr "必须指定架构。"
 
-#: ui/controllers/train_page_controller.py:79
+#: ui/controllers/train_page_controller.py:127
 msgid "Unknown architecture: {a}"
 msgstr "未知架构: {a}"
 
-#: ui/controllers/train_page_controller.py:81
-#: ui/controllers/train_page_controller.py:136
+#: ui/controllers/train_page_controller.py:129
+#: ui/controllers/train_page_controller.py:184
 msgid "Data directory does not exist."
 msgstr "数据目录不存在。"
 
-#: ui/controllers/train_page_controller.py:85
+#: ui/controllers/train_page_controller.py:133
 msgid "Resume checkpoint path does not exist."
 msgstr "恢复检查点路径不存在。"
 
-#: ui/controllers/train_page_controller.py:123
+#: ui/controllers/train_page_controller.py:171
 msgid ""
 "Image-generation LoRA training only supports the PyTorch framework (got: "
 "{fw})."
 msgstr "图像生成 LoRA 训练仅支持 PyTorch 框架 (实际为: {fw})。"
 
-#: ui/controllers/train_page_controller.py:131
+#: ui/controllers/train_page_controller.py:179
 msgid ""
 "Base model (a local checkpoint path or hub id) is required for image-"
 "generation LoRA."
 msgstr "图像生成 LoRA 需要基础模型 (本地检查点路径或 hub id)。"
 
-#: ui/controllers/train_page_controller.py:145
+#: ui/controllers/train_page_controller.py:193
 msgid ""
 "Could not determine the base model's architecture from {path}. Select one "
 "explicitly."
 msgstr "无法从 {path} 确定基础模型的架构。请显式选择一个。"
 
-#: ui/controllers/train_page_controller.py:151
+#: ui/controllers/train_page_controller.py:199
 msgid "Base architecture '{arch}' is recognized but not implemented yet."
 msgstr "基础架构 '{arch}' 已被识别，但尚未实现。"
 
-#: ui/controllers/train_page_controller.py:162
+#: ui/controllers/train_page_controller.py:94
 msgid "Seed must be an integer."
 msgstr "随机种子必须为整数。"
 
@@ -2004,7 +2005,7 @@ msgstr "好的"
 #: ui/lib/directory_line_edit_row.py:29 ui/pages/convert_page.py:201
 #: ui/pages/data_page.py:985 ui/pages/evaluate_page.py:389
 #: ui/pages/export_page.py:197 ui/pages/info_page.py:152
-#: ui/pages/train_page.py:488
+#: ui/pages/text_page.py:174 ui/pages/train_page.py:539
 msgid "Select directory"
 msgstr "选择目录"
 
@@ -2013,8 +2014,9 @@ msgstr "选择目录"
 #: ui/pages/data_page.py:974 ui/pages/evaluate_page.py:212
 #: ui/pages/evaluate_page.py:373 ui/pages/export_page.py:129
 #: ui/pages/export_page.py:181 ui/pages/info_page.py:67
-#: ui/pages/info_page.py:141 ui/pages/train_page.py:290
-#: ui/pages/train_page.py:430
+#: ui/pages/info_page.py:141 ui/pages/text_page.py:165
+#: ui/pages/text_page.py:223 ui/pages/train_page.py:325
+#: ui/pages/train_page.py:481
 msgid "Browse..."
 msgstr "浏览..."
 
@@ -2263,7 +2265,7 @@ msgid "output.onnx"
 msgstr "output.onnx"
 
 #: ui/lib/fast_directory_picker_qt.py:997 ui/pages/config_page.py:82
-#: ui/pages/config_page.py:160 ui/pages/pipeline_config_page.py:226
+#: ui/pages/config_page.py:160 ui/pages/pipeline_config_page.py:257
 msgid "Save"
 msgstr "保存"
 
@@ -2357,7 +2359,7 @@ msgid "Cancelling…"
 msgstr "正在取消…"
 
 #: ui/pages/config_page.py:80 ui/pages/config_page.py:159
-#: ui/pages/pipeline_config_page.py:224
+#: ui/pages/pipeline_config_page.py:255
 msgid "Reload from disk"
 msgstr "从磁盘重新加载"
 
@@ -2490,7 +2492,7 @@ msgstr "配置"
 msgid "Default main window size must look like WIDTHxHEIGHT (e.g. 1200x960)."
 msgstr "默认主窗口大小必须类似宽度x高度 (例如 1200x960)。"
 
-#: ui/pages/config_page.py:390 ui/pages/pipeline_config_page.py:744
+#: ui/pages/config_page.py:390 ui/pages/pipeline_config_page.py:1024
 msgid ""
 "Could not write:\n"
 "{path}\n"
@@ -2502,7 +2504,7 @@ msgstr ""
 "\n"
 "{err}"
 
-#: ui/pages/config_page.py:401 ui/pages/pipeline_config_page.py:759
+#: ui/pages/config_page.py:401 ui/pages/pipeline_config_page.py:1039
 msgid ""
 "Saved to:\n"
 "{path}"
@@ -2510,7 +2512,7 @@ msgstr ""
 "已保存至:\n"
 "{path}"
 
-#: ui/pages/config_page.py:414 ui/pages/pipeline_config_page.py:781
+#: ui/pages/config_page.py:414 ui/pages/pipeline_config_page.py:1066
 msgid ""
 "Could not write defaults to:\n"
 "{path}\n"
@@ -2554,7 +2556,7 @@ msgstr "目标格式"
 #: ui/pages/convert_page.py:86 ui/pages/convert_page.py:125
 #: ui/pages/evaluate_page.py:111 ui/pages/evaluate_page.py:157
 #: ui/pages/export_page.py:68 ui/pages/export_page.py:105
-#: ui/pages/train_page.py:103 ui/pages/train_page.py:225
+#: ui/pages/train_page.py:104 ui/pages/train_page.py:251
 msgid "Architecture"
 msgstr "架构"
 
@@ -2567,7 +2569,7 @@ msgstr "类别数"
 #: ui/pages/convert_page.py:88 ui/pages/convert_page.py:127
 #: ui/pages/evaluate_page.py:113 ui/pages/evaluate_page.py:159
 #: ui/pages/export_page.py:71 ui/pages/export_page.py:108
-#: ui/pages/train_page.py:107 ui/pages/train_page.py:229
+#: ui/pages/train_page.py:108 ui/pages/train_page.py:255
 msgid "Image size"
 msgstr "图像尺寸"
 
@@ -2626,7 +2628,7 @@ msgid "[ok] conversion inputs valid (source={src})"
 msgstr "[正常] 转换输入有效 (来源={src})"
 
 #: ui/pages/convert_page.py:282 ui/pages/export_page.py:304
-#: ui/pages/train_page.py:618
+#: ui/pages/train_page.py:712
 msgid "[invalid] {err}"
 msgstr "[无效] {err}"
 
@@ -2647,7 +2649,8 @@ msgid "[failed] Conversion failed."
 msgstr "[失败] 转换失败。"
 
 #: ui/pages/convert_page.py:335 ui/pages/export_page.py:352
-#: ui/pages/train_page.py:674 ui/pages/train_page.py:776
+#: ui/pages/text_page.py:280 ui/pages/train_page.py:770
+#: ui/pages/train_page.py:888
 msgid "[error] {err}"
 msgstr "[错误] {err}"
 
@@ -2718,7 +2721,7 @@ msgstr ""
 "--dry-run --json\n"
 "--raw-data-dir C:\\path\\to\\raw_data"
 
-#: ui/pages/data_page.py:184 ui/pages/data_page.py:1286
+#: ui/pages/data_page.py:184 ui/pages/data_page.py:1293
 msgid "Latest space check"
 msgstr "最近的空间检查"
 
@@ -2767,7 +2770,7 @@ msgstr "格式 (jpeg/jpg)"
 #: ui/pages/data_page.py:207 ui/pages/data_page.py:233
 #: ui/pages/data_page.py:633 ui/pages/data_page.py:764
 #: ui/pages/export_page.py:72 ui/pages/export_page.py:109
-#: ui/pages/train_page.py:111 ui/pages/train_page.py:232
+#: ui/pages/train_page.py:112 ui/pages/train_page.py:258
 msgid "Run ID (optional)"
 msgstr "运行 ID (可选)"
 
@@ -2787,7 +2790,7 @@ msgstr "审查目录 (可选)"
 
 #: ui/pages/data_page.py:226 ui/pages/data_page.py:750
 #: ui/pages/evaluate_page.py:107 ui/pages/evaluate_page.py:153
-#: ui/pages/train_page.py:100 ui/pages/train_page.py:222
+#: ui/pages/train_page.py:101 ui/pages/train_page.py:248
 msgid "Model type"
 msgstr "模型类型"
 
@@ -2800,12 +2803,12 @@ msgid "Test items per class"
 msgstr "每类别测试项数"
 
 #: ui/pages/data_page.py:230 ui/pages/data_page.py:757
-#: ui/pages/pipeline_config_page.py:344
+#: ui/pages/pipeline_config_page.py:466
 msgid "Test split mode"
 msgstr "测试划分模式"
 
 #: ui/pages/data_page.py:231 ui/pages/data_page.py:762
-#: ui/pages/pipeline_config_page.py:350
+#: ui/pages/pipeline_config_page.py:467
 msgid "Small-class threshold (weighted)"
 msgstr "小类别阈值 (加权)"
 
@@ -2818,7 +2821,7 @@ msgid "Max train per class"
 msgstr "每类别最大训练数"
 
 #: ui/pages/data_page.py:240 ui/pages/data_page.py:746
-#: ui/pages/pipeline_config_page.py:354
+#: ui/pages/pipeline_config_page.py:373
 msgid "None"
 msgstr "无"
 
@@ -2857,7 +2860,7 @@ msgstr ""
 "upscaled_small_images)。 (5) 选择有足够可用空间的输出数据目录; 写入可移动驱动器时勾选 \"允许外部/可移动存储\"。"
 
 #: ui/pages/data_page.py:265 ui/pages/data_page.py:266
-#: ui/pages/data_page.py:267 ui/pages/train_page.py:274
+#: ui/pages/data_page.py:267 ui/pages/train_page.py:309
 msgid "Latest"
 msgstr "最新"
 
@@ -2934,11 +2937,11 @@ msgstr ""
 "范围说明: 去重只处理每个类别文件夹的 CONVERTED 目录中的文件 (raw_data/<class>/CONVERTED)。其他文件夹, 包括 "
 "IMAGES 和根级实用目录, 不会被扫描。"
 
-#: ui/pages/data_page.py:755 ui/pages/pipeline_config_page.py:342
+#: ui/pages/data_page.py:755 ui/pages/pipeline_config_page.py:363
 msgid "Fixed count per class"
 msgstr "每类别固定数量"
 
-#: ui/pages/data_page.py:756 ui/pages/pipeline_config_page.py:343
+#: ui/pages/data_page.py:756 ui/pages/pipeline_config_page.py:364
 msgid "Dataset-weighted (modulated)"
 msgstr "按数据集加权 (调制)"
 
@@ -3113,6 +3116,7 @@ msgstr ""
 "除非把需要的文件复制回 CONVERTED/。"
 
 #: ui/pages/data_page.py:993 ui/pages/evaluate_page.py:384
+#: ui/pages/text_page.py:176
 msgid "Select file"
 msgstr "选择文件"
 
@@ -3121,11 +3125,11 @@ msgid "All files (*.*)"
 msgstr "所有文件 (*.*)"
 
 #: ui/pages/data_page.py:1007 ui/pages/data_page.py:1023
-#: ui/pages/train_page.py:454
+#: ui/pages/train_page.py:505
 msgid "No snapshot found"
 msgstr "未找到快照"
 
-#: ui/pages/data_page.py:1008 ui/pages/train_page.py:455
+#: ui/pages/data_page.py:1008 ui/pages/train_page.py:506
 msgid ""
 "No snapshot_*.json files were found under:\n"
 "{path}"
@@ -3235,25 +3239,25 @@ msgstr ""
 "运行 ID {rid!r} 没有可加载的统一快照。应在以下位置找到 {name}:\n"
 "  {dir}"
 
-#: ui/pages/data_page.py:1223
+#: ui/pages/data_page.py:1230
 msgid "Raw data dir does not exist."
 msgstr "原始数据目录不存在。"
 
-#: ui/pages/data_page.py:1238
+#: ui/pages/data_page.py:1245
 msgid ""
 "No loadable unified snapshot for Run ID {rid!r} in the search paths (see the"
 " Run ID field tooltip for locations checked)."
 msgstr "在搜索路径中没有运行 ID {rid!r} 的可加载统一快照 (已检查的位置见运行 ID 字段的工具提示)。"
 
-#: ui/pages/data_page.py:1305 ui/pages/data_page.py:1330
+#: ui/pages/data_page.py:1312 ui/pages/data_page.py:1337
 msgid "Skipped (free-space estimate not run)."
 msgstr "已跳过 (未运行可用空间估计)。"
 
-#: ui/pages/data_page.py:1313 ui/pages/data_page.py:1341
+#: ui/pages/data_page.py:1320 ui/pages/data_page.py:1348
 msgid "Insufficient disk space (estimate)"
 msgstr "磁盘空间不足 (估计)"
 
-#: ui/pages/data_page.py:1314 ui/pages/data_page.py:1342
+#: ui/pages/data_page.py:1321 ui/pages/data_page.py:1349
 msgid ""
 "{msg}\n"
 "\n"
@@ -3263,89 +3267,89 @@ msgstr ""
 "\n"
 "仍要继续?"
 
-#: ui/pages/data_page.py:1359
+#: ui/pages/data_page.py:1366
 msgid "External storage"
 msgstr "外部存储"
 
-#: ui/pages/data_page.py:1361
+#: ui/pages/data_page.py:1368
 msgid ""
 "The target data directory is on external or removable storage, and \"Allow "
 "external storage\" is not checked. Enable it on the Create Dataset tab or "
 "choose a different data directory."
 msgstr "目标数据目录位于外部或可移动存储上, 且未勾选 \"允许外部存储\"。请在创建数据集选项卡中启用它, 或选择其他数据目录。"
 
-#: ui/pages/data_page.py:1371
+#: ui/pages/data_page.py:1378
 msgid "Confirm"
 msgstr "确认"
 
-#: ui/pages/data_page.py:1372
+#: ui/pages/data_page.py:1379
 msgid "Source and target are on the same drive. Continue dataset creation?"
 msgstr "源和目标位于同一驱动器。继续创建数据集?"
 
-#: ui/pages/data_page.py:1408
+#: ui/pages/data_page.py:1415
 msgid "Data: {cmd}"
 msgstr "数据: {cmd}"
 
-#: ui/pages/data_page.py:1426
+#: ui/pages/data_page.py:1433
 msgid "Checking free space…"
 msgstr "正在检查可用空间…"
 
-#: ui/pages/data_page.py:1430
+#: ui/pages/data_page.py:1437
 msgid "Converting…"
 msgstr "正在转换…"
 
-#: ui/pages/data_page.py:1432
+#: ui/pages/data_page.py:1439
 msgid "Creating dataset…"
 msgstr "正在创建数据集…"
 
-#: ui/pages/data_page.py:1510
+#: ui/pages/data_page.py:1517
 msgid "Running: {line}"
 msgstr "正在运行: {line}"
 
-#: ui/pages/data_page.py:1522
+#: ui/pages/data_page.py:1529
 msgid "[done] Data command completed successfully."
 msgstr "[done] 数据命令已成功完成。"
 
-#: ui/pages/data_page.py:1538
+#: ui/pages/data_page.py:1545
 msgid "[failed] Data command reported failure."
 msgstr "[failed] 数据命令报告了失败。"
 
-#: ui/pages/data_page.py:1550
+#: ui/pages/data_page.py:1557
 msgid ""
 "[stopped] Data command cancelled — partial copies or snapshot updates may "
 "exist; check folders before re-running."
 msgstr "[stopped] 数据命令已取消 - 可能存在部分副本或快照更新; 重新运行前请检查文件夹。"
 
-#: ui/pages/data_page.py:1572
+#: ui/pages/data_page.py:1579
 msgid "Data command failed"
 msgstr "数据命令失败"
 
-#: ui/pages/data_page.py:1573
+#: ui/pages/data_page.py:1580
 msgid ""
 "A data pipeline step reported an error. See Details for the full message."
 msgstr "数据流水线步骤报告了错误。完整消息请参见详细信息。"
 
-#: ui/pages/data_page.py:1608
+#: ui/pages/data_page.py:1615
 msgid "[dedup] No loadable snapshot found for duplicate resolver."
 msgstr "[dedup] 未找到可供重复项解析器加载的快照。"
 
-#: ui/pages/data_page.py:1611
+#: ui/pages/data_page.py:1618
 msgid "[dedup] No potential duplicates were recorded in the snapshot."
 msgstr "[dedup] 快照中未记录潜在重复项。"
 
-#: ui/pages/data_page.py:1616
+#: ui/pages/data_page.py:1623
 msgid "Duplicates found"
 msgstr "发现重复项"
 
-#: ui/pages/data_page.py:1617
+#: ui/pages/data_page.py:1624
 msgid "Open duplicate resolver window now?"
 msgstr "现在打开重复项解析窗口?"
 
-#: ui/pages/data_page.py:1625
+#: ui/pages/data_page.py:1632
 msgid "Invalid raw data directory"
 msgstr "原始数据目录无效"
 
-#: ui/pages/data_page.py:1626
+#: ui/pages/data_page.py:1633
 msgid ""
 "Raw data directory does not exist:\n"
 "{path}"
@@ -3353,11 +3357,11 @@ msgstr ""
 "原始数据目录不存在:\n"
 "{path}"
 
-#: ui/pages/data_page.py:1637
+#: ui/pages/data_page.py:1644
 msgid "No snapshot"
 msgstr "无快照"
 
-#: ui/pages/data_page.py:1639
+#: ui/pages/data_page.py:1646
 msgid ""
 "No loadable unified snapshot was found under:\n"
 "{path}\n"
@@ -3369,11 +3373,11 @@ msgstr ""
 "\n"
 "应为 snapshot_<run_id>.json (将运行 ID 留空以使用按名称排序尝试的最新文件)。"
 
-#: ui/pages/data_page.py:1648
+#: ui/pages/data_page.py:1655
 msgid "Nothing to review"
 msgstr "无可审查的内容"
 
-#: ui/pages/data_page.py:1650
+#: ui/pages/data_page.py:1657
 msgid ""
 "A snapshot loaded, but it does not list any cross-class duplicate groups for"
 " the resolver. Run Deduplicate with list-only if you have not yet, or pick "
@@ -3387,7 +3391,7 @@ msgstr "从文件推断"
 #: ui/pages/evaluate_page.py:92 ui/pages/evaluate_page.py:165
 #: ui/pages/export_page.py:57 ui/pages/export_page.py:61
 #: ui/pages/export_page.py:113 ui/pages/export_page.py:114
-#: ui/pages/train_page.py:86 ui/pages/train_page.py:267
+#: ui/pages/train_page.py:87 ui/pages/train_page.py:302
 msgid "Auto"
 msgstr "自动"
 
@@ -3400,7 +3404,8 @@ msgid "Eval data dir (ImageFolder)"
 msgstr "评估数据目录 (ImageFolder)"
 
 #: ui/pages/evaluate_page.py:108 ui/pages/evaluate_page.py:154
-#: ui/pages/train_page.py:102 ui/pages/train_page.py:224
+#: ui/pages/pipeline_config_page.py:475 ui/pages/train_page.py:103
+#: ui/pages/train_page.py:250
 msgid "Label mode"
 msgstr "标签模式"
 
@@ -3409,21 +3414,23 @@ msgid "Model checkpoint"
 msgstr "模型检查点"
 
 #: ui/pages/evaluate_page.py:110 ui/pages/evaluate_page.py:156
-#: ui/pages/train_page.py:101 ui/pages/train_page.py:223
+#: ui/pages/train_page.py:102 ui/pages/train_page.py:249
 msgid "Framework"
 msgstr "框架"
 
 #: ui/pages/evaluate_page.py:114 ui/pages/evaluate_page.py:160
-#: ui/pages/train_page.py:106 ui/pages/train_page.py:228
+#: ui/pages/pipeline_config_page.py:571 ui/pages/train_page.py:107
+#: ui/pages/train_page.py:254
 msgid "Batch size"
 msgstr "批大小"
 
 #: ui/pages/evaluate_page.py:115 ui/pages/evaluate_page.py:161
-#: ui/pages/pipeline_config_page.py:208 ui/pages/pipeline_config_page.py:458
+#: ui/pages/pipeline_config_page.py:222 ui/pages/pipeline_config_page.py:513
 msgid "DataLoader workers"
 msgstr "DataLoader 工作进程"
 
 #: ui/pages/evaluate_page.py:116 ui/pages/evaluate_page.py:162
+#: ui/pages/pipeline_config_page.py:580
 msgid "Device"
 msgstr "设备"
 
@@ -3449,7 +3456,7 @@ msgstr "指标"
 msgid "Misclassified"
 msgstr "误分类"
 
-#: ui/pages/evaluate_page.py:171
+#: ui/pages/evaluate_page.py:171 ui/pages/text_page.py:194
 msgid "Compare"
 msgstr "比较"
 
@@ -3482,6 +3489,8 @@ msgid "Max disagreement rows (0 = no cap)"
 msgstr "不一致的最大行数 (0 = 无上限)"
 
 #: ui/pages/evaluate_page.py:184 ui/pages/evaluate_page.py:476
+#: ui/pages/text_page.py:124 ui/pages/text_page.py:197
+#: ui/pages/text_page.py:375
 msgid "Output TSV"
 msgstr "输出 TSV"
 
@@ -3536,6 +3545,7 @@ msgid ""
 msgstr "比较使用与上方相同的评估目录、图像大小、批大小、工作进程和设备。模型 A 使用共享架构; 若检查点 B 不同, 请设置架构 B。"
 
 #: ui/pages/evaluate_page.py:604 ui/pages/evaluate_page.py:632
+#: ui/pages/text_page.py:192
 msgid "Evaluate"
 msgstr "评估"
 
@@ -3620,6 +3630,7 @@ msgid "The evaluation task reported an error."
 msgstr "评估任务报告了一个错误。"
 
 #: ui/pages/export_page.py:70 ui/pages/export_page.py:107
+#: ui/pages/pipeline_config_page.py:560
 msgid "Dataset directory"
 msgstr "数据集目录"
 
@@ -3784,8 +3795,8 @@ msgstr ""
 msgid "Inspect model metadata and dataset structure/statistics."
 msgstr "检查模型元数据以及数据集的结构与统计信息。"
 
-#: ui/pages/info_page.py:54 ui/pages/pipeline_config_page.py:164
-#: ui/pages/pipeline_config_page.py:169
+#: ui/pages/info_page.py:54 ui/pages/pipeline_config_page.py:190
+#: ui/pages/pipeline_config_page.py:196
 msgid "Model"
 msgstr "模型"
 
@@ -3797,8 +3808,9 @@ msgstr "数据集"
 msgid "Model path"
 msgstr "模型路径"
 
-#: ui/pages/info_page.py:57 ui/pages/info_page.py:120
-#: ui/pages/train_page.py:104 ui/pages/train_page.py:226
+#: ui/pages/info_page.py:57 ui/pages/info_page.py:120 ui/pages/text_page.py:89
+#: ui/pages/text_page.py:195 ui/pages/train_page.py:105
+#: ui/pages/train_page.py:252
 msgid "Data dir"
 msgstr "数据目录"
 
@@ -3830,15 +3842,15 @@ msgstr "请提供模型路径。"
 msgid "Invalid path"
 msgstr "无效路径"
 
-#: ui/pages/info_page.py:197
+#: ui/pages/info_page.py:197 ui/pages/text_page.py:319
 msgid "Missing directory"
 msgstr "缺少目录"
 
-#: ui/pages/pipeline_config_page.py:155 ui/pages/pipeline_config_page.py:701
-#: ui/pages/pipeline_config_page.py:704 ui/pages/pipeline_config_page.py:710
-#: ui/pages/pipeline_config_page.py:722 ui/pages/pipeline_config_page.py:744
-#: ui/pages/pipeline_config_page.py:759 ui/pages/pipeline_config_page.py:780
-#: ui/pages/pipeline_config_page.py:789
+#: ui/pages/pipeline_config_page.py:180 ui/pages/pipeline_config_page.py:980
+#: ui/pages/pipeline_config_page.py:983 ui/pages/pipeline_config_page.py:989
+#: ui/pages/pipeline_config_page.py:1002 ui/pages/pipeline_config_page.py:1024
+#: ui/pages/pipeline_config_page.py:1044 ui/pages/pipeline_config_page.py:1065
+#: ui/pages/pipeline_config_page.py:1074
 msgid "Pipeline"
 msgstr "管道"
 
@@ -3854,172 +3866,172 @@ msgstr ""
 "<code>paths</code>)。保存会写入当前流水线文件; 若仅加载了随付默认值, 则写入应用数据中 "
 "<code>pipeline.yaml</code>(<code>application.yaml</code> 旁边)。"
 
-#: ui/pages/pipeline_config_page.py:165 ui/pages/pipeline_config_page.py:170
+#: ui/pages/pipeline_config_page.py:191 ui/pages/pipeline_config_page.py:197
 msgid "Data"
 msgstr "数据"
 
-#: ui/pages/pipeline_config_page.py:166 ui/pages/pipeline_config_page.py:172
-#: ui/pages/train_page.py:705
+#: ui/pages/pipeline_config_page.py:192 ui/pages/pipeline_config_page.py:199
+#: ui/pages/train_page.py:806
 msgid "Training"
 msgstr "训练"
 
-#: ui/pages/pipeline_config_page.py:167 ui/pages/pipeline_config_page.py:173
+#: ui/pages/pipeline_config_page.py:193 ui/pages/pipeline_config_page.py:200
 msgid "Paths"
 msgstr "路径"
 
-#: ui/pages/pipeline_config_page.py:168
+#: ui/pages/pipeline_config_page.py:195
 msgid "Advanced (YAML)"
 msgstr "高级 (YAML)"
 
-#: ui/pages/pipeline_config_page.py:171
+#: ui/pages/pipeline_config_page.py:198
 msgid "Gather defaults"
 msgstr "收集默认值"
 
-#: ui/pages/pipeline_config_page.py:176 ui/pages/pipeline_config_page.py:304
+#: ui/pages/pipeline_config_page.py:203 ui/pages/pipeline_config_page.py:335
 msgid "Default model type"
 msgstr "默认模型类型"
 
-#: ui/pages/pipeline_config_page.py:176 ui/pages/pipeline_config_page.py:307
+#: ui/pages/pipeline_config_page.py:203 ui/pages/pipeline_config_page.py:338
 msgid "Default framework"
 msgstr "默认框架"
 
-#: ui/pages/pipeline_config_page.py:176 ui/pages/pipeline_config_page.py:310
+#: ui/pages/pipeline_config_page.py:203 ui/pages/pipeline_config_page.py:341
 msgid "Default architecture"
 msgstr "默认架构"
 
-#: ui/pages/pipeline_config_page.py:181 ui/pages/pipeline_config_page.py:327
+#: ui/pages/pipeline_config_page.py:463
 msgid "Raw data directory"
 msgstr "原始数据目录"
 
-#: ui/pages/pipeline_config_page.py:182 ui/pages/pipeline_config_page.py:333
+#: ui/pages/pipeline_config_page.py:464
 msgid "Dataset output directory"
 msgstr "数据集输出目录"
 
-#: ui/pages/pipeline_config_page.py:183 ui/pages/pipeline_config_page.py:339
+#: ui/pages/pipeline_config_page.py:465
 msgid "Test images per class"
 msgstr "每个类别的测试图像"
 
-#: ui/pages/pipeline_config_page.py:184 ui/pages/pipeline_config_page.py:360
+#: ui/pages/pipeline_config_page.py:469
 msgid "Image size (pixels)"
 msgstr "图像大小 (像素)"
 
-#: ui/pages/pipeline_config_page.py:185 ui/pages/pipeline_config_page.py:366
+#: ui/pages/pipeline_config_page.py:470
 msgid "Training batch size"
 msgstr "训练批大小"
 
-#: ui/pages/pipeline_config_page.py:186 ui/pages/pipeline_config_page.py:370
+#: ui/pages/pipeline_config_page.py:471
 msgid "Image file extensions (one per line)"
 msgstr "图像文件扩展名（每行一个）"
 
-#: ui/pages/pipeline_config_page.py:187 ui/pages/pipeline_config_page.py:374
+#: ui/pages/pipeline_config_page.py:472
 msgid "Video file extensions (one per line)"
 msgstr "视频文件扩展名（每行一个）"
 
-#: ui/pages/pipeline_config_page.py:188 ui/pages/pipeline_config_page.py:379
+#: ui/pages/pipeline_config_page.py:473
 msgid "Class folder names (empty = auto-discover)"
 msgstr "类别文件夹名称（空 = 自动发现）"
 
-#: ui/pages/pipeline_config_page.py:189 ui/pages/pipeline_config_page.py:383
+#: ui/pages/pipeline_config_page.py:474
 msgid "Class qualifying subfolder"
 msgstr "类别限定子文件夹"
 
-#: ui/pages/pipeline_config_page.py:195 ui/pages/pipeline_config_page.py:395
+#: ui/pages/pipeline_config_page.py:209 ui/pages/pipeline_config_page.py:431
 msgid "Default gather target count"
 msgstr "默认收集目标数量"
 
-#: ui/pages/pipeline_config_page.py:196 ui/pages/pipeline_config_page.py:402
+#: ui/pages/pipeline_config_page.py:210 ui/pages/pipeline_config_page.py:438
 msgid "Gather target subfolder"
 msgstr "收集目标子文件夹"
 
-#: ui/pages/pipeline_config_page.py:197 ui/pages/pipeline_config_page.py:413
+#: ui/pages/pipeline_config_page.py:211 ui/pages/pipeline_config_page.py:449
 msgid "Rejected subfolder"
 msgstr "拒绝项子文件夹"
 
-#: ui/pages/pipeline_config_page.py:203 ui/pages/pipeline_config_page.py:434
-#: ui/pages/train_page.py:145 ui/pages/train_page.py:245
+#: ui/pages/pipeline_config_page.py:217 ui/pages/pipeline_config_page.py:489
+#: ui/pages/train_page.py:146 ui/pages/train_page.py:271
 msgid "Frozen epochs"
 msgstr "冻结轮次"
 
-#: ui/pages/pipeline_config_page.py:204 ui/pages/pipeline_config_page.py:438
-#: ui/pages/train_page.py:146 ui/pages/train_page.py:246
+#: ui/pages/pipeline_config_page.py:218 ui/pages/pipeline_config_page.py:493
+#: ui/pages/train_page.py:147 ui/pages/train_page.py:272
 msgid "Unfrozen epochs"
 msgstr "解冻轮次"
 
-#: ui/pages/pipeline_config_page.py:205 ui/pages/pipeline_config_page.py:444
+#: ui/pages/pipeline_config_page.py:219 ui/pages/pipeline_config_page.py:499
 msgid "Frozen learning rate"
 msgstr "冻结学习率"
 
-#: ui/pages/pipeline_config_page.py:206 ui/pages/pipeline_config_page.py:449
+#: ui/pages/pipeline_config_page.py:220 ui/pages/pipeline_config_page.py:504
 msgid "Unfrozen LR (max)"
 msgstr "解冻学习率（最大）"
 
-#: ui/pages/pipeline_config_page.py:207 ui/pages/pipeline_config_page.py:454
+#: ui/pages/pipeline_config_page.py:221 ui/pages/pipeline_config_page.py:509
 msgid "Unfrozen LR (min)"
 msgstr "解冻学习率（最小）"
 
-#: ui/pages/pipeline_config_page.py:209 ui/pages/pipeline_config_page.py:463
+#: ui/pages/pipeline_config_page.py:223 ui/pages/pipeline_config_page.py:518
 msgid "Class weighting"
 msgstr "类别加权"
 
-#: ui/pages/pipeline_config_page.py:210 ui/pages/pipeline_config_page.py:468
+#: ui/pages/pipeline_config_page.py:224 ui/pages/pipeline_config_page.py:523
 msgid "Max class weight"
 msgstr "最大类别权重"
 
-#: ui/pages/pipeline_config_page.py:216 ui/pages/pipeline_config_page.py:488
+#: ui/pages/pipeline_config_page.py:230 ui/pages/pipeline_config_page.py:543
 msgid "Models directory"
 msgstr "模型目录"
 
-#: ui/pages/pipeline_config_page.py:216 ui/pages/pipeline_config_page.py:494
+#: ui/pages/pipeline_config_page.py:230 ui/pages/pipeline_config_page.py:549
 msgid "Logs directory"
 msgstr "日志目录"
 
-#: ui/pages/pipeline_config_page.py:216
+#: ui/pages/pipeline_config_page.py:230
 msgid "Timing data directory"
 msgstr "计时数据目录"
 
-#: ui/pages/pipeline_config_page.py:220
+#: ui/pages/pipeline_config_page.py:251
 msgid ""
 "Full pipeline document. Click “Apply YAML” to parse and refresh the tabs, or"
 " edit the tabs and Save — the Advanced view updates on reload."
 msgstr "完整流水线文档。单击 \"应用 YAML\" 以解析并刷新选项卡，或编辑选项卡后保存 - 重新加载时高级视图会更新。"
 
-#: ui/pages/pipeline_config_page.py:225
+#: ui/pages/pipeline_config_page.py:256
 msgid "Apply YAML"
 msgstr "应用 YAML"
 
-#: ui/pages/pipeline_config_page.py:227
+#: ui/pages/pipeline_config_page.py:258
 msgid "Reset to shipped defaults…"
 msgstr "重置为随附的默认值…"
 
-#: ui/pages/pipeline_config_page.py:229
+#: ui/pages/pipeline_config_page.py:260
 msgid ""
 "Replace your user pipeline.yaml (app data) with the package "
 "default_pipeline.yaml."
 msgstr "将您的用户 pipeline.yaml（应用数据）替换为软件包自带的 default_pipeline.yaml。"
 
-#: ui/pages/pipeline_config_page.py:231
+#: ui/pages/pipeline_config_page.py:262
 msgid "Save training checkpoints"
 msgstr "保存训练检查点"
 
-#: ui/pages/pipeline_config_page.py:247
+#: ui/pages/pipeline_config_page.py:278
 msgid "Task type selected when you start a new model project."
 msgstr "开始新建模型项目时所选的任务类型。"
 
-#: ui/pages/pipeline_config_page.py:252
+#: ui/pages/pipeline_config_page.py:283
 msgid "Deep learning framework for new runs (e.g. pytorch)."
 msgstr "用于新运行的深度学习框架（例如 pytorch）。"
 
-#: ui/pages/pipeline_config_page.py:257
+#: ui/pages/pipeline_config_page.py:288
 msgid "Default backbone architecture name for new training runs."
 msgstr "新训练运行的默认骨干架构名称。"
 
-#: ui/pages/pipeline_config_page.py:263
+#: ui/pages/pipeline_config_page.py:294
 msgid ""
 "Root folder for raw images: one subfolder per class after gather/convert. "
 "Relative paths are resolved from the app working directory or project root."
 msgstr "原始图像的根文件夹：收集和转换之后每个类别一个子文件夹。相对路径从应用的工作目录或项目根目录解析。"
 
-#: ui/pages/pipeline_config_page.py:271
+#: ui/pages/pipeline_config_page.py:302
 msgid ""
 "Output of create-dataset: this folder holds train/ and test/ used for "
 "training and snapshots. Keep it on a fast internal disk when raw data lives "
@@ -4028,72 +4040,72 @@ msgstr ""
 "create-dataset 的输出：此文件夹包含用于训练和快照的 train/ 与 "
 "test/。若原始数据在外部存储上，请将此文件夹放在较快的内置磁盘上。"
 
-#: ui/pages/pipeline_config_page.py:279
+#: ui/pages/pipeline_config_page.py:310
 msgid ""
 "Subfolder under raw data for accepted gather output (e.g. coherent). "
 "Relative to Raw data directory unless you enter an absolute path."
 msgstr "原始数据下用于存放已接受的收集输出的子文件夹（例如 coherent）。除非输入绝对路径，否则相对于原始数据目录。"
 
-#: ui/pages/pipeline_config_page.py:287
+#: ui/pages/pipeline_config_page.py:318
 msgid ""
 "Subfolder under raw data for files rejected during gather (e.g. rejected). "
 "Relative to Raw data directory unless you enter an absolute path."
 msgstr "原始数据下用于存放收集过程中被拒绝文件的子文件夹（例如 rejected）。除非输入绝对路径，否则相对于原始数据目录。"
 
-#: ui/pages/pipeline_config_page.py:328
+#: ui/pages/pipeline_config_page.py:402
 msgid "Select raw data directory"
 msgstr "选择原始数据目录"
 
-#: ui/pages/pipeline_config_page.py:334
+#: ui/pages/pipeline_config_page.py:403
 msgid "Select dataset directory"
 msgstr "选择数据集目录"
 
-#: ui/pages/pipeline_config_page.py:348
+#: ui/pages/pipeline_config_page.py:368
 msgid "Same as test anchor"
 msgstr "与测试基准相同"
 
-#: ui/pages/pipeline_config_page.py:356
+#: ui/pages/pipeline_config_page.py:468
 msgid "Default create-dataset seed"
 msgstr "create-dataset 的默认随机种子"
 
-#: ui/pages/pipeline_config_page.py:364
+#: ui/pages/pipeline_config_page.py:381
 msgid ""
 "Leave empty for the model-type default batch size (omitted from saved YAML)."
 msgstr "留空则使用该模型类型的默认批大小（保存的 YAML 中省略）。"
 
-#: ui/pages/pipeline_config_page.py:378
+#: ui/pages/pipeline_config_page.py:392
 msgid "One class folder name per line; empty = discover"
 msgstr "每行一个类别文件夹名；空 = 发现"
 
-#: ui/pages/pipeline_config_page.py:382
+#: ui/pages/pipeline_config_page.py:395
 msgid "empty = any"
 msgstr "空 = 任意"
 
-#: ui/pages/pipeline_config_page.py:399
+#: ui/pages/pipeline_config_page.py:435
 msgid "Relative to raw data directory (e.g. coherent); absolute path optional"
 msgstr "相对于原始数据目录（例如 coherent）；绝对路径可选"
 
-#: ui/pages/pipeline_config_page.py:404
+#: ui/pages/pipeline_config_page.py:440
 msgid "Select default gather target directory"
 msgstr "选择默认收集目标目录"
 
-#: ui/pages/pipeline_config_page.py:410
+#: ui/pages/pipeline_config_page.py:446
 msgid "Relative to raw data directory (e.g. rejected); absolute path optional"
 msgstr "相对于原始数据目录（例如 rejected）；绝对路径可选"
 
-#: ui/pages/pipeline_config_page.py:415
+#: ui/pages/pipeline_config_page.py:451
 msgid "Select default rejected directory"
 msgstr "选择默认拒绝目录"
 
-#: ui/pages/pipeline_config_page.py:489
+#: ui/pages/pipeline_config_page.py:544
 msgid "Select models directory"
 msgstr "选择模型目录"
 
-#: ui/pages/pipeline_config_page.py:495
+#: ui/pages/pipeline_config_page.py:550
 msgid "Select logs directory"
 msgstr "选择日志目录"
 
-#: ui/pages/pipeline_config_page.py:682
+#: ui/pages/pipeline_config_page.py:961
 msgid ""
 "Loaded: {path}\n"
 "Save will write to: {save}"
@@ -4101,7 +4113,7 @@ msgstr ""
 "已加载: {path}\n"
 "保存将写入: {save}"
 
-#: ui/pages/pipeline_config_page.py:688
+#: ui/pages/pipeline_config_page.py:967
 msgid ""
 "Loaded: packaged defaults\n"
 "Save will write to: {path}"
@@ -4109,7 +4121,7 @@ msgstr ""
 "已加载: 软件包默认值\n"
 "保存将写入: {path}"
 
-#: ui/pages/pipeline_config_page.py:701
+#: ui/pages/pipeline_config_page.py:980
 msgid ""
 "Invalid YAML:\n"
 "{err}"
@@ -4117,7 +4129,7 @@ msgstr ""
 "YAML 无效:\n"
 "{err}"
 
-#: ui/pages/pipeline_config_page.py:704
+#: ui/pages/pipeline_config_page.py:983
 msgid "Root value must be a mapping."
 msgstr "根值必须是映射。"
 
@@ -4133,7 +4145,7 @@ msgstr ""
 msgid "No model/data/training/paths keys found."
 msgstr "未找到 model/data/training/paths 键。"
 
-#: ui/pages/pipeline_config_page.py:789
+#: ui/pages/pipeline_config_page.py:1074
 msgid ""
 "Reset user pipeline to shipped defaults:\n"
 "{path}"
@@ -4141,161 +4153,168 @@ msgstr ""
 "将用户流水线重置为随附的默认值:\n"
 "{path}"
 
-#: ui/pages/train_page.py:92 ui/pages/train_page.py:268
+#: ui/pages/train_page.py:93 ui/pages/train_page.py:190
+#: ui/pages/train_page.py:195 ui/pages/train_page.py:197
+#: ui/pages/train_page.py:295 ui/pages/train_page.py:296
+#: ui/pages/train_page.py:297 ui/pages/train_page.py:303
 msgid "Config default"
 msgstr "配置默认值"
 
-#: ui/pages/train_page.py:98 ui/pages/train_page.py:237
+#: ui/pages/train_page.py:99 ui/pages/train_page.py:263
 msgid "Skip unified snapshot update"
 msgstr "跳过统一快照更新"
 
-#: ui/pages/train_page.py:105 ui/pages/train_page.py:227
+#: ui/pages/train_page.py:106 ui/pages/train_page.py:253
 msgid "Output dir"
 msgstr "输出目录"
 
-#: ui/pages/train_page.py:108 ui/pages/train_page.py:230
+#: ui/pages/train_page.py:109 ui/pages/train_page.py:256
 msgid "Num workers"
 msgstr "进程数"
 
-#: ui/pages/train_page.py:110 ui/pages/train_page.py:231
+#: ui/pages/train_page.py:111 ui/pages/train_page.py:257
 msgid "Resume checkpoint"
 msgstr "恢复检查点"
 
-#: ui/pages/train_page.py:114 ui/pages/train_page.py:239
+#: ui/pages/train_page.py:115 ui/pages/train_page.py:265
 msgid ""
 "Run training in a separate process (survives closing this app; see log file)"
 msgstr "在独立进程中运行训练（关闭本应用后仍继续；参见日志文件）"
 
-#: ui/pages/train_page.py:147 ui/pages/train_page.py:247
+#: ui/pages/train_page.py:148 ui/pages/train_page.py:273
 msgid "Frozen LR"
 msgstr "冻结学习率"
 
-#: ui/pages/train_page.py:148 ui/pages/train_page.py:248
+#: ui/pages/train_page.py:149 ui/pages/train_page.py:274
 msgid "Unfrozen LR max"
 msgstr "解冻学习率最大"
 
-#: ui/pages/train_page.py:149 ui/pages/train_page.py:249
+#: ui/pages/train_page.py:150 ui/pages/train_page.py:275
 msgid "Unfrozen LR min"
 msgstr "解冻学习率最小"
 
-#: ui/pages/train_page.py:157 ui/pages/train_page.py:264
+#: ui/pages/train_page.py:158 ui/pages/train_page.py:299
 msgid "Auto-detect"
 msgstr "自动检测"
 
-#: ui/pages/train_page.py:165 ui/pages/train_page.py:265
+#: ui/pages/train_page.py:166 ui/pages/train_page.py:300
 msgid "Same as rank"
 msgstr "与秩相同"
 
-#: ui/pages/train_page.py:171 ui/pages/train_page.py:266
+#: ui/pages/train_page.py:172 ui/pages/train_page.py:301
 msgid "optional, integer"
 msgstr "可选，整数"
 
-#: ui/pages/train_page.py:173 ui/pages/train_page.py:256
+#: ui/pages/train_page.py:174 ui/pages/train_page.py:282
 msgid "Base model architecture"
 msgstr "基础模型架构"
 
-#: ui/pages/train_page.py:174 ui/pages/train_page.py:257
+#: ui/pages/train_page.py:175 ui/pages/train_page.py:283
 msgid "LoRA rank"
 msgstr "LoRA 秩"
 
-#: ui/pages/train_page.py:175 ui/pages/train_page.py:258
+#: ui/pages/train_page.py:176 ui/pages/train_page.py:284
 msgid "LoRA alpha"
 msgstr "LoRA alpha"
 
-#: ui/pages/train_page.py:176 ui/pages/train_page.py:259
+#: ui/pages/pipeline_config_page.py:569 ui/pages/train_page.py:177
+#: ui/pages/train_page.py:202 ui/pages/train_page.py:285
+#: ui/pages/train_page.py:293
 msgid "Learning rate"
 msgstr "学习率"
 
-#: ui/pages/train_page.py:177 ui/pages/train_page.py:260
+#: ui/pages/train_page.py:178 ui/pages/train_page.py:286
 msgid "Max train steps"
 msgstr "最大训练步数"
 
-#: ui/pages/train_page.py:178 ui/pages/train_page.py:261
+#: ui/pages/pipeline_config_page.py:564 ui/pages/train_page.py:179
+#: ui/pages/train_page.py:203 ui/pages/train_page.py:287
+#: ui/pages/train_page.py:293
 msgid "Seed"
 msgstr "种子"
 
-#: ui/pages/train_page.py:182 ui/pages/train_page.py:269
+#: ui/pages/train_page.py:207 ui/pages/train_page.py:304
 msgid "Validate Training Config"
 msgstr "验证训练配置"
 
-#: ui/pages/train_page.py:184 ui/pages/train_page.py:270
+#: ui/pages/train_page.py:209 ui/pages/train_page.py:305
 msgid "Start Training"
 msgstr "开始训练"
 
-#: ui/pages/train_page.py:195 ui/pages/train_page.py:272
+#: ui/pages/train_page.py:220 ui/pages/train_page.py:307
 msgid "Training validation and execution messages will appear here."
 msgstr "训练验证和执行消息将显示在这里。"
 
-#: ui/pages/train_page.py:214
+#: ui/pages/train_page.py:240
 msgid ""
 "Configure framework, architecture, paths, and hyperparameters (training CLI:"
 " {cmd})."
 msgstr "配置框架、架构、路径和超参数（训练 CLI: {cmd}）。"
 
-#: ui/pages/train_page.py:218
+#: ui/pages/train_page.py:244
 msgid "Core configuration"
 msgstr "核心配置"
 
-#: ui/pages/train_page.py:241
+#: ui/pages/train_page.py:267
 msgid "Hyperparameters (image classification)"
 msgstr "超参数（图像分类）"
 
-#: ui/pages/train_page.py:252
+#: ui/pages/train_page.py:278
 msgid "Hyperparameters (image generation LoRA)"
 msgstr "超参数（图像生成 LoRA）"
 
-#: ui/pages/train_page.py:277
+#: ui/pages/train_page.py:312
 msgid ""
 "Set Run ID from the newest snapshot_*.json under the data directory (by file"
 " modification time)."
 msgstr "根据数据目录中最新的 snapshot_*.json（按文件修改时间）设置运行 ID。"
 
-#: ui/pages/train_page.py:479
+#: ui/pages/train_page.py:530
 msgid "Select checkpoint file"
 msgstr "选择检查点文件"
 
-#: ui/pages/train_page.py:481
+#: ui/pages/train_page.py:532
 msgid ""
 "Model/checkpoint files (*.pth *.pt *.h5 *.keras *.ckpt);;All files (*.*)"
 msgstr "模型/检查点文件 (*.pth *.pt *.h5 *.keras *.ckpt);;所有文件 (*.*)"
 
-#: ui/pages/train_page.py:538
+#: ui/pages/train_page.py:605
 msgid "local checkpoint path or hub id, e.g. black-forest-labs/FLUX.1-dev"
 msgstr "本地检查点路径或模型库 ID，例如 black-forest-labs/FLUX.1-dev"
 
-#: ui/pages/train_page.py:544 ui/pages/train_page.py:566
+#: ui/pages/train_page.py:614 ui/pages/train_page.py:636
 msgid "Enter architecture manually"
 msgstr "手动输入架构"
 
-#: ui/pages/train_page.py:546
+#: ui/pages/train_page.py:616
 msgid "[warn] Unsupported framework for architecture list: {fw}"
 msgstr "[警告] 架构列表不支持该框架: {fw}"
 
-#: ui/pages/train_page.py:561
+#: ui/pages/train_page.py:631
 msgid "[info] {fw} architectures: {names}"
 msgstr "[信息] {fw} 架构: {names}"
 
-#: ui/pages/train_page.py:568
+#: ui/pages/train_page.py:638
 msgid "[warn] Could not load architecture list for {fw}: {err}"
 msgstr "[警告] 无法加载 {fw} 的架构列表: {err}"
 
-#: ui/pages/train_page.py:614
+#: ui/pages/train_page.py:708
 msgid "[ok] training inputs look valid"
 msgstr "[正常] 训练输入看起来有效"
 
-#: ui/pages/train_page.py:629
+#: ui/pages/train_page.py:723
 msgid "[error] Could not auto-save pipeline config; training cancelled."
 msgstr "[错误] 无法自动保存流水线配置；训练已取消。"
 
-#: ui/pages/train_page.py:652
+#: ui/pages/train_page.py:748
 msgid "[detached] PID {pid} — log: {log} — args JSON: {args}"
 msgstr "[分离] PID {pid} - 日志: {log} - 参数 JSON: {args}"
 
-#: ui/pages/train_page.py:664
+#: ui/pages/train_page.py:760
 msgid "Training started (separate process)"
 msgstr "训练已开始（独立进程）"
 
-#: ui/pages/train_page.py:666
+#: ui/pages/train_page.py:762
 msgid ""
 "Training is running outside this window. Closing the app does not stop it.\n"
 "\n"
@@ -4319,37 +4338,37 @@ msgstr ""
 "\n"
 "如需中止，请通过任务管理器或操作系统停止该进程。"
 
-#: ui/pages/train_page.py:683
+#: ui/pages/train_page.py:779
 msgid "Could not start detached training"
 msgstr "无法启动分离的训练"
 
-#: ui/pages/train_page.py:684
+#: ui/pages/train_page.py:780
 msgid "Failed to launch the training subprocess. See Details for the error."
 msgstr "未能启动训练子进程。请查看详细信息中的错误。"
 
-#: ui/pages/train_page.py:712
+#: ui/pages/train_page.py:813
 msgid "Training LoRA adapter…"
 msgstr "正在训练 LoRA 适配器…"
 
-#: ui/pages/train_page.py:731
+#: ui/pages/train_page.py:843
 msgid "Architecture '{arch}' not supported for {fw}. Supported: {sup}"
 msgstr "架构 '{arch}' 不适用于 {fw}。支持: {sup}"
 
-#: ui/pages/train_page.py:746
+#: ui/pages/train_page.py:858
 msgid "[done] Training complete. Model saved: {path}"
 msgstr "[完成] 训练完成。模型已保存: {path}"
 
-#: ui/pages/train_page.py:765
+#: ui/pages/train_page.py:877
 msgid ""
 "[stopped] Training cancelled — partial checkpoints may exist; check the "
 "output folder before re-running."
 msgstr "[已停止] 训练已取消 - 可能存在部分检查点；重新运行前请检查输出文件夹。"
 
-#: ui/pages/train_page.py:785
+#: ui/pages/train_page.py:897
 msgid "Training failed"
 msgstr "训练失败"
 
-#: ui/pages/train_page.py:786
+#: ui/pages/train_page.py:898
 msgid ""
 "Training stopped with an error. See Details for the message from the "
 "trainer."
@@ -4358,3 +4377,1007 @@ msgstr "训练因错误而停止。请查看详细信息中训练程序的消息
 #: utils/notification_manager.py:22
 msgid " etc."
 msgstr " 等等"
+
+#: mb/cli/__init__.py:226
+msgid ""
+"Text classification datasets are prepared outside mb as a dataset.tsv with a"
+" fixed split column; check one with `mb text verify`."
+msgstr ""
+"文本分类数据集在 mb 之外以 dataset.tsv 形式准备，包含固定的 split 列；可使用 `mb text verify` 检查。"
+
+#: mb/cli/__init__.py:741 ui/pages/text_page.py:361
+msgid "Test gold AP: {g} — full AP: {f} — decision threshold: {t:.4f}"
+msgstr "测试金AP: {g} — 完整AP: {f} — 决策阈值: {t:.4f}"
+
+#: mb/cli/__init__.py:747 ui/pages/text_page.py:364
+msgid "Wrote {path}"
+msgstr "已写入 {path}"
+
+#: mb/cli/__init__.py:756
+msgid "Input file not found: {path}"
+msgstr "未找到输入文件：{path}"
+
+#: mb/cli/__init__.py:764 ui/pages/text_page.py:383
+msgid "Scored {n} lines -> {path}"
+msgstr "已得 {n} 行 -> {path}"
+
+#: mb/cli/__init__.py:781
+msgid "Skipped (no metrics.json): {path}"
+msgstr "已跳过（没有 metrics.json）：{path}"
+
+#: mb/cli/__init__.py:783 tests/ui/test_text_page.py:44
+#: ui/pages/text_page.py:422
+msgid "No run directories with metrics.json were found."
+msgstr "未找到包含 metrics.json 的运行目录。"
+
+#: mb/cli/__init__.py:826
+msgid "Config file not found: {path} (relative paths resolve from {cwd})"
+msgstr "未找到配置文件：{path}（相对路径以 {cwd} 为基准解析）"
+
+#: mb/cli/__init__.py:906
+msgid "No text subcommand specified"
+msgstr "未指定文本子命令"
+
+#: mb/cli/__init__.py:910
+msgid "Unknown text subcommand: {cmd}"
+msgstr "未知的文本子命令：{cmd}"
+
+#: mb/cli/parsing/text.py:15
+msgid "Text classification: verify data, evaluate, score, compare runs"
+msgstr "文本分类：验证数据、评估、打分、比较运行"
+
+#: mb/cli/parsing/text.py:17
+msgid ""
+"Operations on text-classification datasets and run directories. Train with "
+"`mb train --model-type text_classification`; defaults come from the "
+"pipeline's text_classification section."
+msgstr ""
+"对文本分类数据集和运行目录进行操作。使用 `mb train --model-type text_classification` 进行训练；默认值来自 "
+"pipeline 的 text_classification 部分。"
+
+#: mb/cli/parsing/text.py:22
+msgid "Text subcommands"
+msgstr "文本子命令"
+
+#: mb/cli/parsing/text.py:26
+msgid "Check a dataset directory's integrity"
+msgstr "检查数据集目录的完整性"
+
+#: mb/cli/parsing/text.py:28
+msgid ""
+"Compares file hashes and row/label/tier/split/group counts with "
+"manifest.json (when present), and checks that texts are unique and each "
+"group sits in one split. Exits non-zero on any failed check."
+msgstr ""
+"将文件哈希以及行/标签/层级/分割/组计数与 "
+"manifest.json（如存在）进行比较，并检查文本唯一且每个组仅位于一个分割中。若有任意检查失败，则以非零退出码退出。"
+
+#: mb/cli/parsing/text.py:37
+msgid "Dataset directory (default: text_classification.data_dir)"
+msgstr "数据集目录（默认：text_classification.data_dir）"
+
+#: mb/cli/parsing/text.py:42
+msgid "Re-run thresholds, metrics and reports for a run directory"
+msgstr "为运行目录重新运行阈值、指标和报告"
+
+#: mb/cli/parsing/text.py:44
+msgid ""
+"Reloads the run's model and calibrator, chooses thresholds on val gold, and "
+"rewrites metrics.json, thresholds.json, predictions, review queue, unlabeled"
+" scores, predict.py and the model card."
+msgstr ""
+"重新加载运行的模型和校准器，选择验证 gold 的阈值，并重写 "
+"metrics.json、thresholds.json、predictions、审查队列、未标记分数、predict.py 和模型卡片。"
+
+#: mb/cli/parsing/text.py:49 mb/cli/parsing/text.py:65
+msgid "Run directory"
+msgstr "运行目录"
+
+#: mb/cli/parsing/text.py:54
+msgid "Dataset directory (default: the run's config.yaml)"
+msgstr "数据集目录（默认：运行的 config.yaml）"
+
+#: mb/cli/parsing/text.py:56 mb/cli/parsing/text.py:68
+msgid "Device override, e.g. cuda or cpu"
+msgstr "设备覆盖，例如 cuda 或 cpu"
+
+#: mb/cli/parsing/text.py:60
+msgid "Score one string per line with a run's calibrated model"
+msgstr "使用运行的校准模型，对每行的字符串进行评分"
+
+#: mb/cli/parsing/text.py:62
+msgid ""
+"Writes term<TAB>score with a header, one row per input line in input order."
+msgstr "写入 term<TAB>score，带标题，按输入顺序，每行对应一条输入。"
+
+#: mb/cli/parsing/text.py:66
+msgid "UTF-8 text file, one string per line"
+msgstr "UTF-8 文本文件，每行一个字符串"
+
+#: mb/cli/parsing/text.py:67
+msgid "Output TSV path"
+msgstr "TSV 输出路径"
+
+#: mb/cli/parsing/text.py:72
+msgid "Tabulate headline metrics across run directories"
+msgstr "对运行目录中的关键指标进行表格化"
+
+#: mb/cli/parsing/text.py:74
+msgid ""
+"One row per run: test gold AP, full AP, recall at precision 0.90, gold "
+"false-positive rate at the decision threshold and ECE. Wildcards are "
+"expanded (e.g. data/models/text_runs/*)."
+msgstr ""
+"每次运行一行：测试金标准AP、完整AP、精度 0.90 时的召回率、决策阈值下的金标准假阳性率和 ECE。通配符会被展开（例如 "
+"data/models/text_runs/*）。"
+
+#: mb/cli/parsing/text.py:79
+msgid "Run directories or wildcard patterns"
+msgstr "运行目录或通配符模式"
+
+#: mb/cli/parsing/train.py:27
+msgid ""
+"Model type (default: model.default_type from config, else "
+"image_classification)"
+msgstr "模型类型（默认：来自配置的 model.default_type，否则为 image_classification）"
+
+#: mb/cli/parsing/train.py:46
+msgid ""
+"Data directory (default: from config). For --model-type text_classification,"
+" the directory holding dataset.tsv (default: text_classification.data_dir)."
+msgstr ""
+"数据目录（默认：来自配置）。对于 --model-type text_classification，保存 dataset.tsv "
+"的目录（默认：text_classification.data_dir）。"
+
+#: mb/cli/parsing/train.py:54
+msgid ""
+"Output directory for models (default: from config). For --model-type "
+"text_classification, the parent of the run directory (default: "
+"text_classification.runs_dir)."
+msgstr ""
+"模型的输出目录（默认：来自配置）。对于 --model-type "
+"text_classification，运行目录的父目录（默认：text_classification.runs_dir）。"
+
+#: mb/cli/parsing/train.py:88
+msgid ""
+"Batch size (default: from config or auto-detect). For --model-type "
+"text_classification, overrides text_classification.optim.batch_size."
+msgstr ""
+"批大小（默认：从配置或自动检测）。对于 --model-type text_classification，覆盖 "
+"text_classification.optim.batch_size。"
+
+#: mb/cli/parsing/train.py:145
+msgid ""
+"Random seed. Consumed by --model-type image_generation_lora (reproducible "
+"LoRA weight init and noise sampling) and text_classification (overrides "
+"text_classification.seed)."
+msgstr ""
+"随机种子。由 --model-type image_generation_lora（可复现的 LoRA 权重初始化和噪声采样）和 "
+"text_classification（覆盖 text_classification.seed）使用。"
+
+#: mb/cli/parsing/train.py:167
+msgid ""
+"Learning rate for the LoRA adapter parameters (--model-type "
+"image_generation_lora; default: 1e-4), or text_classification.optim.lr "
+"(--model-type text_classification). Unrelated to --frozen-lr/--unfrozen-lr-*"
+" (image_classification only)."
+msgstr ""
+"LoRA适配器参数的学习率（--model-type image_generation_lora；默认：1e-4），或 "
+"text_classification.optim.lr（--model-type text_classification）。与 --frozen-"
+"lr/--unfrozen-lr-*（仅限 image_classification）无关。"
+
+#: mb/cli/parsing/train.py:200
+msgid ""
+"--model-type text_classification only: model family (default: "
+"text_classification.backend)"
+msgstr ""
+"--model-type text_classification 仅: 模型系列 (默认: text_classification.backend)"
+
+#: mb/cli/parsing/train.py:209
+msgid ""
+"--model-type text_classification only: Hugging Face id or local path of the "
+"model within the family (default: text_classification.model_id, else the "
+"backend's default)"
+msgstr ""
+"--model-type text_classification only: Hugging Face ID "
+"或模型在系列中的本地路径（默认：text_classification.model_id，否则使用后端默认）"
+
+#: mb/cli/parsing/train.py:219
+msgid ""
+"--model-type text_classification only: maximum training epochs (default: "
+"text_classification.optim.epochs, else the backend's default)"
+msgstr ""
+"--model-type text_classification only: 最大训练轮数（默认: "
+"text_classification.optim.epochs，若无则为后端默认）"
+
+#: mb/data/text_dataset.py:82 mb/data/text_dataset.py:91
+#: mb/data/text_dataset.py:220
+msgid "{path} is empty (expected a header row)"
+msgstr "{path} 为空（应为标题行）"
+
+#: mb/data/text_dataset.py:94
+msgid "{path} has no '{col}' column (header: {header})"
+msgstr "{path} 没有 '{col}' 列（标题: {header}）"
+
+#: mb/data/text_dataset.py:103 mb/data/text_dataset.py:256
+msgid "{path}:{line}: expected {n} fields, found {m}"
+msgstr "{path}:{line}: 期望 {n} 个字段，实际找到 {m} 个"
+
+#: mb/data/text_dataset.py:214
+msgid "Dataset file not found: {path}"
+msgstr "未找到数据集文件: {path}"
+
+#: mb/data/text_dataset.py:224
+msgid "{path} is missing required column(s): {cols}"
+msgstr "{path} 缺少必需的列: {cols}"
+
+#: mb/data/text_dataset.py:234
+msgid ""
+"{conflicts} exists but {path} has no '{col}' column to match it against"
+msgstr "{conflicts} 存在，但 {path} 没有 '{col}' 列可用于匹配"
+
+#: mb/data/text_dataset.py:267
+msgid "{path}:{line}: label must be 0 or 1 (got {v!r})"
+msgstr "{path}:{line}: label 必须为 0 或 1 (收到 {v!r})"
+
+#: mb/data/text_dataset.py:272
+msgid "{path}:{line}: split must be one of {choices} (got {v!r})"
+msgstr "{path}:{line}: split 必须是 {choices} 之一 (得到 {v!r})"
+
+#: mb/data/text_dataset.py:295
+msgid "{path}:{line}: {col} must be a number or empty (got {v!r})"
+msgstr "{path}:{line}: {col} 必须是数字或为空（得到 {v!r}）"
+
+#: mb/data/text_dataset.py:302
+msgid "{path} has no data rows"
+msgstr "{path} 没有数据行"
+
+#: mb/data/text_dataset.py:363
+msgid "Dataset: {path}"
+msgstr "数据集：{path}"
+
+#: mb/data/text_dataset.py:367
+msgid "Result: {r}"
+msgstr "结果: {r}"
+
+#: mb/data/text_dataset.py:367
+msgid "PASS"
+msgstr "通过"
+
+#: mb/data/text_dataset.py:367
+msgid "FAIL"
+msgstr "失败"
+
+#: mb/data/text_dataset.py:437
+msgid "not present; hash and count checks skipped"
+msgstr "不存在；哈希和计数检查已跳过"
+
+#: mb/data/text_dataset.py:444
+msgid "Hashing {name}…"
+msgstr "哈希中 {name}…"
+
+#: mb/data/text_dataset.py:447
+msgid "file missing"
+msgstr "文件缺失"
+
+#: mb/data/text_dataset.py:457
+msgid "size {a} != {b}"
+msgstr "大小 {a} != {b}"
+
+#: mb/data/text_dataset.py:466
+msgid "Reading {name}…"
+msgstr "读取 {name}…"
+
+#: mb/data/text_dataset.py:478
+msgid "Checking counts…"
+msgstr "正在检查计数…"
+
+#: mb/data/text_dataset.py:483
+msgid "row count"
+msgstr "行数"
+
+#: mb/data/text_dataset.py:489
+msgid "label counts"
+msgstr "标签计数"
+
+#: mb/data/text_dataset.py:491
+msgid "tier counts"
+msgstr "等级计数"
+
+#: mb/data/text_dataset.py:493
+msgid "source counts"
+msgstr "源计数"
+
+#: mb/data/text_dataset.py:497
+msgid "category hint counts"
+msgstr "分类提示计数"
+
+#: mb/data/text_dataset.py:511
+msgid "split counts"
+msgstr "拆分计数"
+
+#: mb/data/text_dataset.py:515
+msgid "group count"
+msgstr "组计数"
+
+#: mb/data/text_dataset.py:522
+msgid "conflict group count"
+msgstr "冲突组数量"
+
+#: mb/data/text_dataset.py:530
+msgid "unlabeled rows"
+msgstr "未标记的行"
+
+#: mb/data/text_dataset.py:536
+msgid "Checking uniqueness…"
+msgstr "正在检查唯一性…"
+
+#: mb/data/text_dataset.py:548 tests/unit/test_text_dataset.py:72
+msgid "text values unique"
+msgstr "唯一的文本值"
+
+#: mb/data/text_dataset.py:550
+msgid "duplicates include: {d}"
+msgstr "重复项包括: {d}"
+
+#: mb/data/text_dataset.py:565 mb/data/text_dataset.py:572
+#: tests/unit/test_text_dataset.py:72
+msgid "each group in one split"
+msgstr "每个组在一个拆分中"
+
+#: mb/data/text_dataset.py:567
+msgid "groups in several splits include: {g}"
+msgstr "多个拆分中包含的组：{g}"
+
+#: mb/data/text_dataset.py:572
+msgid "no '{col}' column; skipped"
+msgstr "不存在 '{col}' 列；已跳过"
+
+#: mb/data/text_dataset.py:606 mb/training/text_config.py:466
+msgid ""
+"subsample_unreviewed needs unreviewed_tier to name the tier to thin out"
+msgstr "subsample_unreviewed 需要 unreviewed_tier 来命名要精简的层级"
+
+#: mb/data/text_dataset.py:609
+msgid "subsample_unreviewed needs a '{col}' column in {file}"
+msgstr "subsample_unreviewed 需要在 {file} 中具有 '{col}' 列"
+
+#: mb/data/text_dataset.py:614
+msgid "subsample_unreviewed is set but no rows have tier '{tier}'"
+msgstr "subsample_unreviewed 已设置，但没有任何行的层级为 '{tier}'"
+
+#: mb/data/text_dataset.py:654
+msgid "The training rows contain only one label; cannot train."
+msgstr "训练行仅包含一个标签；无法训练。"
+
+#: mb/data/text_dataset.py:663
+msgid "tier_weight is set but {file} has no '{col}' column"
+msgstr "已设置 tier_weight，但 {file} 中没有 “{col}” 列"
+
+#: mb/data/text_dataset.py:668
+msgid "tier_weight names unknown tier(s): {bad} (known: {known})"
+msgstr "tier_weight 名称未知层级：{bad}（已知：{known}）"
+
+#: mb/data/text_dataset.py:690
+msgid "gold_tiers names unknown tier(s): {bad} (known: {known})"
+msgstr "gold_tiers 名称 未知等级：{bad}（已知：{known}）"
+
+#: mb/evaluate/classification/text_calibration.py:219
+msgid "No calibrator for method '{m}'"
+msgstr "方法 '{m}' 没有校准器"
+
+#: mb/evaluate/classification/text_calibration.py:222
+msgid "Calibration needs both labels in the val split."
+msgstr "校准需要在 val split 中使用两个标签。"
+
+#: mb/evaluate/classification/text_calibration.py:234
+msgid "Unknown calibrator in {path}: {m!r}"
+msgstr "未知的校准器位于 {path}: {m!r}"
+
+#: mb/evaluate/classification/text_evaluation.py:84
+msgid "Not a text-classification run directory (no {file}): {path}"
+msgstr "不是文本分类运行目录（缺少 {file}）：{path}"
+
+#: mb/evaluate/classification/text_evaluation.py:228
+#: mb/training/text_trainer.py:170
+msgid "Verifying dataset…"
+msgstr "正在验证数据集…"
+
+#: mb/evaluate/classification/text_evaluation.py:243
+#: mb/training/text_trainer.py:180
+msgid ""
+"Dataset verification failed:\n"
+"{report}"
+msgstr ""
+"数据集验证失败:\n"
+"{report}"
+
+#: mb/evaluate/classification/text_evaluation.py:248
+msgid "Loading model…"
+msgstr "加载模型…"
+
+#: mb/evaluate/classification/text_evaluation.py:264
+msgid "Scoring test…"
+msgstr "评分测试…"
+
+#: mb/evaluate/classification/text_evaluation.py:276
+msgid "Computing metrics…"
+msgstr "正在计算指标…"
+
+#: mb/evaluate/classification/text_evaluation.py:287
+msgid "Counting truncated rows…"
+msgstr "正在统计截断的行…"
+
+#: mb/evaluate/classification/text_evaluation.py:319
+msgid "Scoring {tier} rows for the review queue…"
+msgstr "正在为审核队列计分 {tier} 行…"
+
+#: mb/evaluate/classification/text_evaluation.py:332
+msgid "Scoring unlabeled rows…"
+msgstr "对未标记的行进行评分…"
+
+#: mb/evaluate/classification/text_evaluation.py:364
+msgid "Evaluation complete."
+msgstr "评估完成。"
+
+#: mb/evaluate/classification/text_evaluation.py:531
+msgid "run"
+msgstr "运行"
+
+#: mb/evaluate/classification/text_evaluation.py:532
+msgid "backend"
+msgstr "后端"
+
+#: mb/evaluate/classification/text_evaluation.py:533
+msgid "model"
+msgstr "模型"
+
+#: mb/evaluate/classification/text_evaluation.py:534
+msgid "gold AP"
+msgstr "金 AP"
+
+#: mb/evaluate/classification/text_evaluation.py:535
+msgid "full AP"
+msgstr "完整的AP"
+
+#: mb/evaluate/classification/text_evaluation.py:536
+msgid "R@P0.90"
+msgstr "R@P0.90"
+
+#: mb/evaluate/classification/text_evaluation.py:537
+msgid "gold FPR"
+msgstr "金 FPR"
+
+#: mb/evaluate/classification/text_evaluation.py:538
+msgid "ECE"
+msgstr "ECE"
+
+#: mb/models/text_backends/__init__.py:41
+msgid "No {file} in {path}"
+msgstr "在 {path} 中没有 {file}"
+
+#: mb/models/text_backends/__init__.py:45
+msgid "Unknown backend in {path}: {b!r}"
+msgstr "未知后端在 {path}: {b!r}"
+
+#: mb/models/text_backends/_torch_common.py:20
+msgid ""
+"Neural text backends require PyTorch and transformers: pip install -e "
+"\".[pytorch,text]\". Underlying error: {err}"
+msgstr ""
+"神经文本后端需要 PyTorch 和 transformers：pip install -e "
+"\".[pytorch,text]\"。根本错误：{err}"
+
+#: mb/models/text_backends/_torch_common.py:33
+msgid ""
+"Neural text backends require transformers: pip install -e \".[text]\". "
+"Underlying error: {err}"
+msgstr "神经文本后端需要 transformers：pip install -e \".[text]\"。底层错误：{err}"
+
+#: mb/models/text_backends/base.py:96
+msgid "Unknown backend_options for {backend}: {bad} (allowed: {allowed})"
+msgstr "未知的 backend_options for {backend}: {bad}（允许: {allowed}）"
+
+#: mb/models/text_backends/base.py:99
+msgid "none"
+msgstr "无"
+
+#: mb/models/text_backends/char_ngram_linear.py:44
+msgid ""
+"The char_ngram_linear backend requires scikit-learn: pip install -e "
+"\".[text]\". Underlying error: {err}"
+msgstr "char_ngram_linear 后端需要 scikit-learn：pip install -e \".[text]\"。根本错误：{err}"
+
+#: mb/models/text_backends/char_ngram_linear.py:168
+msgid "backend_options: need 1 <= ngram_min <= ngram_max"
+msgstr "backend_options: 需要 1 <= ngram_min <= ngram_max"
+
+#: mb/models/text_backends/char_ngram_linear.py:170
+msgid "Counting character n-grams…"
+msgstr "正在统计字符 n‑gram…"
+
+#: mb/models/text_backends/char_ngram_linear.py:180
+msgid "Vectorizing val…"
+msgstr "向量化 val…"
+
+#: mb/models/text_backends/char_ngram_linear.py:190
+msgid "Fitting logistic regression (C={c}, {i}/{n})…"
+msgstr "正在拟合逻辑回归 (C={c}, {i}/{n})…"
+
+#: mb/models/text_backends/char_ngram_linear.py:209
+msgid "Linear model fitted."
+msgstr "线性模型已拟合。"
+
+#: mb/models/text_backends/char_ngram_linear.py:225
+#: mb/models/text_backends/encoder_finetune.py:272
+msgid "Scoring…"
+msgstr "计分中…"
+
+#: mb/models/text_backends/embedding_probe.py:268
+msgid "Embedding {what}: {i}/{n}"
+msgstr "嵌入 {what}: {i}/{n}"
+
+#: mb/models/text_backends/embedding_probe.py:347
+msgid "backend_options.pooling must be one of: {c}"
+msgstr "backend_options.pooling 必须是以下之一: {c}"
+
+#: mb/models/text_backends/embedding_probe.py:349
+msgid "backend_options.head must be one of: {c}"
+msgstr "backend_options.head 必须是以下之一：{c}"
+
+#: mb/models/text_backends/embedding_probe.py:354
+#: mb/models/text_backends/encoder_finetune.py:156
+msgid "Loading {model}…"
+msgstr "加载 {model}…"
+
+#: mb/models/text_backends/embedding_probe.py:361
+msgid "train"
+msgstr "火车"
+
+#: mb/models/text_backends/embedding_probe.py:362
+msgid "val"
+msgstr "值"
+
+#: mb/models/text_backends/embedding_probe.py:393
+msgid "Head epoch {e}/{E} — val metric {m:.4f}"
+msgstr "Head epoch {e}/{E} — 验证指标 {m:.4f}"
+
+#: mb/models/text_backends/embedding_probe.py:412
+msgid "texts"
+msgstr "文本"
+
+#: mb/models/text_backends/encoder_finetune.py:221
+msgid "Epoch {e}/{E} — step {s}/{S} — loss {l:.4f}"
+msgstr "轮次 {e}/{E} — 步骤 {s}/{S} — 损失 {l:.4f}"
+
+#: mb/training/text_config.py:107
+msgid "Invalid text_classification config:"
+msgstr "无效的 text_classification 配置："
+
+#: mb/training/text_config.py:257
+msgid "Unknown key '{key}' in {where} (allowed: {allowed})"
+msgstr "未知键‘{key}’位于 {where}（允许的键：{allowed}）"
+
+#: mb/training/text_config.py:266
+msgid "{where}.{key} must be a mapping"
+msgstr "{where}.{key} 必须是映射"
+
+#: mb/training/text_config.py:272
+msgid "{name} must be a non-empty path"
+msgstr "{name} 必须是非空路径"
+
+#: mb/training/text_config.py:279
+msgid "{name} must be an integer >= {min} (got {v!r})"
+msgstr "{name} 必须是大于等于 {min} 的整数 (得到 {v!r})"
+
+#: mb/training/text_config.py:294
+msgid "{name} must be a number in {range} (got {v!r})"
+msgstr "{name} 必须是 {range} 范围内的数字（获取到 {v!r}）"
+
+#: mb/training/text_config.py:306
+msgid "{name} must be true or false (got {v!r})"
+msgstr "{name} 必须为 true 或 false (得到 {v!r})"
+
+#: mb/training/text_config.py:314
+msgid "{name} must be a non-empty string or null"
+msgstr "{name} 必须是非空字符串或 null"
+
+#: mb/training/text_config.py:331
+msgid "class_weight keys must be 0 and 1 (got {k!r})"
+msgstr "class_weight 的键必须为 0 和 1（得到 {k!r}）"
+
+#: mb/training/text_config.py:336
+msgid "class_weight mapping must give a weight for both 0 and 1"
+msgstr "class_weight 映射必须为 0 和 1 都指定权重"
+
+#: mb/training/text_config.py:339
+msgid ""
+"class_weight must be 'none', 'balanced' or {{0: w0, 1: w1}} (got {v!r})"
+msgstr "class_weight 必须为 'none'、'balanced' 或 {{0: w0, 1: w1}}（得到 {v!r}）"
+
+#: mb/training/text_config.py:348
+msgid "tier_weight must be a mapping of tier name to multiplier"
+msgstr "tier_weight 必须是层级名称到乘数的映射"
+
+#: mb/training/text_config.py:360
+msgid "gold_tiers must be null or a non-empty list of tier names"
+msgstr "gold_tiers 必须为 null 或非空的层级名称列表"
+
+#: mb/training/text_config.py:373 mb/training/text_config.py:550
+msgid "text_classification must be a mapping"
+msgstr "text_classification 必须是映射"
+
+#: mb/training/text_config.py:383
+msgid "backend must be one of: {choices} (got {v!r})"
+msgstr "后端必须是以下之一：{choices}（得到 {v!r}）"
+
+#: mb/training/text_config.py:392
+msgid "calibration must be one of: {choices} (got {v!r})"
+msgstr "校准必须是以下之一：{choices}（得到 {v!r}）"
+
+#: mb/training/text_config.py:415
+msgid "early_stopping.metric must be one of: {choices} (got {v!r})"
+msgstr "early_stopping.metric 必须是以下之一：{choices}（得到 {v!r}）"
+
+#: mb/training/text_config.py:431
+msgid "threshold_policy.kind must be one of: {choices} (got {v!r})"
+msgstr "threshold_policy.kind 必须是以下之一：{choices}（得到 {v!r}）"
+
+#: mb/training/text_config.py:453
+msgid "model_card_notes must be a string"
+msgstr "model_card_notes 必须是字符串"
+
+#: mb/training/text_config.py:460
+msgid "backend_options must be a mapping"
+msgstr "backend_options 必须是映射"
+
+#: mb/training/text_config.py:469
+msgid "reference_score_column must be a non-empty string"
+msgstr "reference_score_column 必须是非空字符串"
+
+#: mb/training/text_config.py:472
+msgid "unlabeled_file must be a non-empty file name"
+msgstr "unlabeled_file 必须是非空文件名"
+
+#: mb/training/text_trainer.py:163
+msgid "Loading dataset…"
+msgstr "加载数据集…"
+
+#: mb/training/text_trainer.py:199
+msgid "The val split needs both labels for model selection and calibration."
+msgstr "验证集划分需要同时提供用于模型选择和校准的标签。"
+
+#: mb/training/text_trainer.py:264
+msgid "Calibrating on val ({method})…"
+msgstr "正在校准 val ({method})…"
+
+#: mb/training/text_trainer.py:294
+msgid ""
+"this PyTorch build has no CUDA support (on Windows, plain `pip install "
+"torch` installs the CPU-only build; install a CUDA build from "
+"https://pytorch.org/get-started/locally/)"
+msgstr ""
+"此 PyTorch 构建不含 CUDA 支持（在 Windows 上，直接运行 `pip install torch` 会安装仅 CPU 版本；请从 "
+"https://pytorch.org/get-started/locally/ 安装 CUDA 版）"
+
+#: mb/training/text_trainer.py:297
+msgid ""
+"PyTorch was built for CUDA {v} but no usable GPU was found (check the "
+"driver)"
+msgstr "PyTorch 为 CUDA {v} 构建，但未找到可用的 GPU（检查驱动程序）"
+
+#: mb/training/text_trainer.py:301
+msgid ""
+"No GPU available for {backend} ({model}): training on CPU will be very slow."
+" Cause: {reason}. Set text_classification.device: cpu to run on CPU without "
+"this warning."
+msgstr ""
+"未为 {backend} ({model}) 检测到 GPU：在 CPU 上训练会非常慢。原因：{reason}。将 "
+"text_classification.device 设置为 cpu，即可在 CPU 上运行且不出现此警告。"
+
+#: mb/training/text_trainer.py:357
+msgid "No {file} in the text-classification data directory: {path}"
+msgstr "文本分类数据目录中没有 {file}: {path}"
+
+#: mb/training/text_trainer.py:370
+msgid "Training completed successfully. Run directory: {path}"
+msgstr "训练成功完成。运行目录：{path}"
+
+#: ui/controllers/train_page_controller.py:111
+msgid "No {file} in the data directory: {path}"
+msgstr "数据目录中没有 {file}: {path}"
+
+#: ui/pages/data_page.py:1223
+msgid ""
+"Text classification datasets are prepared outside mb as a dataset.tsv with a"
+" fixed split column; check one on the Text page (Verify)."
+msgstr "文本分类数据集在 mb 之外以 dataset.tsv 形式准备，并带有固定的 split 列；请在文本页面检查一个（验证）。"
+
+#: ui/pages/pipeline_config_page.py:183
+msgid ""
+"Machine-learning defaults (<code>model</code>, <code>data</code>, "
+"<code>training</code>, <code>paths</code>, "
+"<code>text_classification</code>). Save writes to your active pipeline file,"
+" or to <code>pipeline.yaml</code> beside <code>application.yaml</code> in "
+"app data when only packaged defaults are loaded."
+msgstr ""
+"机器学习默认值（<code>model</code>, <code>data</code>, <code>training</code>, "
+"<code>paths</code>, "
+"<code>text_classification</code>）。保存时写入活动管道文件，或在仅加载打包默认值时写入位于应用数据中 "
+"<code>application.yaml</code> 旁的 <code>pipeline.yaml</code>。"
+
+#: ui/pages/pipeline_config_page.py:194 ui/pages/pipeline_config_page.py:232
+msgid "Text classification"
+msgstr "文本分类"
+
+#: ui/pages/pipeline_config_page.py:236
+msgid ""
+"tier_weight, gold_tiers, unreviewed_tier, reference_score_column, "
+"unlabeled_file, backend_options and an explicit class_weight mapping are "
+"kept as loaded; edit them in the Advanced (YAML) tab. Unknown keys and "
+"invalid values in this section are errors when training."
+msgstr ""
+"tier_weight、gold_tiers、unreviewed_tier、reference_score_column、unlabeled_file、backend_options"
+" 以及显式的 class_weight 映射保持原样；请在“高级 (YAML)”选项卡中编辑它们。本节中的未知键和无效值在训练时会导致错误。"
+
+#: ui/pages/pipeline_config_page.py:242
+msgid "empty = backend default"
+msgstr "空 = 后端默认"
+
+#: ui/pages/pipeline_config_page.py:243
+msgid "empty = cuda when available, else cpu"
+msgstr "空 = 有 CUDA 时使用，否则使用 CPU"
+
+#: ui/pages/pipeline_config_page.py:245
+msgid "Backend default"
+msgstr "后端默认"
+
+#: ui/pages/pipeline_config_page.py:246
+msgid "Off"
+msgstr "关"
+
+#: ui/pages/pipeline_config_page.py:247
+msgid "Exclude label-conflict groups from training and metrics"
+msgstr "在训练和指标中排除标签冲突组"
+
+#: ui/pages/pipeline_config_page.py:248
+msgid "Score the unlabeled file when present"
+msgstr "在出现未标记文件时进行评分"
+
+#: ui/pages/pipeline_config_page.py:561
+msgid "Runs directory"
+msgstr "运行目录"
+
+#: ui/pages/pipeline_config_page.py:562 ui/pages/train_page.py:200
+#: ui/pages/train_page.py:293
+msgid "Backend"
+msgstr "后端"
+
+#: ui/pages/pipeline_config_page.py:563
+msgid "Model id"
+msgstr "模型ID"
+
+#: ui/pages/pipeline_config_page.py:565
+msgid "Max length (tokens)"
+msgstr "最大长度（标记）"
+
+#: ui/pages/pipeline_config_page.py:566
+msgid "Class weight"
+msgstr "类别权重"
+
+#: ui/pages/pipeline_config_page.py:568
+msgid "Subsample unreviewed tier (x positives)"
+msgstr "未审查层级的子样本（x 个阳性）"
+
+#: ui/pages/pipeline_config_page.py:570 ui/pages/train_page.py:201
+#: ui/pages/train_page.py:293
+msgid "Epochs"
+msgstr "纪元"
+
+#: ui/pages/pipeline_config_page.py:572
+msgid "Warmup ratio"
+msgstr "预热比率"
+
+#: ui/pages/pipeline_config_page.py:573
+msgid "Weight decay"
+msgstr "权重衰减"
+
+#: ui/pages/pipeline_config_page.py:574
+msgid "Early-stopping patience"
+msgstr "提前停止容忍度"
+
+#: ui/pages/pipeline_config_page.py:575
+msgid "Calibration"
+msgstr "校准"
+
+#: ui/pages/pipeline_config_page.py:576
+msgid "Threshold policy"
+msgstr "阈值策略"
+
+#: ui/pages/pipeline_config_page.py:577
+msgid "Threshold target"
+msgstr "阈值目标"
+
+#: ui/pages/pipeline_config_page.py:578
+msgid "Review queue size"
+msgstr "审查队列大小"
+
+#: ui/pages/pipeline_config_page.py:581
+msgid "Model card notes (Markdown)"
+msgstr "模型卡备注 (Markdown)"
+
+#: ui/pages/pipeline_config_page.py:641
+msgid "Select text dataset directory"
+msgstr "选择文本数据集目录"
+
+#: ui/pages/pipeline_config_page.py:642
+msgid "Select runs directory"
+msgstr "选择运行目录"
+
+#: ui/pages/pipeline_config_page.py:751
+msgid "custom mapping (edit in YAML)"
+msgstr "自定义映射（在 YAML 中编辑）"
+
+#: ui/pages/pipeline_config_page.py:991
+msgid ""
+"The document contains keys outside model/data/training/paths/text_classification: {keys}\n"
+"They will be ignored when applying to the form. Continue?"
+msgstr ""
+"文档包含位于 model/data/training/paths/text_classification 之外的键：{keys}\n"
+"这些键在应用到表单时将被忽略。继续吗？"
+
+#: ui/pages/pipeline_config_page.py:1002
+msgid "No model/data/training/paths/text_classification keys found."
+msgstr "未找到 model/data/training/paths/text_classification 键。"
+
+#: ui/pages/text_page.py:105 ui/pages/text_page.py:122
+#: ui/pages/text_page.py:196 ui/pages/text_page.py:197
+#: ui/pages/text_page.py:343 ui/pages/text_page.py:373
+msgid "Run dir"
+msgstr "运行 dir"
+
+#: ui/pages/text_page.py:106 ui/pages/text_page.py:196
+msgid "Data dir (optional)"
+msgstr "数据目录（可选）"
+
+#: ui/pages/text_page.py:123 ui/pages/text_page.py:197
+#: ui/pages/text_page.py:374
+msgid "Input lines"
+msgstr "输入行"
+
+#: ui/pages/text_page.py:176
+msgid "Text files (*.txt *.tsv);;All files (*.*)"
+msgstr "文本文件 (*.txt *.tsv);;所有文件 (*.*)"
+
+#: ui/pages/text_page.py:178
+msgid "Save scores as"
+msgstr "将分数另存为"
+
+#: ui/pages/text_page.py:178
+msgid "TSV files (*.tsv);;All files (*.*)"
+msgstr "TSV 文件 (*.tsv);;所有文件 (*.*)"
+
+#: ui/pages/text_page.py:186
+msgid ""
+"Text-classification datasets and runs ({cmd}). Train on the Train page with "
+"model type text_classification; defaults come from the Pipeline page's Text "
+"classification tab."
+msgstr ""
+"文本分类数据集和运行 ({cmd})。在 Train 页面使用模型类型 text_classification 进行训练；默认值来自 Pipeline "
+"页面“文本分类”标签页。"
+
+#: ui/pages/text_page.py:191
+msgid "Verify"
+msgstr "验证"
+
+#: ui/pages/text_page.py:193
+msgid "Score"
+msgstr "得分"
+
+#: ui/pages/text_page.py:198
+msgid "default: text_classification.data_dir"
+msgstr "默认: text_classification.data_dir"
+
+#: ui/pages/text_page.py:199
+msgid "default: the run's config.yaml"
+msgstr "默认：运行的 config.yaml"
+
+#: ui/pages/text_page.py:200
+msgid "Verify Dataset"
+msgstr "验证数据集"
+
+#: ui/pages/text_page.py:201
+msgid "Evaluate Run"
+msgstr "评估运行"
+
+#: ui/pages/text_page.py:202
+msgid "Score Lines"
+msgstr "得分线"
+
+#: ui/pages/text_page.py:203
+msgid "Compare Runs"
+msgstr "比较运行"
+
+#: ui/pages/text_page.py:204
+msgid "Add run directory…"
+msgstr "添加运行目录…"
+
+#: ui/pages/text_page.py:206
+msgid ""
+"One run directory or wildcard pattern per line (e.g. "
+"data/models/text_runs/*)."
+msgstr "每行一个运行目录或通配符模式（例如 data/models/text_runs/*）。"
+
+#: ui/pages/text_page.py:208
+msgid "Integrity check results will appear here."
+msgstr "完整性检查结果将在此显示。"
+
+#: ui/pages/text_page.py:209
+msgid "Evaluation summary will appear here."
+msgstr "评估摘要将在此显示。"
+
+#: ui/pages/text_page.py:210
+msgid "Scoring summary will appear here."
+msgstr "得分摘要将在此显示。"
+
+#: ui/pages/text_page.py:211
+msgid "Comparison table will appear here."
+msgstr "比较表将在此显示。"
+
+#: ui/pages/text_page.py:285
+msgid "The operation stopped with an error. See Details for the message."
+msgstr "操作因错误而停止。请查看详细信息获取消息。"
+
+#: ui/pages/text_page.py:290
+msgid "[stopped] Cancelled."
+msgstr "[已停止] 已取消。"
+
+#: ui/pages/text_page.py:306
+msgid "Missing input"
+msgstr "缺少输入"
+
+#: ui/pages/text_page.py:306
+msgid "Please provide: {what}"
+msgstr "请提供：{what}"
+
+#: ui/pages/text_page.py:338
+msgid "Verify dataset"
+msgstr "验证数据集"
+
+#: ui/pages/text_page.py:368
+msgid "Evaluate run"
+msgstr "评估运行"
+
+#: ui/pages/text_page.py:387
+msgid ""
+"[warn] {n} input line(s) contain a tab; their output rows have extra "
+"columns."
+msgstr "[warn] 有 {n} 行输入包含制表符；它们的输出行有额外的列。"
+
+#: ui/pages/text_page.py:394
+msgid "Score lines"
+msgstr "得分行"
+
+#: ui/pages/text_page.py:401
+msgid "Select run directory"
+msgstr "选择运行目录"
+
+#: ui/pages/text_page.py:420
+msgid "[skip] no metrics.json: {path}"
+msgstr "[skip] 没有 metrics.json: {path}"
+
+#: ui/pages/train_page.py:199 ui/pages/train_page.py:298
+msgid "optional, integer (default: config)"
+msgstr "可选，整数（默认：config）"
+
+#: ui/pages/train_page.py:290
+msgid "Hyperparameters (text classification)"
+msgstr "超参数（文本分类）"
+
+#: ui/pages/train_page.py:655
+msgid "model id (default: {model})"
+msgstr "模型 ID（默认值: {model}）"
+
+#: ui/pages/train_page.py:657
+msgid "not used by this backend"
+msgstr "此后端未使用"
