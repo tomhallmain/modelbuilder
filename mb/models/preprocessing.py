@@ -258,7 +258,7 @@ def resolve_image_size(
             ).format(arch=arch_name, native=spec.image_size, requested=requested)
         )
     logger.warning(
-        "Training %s at %dx%d instead of its native %dx%d",
+        _("Training %s at %dx%d instead of its native %dx%d"),
         arch_name,
         requested,
         requested,

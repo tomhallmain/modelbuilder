@@ -274,7 +274,9 @@ def _train_stable_diffusion_1x(
         torch.manual_seed(config.seed)
 
     logger.info(
-        f"Loading base model components ({config.base_architecture.value}) from: {config.base_model}"
+        _(
+            "Loading base model components ({architecture}) from: {base_model}"
+        ).format(architecture=config.base_architecture.value, base_model=config.base_model)
     )
     text_encoder_subfolder = descriptor.text_encoder_subfolders[0]
     tokenizer = CLIPTokenizer.from_pretrained(config.base_model, subfolder="tokenizer")
@@ -311,7 +313,10 @@ def _train_stable_diffusion_1x(
         shuffle=True,
         num_workers=config.num_workers,
     )
-    logger.info(f"Training on {len(dataset)} images, batch_size={config.batch_size}")
+    logger.info(
+        _(
+            "Training on {n_dataset} images, batch_size={batch_size}"
+        ).format(n_dataset=len(dataset), batch_size=config.batch_size))
 
     trainable_params = [p for p in unet.parameters() if p.requires_grad]
     optimizer = torch.optim.AdamW(trainable_params, lr=config.learning_rate)
@@ -354,7 +359,7 @@ def _train_stable_diffusion_1x(
 
     config.output_dir.mkdir(parents=True, exist_ok=True)
     unet.save_pretrained(str(config.output_dir))
-    logger.info(f"LoRA adapter saved to: {config.output_dir}")
+    logger.info(_("LoRA adapter saved to: {output_dir}").format(output_dir=config.output_dir))
     return config.output_dir
 
 
@@ -402,7 +407,9 @@ def _train_flux(
         torch.manual_seed(config.seed)
 
     logger.info(
-        f"Loading base model components ({config.base_architecture.value}) from: {config.base_model}"
+        _(
+            "Loading base model components ({architecture}) from: {base_model}"
+        ).format(architecture=config.base_architecture.value, base_model=config.base_model)
     )
     clip_subfolder, t5_subfolder = descriptor.text_encoder_subfolders
     clip_tokenizer = CLIPTokenizer.from_pretrained(config.base_model, subfolder="tokenizer")
@@ -453,7 +460,10 @@ def _train_flux(
         shuffle=True,
         num_workers=config.num_workers,
     )
-    logger.info(f"Training on {len(dataset)} images, batch_size={config.batch_size}")
+    logger.info(
+        _(
+            "Training on {n_dataset} images, batch_size={batch_size}"
+        ).format(n_dataset=len(dataset), batch_size=config.batch_size))
 
     trainable_params = [p for p in transformer.parameters() if p.requires_grad]
     optimizer = torch.optim.AdamW(trainable_params, lr=config.learning_rate)
@@ -525,7 +535,7 @@ def _train_flux(
 
     config.output_dir.mkdir(parents=True, exist_ok=True)
     transformer.save_pretrained(str(config.output_dir))
-    logger.info(f"LoRA adapter saved to: {config.output_dir}")
+    logger.info(_("LoRA adapter saved to: {output_dir}").format(output_dir=config.output_dir))
     return config.output_dir
 
 
@@ -538,17 +548,17 @@ def _lora_extras_import_error(e: ImportError) -> str:
 
 def log_startup_info(config: LoraTrainingConfig) -> None:
     logger.info("=" * 80)
-    logger.info("LORA TRAINING STARTUP")
+    logger.info(_("LORA TRAINING STARTUP"))
     logger.info("=" * 80)
-    logger.info(f"Base model: {config.base_model}")
-    logger.info(f"Base architecture: {config.base_architecture.value}")
-    logger.info(f"Data dir: {config.data_dir}")
-    logger.info(f"Output dir: {config.output_dir}")
-    logger.info(f"Rank/alpha: {config.rank}/{config.alpha}")
-    logger.info(f"Resolution: {config.resolution}")
-    logger.info(f"Batch size: {config.batch_size}")
-    logger.info(f"Learning rate: {config.learning_rate}")
-    logger.info(f"Max train steps: {config.max_train_steps}")
+    logger.info(_("Base model: {base_model}").format(base_model=config.base_model))
+    logger.info(_("Base architecture: {architecture}").format(architecture=config.base_architecture.value))
+    logger.info(_("Data dir: {data_dir}").format(data_dir=config.data_dir))
+    logger.info(_("Output dir: {output_dir}").format(output_dir=config.output_dir))
+    logger.info(_("Rank/alpha: {rank}/{alpha}").format(rank=config.rank, alpha=config.alpha))
+    logger.info(_("Resolution: {resolution}").format(resolution=config.resolution))
+    logger.info(_("Batch size: {batch_size}").format(batch_size=config.batch_size))
+    logger.info(_("Learning rate: {learning_rate}").format(learning_rate=config.learning_rate))
+    logger.info(_("Max train steps: {max_train_steps}").format(max_train_steps=config.max_train_steps))
 
 
 def run_train_image_generation_lora_cli(args: Namespace, pipeline: Any) -> int:

@@ -2,8 +2,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
-"POT-Creation-Date: 2026-10-08 17:04-0400\n"
-"PO-Revision-Date: 2026-10-08 17:04-0400\n"
+"POT-Creation-Date: 2026-11-09 19:47-0500\n"
+"PO-Revision-Date: 2026-11-09 19:47-0500\n"
 "Last-Translator: Translator Name <translator@example.com>\n"
 "Language-Team: de Team <<EMAIL>>\n"
 "Language: de\n"
@@ -204,6 +204,14 @@ msgstr ""
 "Die Erstellung von Datensätzen zur Bildgenerierung ist noch nicht "
 "implementiert."
 
+#: mb/cli/__init__.py:226
+msgid ""
+"Text classification datasets are prepared outside mb as a dataset.tsv with a"
+" fixed split column; check one with `mb text verify`."
+msgstr ""
+"Textklassifizierungs‑Datensätze werden außerhalb von mb als dataset.tsv mit "
+"einer festen Split‑Spalte erstellt; prüfen Sie einen mit `mb text verify`."
+
 #: mb/cli/__init__.py:239
 msgid "Process terminated due to external storage detection."
 msgstr "Prozess wurde beendet aufgrund der externen Speichermedium-Detektion."
@@ -222,7 +230,7 @@ msgstr ""
 "--data-dir ist erforderlich, wenn die Operation 'create-dataset' ausgeführt "
 "wird."
 
-#: mb/cli/__init__.py:366 mb/cli/__init__.py:413
+#: mb/cli/__init__.py:366 mb/cli/__init__.py:418
 msgid "Image generation training is not implemented yet."
 msgstr "Bildgenerierungs-Training ist noch nicht implementiert."
 
@@ -234,43 +242,43 @@ msgstr "Die LoRA-Training für Bildgenerierung ist noch nicht implementiert."
 msgid "Unsupported model type from config: {t}"
 msgstr "Nicht unterstützter Modelltyp aus der Konfiguration: {t}"
 
-#: mb/cli/__init__.py:377 mb/cli/__init__.py:438
-#: mb/training/lora_diffusion_trainer.py:587
+#: mb/cli/__init__.py:377 mb/cli/__init__.py:443
+#: mb/training/lora_diffusion_trainer.py:597
 msgid "Data directory does not exist: {path}"
 msgstr "Datenverzeichnis existiert nicht: {path}"
 
-#: mb/cli/__init__.py:389 mb/cli/__init__.py:481
+#: mb/cli/__init__.py:389 mb/cli/__init__.py:486
 msgid "Architecture '{arch}' not supported for framework '{fw}'"
 msgstr ""
 "Die Architektur '{arch}' wird für das Framework '{fw}' nicht unterstützt."
 
-#: mb/cli/__init__.py:400 mb/cli/__init__.py:508
+#: mb/cli/__init__.py:405 mb/cli/__init__.py:516
 msgid "Training completed successfully. Model saved to: {path}"
 msgstr ""
 "Das Training ist erfolgreich abgeschlossen worden. Modell gespeichert unter:"
 " {path}"
 
-#: mb/cli/__init__.py:408 ui/controllers/train_page_controller.py:121
+#: mb/cli/__init__.py:413 ui/controllers/train_page_controller.py:121
 msgid "Unsupported framework: {fw}"
 msgstr "Nicht unterstützter Framework: {fw}"
 
-#: mb/cli/__init__.py:424
+#: mb/cli/__init__.py:429
 msgid "Unsupported model type: {t}"
 msgstr "Nicht unterstützter Modelltyp: {t}"
 
-#: mb/cli/__init__.py:432
+#: mb/cli/__init__.py:437
 msgid "Unsupported architecture: {arch}"
 msgstr "Nicht unterstützte Architektur: {arch}"
 
-#: mb/cli/__init__.py:513
+#: mb/cli/__init__.py:521
 msgid "Training failed: {err}"
 msgstr "Training verwarf sich: {err}"
 
-#: mb/cli/__init__.py:524 mb/cli/__init__.py:637
+#: mb/cli/__init__.py:532 mb/cli/__init__.py:653
 msgid "Input model file not found: {path}"
 msgstr "Eingabedatei nicht gefunden: {path}"
 
-#: mb/cli/__init__.py:532
+#: mb/cli/__init__.py:540
 msgid ""
 "{path} looks like a LoRA adapter (from `mb train --model-type "
 "image_generation_lora`), not a full model checkpoint — `mb convert` doesn't "
@@ -283,47 +291,47 @@ msgstr ""
 "Safetensors-Artefakt, das direkt verwendet werden kann (z. B. mit "
 "load_lora_weights() einer Diffusers-Pipeline)."
 
-#: mb/cli/__init__.py:546
+#: mb/cli/__init__.py:554
 msgid "Could not detect source framework. Please specify --framework"
 msgstr ""
 "Das Source-Rahmenwerk konnte nicht erkannt werden. Bitte angeben Sie "
 "--Rahmenwerk"
 
-#: mb/cli/__init__.py:552
+#: mb/cli/__init__.py:560
 msgid "PyTorch -> ONNX conversion requires --architecture and --num-classes"
 msgstr ""
 "PyTorch -> ONNX-Konvertierung erfordert --Architektur und --Anzahl-Klassen"
 
-#: mb/cli/__init__.py:572
+#: mb/cli/__init__.py:588
 msgid "Conversion completed successfully: {path}"
 msgstr "Konvertierung abgeschlossen erfolgreich: {path}"
 
-#: mb/cli/__init__.py:578
+#: mb/cli/__init__.py:594
 msgid "--quantize applies to --target onnx only; skipping quantization."
 msgstr ""
 "--quantize gilt nur für --target onnx; Quantisierung wird übersprungen."
 
-#: mb/cli/__init__.py:586
+#: mb/cli/__init__.py:602
 msgid "Only {n} of {total} quantized variants were written."
 msgstr "Nur {n} von {total} quantisierten Varianten wurden geschrieben."
 
-#: mb/cli/__init__.py:592
+#: mb/cli/__init__.py:608
 msgid "Wrote quantized variant: {path}"
 msgstr "Quantisierte Variante geschrieben: {path}"
 
-#: mb/cli/__init__.py:595 ui/pages/convert_page.py:344
+#: mb/cli/__init__.py:611 ui/pages/convert_page.py:344
 msgid "Conversion failed"
 msgstr "Konvertierung fehlgeschlagen"
 
-#: mb/cli/__init__.py:599
+#: mb/cli/__init__.py:615
 msgid "Conversion error: {err}"
 msgstr "Konvertierungfehler: {err}"
 
-#: mb/cli/__init__.py:608 ui/pages/info_page.py:184
+#: mb/cli/__init__.py:624 ui/pages/info_page.py:184
 msgid "Model path not found: {path}"
 msgstr "Modellpfad nicht gefunden: {path}"
 
-#: mb/cli/__init__.py:622 mb/cli/__init__.py:720 mb/evaluate/compare.py:157
+#: mb/cli/__init__.py:638 mb/cli/__init__.py:736 mb/evaluate/compare.py:157
 #: mb/evaluate/compare.py:193 mb/evaluate/metrics.py:162
 #: mb/evaluate/metrics.py:182 mb/evaluate/misclassified.py:84
 #: mb/evaluate/misclassified.py:104 ui/pages/info_page.py:198
@@ -331,7 +339,7 @@ msgstr "Modellpfad nicht gefunden: {path}"
 msgid "Data directory not found: {path}"
 msgstr "Datenverzeichnis nicht gefunden: {path}"
 
-#: mb/cli/__init__.py:645
+#: mb/cli/__init__.py:661
 msgid ""
 "{path} looks like a LoRA adapter (from `mb train --model-type "
 "image_generation_lora`), not a full model checkpoint — `mb export bundle` "
@@ -344,72 +352,111 @@ msgstr ""
 " Safetensors-Artefakt, das direkt verwendet werden kann (z. B. "
 "load_lora_weights() einer Diffusers-Pipeline)."
 
-#: mb/cli/__init__.py:670
+#: mb/cli/__init__.py:686
 msgid "Bundle export completed: {path}"
 msgstr "Bundle-Export abgeschlossen: {path}"
 
-#: mb/cli/__init__.py:671 ui/pages/export_page.py:338
+#: mb/cli/__init__.py:687 ui/pages/export_page.py:338
 msgid "Weights: {path}"
 msgstr "Gewichte: {path}"
 
-#: mb/cli/__init__.py:672 ui/pages/export_page.py:339
+#: mb/cli/__init__.py:688 ui/pages/export_page.py:339
 msgid "Manifest: {path}"
 msgstr "Manifest: {path}"
 
-#: mb/cli/__init__.py:674 ui/pages/export_page.py:342
+#: mb/cli/__init__.py:690 ui/pages/export_page.py:342
 msgid "Architecture stub: {path}"
 msgstr "Architekturstub: {path}"
 
-#: mb/cli/__init__.py:677
+#: mb/cli/__init__.py:693
 msgid "Export failed: {err}"
 msgstr "Export fehlgeschlagen: {err}"
 
-#: mb/cli/__init__.py:841
+#: mb/cli/__init__.py:757 ui/pages/text_page.py:361
+msgid "Test gold AP: {g} — full AP: {f} — decision threshold: {t:.4f}"
+msgstr "Test‑Gold‑AP: {g} — Voll‑AP: {f} — Entscheidungsschwelle: {t:.4f}"
+
+#: mb/cli/__init__.py:763 ui/pages/text_page.py:364
+msgid "Wrote {path}"
+msgstr "Geschrieben {path}"
+
+#: mb/cli/__init__.py:772
+msgid "Input file not found: {path}"
+msgstr "Eingabedatei nicht gefunden: {path}"
+
+#: mb/cli/__init__.py:780 ui/pages/text_page.py:383
+msgid "Scored {n} lines -> {path}"
+msgstr "Ergebnis {n} Zeilen -> {path}"
+
+#: mb/cli/__init__.py:797
+msgid "Skipped (no metrics.json): {path}"
+msgstr "Übersprungen (keine metrics.json): {path}"
+
+#: mb/cli/__init__.py:799 tests/ui/test_text_page.py:44
+#: ui/pages/text_page.py:422
+msgid "No run directories with metrics.json were found."
+msgstr "Keine Run-Verzeichnisse mit metrics.json gefunden."
+
+#: mb/cli/__init__.py:842
+msgid "Config file not found: {path} (relative paths resolve from {cwd})"
+msgstr ""
+"Konfigurationsdatei nicht gefunden: {path} (relative Pfade werden von {cwd} "
+"aus aufgelöst)"
+
+#: mb/cli/__init__.py:857
 msgid "No data subcommand specified"
 msgstr "Kein Datensubcommand angegeben"
 
-#: mb/cli/__init__.py:846
+#: mb/cli/__init__.py:862
 msgid "Unknown data subcommand: {cmd}"
 msgstr "Unbekannter Datensatz-Befehl: {cmd}"
 
-#: mb/cli/__init__.py:868
+#: mb/cli/__init__.py:884
 msgid "No info subcommand specified"
 msgstr "Kein info-Unterbefehl angegeben"
 
-#: mb/cli/__init__.py:872
+#: mb/cli/__init__.py:888
 msgid "Unknown info subcommand: {cmd}"
 msgstr "Unbekannter Info-Unterbefehl: {cmd}"
 
-#: mb/cli/__init__.py:881
+#: mb/cli/__init__.py:897
 msgid "No export subcommand specified"
 msgstr "Kein Export-Unterbefehl angegeben"
 
-#: mb/cli/__init__.py:885
+#: mb/cli/__init__.py:901
 msgid "Unknown export subcommand: {cmd}"
 msgstr "Unbekannter Export-Unterbefehl: {cmd}"
 
-#: mb/cli/__init__.py:889
+#: mb/cli/__init__.py:905
 msgid "Unhandled export subcommand: {cmd}"
 msgstr "Unbehandelter Export-Unterbefehl: {cmd}"
 
-#: mb/cli/__init__.py:895
+#: mb/cli/__init__.py:911
 msgid "No evaluate subcommand specified"
 msgstr "Es wurde kein „evaluate“-Unterbefehl angegeben"
 
-#: mb/cli/__init__.py:899
+#: mb/cli/__init__.py:915
 msgid "Unknown evaluate subcommand: {cmd}"
 msgstr "Unbekannter Unterbefehl: {cmd}"
 
-#: mb/cli/__init__.py:915 ui/pages/data_page.py:1270
+#: mb/cli/__init__.py:922
+msgid "No text subcommand specified"
+msgstr "Kein Textunterbefehl angegeben"
+
+#: mb/cli/__init__.py:926
+msgid "Unknown text subcommand: {cmd}"
+msgstr "Unbekannter Textunterbefehl: {cmd}"
+
+#: mb/cli/__init__.py:931 ui/pages/data_page.py:1270
 #: ui/pages/data_page.py:1500
 msgid "Unknown command: {cmd}"
 msgstr "Unbekannter Befehl: {cmd}"
 
-#: mb/cli/__init__.py:919
+#: mb/cli/__init__.py:935
 msgid "Interrupted by user"
 msgstr "Unterbrochen von Benutzer"
 
-#: mb/cli/__init__.py:922
+#: mb/cli/__init__.py:938
 msgid "Error: {err}"
 msgstr "Fehler: {err}"
 
@@ -1243,6 +1290,111 @@ msgstr ""
 "--quantize fp16 int8). Kleiner und schneller, jedoch mit einem "
 "Genauigkeitsverlust — bewerte sie vor der Bereitstellung."
 
+#: mb/cli/parsing/text.py:15
+msgid "Text classification: verify data, evaluate, score, compare runs"
+msgstr ""
+"Textklassifizierung: Daten prüfen, auswerten, bewerten, Läufe vergleichen"
+
+#: mb/cli/parsing/text.py:17
+msgid ""
+"Operations on text-classification datasets and run directories. Train with "
+"`mb train --model-type text_classification`; defaults come from the "
+"pipeline's text_classification section."
+msgstr ""
+"Operationen an Textklassifizierungs-Datensätzen und "
+"Ausführungsverzeichnissen. Trainieren mit `mb train --model-type "
+"text_classification`; Vorgaben stammen aus dem Abschnitt text_classification"
+" der Pipeline."
+
+#: mb/cli/parsing/text.py:22
+msgid "Text subcommands"
+msgstr "Textunterbefehle"
+
+#: mb/cli/parsing/text.py:26
+msgid "Check a dataset directory's integrity"
+msgstr "Integrität eines Datensatzverzeichnisses prüfen"
+
+#: mb/cli/parsing/text.py:28
+msgid ""
+"Compares file hashes and row/label/tier/split/group counts with "
+"manifest.json (when present), and checks that texts are unique and each "
+"group sits in one split. Exits non-zero on any failed check."
+msgstr ""
+"Vergleicht Dateihashes sowie Zeilen-/Label-/Stufen-/Split-/Gruppen‑Anzahlen "
+"mit manifest.json (falls vorhanden) und prüft, dass Texte eindeutig sind und"
+" jede Gruppe in genau einem Split liegt. Gibt bei einem fehlgeschlagenen "
+"Check einen Nicht‑Null‑Exit zurück."
+
+#: mb/cli/parsing/text.py:37
+msgid "Dataset directory (default: text_classification.data_dir)"
+msgstr "Dataset-Verzeichnis (Standard: text_classification.data_dir)"
+
+#: mb/cli/parsing/text.py:42
+msgid "Re-run thresholds, metrics and reports for a run directory"
+msgstr ""
+"Schwellenwerte, Metriken und Berichte für ein Laufverzeichnis erneut "
+"ausführen"
+
+#: mb/cli/parsing/text.py:44
+msgid ""
+"Reloads the run's model and calibrator, chooses thresholds on val gold, and "
+"rewrites metrics.json, thresholds.json, predictions, review queue, unlabeled"
+" scores, predict.py and the model card."
+msgstr ""
+"Lädt das Modell und den Kalibrator des Laufs neu, wählt Schwellenwerte für "
+"das Validierungs‑Gold aus und überschreibt metrics.json, thresholds.json, "
+"predictions, Review‑Queue, unlabeled scores, predict.py und die Model‑Card."
+
+#: mb/cli/parsing/text.py:49 mb/cli/parsing/text.py:65
+msgid "Run directory"
+msgstr "Verzeichnis ausführen"
+
+#: mb/cli/parsing/text.py:54
+msgid "Dataset directory (default: the run's config.yaml)"
+msgstr "Datensatzverzeichnis (Standard: config.yaml des Laufs)"
+
+#: mb/cli/parsing/text.py:56 mb/cli/parsing/text.py:68
+msgid "Device override, e.g. cuda or cpu"
+msgstr "Geräteüberschreibung, z. B. CUDA oder CPU"
+
+#: mb/cli/parsing/text.py:60
+msgid "Score one string per line with a run's calibrated model"
+msgstr ""
+"Bewerte pro Zeile einen String mit dem kalibrierten Modell eines Laufs"
+
+#: mb/cli/parsing/text.py:62
+msgid ""
+"Writes term<TAB>score with a header, one row per input line in input order."
+msgstr ""
+"Schreibt term<TAB>score mit einer Kopfzeile, eine Zeile pro Eingabezeile in "
+"Eingabereihenfolge."
+
+#: mb/cli/parsing/text.py:66
+msgid "UTF-8 text file, one string per line"
+msgstr "UTF-8 Textdatei, ein String pro Zeile"
+
+#: mb/cli/parsing/text.py:67
+msgid "Output TSV path"
+msgstr "TSV‑Ausgabepfad"
+
+#: mb/cli/parsing/text.py:72
+msgid "Tabulate headline metrics across run directories"
+msgstr "Tabuliere Übersichtsmetriken über Laufverzeichnisse"
+
+#: mb/cli/parsing/text.py:74
+msgid ""
+"One row per run: test gold AP, full AP, recall at precision 0.90, gold "
+"false-positive rate at the decision threshold and ECE. Wildcards are "
+"expanded (e.g. data/models/text_runs/*)."
+msgstr ""
+"Eine Zeile pro Lauf: Test‑Gold‑AP, volles AP, Recall bei Präzision 0,90, "
+"Gold‑False‑Positive-Rate beim Entscheidungsschwellenwert und ECE. "
+"Platzhalter werden erweitert (z. B. data/models/text_runs/*)."
+
+#: mb/cli/parsing/text.py:79
+msgid "Run directories or wildcard patterns"
+msgstr "Verzeichnisse oder Platzhaltermuster ausführen"
+
 #: mb/cli/parsing/train.py:17
 msgid "Train a model"
 msgstr "Trainieren Sie ein Modell"
@@ -1258,8 +1410,12 @@ msgstr ""
 "Transferlernen mit „gefrorenen“ und „nicht gefrorenen“ Trainingsphasen."
 
 #: mb/cli/parsing/train.py:27
-msgid "Model type (default: image_classification)"
-msgstr "Modelltyp (Standardwert: image_classification)"
+msgid ""
+"Model type (default: model.default_type from config, else "
+"image_classification)"
+msgstr ""
+"Modelltyp (Standard: model.default_type aus der Konfiguration, sonst "
+"image_classification)"
 
 #: mb/cli/parsing/train.py:32
 msgid "Framework to use (default: from config)"
@@ -1276,14 +1432,24 @@ msgstr ""
 " an (ein lokaler Pfad oder eine Hub-ID, z. B. ein Stable Diffusion "
 "Checkpoint)."
 
-#: mb/cli/parsing/train.py:45
-msgid "Data directory (default: from config)"
+#: mb/cli/parsing/train.py:46
+msgid ""
+"Data directory (default: from config). For --model-type text_classification,"
+" the directory holding dataset.tsv (default: text_classification.data_dir)."
 msgstr ""
-"Datenverzeichnis (voreausgewählter Wert: Standard: aus der Konfiguration)"
+"Datenverzeichnis (Standard: aus der Konfiguration). Für --model-type "
+"text_classification ist das Verzeichnis, das dataset.tsv enthält (Standard: "
+"text_classification.data_dir)."
 
-#: mb/cli/parsing/train.py:50
-msgid "Output directory for models (default: from config)"
-msgstr "Ausgabeverzeichnis für Modelle (Standard: aus der Konfiguration)"
+#: mb/cli/parsing/train.py:54
+msgid ""
+"Output directory for models (default: from config). For --model-type "
+"text_classification, the parent of the run directory (default: "
+"text_classification.runs_dir)."
+msgstr ""
+"Ausgabeverzeichnis für Modelle (Standard: aus der Konfiguration). Für "
+"--model-type text_classification ist das übergeordnete Verzeichnis des "
+"Laufverzeichnisses (Standard: text_classification.runs_dir)."
 
 #: mb/cli/parsing/train.py:62
 msgid "Number of frozen training epochs (default: from config)"
@@ -1312,11 +1478,14 @@ msgstr ""
 "Minimale Lernrate für die nicht gefrorene Phase (Standard: aus der "
 "Konfiguration)"
 
-#: mb/cli/parsing/train.py:80
-msgid "Batch size (default: from config or auto-detect)"
+#: mb/cli/parsing/train.py:88
+msgid ""
+"Batch size (default: from config or auto-detect). For --model-type "
+"text_classification, overrides text_classification.optim.batch_size."
 msgstr ""
-"Batchgröße (Standard: aus der Konfiguration oder automatisch ermittelt "
-"werden)"
+"Batch-Größe (Standard: aus Konfiguration oder automatischer Erkennung). Für "
+"--model-type text_classification überschreibt es "
+"text_classification.optim.batch_size."
 
 #: mb/cli/parsing/train.py:96
 msgid ""
@@ -1372,14 +1541,15 @@ msgstr ""
 "Obergrenze für jedes einzelne Klassengewicht (--class-weighting "
 "inverse_frequency only; default: from config)"
 
-#: mb/cli/parsing/train.py:135
+#: mb/cli/parsing/train.py:145
 msgid ""
-"Random seed. Currently only consumed by --model-type image_generation_lora "
-"(reproducible LoRA weight init and noise sampling)."
+"Random seed. Consumed by --model-type image_generation_lora (reproducible "
+"LoRA weight init and noise sampling) and text_classification (overrides "
+"text_classification.seed)."
 msgstr ""
-"Zufälliger Startwert. Derzeit nur von --model-type image_generation_lora "
-"verwendet (reproduzierbare LoRA-Gewichtsinitialisierung und "
-"Rauschabtastung)."
+"Zufalls-Seed. Verwendet von --model-type image_generation_lora "
+"(reproduzierbare LoRA-Gewichtinitialisierung und Rauschabtastung) und "
+"text_classification (überschreibt text_classification.seed)."
 
 #: mb/cli/parsing/train.py:153
 msgid ""
@@ -1396,15 +1566,17 @@ msgstr ""
 "LoRA-Adapter-Alpha-Skalierung (nur bei --model-type image_generation_lora; "
 "Standard: gleich wie --lora-rank)"
 
-#: mb/cli/parsing/train.py:156
+#: mb/cli/parsing/train.py:167
 msgid ""
 "Learning rate for the LoRA adapter parameters (--model-type "
-"image_generation_lora only; default: 1e-4). Unrelated to --frozen-"
-"lr/--unfrozen-lr-* (image_classification only)."
+"image_generation_lora; default: 1e-4), or text_classification.optim.lr "
+"(--model-type text_classification). Unrelated to --frozen-lr/--unfrozen-lr-*"
+" (image_classification only)."
 msgstr ""
-"Lernrate für die LoRA-Adapter-Parameter (nur --model-type "
-"image_generation_lora; Standard: 1e-4). Unabhängig von --frozen-"
-"lr/--unfrozen-lr-* (nur image_classification)."
+"Lernrate für die LoRA-Adapterparameter (--model-type image_generation_lora; "
+"Standard: 1e-4) bzw. text_classification.optim.lr (--model-type "
+"text_classification). Unabhängig von --frozen-lr/--unfrozen-lr-* (nur "
+"image_classification)."
 
 #: mb/cli/parsing/train.py:177
 msgid ""
@@ -1435,6 +1607,32 @@ msgstr ""
 "stable_diffusion_1x sind derzeit implementiert — stable_diffusion_xl, "
 "stable_diffusion_3 und z_image_turbo werden erkannt, aber noch nicht "
 "unterstützt."
+
+#: mb/cli/parsing/train.py:200
+msgid ""
+"--model-type text_classification only: model family (default: "
+"text_classification.backend)"
+msgstr ""
+"--model-type text_classification nur: Modellfamilie (Standard: "
+"text_classification.backend)"
+
+#: mb/cli/parsing/train.py:209
+msgid ""
+"--model-type text_classification only: Hugging Face id or local path of the "
+"model within the family (default: text_classification.model_id, else the "
+"backend's default)"
+msgstr ""
+"--model-type text_classification only: Hugging Face‑ID oder lokaler Pfad des"
+" Modells innerhalb der Familie (Standard: text_classification.model_id, "
+"sonst der Standard des Backends)"
+
+#: mb/cli/parsing/train.py:219
+msgid ""
+"--model-type text_classification only: maximum training epochs (default: "
+"text_classification.optim.epochs, else the backend's default)"
+msgstr ""
+"--model-type text_classification only: maximale Trainings-Epochen (Standard:"
+" text_classification.optim.epochs, sonst Backend-Standard)"
 
 #: mb/cli/parsing/train.py:226
 msgid "Path to checkpoint to resume training from"
@@ -1482,29 +1680,29 @@ msgstr "ONNX-Datei nicht gefunden: {path}"
 msgid "Quantization to {mode} failed: {err}"
 msgstr "Quantisierung zu {mode} fehlgeschlagen: {err}"
 
-#: mb/data/dataset.py:1072
+#: mb/data/dataset.py:1130
 msgid "Source and target directories are on the same drive."
 msgstr "Die Quelle und das Zielverzeichnis sind auf dem gleichen Laufwerk."
 
-#: mb/data/dataset.py:1074
+#: mb/data/dataset.py:1132
 msgid ""
 "The script will use copy operations (not move) to preserve source files."
 msgstr ""
 "Das Skript wird Kopieroperationen (nicht verschieben) verwenden, um "
 "Quelldateien zu erhalten."
 
-#: mb/data/dataset.py:1093
+#: mb/data/dataset.py:1151
 msgid ""
 "Source drive {drive} is the system drive. Proceeding without confirmation."
 msgstr ""
 "Die Quelle Laufwerk {drive} ist das Systemlaufwerk. Ohne Bestätigung "
 "fortsetzen."
 
-#: mb/data/dataset.py:1103
+#: mb/data/dataset.py:1161
 msgid "NOTE: Source drive {src} is different from system drive {sys}."
 msgstr "HINWEIS: Quelldrive {src} ist verschieden vom Systemlaufwerk {sys}."
 
-#: mb/data/dataset.py:1109
+#: mb/data/dataset.py:1167
 msgid ""
 "This may indicate an external drive that failed detection. Consider whether "
 "to proceed."
@@ -1512,7 +1710,7 @@ msgstr ""
 "Das könnte darauf hindeuten, dass eine externe Festplatte nicht erkannt "
 "wurde. Betrachten Sie, ob Sie fortfahren möchten."
 
-#: mb/data/dataset.py:1115
+#: mb/data/dataset.py:1173
 msgid ""
 "NOTE: Unable to determine system drive. If this is not your main system "
 "drive,"
@@ -1520,7 +1718,7 @@ msgstr ""
 "HINWEIS: Kann das Systemlaufwerk nicht bestimmen. Falls dies nicht Ihr "
 "Hauptsystemlaufwerk ist,"
 
-#: mb/data/dataset.py:1120
+#: mb/data/dataset.py:1178
 msgid ""
 "it may indicate an external drive that failed detection. Consider whether to"
 " proceed."
@@ -1528,7 +1726,7 @@ msgstr ""
 "Es kann eine externe Festplatte anzeigen, die nicht erkannt wurde. Überlegen"
 " Sie, ob Sie fortfahren möchten."
 
-#: mb/data/dataset.py:1125
+#: mb/data/dataset.py:1183
 msgid ""
 "NOTE: If this is not your main system drive, it may indicate an external "
 "drive"
@@ -1536,16 +1734,16 @@ msgstr ""
 "HINWEIS: Wenn dies nicht Ihr主系统laufwerk ist, kann es sich um ein externes "
 "laufwerk handeln"
 
-#: mb/data/dataset.py:1127
+#: mb/data/dataset.py:1185
 msgid "that failed detection. Consider whether to proceed."
 msgstr ""
 "Die fehlgeschlagene Detektion. Überlegen Sie sich, ob Sie fortfahren sollen."
 
-#: mb/data/dataset.py:1129
+#: mb/data/dataset.py:1187
 msgid "Continue with same-drive operation? (y/N): "
 msgstr "Weitert man mit der Gleichlaufbetriebsoperation? (Y/N): "
 
-#: mb/data/dataset.py:1131
+#: mb/data/dataset.py:1189
 msgid "Operation cancelled by user."
 msgstr "Operation abgestoppt vom Benutzer."
 
@@ -1646,6 +1844,183 @@ msgstr "Verzeichnis für Rohdaten ist nicht vorhanden: {path}"
 #: mb/evaluate/classification/image_multilabel_metrics.py:70
 msgid "No images found under {path}"
 msgstr "Keine Bilder unter {path} gefunden"
+
+#: mb/data/text_dataset.py:82 mb/data/text_dataset.py:91
+#: mb/data/text_dataset.py:220
+msgid "{path} is empty (expected a header row)"
+msgstr "{path} ist leer (erwartete Kopfzeile)"
+
+#: mb/data/text_dataset.py:94
+msgid "{path} has no '{col}' column (header: {header})"
+msgstr "{path} hat keine '{col}'-Spalte (Kopfzeile: {header})"
+
+#: mb/data/text_dataset.py:103 mb/data/text_dataset.py:256
+msgid "{path}:{line}: expected {n} fields, found {m}"
+msgstr "{path}:{line}: erwartete {n} Felder, gefunden {m}"
+
+#: mb/data/text_dataset.py:214
+msgid "Dataset file not found: {path}"
+msgstr "Datensatzdatei nicht gefunden: {path}"
+
+#: mb/data/text_dataset.py:224
+msgid "{path} is missing required column(s): {cols}"
+msgstr "{path} hat nicht die erforderlichen Spalten: {cols}"
+
+#: mb/data/text_dataset.py:234
+msgid ""
+"{conflicts} exists but {path} has no '{col}' column to match it against"
+msgstr ""
+"{conflicts} existiert, aber {path} hat keine Spalte '{col}', um es damit "
+"abzugleichen"
+
+#: mb/data/text_dataset.py:267
+msgid "{path}:{line}: label must be 0 or 1 (got {v!r})"
+msgstr "{path}:{line}: label muss 0 oder 1 sein (erhalten {v!r})"
+
+#: mb/data/text_dataset.py:272
+msgid "{path}:{line}: split must be one of {choices} (got {v!r})"
+msgstr "{path}:{line}: split muss einer von {choices} sein (bekam {v!r})"
+
+#: mb/data/text_dataset.py:295
+msgid "{path}:{line}: {col} must be a number or empty (got {v!r})"
+msgstr "{path}:{line}: {col} muss eine Zahl oder leer sein (erhalten {v!r})"
+
+#: mb/data/text_dataset.py:302
+msgid "{path} has no data rows"
+msgstr "{path} hat keine Datenzeilen"
+
+#: mb/data/text_dataset.py:363
+msgid "Dataset: {path}"
+msgstr "Datensatz: {path}"
+
+#: mb/data/text_dataset.py:367
+msgid "Result: {r}"
+msgstr "Ergebnis: {r}"
+
+#: mb/data/text_dataset.py:367
+msgid "PASS"
+msgstr "BESTANDEN"
+
+#: mb/data/text_dataset.py:367
+msgid "FAIL"
+msgstr "FEHLER"
+
+#: mb/data/text_dataset.py:437
+msgid "not present; hash and count checks skipped"
+msgstr "nicht vorhanden; Hash- und Zählerprüfungen übersprungen"
+
+#: mb/data/text_dataset.py:444
+msgid "Hashing {name}…"
+msgstr "Hashing von {name}…"
+
+#: mb/data/text_dataset.py:447
+msgid "file missing"
+msgstr "Datei fehlt"
+
+#: mb/data/text_dataset.py:457
+msgid "size {a} != {b}"
+msgstr "Größe {a} != {b}"
+
+#: mb/data/text_dataset.py:466
+msgid "Reading {name}…"
+msgstr "Lese {name}…"
+
+#: mb/data/text_dataset.py:478
+msgid "Checking counts…"
+msgstr "Zähle …"
+
+#: mb/data/text_dataset.py:483
+msgid "row count"
+msgstr "Zeilenanzahl"
+
+#: mb/data/text_dataset.py:489
+msgid "label counts"
+msgstr "Anzahl der Labels"
+
+#: mb/data/text_dataset.py:491
+msgid "tier counts"
+msgstr "Stufenanzahl"
+
+#: mb/data/text_dataset.py:493
+msgid "source counts"
+msgstr "Quellzählungen"
+
+#: mb/data/text_dataset.py:497
+msgid "category hint counts"
+msgstr "Kategorie-Hinweiszählungen"
+
+#: mb/data/text_dataset.py:511
+msgid "split counts"
+msgstr "Zähler teilen"
+
+#: mb/data/text_dataset.py:515
+msgid "group count"
+msgstr "Gruppenzahl"
+
+#: mb/data/text_dataset.py:522
+msgid "conflict group count"
+msgstr "Konfliktgruppenanzahl"
+
+#: mb/data/text_dataset.py:530
+msgid "unlabeled rows"
+msgstr "unbeschriftete Zeilen"
+
+#: mb/data/text_dataset.py:536
+msgid "Checking uniqueness…"
+msgstr "Einzigartigkeit prüfen…"
+
+#: mb/data/text_dataset.py:548 tests/unit/test_text_dataset.py:72
+msgid "text values unique"
+msgstr "einzigartige Textwerte"
+
+#: mb/data/text_dataset.py:550
+msgid "duplicates include: {d}"
+msgstr "Duplikate enthalten: {d}"
+
+#: mb/data/text_dataset.py:565 mb/data/text_dataset.py:572
+#: tests/unit/test_text_dataset.py:72
+msgid "each group in one split"
+msgstr "jede Gruppe in einem Split"
+
+#: mb/data/text_dataset.py:567
+msgid "groups in several splits include: {g}"
+msgstr "Gruppen in mehreren Aufteilungen enthalten: {g}"
+
+#: mb/data/text_dataset.py:572
+msgid "no '{col}' column; skipped"
+msgstr "keine '{col}'-Spalte; übersprungen"
+
+#: mb/data/text_dataset.py:606 mb/training/text_config.py:466
+msgid ""
+"subsample_unreviewed needs unreviewed_tier to name the tier to thin out"
+msgstr ""
+"subsample_unreviewed benötigt unreviewed_tier, um die zu dünnende Stufe zu "
+"benennen"
+
+#: mb/data/text_dataset.py:609
+msgid "subsample_unreviewed needs a '{col}' column in {file}"
+msgstr "subsample_unreviewed benötigt eine '{col}'-Spalte in {file}"
+
+#: mb/data/text_dataset.py:614
+msgid "subsample_unreviewed is set but no rows have tier '{tier}'"
+msgstr ""
+"subsample_unreviewed ist gesetzt, aber keine Zeilen haben die Stufe '{tier}'"
+
+#: mb/data/text_dataset.py:654
+msgid "The training rows contain only one label; cannot train."
+msgstr "Die Trainingszeilen enthalten nur ein Label; Training nicht möglich."
+
+#: mb/data/text_dataset.py:663
+msgid "tier_weight is set but {file} has no '{col}' column"
+msgstr "tier_weight ist gesetzt, aber {file} enthält keine Spalte '{col}'"
+
+#: mb/data/text_dataset.py:668
+msgid "tier_weight names unknown tier(s): {bad} (known: {known})"
+msgstr "tier_weight Namen unbekannte Stufe(n): {bad} (bekannt: {known})"
+
+#: mb/data/text_dataset.py:690
+msgid "gold_tiers names unknown tier(s): {bad} (known: {known})"
+msgstr "gold_tiers Namen unbekannte Stufe(n): {bad} (bekannt: {known})"
 
 #: mb/evaluate/_weights.py:29
 msgid "PyTorch file did not contain a dictionary checkpoint or state_dict."
@@ -2039,6 +2414,96 @@ msgid "Macro averages exclude {n} label(s) with no positives in this split."
 msgstr ""
 "Makrodurchschnitte schließen {n} Label(s) ohne Positive in diesem Split aus."
 
+#: mb/evaluate/classification/text_calibration.py:219
+msgid "No calibrator for method '{m}'"
+msgstr "Kein Kalibrator für Methode '{m}'"
+
+#: mb/evaluate/classification/text_calibration.py:222
+msgid "Calibration needs both labels in the val split."
+msgstr "Die Kalibrierung benötigt beide Labels im val‑Split."
+
+#: mb/evaluate/classification/text_calibration.py:234
+msgid "Unknown calibrator in {path}: {m!r}"
+msgstr "Unbekannter Kalibrator in {path}: {m!r}"
+
+#: mb/evaluate/classification/text_evaluation.py:84
+msgid "Not a text-classification run directory (no {file}): {path}"
+msgstr "Kein Textklassifizierungs‑Verzeichnis (keine {file}): {path}"
+
+#: mb/evaluate/classification/text_evaluation.py:228
+#: mb/training/text_trainer.py:170
+msgid "Verifying dataset…"
+msgstr "Datensatz wird überprüft…"
+
+#: mb/evaluate/classification/text_evaluation.py:243
+#: mb/training/text_trainer.py:180
+msgid ""
+"Dataset verification failed:\n"
+"{report}"
+msgstr ""
+"Datensatzüberprüfung fehlgeschlagen:\n"
+"{report}"
+
+#: mb/evaluate/classification/text_evaluation.py:248
+msgid "Loading model…"
+msgstr "Lade Modell…"
+
+#: mb/evaluate/classification/text_evaluation.py:264
+msgid "Scoring test…"
+msgstr "Bewertungstest…"
+
+#: mb/evaluate/classification/text_evaluation.py:276
+msgid "Computing metrics…"
+msgstr "Metriken werden berechnet…"
+
+#: mb/evaluate/classification/text_evaluation.py:287
+msgid "Counting truncated rows…"
+msgstr "Zähle abgeschnittene Zeilen…"
+
+#: mb/evaluate/classification/text_evaluation.py:319
+msgid "Scoring {tier} rows for the review queue…"
+msgstr "Bewertung von {tier} Zeilen für die Warteschlange zur Überprüfung…"
+
+#: mb/evaluate/classification/text_evaluation.py:332
+msgid "Scoring unlabeled rows…"
+msgstr "Bewertung nicht gekennzeichneter Zeilen…"
+
+#: mb/evaluate/classification/text_evaluation.py:364
+msgid "Evaluation complete."
+msgstr "Auswertung abgeschlossen."
+
+#: mb/evaluate/classification/text_evaluation.py:531
+msgid "run"
+msgstr "Ausführen"
+
+#: mb/evaluate/classification/text_evaluation.py:532
+msgid "backend"
+msgstr "Backend"
+
+#: mb/evaluate/classification/text_evaluation.py:533
+msgid "model"
+msgstr "Modell"
+
+#: mb/evaluate/classification/text_evaluation.py:534
+msgid "gold AP"
+msgstr "Gold AP"
+
+#: mb/evaluate/classification/text_evaluation.py:535
+msgid "full AP"
+msgstr "Vollständiger AP"
+
+#: mb/evaluate/classification/text_evaluation.py:536
+msgid "R@P0.90"
+msgstr "R@P0.90"
+
+#: mb/evaluate/classification/text_evaluation.py:537
+msgid "gold FPR"
+msgstr "Gold FPR"
+
+#: mb/evaluate/classification/text_evaluation.py:538
+msgid "ECE"
+msgstr "ECE"
+
 #: mb/models/preprocessing.py:256
 msgid ""
 "Architecture {arch} expects {native}x{native} input; {requested} was "
@@ -2056,6 +2521,108 @@ msgid ""
 msgstr ""
 "transformers>={version} ist für Hugging‑Face‑Backbones erforderlich. "
 "Installiere es mit: pip install -e \".[transformers]\""
+
+#: mb/models/text_backends/__init__.py:41
+msgid "No {file} in {path}"
+msgstr "Keine {file} im {path}"
+
+#: mb/models/text_backends/__init__.py:45
+msgid "Unknown backend in {path}: {b!r}"
+msgstr "Unbekanntes Backend in {path}: {b!r}"
+
+#: mb/models/text_backends/_torch_common.py:20
+msgid ""
+"Neural text backends require PyTorch and transformers: pip install -e "
+"\".[pytorch,text]\". Underlying error: {err}"
+msgstr ""
+"Neurale Text-Backends benötigen PyTorch und Transformers: pip install -e "
+"\".[pytorch,text]\". Ursache des Fehlers: {err}"
+
+#: mb/models/text_backends/_torch_common.py:33
+msgid ""
+"Neural text backends require transformers: pip install -e \".[text]\". "
+"Underlying error: {err}"
+msgstr ""
+"Neurale Text-Backends benötigen Transformers: pip install -e \".[text]\". "
+"Zugrundeliegender Fehler: {err}"
+
+#: mb/models/text_backends/base.py:96
+msgid "Unknown backend_options for {backend}: {bad} (allowed: {allowed})"
+msgstr "Unbekannte backend_options für {backend}: {bad} (erlaubt: {allowed})"
+
+#: mb/models/text_backends/base.py:99
+msgid "none"
+msgstr "keine"
+
+#: mb/models/text_backends/char_ngram_linear.py:44
+msgid ""
+"The char_ngram_linear backend requires scikit-learn: pip install -e "
+"\".[text]\". Underlying error: {err}"
+msgstr ""
+"Das char_ngram_linear‑Backend erfordert scikit-learn: pip install -e "
+"\".[text]\". zugrundeliegender Fehler: {err}"
+
+#: mb/models/text_backends/char_ngram_linear.py:168
+msgid "backend_options: need 1 <= ngram_min <= ngram_max"
+msgstr "backend_options: benötigt 1 <= ngram_min <= ngram_max"
+
+#: mb/models/text_backends/char_ngram_linear.py:170
+msgid "Counting character n-grams…"
+msgstr "Zähle Zeichen‑n‑Gramme…"
+
+#: mb/models/text_backends/char_ngram_linear.py:180
+msgid "Vectorizing val…"
+msgstr "Vektorisieren val…"
+
+#: mb/models/text_backends/char_ngram_linear.py:190
+msgid "Fitting logistic regression (C={c}, {i}/{n})…"
+msgstr "Logistische Regression wird angepasst (C={c}, {i}/{n})…"
+
+#: mb/models/text_backends/char_ngram_linear.py:209
+msgid "Linear model fitted."
+msgstr "Lineares Modell angepasst."
+
+#: mb/models/text_backends/char_ngram_linear.py:225
+#: mb/models/text_backends/encoder_finetune.py:272
+msgid "Scoring…"
+msgstr "Bewertung…"
+
+#: mb/models/text_backends/embedding_probe.py:268
+msgid "Embedding {what}: {i}/{n}"
+msgstr "Einbetten {what}: {i}/{n}"
+
+#: mb/models/text_backends/embedding_probe.py:347
+msgid "backend_options.pooling must be one of: {c}"
+msgstr "backend_options.pooling muss einer von: {c}"
+
+#: mb/models/text_backends/embedding_probe.py:349
+msgid "backend_options.head must be one of: {c}"
+msgstr "backend_options.head muss einer der folgenden sein: {c}"
+
+#: mb/models/text_backends/embedding_probe.py:354
+#: mb/models/text_backends/encoder_finetune.py:156
+msgid "Loading {model}…"
+msgstr "Lade {model}…"
+
+#: mb/models/text_backends/embedding_probe.py:361
+msgid "train"
+msgstr "Zug"
+
+#: mb/models/text_backends/embedding_probe.py:362
+msgid "val"
+msgstr "Wert"
+
+#: mb/models/text_backends/embedding_probe.py:393
+msgid "Head epoch {e}/{E} — val metric {m:.4f}"
+msgstr "Kopf Epoche {e}/{E} — Validierungsmetrik {m:.4f}"
+
+#: mb/models/text_backends/embedding_probe.py:412
+msgid "texts"
+msgstr "Texte"
+
+#: mb/models/text_backends/encoder_finetune.py:221
+msgid "Epoch {e}/{E} — step {s}/{S} — loss {l:.4f}"
+msgstr "Epoche {e}/{E} — Schritt {s}/{S} — Verlust {l:.4f}"
 
 #: mb/training/lora_diffusion_trainer.py:82
 msgid ""
@@ -2089,7 +2656,7 @@ msgstr ""
 msgid "No prepared images found under {path}"
 msgstr "Keine vorbereiteten Bilder unter {path} gefunden"
 
-#: mb/training/lora_diffusion_trainer.py:534
+#: mb/training/lora_diffusion_trainer.py:544
 msgid ""
 "Image-generation LoRA training requires the 'lora' extras: pip install -e "
 "\".[lora]\" (diffusers, peft, transformers). Underlying error: {err}"
@@ -2098,7 +2665,7 @@ msgstr ""
 "install -e \".[lora]\" (diffusers, peft, transformers). Zugrundeliegender "
 "Fehler: {err}"
 
-#: mb/training/lora_diffusion_trainer.py:564
+#: mb/training/lora_diffusion_trainer.py:574
 msgid ""
 "--model-type image_generation_lora only supports --framework pytorch (got: "
 "{fw})."
@@ -2106,13 +2673,159 @@ msgstr ""
 "--model-type image_generation_lora unterstützt nur --framework pytorch "
 "(erhalten: {fw})."
 
-#: mb/training/lora_diffusion_trainer.py:603
+#: mb/training/lora_diffusion_trainer.py:613
 msgid "LoRA training failed: {err}"
 msgstr "LoRA-Training fehlgeschlagen: {err}"
 
-#: mb/training/lora_diffusion_trainer.py:608
+#: mb/training/lora_diffusion_trainer.py:618
 msgid "Training completed successfully. Adapter saved to: {path}"
 msgstr "Training erfolgreich abgeschlossen. Adapter gespeichert unter: {path}"
+
+#: mb/training/text_config.py:107
+msgid "Invalid text_classification config:"
+msgstr "Ungültige text_classification-Konfiguration:"
+
+#: mb/training/text_config.py:257
+msgid "Unknown key '{key}' in {where} (allowed: {allowed})"
+msgstr "Unbekannter Schlüssel '{key}' in {where} (erlaubt: {allowed})"
+
+#: mb/training/text_config.py:266
+msgid "{where}.{key} must be a mapping"
+msgstr "{where}.{key} muss ein Mapping sein"
+
+#: mb/training/text_config.py:272
+msgid "{name} must be a non-empty path"
+msgstr "{name} muss ein nicht‑leerer Pfad sein"
+
+#: mb/training/text_config.py:279
+msgid "{name} must be an integer >= {min} (got {v!r})"
+msgstr "{name} muss eine ganze Zahl ≥ {min} sein (erhalten {v!r})"
+
+#: mb/training/text_config.py:294
+msgid "{name} must be a number in {range} (got {v!r})"
+msgstr "{name} muss eine Zahl im Bereich {range} sein (erhalten {v!r})"
+
+#: mb/training/text_config.py:306
+msgid "{name} must be true or false (got {v!r})"
+msgstr "{name} muss True oder False sein (erhalten {v!r})"
+
+#: mb/training/text_config.py:314
+msgid "{name} must be a non-empty string or null"
+msgstr "{name} muss ein nicht-leerer String oder Null sein"
+
+#: mb/training/text_config.py:331
+msgid "class_weight keys must be 0 and 1 (got {k!r})"
+msgstr "class_weight‑Schlüssel müssen 0 und 1 sein (erhalten {k!r})"
+
+#: mb/training/text_config.py:336
+msgid "class_weight mapping must give a weight for both 0 and 1"
+msgstr "class_weight-Mapping muss für sowohl 0 als auch 1 ein Gewicht angeben"
+
+#: mb/training/text_config.py:339
+msgid ""
+"class_weight must be 'none', 'balanced' or {{0: w0, 1: w1}} (got {v!r})"
+msgstr ""
+"class_weight muss 'none', 'balanced' oder {{0: w0, 1: w1}} sein (erhalten "
+"{v!r})"
+
+#: mb/training/text_config.py:348
+msgid "tier_weight must be a mapping of tier name to multiplier"
+msgstr "tier_weight muss eine Zuordnung von Tiername zu Multiplikator sein"
+
+#: mb/training/text_config.py:360
+msgid "gold_tiers must be null or a non-empty list of tier names"
+msgstr ""
+"gold_tiers muss null oder eine nicht leere Liste von Stufen‑Namen sein"
+
+#: mb/training/text_config.py:373 mb/training/text_config.py:550
+msgid "text_classification must be a mapping"
+msgstr "text_classification muss ein Mapping sein"
+
+#: mb/training/text_config.py:383
+msgid "backend must be one of: {choices} (got {v!r})"
+msgstr "Backend muss einer der folgenden sein: {choices} (erhielt {v!r})"
+
+#: mb/training/text_config.py:392
+msgid "calibration must be one of: {choices} (got {v!r})"
+msgstr ""
+"Kalibrierung muss einer der folgenden sein: {choices} (erhalten {v!r})"
+
+#: mb/training/text_config.py:415
+msgid "early_stopping.metric must be one of: {choices} (got {v!r})"
+msgstr ""
+"early_stopping.metric muss einer der folgenden sein: {choices} (bekam {v!r})"
+
+#: mb/training/text_config.py:431
+msgid "threshold_policy.kind must be one of: {choices} (got {v!r})"
+msgstr ""
+"threshold_policy.kind muss einer der folgenden sein: {choices} (erhalten "
+"{v!r})"
+
+#: mb/training/text_config.py:453
+msgid "model_card_notes must be a string"
+msgstr "model_card_notes muss eine Zeichenkette sein"
+
+#: mb/training/text_config.py:460
+msgid "backend_options must be a mapping"
+msgstr "backend_options muss ein Mapping sein"
+
+#: mb/training/text_config.py:469
+msgid "reference_score_column must be a non-empty string"
+msgstr "reference_score_column muss ein nicht-leerer String sein"
+
+#: mb/training/text_config.py:472
+msgid "unlabeled_file must be a non-empty file name"
+msgstr "unlabeled_file muss ein nichtleerer Dateiname sein"
+
+#: mb/training/text_trainer.py:163
+msgid "Loading dataset…"
+msgstr "Datensatz wird geladen…"
+
+#: mb/training/text_trainer.py:199
+msgid "The val split needs both labels for model selection and calibration."
+msgstr ""
+"Der Validierungs‑Split benötigt beide Labels für Modellauswahl und "
+"Kalibrierung."
+
+#: mb/training/text_trainer.py:264
+msgid "Calibrating on val ({method})…"
+msgstr "Kalibrierung von val ({method})…"
+
+#: mb/training/text_trainer.py:294
+msgid ""
+"this PyTorch build has no CUDA support (on Windows, plain `pip install "
+"torch` installs the CPU-only build; install a CUDA build from "
+"https://pytorch.org/get-started/locally/)"
+msgstr ""
+"Dieses PyTorch‑Build hat keine CUDA‑Unterstützung (unter Windows installiert"
+" der einfache `pip install torch` die CPU‑only‑Version; installieren Sie ein"
+" CUDA‑Build von https://pytorch.org/get-started/locally/)"
+
+#: mb/training/text_trainer.py:297
+msgid ""
+"PyTorch was built for CUDA {v} but no usable GPU was found (check the "
+"driver)"
+msgstr ""
+"PyTorch wurde für CUDA {v} gebaut, aber es wurde keine nutzbare GPU gefunden"
+" (Treiber prüfen)"
+
+#: mb/training/text_trainer.py:301
+msgid ""
+"No GPU available for {backend} ({model}): training on CPU will be very slow."
+" Cause: {reason}. Set text_classification.device: cpu to run on CPU without "
+"this warning."
+msgstr ""
+"Für {backend} ({model}) ist keine GPU verfügbar: Das Training auf der CPU "
+"wird sehr langsam sein. Ursache: {reason}. Setze text_classification.device:"
+" cpu, um auf der CPU zu laufen, ohne diese Warnung."
+
+#: mb/training/text_trainer.py:357
+msgid "No {file} in the text-classification data directory: {path}"
+msgstr "Kein {file} im Textklassifizierungs-Datenverzeichnis: {path}"
+
+#: mb/training/text_trainer.py:370
+msgid "Training completed successfully. Run directory: {path}"
+msgstr "Training erfolgreich abgeschlossen. Laufverzeichnis: {path}"
 
 #: mb/training/trainer.py:130
 msgid ""
@@ -2249,6 +2962,14 @@ msgstr ""
 msgid "Error"
 msgstr "Fehler"
 
+#: ui/controllers/train_page_controller.py:94
+msgid "Seed must be an integer."
+msgstr "Seed muss eine ganze Zahl sein."
+
+#: ui/controllers/train_page_controller.py:111
+msgid "No {file} in the data directory: {path}"
+msgstr "Keine {file} im Datenverzeichnis: {path}"
+
 #: ui/controllers/train_page_controller.py:124
 msgid "Architecture is required."
 msgstr "Architektur wird benöigt."
@@ -2295,13 +3016,9 @@ msgid "Base architecture '{arch}' is recognized but not implemented yet."
 msgstr ""
 "Basisarchitektur '{arch}' wird erkannt, ist aber noch nicht implementiert."
 
-#: ui/controllers/train_page_controller.py:94
-msgid "Seed must be an integer."
-msgstr "Seed muss eine ganze Zahl sein."
-
 #: ui/lib/custom_dialogs_qt.py:120 ui/lib/fast_directory_picker_qt.py:410
-#: ui/lib/fast_directory_picker_qt.py:672
-#: ui/lib/fast_directory_picker_qt.py:993 ui/lib/qt_alert.py:28
+#: ui/lib/fast_directory_picker_qt.py:675
+#: ui/lib/fast_directory_picker_qt.py:996 ui/lib/qt_alert.py:28
 #: ui/lib/task_progress.py:38 ui/lib/training_progress_dialog.py:77
 msgid "Cancel"
 msgstr "Abbrechen"
@@ -2442,54 +3159,54 @@ msgid "Unknown"
 msgstr "Unbekannt"
 
 #: ui/lib/fast_directory_picker_qt.py:334
-#: ui/lib/fast_directory_picker_qt.py:1235
+#: ui/lib/fast_directory_picker_qt.py:1238
 msgid "Select Directory"
 msgstr "Wählen Sie das Verzeichnis"
 
 #: ui/lib/fast_directory_picker_qt.py:357
-#: ui/lib/fast_directory_picker_qt.py:614
-#: ui/lib/fast_directory_picker_qt.py:927
+#: ui/lib/fast_directory_picker_qt.py:617
+#: ui/lib/fast_directory_picker_qt.py:930
 msgid "Locations"
 msgstr "Orte"
 
 #: ui/lib/fast_directory_picker_qt.py:362
-#: ui/lib/fast_directory_picker_qt.py:619
-#: ui/lib/fast_directory_picker_qt.py:932
+#: ui/lib/fast_directory_picker_qt.py:622
+#: ui/lib/fast_directory_picker_qt.py:935
 msgid "Refresh locations"
 msgstr "Orte aktualisieren"
 
 #: ui/lib/fast_directory_picker_qt.py:375
-#: ui/lib/fast_directory_picker_qt.py:945
+#: ui/lib/fast_directory_picker_qt.py:948
 msgid "Type or paste a directory path"
 msgstr "Typen Sie oder einfügen Sie einen Verzeichnisweg"
 
 #: ui/lib/fast_directory_picker_qt.py:379
-#: ui/lib/fast_directory_picker_qt.py:636
-#: ui/lib/fast_directory_picker_qt.py:949
+#: ui/lib/fast_directory_picker_qt.py:639
+#: ui/lib/fast_directory_picker_qt.py:952
 msgid "Go"
 msgstr "Gehe"
 
 #: ui/lib/fast_directory_picker_qt.py:383
-#: ui/lib/fast_directory_picker_qt.py:640
-#: ui/lib/fast_directory_picker_qt.py:953
+#: ui/lib/fast_directory_picker_qt.py:643
+#: ui/lib/fast_directory_picker_qt.py:956
 msgid "Up"
 msgstr "Auf"
 
 #: ui/lib/fast_directory_picker_qt.py:387
-#: ui/lib/fast_directory_picker_qt.py:644
-#: ui/lib/fast_directory_picker_qt.py:957
+#: ui/lib/fast_directory_picker_qt.py:647
+#: ui/lib/fast_directory_picker_qt.py:960
 msgid "New Folder"
 msgstr "Neuer Ordner"
 
 #: ui/lib/fast_directory_picker_qt.py:391
-#: ui/lib/fast_directory_picker_qt.py:648
-#: ui/lib/fast_directory_picker_qt.py:961
+#: ui/lib/fast_directory_picker_qt.py:651
+#: ui/lib/fast_directory_picker_qt.py:964
 msgid "Refresh"
 msgstr "Aktualisieren"
 
 #: ui/lib/fast_directory_picker_qt.py:395
-#: ui/lib/fast_directory_picker_qt.py:652
-#: ui/lib/fast_directory_picker_qt.py:965
+#: ui/lib/fast_directory_picker_qt.py:655
+#: ui/lib/fast_directory_picker_qt.py:968
 msgid "Folders"
 msgstr "Ordner"
 
@@ -2498,98 +3215,98 @@ msgid "Select"
 msgstr "Auswählen"
 
 #: ui/lib/fast_directory_picker_qt.py:479
-#: ui/lib/fast_directory_picker_qt.py:749
-#: ui/lib/fast_directory_picker_qt.py:1071
+#: ui/lib/fast_directory_picker_qt.py:752
+#: ui/lib/fast_directory_picker_qt.py:1074
 msgid "Create New Folder"
 msgstr "Neuer Ordner"
 
 #: ui/lib/fast_directory_picker_qt.py:480
-#: ui/lib/fast_directory_picker_qt.py:750
-#: ui/lib/fast_directory_picker_qt.py:1072
+#: ui/lib/fast_directory_picker_qt.py:753
+#: ui/lib/fast_directory_picker_qt.py:1075
 msgid "Folder name:"
 msgstr "Ordnername:"
 
 #: ui/lib/fast_directory_picker_qt.py:486
-#: ui/lib/fast_directory_picker_qt.py:756
-#: ui/lib/fast_directory_picker_qt.py:1078
+#: ui/lib/fast_directory_picker_qt.py:759
+#: ui/lib/fast_directory_picker_qt.py:1081
 msgid "Folder name cannot be empty."
 msgstr "Der Ordnername kann nicht leer sein."
 
 #: ui/lib/fast_directory_picker_qt.py:498
-#: ui/lib/fast_directory_picker_qt.py:766
-#: ui/lib/fast_directory_picker_qt.py:1088
+#: ui/lib/fast_directory_picker_qt.py:769
+#: ui/lib/fast_directory_picker_qt.py:1091
 msgid "A folder with that name already exists."
 msgstr "Es existiert bereits ein Ordner mit dem Namen."
 
-#: ui/lib/fast_directory_picker_qt.py:503
-#: ui/lib/fast_directory_picker_qt.py:770
-#: ui/lib/fast_directory_picker_qt.py:1092
+#: ui/lib/fast_directory_picker_qt.py:506
+#: ui/lib/fast_directory_picker_qt.py:773
+#: ui/lib/fast_directory_picker_qt.py:1095
 msgid "Failed to create folder (check permissions/path)."
 msgstr "Verzeichnis konnte nicht erstellt werden (Rechte/ Pfad überprüfen)"
 
-#: ui/lib/fast_directory_picker_qt.py:552
-#: ui/lib/fast_directory_picker_qt.py:847
-#: ui/lib/fast_directory_picker_qt.py:1154
+#: ui/lib/fast_directory_picker_qt.py:555
+#: ui/lib/fast_directory_picker_qt.py:850
+#: ui/lib/fast_directory_picker_qt.py:1157
 msgid "No folders found (or folder is not currently accessible)."
 msgstr "keine Ordner gefunden (oder der Ordner ist derzeit nicht erreichbar)"
 
-#: ui/lib/fast_directory_picker_qt.py:589
-#: ui/lib/fast_directory_picker_qt.py:1283
+#: ui/lib/fast_directory_picker_qt.py:592
+#: ui/lib/fast_directory_picker_qt.py:1286
 msgid "Open File"
 msgstr "Datei öffnen"
 
-#: ui/lib/fast_directory_picker_qt.py:632
+#: ui/lib/fast_directory_picker_qt.py:635
 msgid "Type or paste a directory or file path"
 msgstr "Geben Sie oder fügen Sie einen Verzeichnis- oder Dateipfad ein"
 
-#: ui/lib/fast_directory_picker_qt.py:657
+#: ui/lib/fast_directory_picker_qt.py:660
 msgid "Files"
 msgstr "Dateien"
 
-#: ui/lib/fast_directory_picker_qt.py:676
+#: ui/lib/fast_directory_picker_qt.py:679
 msgid "Open"
 msgstr "Offen"
 
-#: ui/lib/fast_directory_picker_qt.py:801
-#: ui/lib/fast_directory_picker_qt.py:1122
+#: ui/lib/fast_directory_picker_qt.py:804
+#: ui/lib/fast_directory_picker_qt.py:1125
 msgid "Path not found or not accessible."
 msgstr "Pfad nicht gefunden oder nicht zugänglich."
 
-#: ui/lib/fast_directory_picker_qt.py:886
+#: ui/lib/fast_directory_picker_qt.py:889
 msgid "Select a file or navigate into a folder."
 msgstr "Wählen Sie eine Datei oder navigieren Sie in einem Ordner."
 
-#: ui/lib/fast_directory_picker_qt.py:903
-#: ui/lib/fast_directory_picker_qt.py:1333
+#: ui/lib/fast_directory_picker_qt.py:906
+#: ui/lib/fast_directory_picker_qt.py:1336
 msgid "Save File"
 msgstr "Speichere die Datei"
 
-#: ui/lib/fast_directory_picker_qt.py:970
+#: ui/lib/fast_directory_picker_qt.py:973
 msgid "Files (optional — double-click to fill name)"
 msgstr "Dateien (optional — Doppelklick, um den Namen einzufügen)"
 
-#: ui/lib/fast_directory_picker_qt.py:977
+#: ui/lib/fast_directory_picker_qt.py:980
 msgid "File name"
 msgstr "Dateiname"
 
-#: ui/lib/fast_directory_picker_qt.py:979
+#: ui/lib/fast_directory_picker_qt.py:982
 msgid "output.onnx"
 msgstr "ausgabe.onnx"
 
-#: ui/lib/fast_directory_picker_qt.py:997 ui/pages/config_page.py:82
+#: ui/lib/fast_directory_picker_qt.py:1000 ui/pages/config_page.py:82
 #: ui/pages/config_page.py:160 ui/pages/pipeline_config_page.py:257
 msgid "Save"
 msgstr "Speichern"
 
-#: ui/lib/fast_directory_picker_qt.py:1172
+#: ui/lib/fast_directory_picker_qt.py:1175
 msgid "Enter a file name."
 msgstr "Geben Sie einen Dateinamen ein."
 
-#: ui/lib/fast_directory_picker_qt.py:1176
+#: ui/lib/fast_directory_picker_qt.py:1179
 msgid "Use a simple file name (no path separators)."
 msgstr "Verwenden Sie einen einfachen Dateinamen (keine Pfad trennzeichen)."
 
-#: ui/lib/fast_directory_picker_qt.py:1194
+#: ui/lib/fast_directory_picker_qt.py:1197
 msgid "Current Base Directory"
 msgstr "Aktuelles Basisverzeichnis"
 
@@ -3690,6 +4407,15 @@ msgstr ""
 "Es ist kein einheitlicher Snapshot für die Lauf-ID {rid!r} verfügbar. Erwartet wird {name} unter:\n"
 "  {dir}"
 
+#: ui/pages/data_page.py:1223
+msgid ""
+"Text classification datasets are prepared outside mb as a dataset.tsv with a"
+" fixed split column; check one on the Text page (Verify)."
+msgstr ""
+"Textklassifizierungs‑Datensätze werden außerhalb von mb als dataset.tsv mit "
+"einer festen Split‑Spalte erstellt; prüfen Sie einen auf der Text‑Seite "
+"(Verifizieren)."
+
 #: ui/pages/data_page.py:1230
 msgid "Raw data dir does not exist."
 msgstr "Das Raw Data-Verzeichnis existiert nicht."
@@ -4353,19 +5079,20 @@ msgstr "Verzeichnis fehlt"
 msgid "Pipeline"
 msgstr "Pipeline"
 
-#: ui/pages/pipeline_config_page.py:158
+#: ui/pages/pipeline_config_page.py:183
 msgid ""
 "Machine-learning defaults (<code>model</code>, <code>data</code>, "
-"<code>training</code>, <code>paths</code>). Save writes to your active "
-"pipeline file, or to <code>pipeline.yaml</code> beside "
-"<code>application.yaml</code> in app data when only packaged defaults are "
-"loaded."
+"<code>training</code>, <code>paths</code>, "
+"<code>text_classification</code>). Save writes to your active pipeline file,"
+" or to <code>pipeline.yaml</code> beside <code>application.yaml</code> in "
+"app data when only packaged defaults are loaded."
 msgstr ""
-"Standardwerte für maschinelles Lernen (<code>model</code>, "
-"<code>data</code>, <code>training</code>, <code>paths</code>). Speichern Sie"
-" die Änderungen in Ihrer aktiven Pipeline-Datei oder in der Datei "
-"<code>pipeline.yaml</code> neben <code>application.yaml</code> im App-"
-"Datenverzeichnis, wenn nur gepackte Standardwerte geladen werden."
+"Machine-Learning-Standardwerte (<code>model</code>, <code>data</code>, "
+"<code>training</code>, <code>paths</code>, "
+"<code>text_classification</code>). Beim Speichern wird in die aktive "
+"Pipeline‑Datei geschrieben oder, falls nur paketierte Vorgaben geladen sind,"
+" in <code>pipeline.yaml</code> neben <code>application.yaml</code> im "
+"Anwendungsdatenordner."
 
 #: ui/pages/pipeline_config_page.py:191 ui/pages/pipeline_config_page.py:197
 msgid "Data"
@@ -4379,6 +5106,10 @@ msgstr "Training"
 #: ui/pages/pipeline_config_page.py:193 ui/pages/pipeline_config_page.py:200
 msgid "Paths"
 msgstr "Wege"
+
+#: ui/pages/pipeline_config_page.py:194 ui/pages/pipeline_config_page.py:232
+msgid "Text classification"
+msgstr "Textklassifizierung"
 
 #: ui/pages/pipeline_config_page.py:195
 msgid "Advanced (YAML)"
@@ -4399,42 +5130,6 @@ msgstr "Standardframework"
 #: ui/pages/pipeline_config_page.py:203 ui/pages/pipeline_config_page.py:341
 msgid "Default architecture"
 msgstr "Standardarchitektur"
-
-#: ui/pages/pipeline_config_page.py:463
-msgid "Raw data directory"
-msgstr "Rohdatenverzeichnis"
-
-#: ui/pages/pipeline_config_page.py:464
-msgid "Dataset output directory"
-msgstr "Datenpunkt-Ausgabeverzeichnis"
-
-#: ui/pages/pipeline_config_page.py:465
-msgid "Test images per class"
-msgstr "Prüfabbildungen pro Klasse"
-
-#: ui/pages/pipeline_config_page.py:469
-msgid "Image size (pixels)"
-msgstr "Bildergöße (Pixel)"
-
-#: ui/pages/pipeline_config_page.py:470
-msgid "Training batch size"
-msgstr "Training Batch Größe"
-
-#: ui/pages/pipeline_config_page.py:471
-msgid "Image file extensions (one per line)"
-msgstr "Bild-Dateiendungen (eine pro Zeile)"
-
-#: ui/pages/pipeline_config_page.py:472
-msgid "Video file extensions (one per line)"
-msgstr "Video-Dateiendungen (eine pro Zeile)"
-
-#: ui/pages/pipeline_config_page.py:473
-msgid "Class folder names (empty = auto-discover)"
-msgstr "Klassenordner Namen (leer = automatisch entdecken)"
-
-#: ui/pages/pipeline_config_page.py:474
-msgid "Class qualifying subfolder"
-msgstr "Klassenqualifizierender Unterordner"
 
 #: ui/pages/pipeline_config_page.py:209 ui/pages/pipeline_config_page.py:431
 msgid "Default gather target count"
@@ -4489,6 +5184,43 @@ msgstr "Log-Verzeichnis"
 #: ui/pages/pipeline_config_page.py:230
 msgid "Timing data directory"
 msgstr "Timing-Daten-Verzeichnis"
+
+#: ui/pages/pipeline_config_page.py:236
+msgid ""
+"tier_weight, gold_tiers, unreviewed_tier, reference_score_column, "
+"unlabeled_file, backend_options and an explicit class_weight mapping are "
+"kept as loaded; edit them in the Advanced (YAML) tab. Unknown keys and "
+"invalid values in this section are errors when training."
+msgstr ""
+"tier_weight, gold_tiers, unreviewed_tier, reference_score_column, "
+"unlabeled_file, backend_options und ein explizites class_weight‑Mapping "
+"werden unverändert übernommen; bearbeiten Sie sie im Reiter „Erweitert "
+"(YAML)“. Unbekannte Schlüssel und ungültige Werte in diesem Abschnitt führen"
+" beim Training zu Fehlern."
+
+#: ui/pages/pipeline_config_page.py:242
+msgid "empty = backend default"
+msgstr "leer = Backend-Standard"
+
+#: ui/pages/pipeline_config_page.py:243
+msgid "empty = cuda when available, else cpu"
+msgstr "leer = CUDA, falls verfügbar, sonst CPU"
+
+#: ui/pages/pipeline_config_page.py:245
+msgid "Backend default"
+msgstr "Standard‑Backend"
+
+#: ui/pages/pipeline_config_page.py:246
+msgid "Off"
+msgstr "Aus"
+
+#: ui/pages/pipeline_config_page.py:247
+msgid "Exclude label-conflict groups from training and metrics"
+msgstr "Label‑Konflikt‑Gruppen vom Training und den Metriken ausschließen"
+
+#: ui/pages/pipeline_config_page.py:248
+msgid "Score the unlabeled file when present"
+msgstr "Bewerten Sie die nicht gekennzeichnete Datei, falls vorhanden"
 
 #: ui/pages/pipeline_config_page.py:251
 msgid ""
@@ -4570,21 +5302,9 @@ msgstr ""
 "verworfen wurden (z. B. „rejected“). Relativ zum Verzeichnis „Raw data“, "
 "sofern Sie keinen absoluten Pfad angeben."
 
-#: ui/pages/pipeline_config_page.py:402
-msgid "Select raw data directory"
-msgstr "Wählen Sie das Rohdatenverzeichnis aus."
-
-#: ui/pages/pipeline_config_page.py:403
-msgid "Select dataset directory"
-msgstr "Wählen Sie das Dataset-Verzeichnis aus."
-
 #: ui/pages/pipeline_config_page.py:368
 msgid "Same as test anchor"
 msgstr "Gleich wie Testanker"
-
-#: ui/pages/pipeline_config_page.py:468
-msgid "Default create-dataset seed"
-msgstr "Standard create-dataset Samen"
 
 #: ui/pages/pipeline_config_page.py:381
 msgid ""
@@ -4600,6 +5320,14 @@ msgstr "Einer Klassenordnername pro Zeile; Leer = entdecken"
 #: ui/pages/pipeline_config_page.py:395
 msgid "empty = any"
 msgstr "Leer =beliebig"
+
+#: ui/pages/pipeline_config_page.py:402
+msgid "Select raw data directory"
+msgstr "Wählen Sie das Rohdatenverzeichnis aus."
+
+#: ui/pages/pipeline_config_page.py:403
+msgid "Select dataset directory"
+msgstr "Wählen Sie das Dataset-Verzeichnis aus."
 
 #: ui/pages/pipeline_config_page.py:435
 msgid "Relative to raw data directory (e.g. coherent); absolute path optional"
@@ -4620,6 +5348,46 @@ msgstr ""
 msgid "Select default rejected directory"
 msgstr "Standardverzeichnis für ausgewiesene auswählen"
 
+#: ui/pages/pipeline_config_page.py:463
+msgid "Raw data directory"
+msgstr "Rohdatenverzeichnis"
+
+#: ui/pages/pipeline_config_page.py:464
+msgid "Dataset output directory"
+msgstr "Datenpunkt-Ausgabeverzeichnis"
+
+#: ui/pages/pipeline_config_page.py:465
+msgid "Test images per class"
+msgstr "Prüfabbildungen pro Klasse"
+
+#: ui/pages/pipeline_config_page.py:468
+msgid "Default create-dataset seed"
+msgstr "Standard create-dataset Samen"
+
+#: ui/pages/pipeline_config_page.py:469
+msgid "Image size (pixels)"
+msgstr "Bildergöße (Pixel)"
+
+#: ui/pages/pipeline_config_page.py:470
+msgid "Training batch size"
+msgstr "Training Batch Größe"
+
+#: ui/pages/pipeline_config_page.py:471
+msgid "Image file extensions (one per line)"
+msgstr "Bild-Dateiendungen (eine pro Zeile)"
+
+#: ui/pages/pipeline_config_page.py:472
+msgid "Video file extensions (one per line)"
+msgstr "Video-Dateiendungen (eine pro Zeile)"
+
+#: ui/pages/pipeline_config_page.py:473
+msgid "Class folder names (empty = auto-discover)"
+msgstr "Klassenordner Namen (leer = automatisch entdecken)"
+
+#: ui/pages/pipeline_config_page.py:474
+msgid "Class qualifying subfolder"
+msgstr "Klassenqualifizierender Unterordner"
+
 #: ui/pages/pipeline_config_page.py:544
 msgid "Select models directory"
 msgstr "Wählen Sie das Modellverzeichnis aus."
@@ -4627,1119 +5395,6 @@ msgstr "Wählen Sie das Modellverzeichnis aus."
 #: ui/pages/pipeline_config_page.py:550
 msgid "Select logs directory"
 msgstr "Wählen Sie das Protokolle-Verzeichnis"
-
-#: ui/pages/pipeline_config_page.py:961
-msgid ""
-"Loaded: {path}\n"
-"Save will write to: {save}"
-msgstr ""
-"Geladen: {path}\n"
-"Beim Speichern wird in die Datei {save} geschrieben"
-
-#: ui/pages/pipeline_config_page.py:967
-msgid ""
-"Loaded: packaged defaults\n"
-"Save will write to: {path}"
-msgstr ""
-"Geladen: Standardwerte\n"
-"Beim Speichern wird in folgenden Ordner geschrieben: {path}"
-
-#: ui/pages/pipeline_config_page.py:980
-msgid ""
-"Invalid YAML:\n"
-"{err}"
-msgstr ""
-"Ungültiges YAML:\n"
-"{err}"
-
-#: ui/pages/pipeline_config_page.py:983
-msgid "Root value must be a mapping."
-msgstr "Der Wurzelwert muss eine Zuordnung sein."
-
-#: ui/pages/pipeline_config_page.py:712
-msgid ""
-"The document contains keys outside model/data/training/paths: {keys}\n"
-"They will be ignored when applying to the form. Continue?"
-msgstr ""
-"Das Dokument enthält Schlüssel außerhalb von „model/data/training/paths“: {keys}\n"
-"Diese werden bei der Anwendung auf das Formular ignoriert. Möchten Sie fortfahren?"
-
-#: ui/pages/pipeline_config_page.py:722
-msgid "No model/data/training/paths keys found."
-msgstr "Keine Model/Daten/Training/Pfad-Tasten gefunden."
-
-#: ui/pages/pipeline_config_page.py:1074
-msgid ""
-"Reset user pipeline to shipped defaults:\n"
-"{path}"
-msgstr ""
-"Benutzerpipeline auf die standardisierten Defaults zurücksetzen:\n"
-"{path}"
-
-#: ui/pages/train_page.py:93 ui/pages/train_page.py:190
-#: ui/pages/train_page.py:195 ui/pages/train_page.py:197
-#: ui/pages/train_page.py:295 ui/pages/train_page.py:296
-#: ui/pages/train_page.py:297 ui/pages/train_page.py:303
-msgid "Config default"
-msgstr "Standard-Konfiguration"
-
-#: ui/pages/train_page.py:99 ui/pages/train_page.py:263
-msgid "Skip unified snapshot update"
-msgstr "Aktualisierung des einheitlichen Momentaufnahme überspringen"
-
-#: ui/pages/train_page.py:106 ui/pages/train_page.py:253
-msgid "Output dir"
-msgstr "Ausgabeverzeichnis"
-
-#: ui/pages/train_page.py:109 ui/pages/train_page.py:256
-msgid "Num workers"
-msgstr "Anzahl der Arbeitnehmer"
-
-#: ui/pages/train_page.py:111 ui/pages/train_page.py:257
-msgid "Resume checkpoint"
-msgstr "Checkpoint fortsetzen"
-
-#: ui/pages/train_page.py:115 ui/pages/train_page.py:265
-msgid ""
-"Run training in a separate process (survives closing this app; see log file)"
-msgstr ""
-"Das Training in einem separaten Prozess ausführen (bleibt auch nach dem "
-"Schließen dieser App erhalten; siehe Protokolldatei)"
-
-#: ui/pages/train_page.py:148 ui/pages/train_page.py:273
-msgid "Frozen LR"
-msgstr "Eingefrohen LR"
-
-#: ui/pages/train_page.py:149 ui/pages/train_page.py:274
-msgid "Unfrozen LR max"
-msgstr "Aufgetaute LR-Max"
-
-#: ui/pages/train_page.py:150 ui/pages/train_page.py:275
-msgid "Unfrozen LR min"
-msgstr "Aufgetaute LR-Min"
-
-#: ui/pages/train_page.py:158 ui/pages/train_page.py:299
-msgid "Auto-detect"
-msgstr "Automatisch erkennen"
-
-#: ui/pages/train_page.py:166 ui/pages/train_page.py:300
-msgid "Same as rank"
-msgstr "Gleich wie Rang"
-
-#: ui/pages/train_page.py:172 ui/pages/train_page.py:301
-msgid "optional, integer"
-msgstr "optional, Ganzzahl"
-
-#: ui/pages/train_page.py:174 ui/pages/train_page.py:282
-msgid "Base model architecture"
-msgstr "Basis-Modellarchitektur"
-
-#: ui/pages/train_page.py:175 ui/pages/train_page.py:283
-msgid "LoRA rank"
-msgstr "LoRA-Rang"
-
-#: ui/pages/train_page.py:176 ui/pages/train_page.py:284
-msgid "LoRA alpha"
-msgstr "LoRA-Alpha"
-
-#: ui/pages/pipeline_config_page.py:569 ui/pages/train_page.py:177
-#: ui/pages/train_page.py:202 ui/pages/train_page.py:285
-#: ui/pages/train_page.py:293
-msgid "Learning rate"
-msgstr "Lernrate"
-
-#: ui/pages/train_page.py:178 ui/pages/train_page.py:286
-msgid "Max train steps"
-msgstr "Maximale Trainingsschritte"
-
-#: ui/pages/pipeline_config_page.py:564 ui/pages/train_page.py:179
-#: ui/pages/train_page.py:203 ui/pages/train_page.py:287
-#: ui/pages/train_page.py:293
-msgid "Seed"
-msgstr "Startwert"
-
-#: ui/pages/train_page.py:207 ui/pages/train_page.py:304
-msgid "Validate Training Config"
-msgstr "Trainingskonfiguration validieren"
-
-#: ui/pages/train_page.py:209 ui/pages/train_page.py:305
-msgid "Start Training"
-msgstr "Training starten"
-
-#: ui/pages/train_page.py:220 ui/pages/train_page.py:307
-msgid "Training validation and execution messages will appear here."
-msgstr ""
-"Die Training-, Validierung- und Ausführungsmeldungen werden hier angezeigt."
-
-#: ui/pages/train_page.py:240
-msgid ""
-"Configure framework, architecture, paths, and hyperparameters (training CLI:"
-" {cmd})."
-msgstr ""
-"Konfigurieren Sie das Framework, die Architektur, die Pfade und die "
-"Hyperparameter (Trainings-CLI: {cmd})."
-
-#: ui/pages/train_page.py:244
-msgid "Core configuration"
-msgstr "Kernkonfiguration"
-
-#: ui/pages/train_page.py:267
-msgid "Hyperparameters (image classification)"
-msgstr "Hyperparameter (Bildklassifizierung)"
-
-#: ui/pages/train_page.py:278
-msgid "Hyperparameters (image generation LoRA)"
-msgstr "Hyperparameter (Bildgenerierungs-LoRA)"
-
-#: ui/pages/train_page.py:312
-msgid ""
-"Set Run ID from the newest snapshot_*.json under the data directory (by file"
-" modification time)."
-msgstr ""
-"Legen Sie die Lauf-ID anhand der neuesten Datei „snapshot_*.json“ im "
-"Verzeichnis „data“ fest (nach dem Datum der letzten Änderung)."
-
-#: ui/pages/train_page.py:530
-msgid "Select checkpoint file"
-msgstr "Wählen Sie die Checkpoint-Datei aus"
-
-#: ui/pages/train_page.py:532
-msgid ""
-"Model/checkpoint files (*.pth *.pt *.h5 *.keras *.ckpt);;All files (*.*)"
-msgstr ""
-"Modellsicherungsdateien (*.pth *.pt *.h5 *.keras *.ckpt);; Alle Dateien "
-"(*.*)."
-
-#: ui/pages/train_page.py:605
-msgid "local checkpoint path or hub id, e.g. black-forest-labs/FLUX.1-dev"
-msgstr "lokaler Prüfpfad oder Hub-ID, z. B. black-forest-labs/FLUX.1-dev"
-
-#: ui/pages/train_page.py:614 ui/pages/train_page.py:636
-msgid "Enter architecture manually"
-msgstr "Geben Sie die Architektur händisch ein"
-
-#: ui/pages/train_page.py:616
-msgid "[warn] Unsupported framework for architecture list: {fw}"
-msgstr "[warn] Nicht unterstütztes Framework für die Architekturliste: {fw}"
-
-#: ui/pages/train_page.py:631
-msgid "[info] {fw} architectures: {names}"
-msgstr "[Info] {fw} Architekturen: {names}"
-
-#: ui/pages/train_page.py:638
-msgid "[warn] Could not load architecture list for {fw}: {err}"
-msgstr ""
-"[warn] Die Architekturstufe für {fw} konnte nicht geladen werden: {err}"
-
-#: ui/pages/train_page.py:708
-msgid "[ok] training inputs look valid"
-msgstr "[ok] Trainingseinträge sind gültig"
-
-#: ui/pages/train_page.py:723
-msgid "[error] Could not auto-save pipeline config; training cancelled."
-msgstr ""
-"[Fehler] Die Pipeline-Konfiguration konnte nicht automatisch gespeichert "
-"werden; Training abgebrochen."
-
-#: ui/pages/train_page.py:748
-msgid "[detached] PID {pid} — log: {log} — args JSON: {args}"
-msgstr "[getrennt] PID {pid} — Protokoll: {log} — Argumente (JSON): {args}"
-
-#: ui/pages/train_page.py:760
-msgid "Training started (separate process)"
-msgstr "Training ist gestartet (eigenen Prozess)"
-
-#: ui/pages/train_page.py:762
-msgid ""
-"Training is running outside this window. Closing the app does not stop it.\n"
-"\n"
-"Process ID: {pid}\n"
-"Log file:\n"
-"{log}\n"
-"\n"
-"Training arguments were written to:\n"
-"{args}\n"
-"\n"
-"Stop the process from Task Manager or your OS if you need to abort."
-msgstr ""
-"Das Training läuft außerhalb dieses Zeitfensters. Das Schließen der App stoppt es nicht.\n"
-"\n"
-"Prozess-ID: {pid}\n"
-"Protokolldatei:\n"
-"{log}\n"
-"\n"
-"Die Trainingsargumente wurden gespeichert unter:\n"
-"{args}\n"
-"\n"
-"Beenden Sie den Prozess über den Task-Manager oder Ihr Betriebssystem, falls Sie den Vorgang abbrechen müssen."
-
-#: ui/pages/train_page.py:779
-msgid "Could not start detached training"
-msgstr "Das detached Training konnte nicht gestartet werden."
-
-#: ui/pages/train_page.py:780
-msgid "Failed to launch the training subprocess. See Details for the error."
-msgstr ""
-"Das Launchen des Trainingseinheit-Unterprozesses ist gescheitert. Siehe "
-"Details für die Meldung."
-
-#: ui/pages/train_page.py:813
-msgid "Training LoRA adapter…"
-msgstr "Training LoRA-Adapter…"
-
-#: ui/pages/train_page.py:843
-msgid "Architecture '{arch}' not supported for {fw}. Supported: {sup}"
-msgstr ""
-"Die Architektur „{arch}“ wird für {fw} nicht unterstützt. Unterstützt: {sup}"
-
-#: ui/pages/train_page.py:858
-msgid "[done] Training complete. Model saved: {path}"
-msgstr "[erledigt] Training abgeschlossen. Modell gespeichert: {path}"
-
-#: ui/pages/train_page.py:877
-msgid ""
-"[stopped] Training cancelled — partial checkpoints may exist; check the "
-"output folder before re-running."
-msgstr ""
-"[abgebrochen] Training abgebrochen – es sind möglicherweise teilweise "
-"Checkpoints vorhanden; überprüfen Sie den Ausgabeordner, bevor Sie den "
-"Vorgang erneut ausführen."
-
-#: ui/pages/train_page.py:897
-msgid "Training failed"
-msgstr "Das Training ist fehlgeschlagen."
-
-#: ui/pages/train_page.py:898
-msgid ""
-"Training stopped with an error. See Details for the message from the "
-"trainer."
-msgstr ""
-"Das Training wurde aufgrund eines Fehlers abgebrochen. Unter „Details“ "
-"findest du die Meldung des Trainers."
-
-#: utils/notification_manager.py:22
-msgid " etc."
-msgstr " u.a."
-
-#: mb/cli/__init__.py:226
-msgid ""
-"Text classification datasets are prepared outside mb as a dataset.tsv with a"
-" fixed split column; check one with `mb text verify`."
-msgstr ""
-"Textklassifizierungs‑Datensätze werden außerhalb von mb als dataset.tsv mit "
-"einer festen Split‑Spalte erstellt; prüfen Sie einen mit `mb text verify`."
-
-#: mb/cli/__init__.py:741 ui/pages/text_page.py:361
-msgid "Test gold AP: {g} — full AP: {f} — decision threshold: {t:.4f}"
-msgstr "Test‑Gold‑AP: {g} — Voll‑AP: {f} — Entscheidungsschwelle: {t:.4f}"
-
-#: mb/cli/__init__.py:747 ui/pages/text_page.py:364
-msgid "Wrote {path}"
-msgstr "Geschrieben {path}"
-
-#: mb/cli/__init__.py:756
-msgid "Input file not found: {path}"
-msgstr "Eingabedatei nicht gefunden: {path}"
-
-#: mb/cli/__init__.py:764 ui/pages/text_page.py:383
-msgid "Scored {n} lines -> {path}"
-msgstr "Ergebnis {n} Zeilen -> {path}"
-
-#: mb/cli/__init__.py:781
-msgid "Skipped (no metrics.json): {path}"
-msgstr "Übersprungen (keine metrics.json): {path}"
-
-#: mb/cli/__init__.py:783 tests/ui/test_text_page.py:44
-#: ui/pages/text_page.py:422
-msgid "No run directories with metrics.json were found."
-msgstr "Keine Run-Verzeichnisse mit metrics.json gefunden."
-
-#: mb/cli/__init__.py:826
-msgid "Config file not found: {path} (relative paths resolve from {cwd})"
-msgstr ""
-"Konfigurationsdatei nicht gefunden: {path} (relative Pfade werden von {cwd} "
-"aus aufgelöst)"
-
-#: mb/cli/__init__.py:906
-msgid "No text subcommand specified"
-msgstr "Kein Textunterbefehl angegeben"
-
-#: mb/cli/__init__.py:910
-msgid "Unknown text subcommand: {cmd}"
-msgstr "Unbekannter Textunterbefehl: {cmd}"
-
-#: mb/cli/parsing/text.py:15
-msgid "Text classification: verify data, evaluate, score, compare runs"
-msgstr ""
-"Textklassifizierung: Daten prüfen, auswerten, bewerten, Läufe vergleichen"
-
-#: mb/cli/parsing/text.py:17
-msgid ""
-"Operations on text-classification datasets and run directories. Train with "
-"`mb train --model-type text_classification`; defaults come from the "
-"pipeline's text_classification section."
-msgstr ""
-"Operationen an Textklassifizierungs-Datensätzen und "
-"Ausführungsverzeichnissen. Trainieren mit `mb train --model-type "
-"text_classification`; Vorgaben stammen aus dem Abschnitt text_classification"
-" der Pipeline."
-
-#: mb/cli/parsing/text.py:22
-msgid "Text subcommands"
-msgstr "Textunterbefehle"
-
-#: mb/cli/parsing/text.py:26
-msgid "Check a dataset directory's integrity"
-msgstr "Integrität eines Datensatzverzeichnisses prüfen"
-
-#: mb/cli/parsing/text.py:28
-msgid ""
-"Compares file hashes and row/label/tier/split/group counts with "
-"manifest.json (when present), and checks that texts are unique and each "
-"group sits in one split. Exits non-zero on any failed check."
-msgstr ""
-"Vergleicht Dateihashes sowie Zeilen-/Label-/Stufen-/Split-/Gruppen‑Anzahlen "
-"mit manifest.json (falls vorhanden) und prüft, dass Texte eindeutig sind und"
-" jede Gruppe in genau einem Split liegt. Gibt bei einem fehlgeschlagenen "
-"Check einen Nicht‑Null‑Exit zurück."
-
-#: mb/cli/parsing/text.py:37
-msgid "Dataset directory (default: text_classification.data_dir)"
-msgstr "Dataset-Verzeichnis (Standard: text_classification.data_dir)"
-
-#: mb/cli/parsing/text.py:42
-msgid "Re-run thresholds, metrics and reports for a run directory"
-msgstr ""
-"Schwellenwerte, Metriken und Berichte für ein Laufverzeichnis erneut "
-"ausführen"
-
-#: mb/cli/parsing/text.py:44
-msgid ""
-"Reloads the run's model and calibrator, chooses thresholds on val gold, and "
-"rewrites metrics.json, thresholds.json, predictions, review queue, unlabeled"
-" scores, predict.py and the model card."
-msgstr ""
-"Lädt das Modell und den Kalibrator des Laufs neu, wählt Schwellenwerte für "
-"das Validierungs‑Gold aus und überschreibt metrics.json, thresholds.json, "
-"predictions, Review‑Queue, unlabeled scores, predict.py und die Model‑Card."
-
-#: mb/cli/parsing/text.py:49 mb/cli/parsing/text.py:65
-msgid "Run directory"
-msgstr "Verzeichnis ausführen"
-
-#: mb/cli/parsing/text.py:54
-msgid "Dataset directory (default: the run's config.yaml)"
-msgstr "Datensatzverzeichnis (Standard: config.yaml des Laufs)"
-
-#: mb/cli/parsing/text.py:56 mb/cli/parsing/text.py:68
-msgid "Device override, e.g. cuda or cpu"
-msgstr "Geräteüberschreibung, z. B. CUDA oder CPU"
-
-#: mb/cli/parsing/text.py:60
-msgid "Score one string per line with a run's calibrated model"
-msgstr ""
-"Bewerte pro Zeile einen String mit dem kalibrierten Modell eines Laufs"
-
-#: mb/cli/parsing/text.py:62
-msgid ""
-"Writes term<TAB>score with a header, one row per input line in input order."
-msgstr ""
-"Schreibt term<TAB>score mit einer Kopfzeile, eine Zeile pro Eingabezeile in "
-"Eingabereihenfolge."
-
-#: mb/cli/parsing/text.py:66
-msgid "UTF-8 text file, one string per line"
-msgstr "UTF-8 Textdatei, ein String pro Zeile"
-
-#: mb/cli/parsing/text.py:67
-msgid "Output TSV path"
-msgstr "TSV‑Ausgabepfad"
-
-#: mb/cli/parsing/text.py:72
-msgid "Tabulate headline metrics across run directories"
-msgstr "Tabuliere Übersichtsmetriken über Laufverzeichnisse"
-
-#: mb/cli/parsing/text.py:74
-msgid ""
-"One row per run: test gold AP, full AP, recall at precision 0.90, gold "
-"false-positive rate at the decision threshold and ECE. Wildcards are "
-"expanded (e.g. data/models/text_runs/*)."
-msgstr ""
-"Eine Zeile pro Lauf: Test‑Gold‑AP, volles AP, Recall bei Präzision 0,90, "
-"Gold‑False‑Positive-Rate beim Entscheidungsschwellenwert und ECE. "
-"Platzhalter werden erweitert (z. B. data/models/text_runs/*)."
-
-#: mb/cli/parsing/text.py:79
-msgid "Run directories or wildcard patterns"
-msgstr "Verzeichnisse oder Platzhaltermuster ausführen"
-
-#: mb/cli/parsing/train.py:27
-msgid ""
-"Model type (default: model.default_type from config, else "
-"image_classification)"
-msgstr ""
-"Modelltyp (Standard: model.default_type aus der Konfiguration, sonst "
-"image_classification)"
-
-#: mb/cli/parsing/train.py:46
-msgid ""
-"Data directory (default: from config). For --model-type text_classification,"
-" the directory holding dataset.tsv (default: text_classification.data_dir)."
-msgstr ""
-"Datenverzeichnis (Standard: aus der Konfiguration). Für --model-type "
-"text_classification ist das Verzeichnis, das dataset.tsv enthält (Standard: "
-"text_classification.data_dir)."
-
-#: mb/cli/parsing/train.py:54
-msgid ""
-"Output directory for models (default: from config). For --model-type "
-"text_classification, the parent of the run directory (default: "
-"text_classification.runs_dir)."
-msgstr ""
-"Ausgabeverzeichnis für Modelle (Standard: aus der Konfiguration). Für "
-"--model-type text_classification ist das übergeordnete Verzeichnis des "
-"Laufverzeichnisses (Standard: text_classification.runs_dir)."
-
-#: mb/cli/parsing/train.py:88
-msgid ""
-"Batch size (default: from config or auto-detect). For --model-type "
-"text_classification, overrides text_classification.optim.batch_size."
-msgstr ""
-"Batch-Größe (Standard: aus Konfiguration oder automatischer Erkennung). Für "
-"--model-type text_classification überschreibt es "
-"text_classification.optim.batch_size."
-
-#: mb/cli/parsing/train.py:145
-msgid ""
-"Random seed. Consumed by --model-type image_generation_lora (reproducible "
-"LoRA weight init and noise sampling) and text_classification (overrides "
-"text_classification.seed)."
-msgstr ""
-"Zufalls-Seed. Verwendet von --model-type image_generation_lora "
-"(reproduzierbare LoRA-Gewichtinitialisierung und Rauschabtastung) und "
-"text_classification (überschreibt text_classification.seed)."
-
-#: mb/cli/parsing/train.py:167
-msgid ""
-"Learning rate for the LoRA adapter parameters (--model-type "
-"image_generation_lora; default: 1e-4), or text_classification.optim.lr "
-"(--model-type text_classification). Unrelated to --frozen-lr/--unfrozen-lr-*"
-" (image_classification only)."
-msgstr ""
-"Lernrate für die LoRA-Adapterparameter (--model-type image_generation_lora; "
-"Standard: 1e-4) bzw. text_classification.optim.lr (--model-type "
-"text_classification). Unabhängig von --frozen-lr/--unfrozen-lr-* (nur "
-"image_classification)."
-
-#: mb/cli/parsing/train.py:200
-msgid ""
-"--model-type text_classification only: model family (default: "
-"text_classification.backend)"
-msgstr ""
-"--model-type text_classification nur: Modellfamilie (Standard: "
-"text_classification.backend)"
-
-#: mb/cli/parsing/train.py:209
-msgid ""
-"--model-type text_classification only: Hugging Face id or local path of the "
-"model within the family (default: text_classification.model_id, else the "
-"backend's default)"
-msgstr ""
-"--model-type text_classification only: Hugging Face‑ID oder lokaler Pfad des"
-" Modells innerhalb der Familie (Standard: text_classification.model_id, "
-"sonst der Standard des Backends)"
-
-#: mb/cli/parsing/train.py:219
-msgid ""
-"--model-type text_classification only: maximum training epochs (default: "
-"text_classification.optim.epochs, else the backend's default)"
-msgstr ""
-"--model-type text_classification only: maximale Trainings-Epochen (Standard:"
-" text_classification.optim.epochs, sonst Backend-Standard)"
-
-#: mb/data/text_dataset.py:82 mb/data/text_dataset.py:91
-#: mb/data/text_dataset.py:220
-msgid "{path} is empty (expected a header row)"
-msgstr "{path} ist leer (erwartete Kopfzeile)"
-
-#: mb/data/text_dataset.py:94
-msgid "{path} has no '{col}' column (header: {header})"
-msgstr "{path} hat keine '{col}'-Spalte (Kopfzeile: {header})"
-
-#: mb/data/text_dataset.py:103 mb/data/text_dataset.py:256
-msgid "{path}:{line}: expected {n} fields, found {m}"
-msgstr "{path}:{line}: erwartete {n} Felder, gefunden {m}"
-
-#: mb/data/text_dataset.py:214
-msgid "Dataset file not found: {path}"
-msgstr "Datensatzdatei nicht gefunden: {path}"
-
-#: mb/data/text_dataset.py:224
-msgid "{path} is missing required column(s): {cols}"
-msgstr "{path} hat nicht die erforderlichen Spalten: {cols}"
-
-#: mb/data/text_dataset.py:234
-msgid ""
-"{conflicts} exists but {path} has no '{col}' column to match it against"
-msgstr ""
-"{conflicts} existiert, aber {path} hat keine Spalte '{col}', um es damit "
-"abzugleichen"
-
-#: mb/data/text_dataset.py:267
-msgid "{path}:{line}: label must be 0 or 1 (got {v!r})"
-msgstr "{path}:{line}: label muss 0 oder 1 sein (erhalten {v!r})"
-
-#: mb/data/text_dataset.py:272
-msgid "{path}:{line}: split must be one of {choices} (got {v!r})"
-msgstr "{path}:{line}: split muss einer von {choices} sein (bekam {v!r})"
-
-#: mb/data/text_dataset.py:295
-msgid "{path}:{line}: {col} must be a number or empty (got {v!r})"
-msgstr "{path}:{line}: {col} muss eine Zahl oder leer sein (erhalten {v!r})"
-
-#: mb/data/text_dataset.py:302
-msgid "{path} has no data rows"
-msgstr "{path} hat keine Datenzeilen"
-
-#: mb/data/text_dataset.py:363
-msgid "Dataset: {path}"
-msgstr "Datensatz: {path}"
-
-#: mb/data/text_dataset.py:367
-msgid "Result: {r}"
-msgstr "Ergebnis: {r}"
-
-#: mb/data/text_dataset.py:367
-msgid "PASS"
-msgstr "BESTANDEN"
-
-#: mb/data/text_dataset.py:367
-msgid "FAIL"
-msgstr "FEHLER"
-
-#: mb/data/text_dataset.py:437
-msgid "not present; hash and count checks skipped"
-msgstr "nicht vorhanden; Hash- und Zählerprüfungen übersprungen"
-
-#: mb/data/text_dataset.py:444
-msgid "Hashing {name}…"
-msgstr "Hashing von {name}…"
-
-#: mb/data/text_dataset.py:447
-msgid "file missing"
-msgstr "Datei fehlt"
-
-#: mb/data/text_dataset.py:457
-msgid "size {a} != {b}"
-msgstr "Größe {a} != {b}"
-
-#: mb/data/text_dataset.py:466
-msgid "Reading {name}…"
-msgstr "Lese {name}…"
-
-#: mb/data/text_dataset.py:478
-msgid "Checking counts…"
-msgstr "Zähle …"
-
-#: mb/data/text_dataset.py:483
-msgid "row count"
-msgstr "Zeilenanzahl"
-
-#: mb/data/text_dataset.py:489
-msgid "label counts"
-msgstr "Anzahl der Labels"
-
-#: mb/data/text_dataset.py:491
-msgid "tier counts"
-msgstr "Stufenanzahl"
-
-#: mb/data/text_dataset.py:493
-msgid "source counts"
-msgstr "Quellzählungen"
-
-#: mb/data/text_dataset.py:497
-msgid "category hint counts"
-msgstr "Kategorie-Hinweiszählungen"
-
-#: mb/data/text_dataset.py:511
-msgid "split counts"
-msgstr "Zähler teilen"
-
-#: mb/data/text_dataset.py:515
-msgid "group count"
-msgstr "Gruppenzahl"
-
-#: mb/data/text_dataset.py:522
-msgid "conflict group count"
-msgstr "Konfliktgruppenanzahl"
-
-#: mb/data/text_dataset.py:530
-msgid "unlabeled rows"
-msgstr "unbeschriftete Zeilen"
-
-#: mb/data/text_dataset.py:536
-msgid "Checking uniqueness…"
-msgstr "Einzigartigkeit prüfen…"
-
-#: mb/data/text_dataset.py:548 tests/unit/test_text_dataset.py:72
-msgid "text values unique"
-msgstr "einzigartige Textwerte"
-
-#: mb/data/text_dataset.py:550
-msgid "duplicates include: {d}"
-msgstr "Duplikate enthalten: {d}"
-
-#: mb/data/text_dataset.py:565 mb/data/text_dataset.py:572
-#: tests/unit/test_text_dataset.py:72
-msgid "each group in one split"
-msgstr "jede Gruppe in einem Split"
-
-#: mb/data/text_dataset.py:567
-msgid "groups in several splits include: {g}"
-msgstr "Gruppen in mehreren Aufteilungen enthalten: {g}"
-
-#: mb/data/text_dataset.py:572
-msgid "no '{col}' column; skipped"
-msgstr "keine '{col}'-Spalte; übersprungen"
-
-#: mb/data/text_dataset.py:606 mb/training/text_config.py:466
-msgid ""
-"subsample_unreviewed needs unreviewed_tier to name the tier to thin out"
-msgstr ""
-"subsample_unreviewed benötigt unreviewed_tier, um die zu dünnende Stufe zu "
-"benennen"
-
-#: mb/data/text_dataset.py:609
-msgid "subsample_unreviewed needs a '{col}' column in {file}"
-msgstr "subsample_unreviewed benötigt eine '{col}'-Spalte in {file}"
-
-#: mb/data/text_dataset.py:614
-msgid "subsample_unreviewed is set but no rows have tier '{tier}'"
-msgstr ""
-"subsample_unreviewed ist gesetzt, aber keine Zeilen haben die Stufe '{tier}'"
-
-#: mb/data/text_dataset.py:654
-msgid "The training rows contain only one label; cannot train."
-msgstr "Die Trainingszeilen enthalten nur ein Label; Training nicht möglich."
-
-#: mb/data/text_dataset.py:663
-msgid "tier_weight is set but {file} has no '{col}' column"
-msgstr "tier_weight ist gesetzt, aber {file} enthält keine Spalte '{col}'"
-
-#: mb/data/text_dataset.py:668
-msgid "tier_weight names unknown tier(s): {bad} (known: {known})"
-msgstr "tier_weight Namen unbekannte Stufe(n): {bad} (bekannt: {known})"
-
-#: mb/data/text_dataset.py:690
-msgid "gold_tiers names unknown tier(s): {bad} (known: {known})"
-msgstr "gold_tiers Namen unbekannte Stufe(n): {bad} (bekannt: {known})"
-
-#: mb/evaluate/classification/text_calibration.py:219
-msgid "No calibrator for method '{m}'"
-msgstr "Kein Kalibrator für Methode '{m}'"
-
-#: mb/evaluate/classification/text_calibration.py:222
-msgid "Calibration needs both labels in the val split."
-msgstr "Die Kalibrierung benötigt beide Labels im val‑Split."
-
-#: mb/evaluate/classification/text_calibration.py:234
-msgid "Unknown calibrator in {path}: {m!r}"
-msgstr "Unbekannter Kalibrator in {path}: {m!r}"
-
-#: mb/evaluate/classification/text_evaluation.py:84
-msgid "Not a text-classification run directory (no {file}): {path}"
-msgstr "Kein Textklassifizierungs‑Verzeichnis (keine {file}): {path}"
-
-#: mb/evaluate/classification/text_evaluation.py:228
-#: mb/training/text_trainer.py:170
-msgid "Verifying dataset…"
-msgstr "Datensatz wird überprüft…"
-
-#: mb/evaluate/classification/text_evaluation.py:243
-#: mb/training/text_trainer.py:180
-msgid ""
-"Dataset verification failed:\n"
-"{report}"
-msgstr ""
-"Datensatzüberprüfung fehlgeschlagen:\n"
-"{report}"
-
-#: mb/evaluate/classification/text_evaluation.py:248
-msgid "Loading model…"
-msgstr "Lade Modell…"
-
-#: mb/evaluate/classification/text_evaluation.py:264
-msgid "Scoring test…"
-msgstr "Bewertungstest…"
-
-#: mb/evaluate/classification/text_evaluation.py:276
-msgid "Computing metrics…"
-msgstr "Metriken werden berechnet…"
-
-#: mb/evaluate/classification/text_evaluation.py:287
-msgid "Counting truncated rows…"
-msgstr "Zähle abgeschnittene Zeilen…"
-
-#: mb/evaluate/classification/text_evaluation.py:319
-msgid "Scoring {tier} rows for the review queue…"
-msgstr "Bewertung von {tier} Zeilen für die Warteschlange zur Überprüfung…"
-
-#: mb/evaluate/classification/text_evaluation.py:332
-msgid "Scoring unlabeled rows…"
-msgstr "Bewertung nicht gekennzeichneter Zeilen…"
-
-#: mb/evaluate/classification/text_evaluation.py:364
-msgid "Evaluation complete."
-msgstr "Auswertung abgeschlossen."
-
-#: mb/evaluate/classification/text_evaluation.py:531
-msgid "run"
-msgstr "Ausführen"
-
-#: mb/evaluate/classification/text_evaluation.py:532
-msgid "backend"
-msgstr "Backend"
-
-#: mb/evaluate/classification/text_evaluation.py:533
-msgid "model"
-msgstr "Modell"
-
-#: mb/evaluate/classification/text_evaluation.py:534
-msgid "gold AP"
-msgstr "Gold AP"
-
-#: mb/evaluate/classification/text_evaluation.py:535
-msgid "full AP"
-msgstr "Vollständiger AP"
-
-#: mb/evaluate/classification/text_evaluation.py:536
-msgid "R@P0.90"
-msgstr "R@P0.90"
-
-#: mb/evaluate/classification/text_evaluation.py:537
-msgid "gold FPR"
-msgstr "Gold FPR"
-
-#: mb/evaluate/classification/text_evaluation.py:538
-msgid "ECE"
-msgstr "ECE"
-
-#: mb/models/text_backends/__init__.py:41
-msgid "No {file} in {path}"
-msgstr "Keine {file} im {path}"
-
-#: mb/models/text_backends/__init__.py:45
-msgid "Unknown backend in {path}: {b!r}"
-msgstr "Unbekanntes Backend in {path}: {b!r}"
-
-#: mb/models/text_backends/_torch_common.py:20
-msgid ""
-"Neural text backends require PyTorch and transformers: pip install -e "
-"\".[pytorch,text]\". Underlying error: {err}"
-msgstr ""
-"Neurale Text-Backends benötigen PyTorch und Transformers: pip install -e "
-"\".[pytorch,text]\". Ursache des Fehlers: {err}"
-
-#: mb/models/text_backends/_torch_common.py:33
-msgid ""
-"Neural text backends require transformers: pip install -e \".[text]\". "
-"Underlying error: {err}"
-msgstr ""
-"Neurale Text-Backends benötigen Transformers: pip install -e \".[text]\". "
-"Zugrundeliegender Fehler: {err}"
-
-#: mb/models/text_backends/base.py:96
-msgid "Unknown backend_options for {backend}: {bad} (allowed: {allowed})"
-msgstr "Unbekannte backend_options für {backend}: {bad} (erlaubt: {allowed})"
-
-#: mb/models/text_backends/base.py:99
-msgid "none"
-msgstr "keine"
-
-#: mb/models/text_backends/char_ngram_linear.py:44
-msgid ""
-"The char_ngram_linear backend requires scikit-learn: pip install -e "
-"\".[text]\". Underlying error: {err}"
-msgstr ""
-"Das char_ngram_linear‑Backend erfordert scikit-learn: pip install -e "
-"\".[text]\". zugrundeliegender Fehler: {err}"
-
-#: mb/models/text_backends/char_ngram_linear.py:168
-msgid "backend_options: need 1 <= ngram_min <= ngram_max"
-msgstr "backend_options: benötigt 1 <= ngram_min <= ngram_max"
-
-#: mb/models/text_backends/char_ngram_linear.py:170
-msgid "Counting character n-grams…"
-msgstr "Zähle Zeichen‑n‑Gramme…"
-
-#: mb/models/text_backends/char_ngram_linear.py:180
-msgid "Vectorizing val…"
-msgstr "Vektorisieren val…"
-
-#: mb/models/text_backends/char_ngram_linear.py:190
-msgid "Fitting logistic regression (C={c}, {i}/{n})…"
-msgstr "Logistische Regression wird angepasst (C={c}, {i}/{n})…"
-
-#: mb/models/text_backends/char_ngram_linear.py:209
-msgid "Linear model fitted."
-msgstr "Lineares Modell angepasst."
-
-#: mb/models/text_backends/char_ngram_linear.py:225
-#: mb/models/text_backends/encoder_finetune.py:272
-msgid "Scoring…"
-msgstr "Bewertung…"
-
-#: mb/models/text_backends/embedding_probe.py:268
-msgid "Embedding {what}: {i}/{n}"
-msgstr "Einbetten {what}: {i}/{n}"
-
-#: mb/models/text_backends/embedding_probe.py:347
-msgid "backend_options.pooling must be one of: {c}"
-msgstr "backend_options.pooling muss einer von: {c}"
-
-#: mb/models/text_backends/embedding_probe.py:349
-msgid "backend_options.head must be one of: {c}"
-msgstr "backend_options.head muss einer der folgenden sein: {c}"
-
-#: mb/models/text_backends/embedding_probe.py:354
-#: mb/models/text_backends/encoder_finetune.py:156
-msgid "Loading {model}…"
-msgstr "Lade {model}…"
-
-#: mb/models/text_backends/embedding_probe.py:361
-msgid "train"
-msgstr "Zug"
-
-#: mb/models/text_backends/embedding_probe.py:362
-msgid "val"
-msgstr "Wert"
-
-#: mb/models/text_backends/embedding_probe.py:393
-msgid "Head epoch {e}/{E} — val metric {m:.4f}"
-msgstr "Kopf Epoche {e}/{E} — Validierungsmetrik {m:.4f}"
-
-#: mb/models/text_backends/embedding_probe.py:412
-msgid "texts"
-msgstr "Texte"
-
-#: mb/models/text_backends/encoder_finetune.py:221
-msgid "Epoch {e}/{E} — step {s}/{S} — loss {l:.4f}"
-msgstr "Epoche {e}/{E} — Schritt {s}/{S} — Verlust {l:.4f}"
-
-#: mb/training/text_config.py:107
-msgid "Invalid text_classification config:"
-msgstr "Ungültige text_classification-Konfiguration:"
-
-#: mb/training/text_config.py:257
-msgid "Unknown key '{key}' in {where} (allowed: {allowed})"
-msgstr "Unbekannter Schlüssel '{key}' in {where} (erlaubt: {allowed})"
-
-#: mb/training/text_config.py:266
-msgid "{where}.{key} must be a mapping"
-msgstr "{where}.{key} muss ein Mapping sein"
-
-#: mb/training/text_config.py:272
-msgid "{name} must be a non-empty path"
-msgstr "{name} muss ein nicht‑leerer Pfad sein"
-
-#: mb/training/text_config.py:279
-msgid "{name} must be an integer >= {min} (got {v!r})"
-msgstr "{name} muss eine ganze Zahl ≥ {min} sein (erhalten {v!r})"
-
-#: mb/training/text_config.py:294
-msgid "{name} must be a number in {range} (got {v!r})"
-msgstr "{name} muss eine Zahl im Bereich {range} sein (erhalten {v!r})"
-
-#: mb/training/text_config.py:306
-msgid "{name} must be true or false (got {v!r})"
-msgstr "{name} muss True oder False sein (erhalten {v!r})"
-
-#: mb/training/text_config.py:314
-msgid "{name} must be a non-empty string or null"
-msgstr "{name} muss ein nicht-leerer String oder Null sein"
-
-#: mb/training/text_config.py:331
-msgid "class_weight keys must be 0 and 1 (got {k!r})"
-msgstr "class_weight‑Schlüssel müssen 0 und 1 sein (erhalten {k!r})"
-
-#: mb/training/text_config.py:336
-msgid "class_weight mapping must give a weight for both 0 and 1"
-msgstr "class_weight-Mapping muss für sowohl 0 als auch 1 ein Gewicht angeben"
-
-#: mb/training/text_config.py:339
-msgid ""
-"class_weight must be 'none', 'balanced' or {{0: w0, 1: w1}} (got {v!r})"
-msgstr ""
-"class_weight muss 'none', 'balanced' oder {{0: w0, 1: w1}} sein (erhalten "
-"{v!r})"
-
-#: mb/training/text_config.py:348
-msgid "tier_weight must be a mapping of tier name to multiplier"
-msgstr "tier_weight muss eine Zuordnung von Tiername zu Multiplikator sein"
-
-#: mb/training/text_config.py:360
-msgid "gold_tiers must be null or a non-empty list of tier names"
-msgstr ""
-"gold_tiers muss null oder eine nicht leere Liste von Stufen‑Namen sein"
-
-#: mb/training/text_config.py:373 mb/training/text_config.py:550
-msgid "text_classification must be a mapping"
-msgstr "text_classification muss ein Mapping sein"
-
-#: mb/training/text_config.py:383
-msgid "backend must be one of: {choices} (got {v!r})"
-msgstr "Backend muss einer der folgenden sein: {choices} (erhielt {v!r})"
-
-#: mb/training/text_config.py:392
-msgid "calibration must be one of: {choices} (got {v!r})"
-msgstr ""
-"Kalibrierung muss einer der folgenden sein: {choices} (erhalten {v!r})"
-
-#: mb/training/text_config.py:415
-msgid "early_stopping.metric must be one of: {choices} (got {v!r})"
-msgstr ""
-"early_stopping.metric muss einer der folgenden sein: {choices} (bekam {v!r})"
-
-#: mb/training/text_config.py:431
-msgid "threshold_policy.kind must be one of: {choices} (got {v!r})"
-msgstr ""
-"threshold_policy.kind muss einer der folgenden sein: {choices} (erhalten "
-"{v!r})"
-
-#: mb/training/text_config.py:453
-msgid "model_card_notes must be a string"
-msgstr "model_card_notes muss eine Zeichenkette sein"
-
-#: mb/training/text_config.py:460
-msgid "backend_options must be a mapping"
-msgstr "backend_options muss ein Mapping sein"
-
-#: mb/training/text_config.py:469
-msgid "reference_score_column must be a non-empty string"
-msgstr "reference_score_column muss ein nicht-leerer String sein"
-
-#: mb/training/text_config.py:472
-msgid "unlabeled_file must be a non-empty file name"
-msgstr "unlabeled_file muss ein nichtleerer Dateiname sein"
-
-#: mb/training/text_trainer.py:163
-msgid "Loading dataset…"
-msgstr "Datensatz wird geladen…"
-
-#: mb/training/text_trainer.py:199
-msgid "The val split needs both labels for model selection and calibration."
-msgstr ""
-"Der Validierungs‑Split benötigt beide Labels für Modellauswahl und "
-"Kalibrierung."
-
-#: mb/training/text_trainer.py:264
-msgid "Calibrating on val ({method})…"
-msgstr "Kalibrierung von val ({method})…"
-
-#: mb/training/text_trainer.py:294
-msgid ""
-"this PyTorch build has no CUDA support (on Windows, plain `pip install "
-"torch` installs the CPU-only build; install a CUDA build from "
-"https://pytorch.org/get-started/locally/)"
-msgstr ""
-"Dieses PyTorch‑Build hat keine CUDA‑Unterstützung (unter Windows installiert"
-" der einfache `pip install torch` die CPU‑only‑Version; installieren Sie ein"
-" CUDA‑Build von https://pytorch.org/get-started/locally/)"
-
-#: mb/training/text_trainer.py:297
-msgid ""
-"PyTorch was built for CUDA {v} but no usable GPU was found (check the "
-"driver)"
-msgstr ""
-"PyTorch wurde für CUDA {v} gebaut, aber es wurde keine nutzbare GPU gefunden"
-" (Treiber prüfen)"
-
-#: mb/training/text_trainer.py:301
-msgid ""
-"No GPU available for {backend} ({model}): training on CPU will be very slow."
-" Cause: {reason}. Set text_classification.device: cpu to run on CPU without "
-"this warning."
-msgstr ""
-"Für {backend} ({model}) ist keine GPU verfügbar: Das Training auf der CPU "
-"wird sehr langsam sein. Ursache: {reason}. Setze text_classification.device:"
-" cpu, um auf der CPU zu laufen, ohne diese Warnung."
-
-#: mb/training/text_trainer.py:357
-msgid "No {file} in the text-classification data directory: {path}"
-msgstr "Kein {file} im Textklassifizierungs-Datenverzeichnis: {path}"
-
-#: mb/training/text_trainer.py:370
-msgid "Training completed successfully. Run directory: {path}"
-msgstr "Training erfolgreich abgeschlossen. Laufverzeichnis: {path}"
-
-#: ui/controllers/train_page_controller.py:111
-msgid "No {file} in the data directory: {path}"
-msgstr "Keine {file} im Datenverzeichnis: {path}"
-
-#: ui/pages/data_page.py:1223
-msgid ""
-"Text classification datasets are prepared outside mb as a dataset.tsv with a"
-" fixed split column; check one on the Text page (Verify)."
-msgstr ""
-"Textklassifizierungs‑Datensätze werden außerhalb von mb als dataset.tsv mit "
-"einer festen Split‑Spalte erstellt; prüfen Sie einen auf der Text‑Seite "
-"(Verifizieren)."
-
-#: ui/pages/pipeline_config_page.py:183
-msgid ""
-"Machine-learning defaults (<code>model</code>, <code>data</code>, "
-"<code>training</code>, <code>paths</code>, "
-"<code>text_classification</code>). Save writes to your active pipeline file,"
-" or to <code>pipeline.yaml</code> beside <code>application.yaml</code> in "
-"app data when only packaged defaults are loaded."
-msgstr ""
-"Machine-Learning-Standardwerte (<code>model</code>, <code>data</code>, "
-"<code>training</code>, <code>paths</code>, "
-"<code>text_classification</code>). Beim Speichern wird in die aktive "
-"Pipeline‑Datei geschrieben oder, falls nur paketierte Vorgaben geladen sind,"
-" in <code>pipeline.yaml</code> neben <code>application.yaml</code> im "
-"Anwendungsdatenordner."
-
-#: ui/pages/pipeline_config_page.py:194 ui/pages/pipeline_config_page.py:232
-msgid "Text classification"
-msgstr "Textklassifizierung"
-
-#: ui/pages/pipeline_config_page.py:236
-msgid ""
-"tier_weight, gold_tiers, unreviewed_tier, reference_score_column, "
-"unlabeled_file, backend_options and an explicit class_weight mapping are "
-"kept as loaded; edit them in the Advanced (YAML) tab. Unknown keys and "
-"invalid values in this section are errors when training."
-msgstr ""
-"tier_weight, gold_tiers, unreviewed_tier, reference_score_column, "
-"unlabeled_file, backend_options und ein explizites class_weight‑Mapping "
-"werden unverändert übernommen; bearbeiten Sie sie im Reiter „Erweitert "
-"(YAML)“. Unbekannte Schlüssel und ungültige Werte in diesem Abschnitt führen"
-" beim Training zu Fehlern."
-
-#: ui/pages/pipeline_config_page.py:242
-msgid "empty = backend default"
-msgstr "leer = Backend-Standard"
-
-#: ui/pages/pipeline_config_page.py:243
-msgid "empty = cuda when available, else cpu"
-msgstr "leer = CUDA, falls verfügbar, sonst CPU"
-
-#: ui/pages/pipeline_config_page.py:245
-msgid "Backend default"
-msgstr "Standard‑Backend"
-
-#: ui/pages/pipeline_config_page.py:246
-msgid "Off"
-msgstr "Aus"
-
-#: ui/pages/pipeline_config_page.py:247
-msgid "Exclude label-conflict groups from training and metrics"
-msgstr "Label‑Konflikt‑Gruppen vom Training und den Metriken ausschließen"
-
-#: ui/pages/pipeline_config_page.py:248
-msgid "Score the unlabeled file when present"
-msgstr "Bewerten Sie die nicht gekennzeichnete Datei, falls vorhanden"
 
 #: ui/pages/pipeline_config_page.py:561
 msgid "Runs directory"
@@ -5754,6 +5409,12 @@ msgstr "Backend"
 msgid "Model id"
 msgstr "Modell-ID"
 
+#: ui/pages/pipeline_config_page.py:564 ui/pages/train_page.py:179
+#: ui/pages/train_page.py:203 ui/pages/train_page.py:287
+#: ui/pages/train_page.py:293
+msgid "Seed"
+msgstr "Startwert"
+
 #: ui/pages/pipeline_config_page.py:565
 msgid "Max length (tokens)"
 msgstr "Maximale Länge (Token)"
@@ -5765,6 +5426,12 @@ msgstr "Klassengewicht"
 #: ui/pages/pipeline_config_page.py:568
 msgid "Subsample unreviewed tier (x positives)"
 msgstr "Teilprobe ungeprüfte Stufe (x Positive)"
+
+#: ui/pages/pipeline_config_page.py:569 ui/pages/train_page.py:177
+#: ui/pages/train_page.py:202 ui/pages/train_page.py:285
+#: ui/pages/train_page.py:293
+msgid "Learning rate"
+msgstr "Lernrate"
 
 #: ui/pages/pipeline_config_page.py:570 ui/pages/train_page.py:201
 #: ui/pages/train_page.py:293
@@ -5815,6 +5482,34 @@ msgstr "Run-Verzeichnis auswählen"
 msgid "custom mapping (edit in YAML)"
 msgstr "Benutzerdefinierte Zuordnung (YAML bearbeiten)"
 
+#: ui/pages/pipeline_config_page.py:961
+msgid ""
+"Loaded: {path}\n"
+"Save will write to: {save}"
+msgstr ""
+"Geladen: {path}\n"
+"Beim Speichern wird in die Datei {save} geschrieben"
+
+#: ui/pages/pipeline_config_page.py:967
+msgid ""
+"Loaded: packaged defaults\n"
+"Save will write to: {path}"
+msgstr ""
+"Geladen: Standardwerte\n"
+"Beim Speichern wird in folgenden Ordner geschrieben: {path}"
+
+#: ui/pages/pipeline_config_page.py:980
+msgid ""
+"Invalid YAML:\n"
+"{err}"
+msgstr ""
+"Ungültiges YAML:\n"
+"{err}"
+
+#: ui/pages/pipeline_config_page.py:983
+msgid "Root value must be a mapping."
+msgstr "Der Wurzelwert muss eine Zuordnung sein."
+
 #: ui/pages/pipeline_config_page.py:991
 msgid ""
 "The document contains keys outside model/data/training/paths/text_classification: {keys}\n"
@@ -5827,6 +5522,14 @@ msgstr ""
 msgid "No model/data/training/paths/text_classification keys found."
 msgstr ""
 "Keine Schlüssel für model/data/training/paths/text_classification gefunden."
+
+#: ui/pages/pipeline_config_page.py:1074
+msgid ""
+"Reset user pipeline to shipped defaults:\n"
+"{path}"
+msgstr ""
+"Benutzerpipeline auf die standardisierten Defaults zurücksetzen:\n"
+"{path}"
 
 #: ui/pages/text_page.py:105 ui/pages/text_page.py:122
 #: ui/pages/text_page.py:196 ui/pages/text_page.py:197
@@ -5970,13 +5673,156 @@ msgstr "Ausführungsverzeichnis auswählen"
 msgid "[skip] no metrics.json: {path}"
 msgstr "[skip] keine metrics.json: {path}"
 
+#: ui/pages/train_page.py:93 ui/pages/train_page.py:190
+#: ui/pages/train_page.py:195 ui/pages/train_page.py:197
+#: ui/pages/train_page.py:295 ui/pages/train_page.py:296
+#: ui/pages/train_page.py:297 ui/pages/train_page.py:303
+msgid "Config default"
+msgstr "Standard-Konfiguration"
+
+#: ui/pages/train_page.py:99 ui/pages/train_page.py:263
+msgid "Skip unified snapshot update"
+msgstr "Aktualisierung des einheitlichen Momentaufnahme überspringen"
+
+#: ui/pages/train_page.py:106 ui/pages/train_page.py:253
+msgid "Output dir"
+msgstr "Ausgabeverzeichnis"
+
+#: ui/pages/train_page.py:109 ui/pages/train_page.py:256
+msgid "Num workers"
+msgstr "Anzahl der Arbeitnehmer"
+
+#: ui/pages/train_page.py:111 ui/pages/train_page.py:257
+msgid "Resume checkpoint"
+msgstr "Checkpoint fortsetzen"
+
+#: ui/pages/train_page.py:115 ui/pages/train_page.py:265
+msgid ""
+"Run training in a separate process (survives closing this app; see log file)"
+msgstr ""
+"Das Training in einem separaten Prozess ausführen (bleibt auch nach dem "
+"Schließen dieser App erhalten; siehe Protokolldatei)"
+
+#: ui/pages/train_page.py:148 ui/pages/train_page.py:273
+msgid "Frozen LR"
+msgstr "Eingefrohen LR"
+
+#: ui/pages/train_page.py:149 ui/pages/train_page.py:274
+msgid "Unfrozen LR max"
+msgstr "Aufgetaute LR-Max"
+
+#: ui/pages/train_page.py:150 ui/pages/train_page.py:275
+msgid "Unfrozen LR min"
+msgstr "Aufgetaute LR-Min"
+
+#: ui/pages/train_page.py:158 ui/pages/train_page.py:299
+msgid "Auto-detect"
+msgstr "Automatisch erkennen"
+
+#: ui/pages/train_page.py:166 ui/pages/train_page.py:300
+msgid "Same as rank"
+msgstr "Gleich wie Rang"
+
+#: ui/pages/train_page.py:172 ui/pages/train_page.py:301
+msgid "optional, integer"
+msgstr "optional, Ganzzahl"
+
+#: ui/pages/train_page.py:174 ui/pages/train_page.py:282
+msgid "Base model architecture"
+msgstr "Basis-Modellarchitektur"
+
+#: ui/pages/train_page.py:175 ui/pages/train_page.py:283
+msgid "LoRA rank"
+msgstr "LoRA-Rang"
+
+#: ui/pages/train_page.py:176 ui/pages/train_page.py:284
+msgid "LoRA alpha"
+msgstr "LoRA-Alpha"
+
+#: ui/pages/train_page.py:178 ui/pages/train_page.py:286
+msgid "Max train steps"
+msgstr "Maximale Trainingsschritte"
+
 #: ui/pages/train_page.py:199 ui/pages/train_page.py:298
 msgid "optional, integer (default: config)"
 msgstr "optional, Ganzzahl (Standard: config)"
 
+#: ui/pages/train_page.py:207 ui/pages/train_page.py:304
+msgid "Validate Training Config"
+msgstr "Trainingskonfiguration validieren"
+
+#: ui/pages/train_page.py:209 ui/pages/train_page.py:305
+msgid "Start Training"
+msgstr "Training starten"
+
+#: ui/pages/train_page.py:220 ui/pages/train_page.py:307
+msgid "Training validation and execution messages will appear here."
+msgstr ""
+"Die Training-, Validierung- und Ausführungsmeldungen werden hier angezeigt."
+
+#: ui/pages/train_page.py:240
+msgid ""
+"Configure framework, architecture, paths, and hyperparameters (training CLI:"
+" {cmd})."
+msgstr ""
+"Konfigurieren Sie das Framework, die Architektur, die Pfade und die "
+"Hyperparameter (Trainings-CLI: {cmd})."
+
+#: ui/pages/train_page.py:244
+msgid "Core configuration"
+msgstr "Kernkonfiguration"
+
+#: ui/pages/train_page.py:267
+msgid "Hyperparameters (image classification)"
+msgstr "Hyperparameter (Bildklassifizierung)"
+
+#: ui/pages/train_page.py:278
+msgid "Hyperparameters (image generation LoRA)"
+msgstr "Hyperparameter (Bildgenerierungs-LoRA)"
+
 #: ui/pages/train_page.py:290
 msgid "Hyperparameters (text classification)"
 msgstr "Hyperparameter (Textklassifizierung)"
+
+#: ui/pages/train_page.py:312
+msgid ""
+"Set Run ID from the newest snapshot_*.json under the data directory (by file"
+" modification time)."
+msgstr ""
+"Legen Sie die Lauf-ID anhand der neuesten Datei „snapshot_*.json“ im "
+"Verzeichnis „data“ fest (nach dem Datum der letzten Änderung)."
+
+#: ui/pages/train_page.py:530
+msgid "Select checkpoint file"
+msgstr "Wählen Sie die Checkpoint-Datei aus"
+
+#: ui/pages/train_page.py:532
+msgid ""
+"Model/checkpoint files (*.pth *.pt *.h5 *.keras *.ckpt);;All files (*.*)"
+msgstr ""
+"Modellsicherungsdateien (*.pth *.pt *.h5 *.keras *.ckpt);; Alle Dateien "
+"(*.*)."
+
+#: ui/pages/train_page.py:605
+msgid "local checkpoint path or hub id, e.g. black-forest-labs/FLUX.1-dev"
+msgstr "lokaler Prüfpfad oder Hub-ID, z. B. black-forest-labs/FLUX.1-dev"
+
+#: ui/pages/train_page.py:614 ui/pages/train_page.py:636
+msgid "Enter architecture manually"
+msgstr "Geben Sie die Architektur händisch ein"
+
+#: ui/pages/train_page.py:616
+msgid "[warn] Unsupported framework for architecture list: {fw}"
+msgstr "[warn] Nicht unterstütztes Framework für die Architekturliste: {fw}"
+
+#: ui/pages/train_page.py:631
+msgid "[info] {fw} architectures: {names}"
+msgstr "[Info] {fw} Architekturen: {names}"
+
+#: ui/pages/train_page.py:638
+msgid "[warn] Could not load architecture list for {fw}: {err}"
+msgstr ""
+"[warn] Die Architekturstufe für {fw} konnte nicht geladen werden: {err}"
 
 #: ui/pages/train_page.py:655
 msgid "model id (default: {model})"
@@ -5985,3 +5831,1889 @@ msgstr "Modell-ID (Standard: {model})"
 #: ui/pages/train_page.py:657
 msgid "not used by this backend"
 msgstr "nicht vom Backend verwendet"
+
+#: ui/pages/train_page.py:708
+msgid "[ok] training inputs look valid"
+msgstr "[ok] Trainingseinträge sind gültig"
+
+#: ui/pages/train_page.py:723
+msgid "[error] Could not auto-save pipeline config; training cancelled."
+msgstr ""
+"[Fehler] Die Pipeline-Konfiguration konnte nicht automatisch gespeichert "
+"werden; Training abgebrochen."
+
+#: ui/pages/train_page.py:748
+msgid "[detached] PID {pid} — log: {log} — args JSON: {args}"
+msgstr "[getrennt] PID {pid} — Protokoll: {log} — Argumente (JSON): {args}"
+
+#: ui/pages/train_page.py:760
+msgid "Training started (separate process)"
+msgstr "Training ist gestartet (eigenen Prozess)"
+
+#: ui/pages/train_page.py:762
+msgid ""
+"Training is running outside this window. Closing the app does not stop it.\n"
+"\n"
+"Process ID: {pid}\n"
+"Log file:\n"
+"{log}\n"
+"\n"
+"Training arguments were written to:\n"
+"{args}\n"
+"\n"
+"Stop the process from Task Manager or your OS if you need to abort."
+msgstr ""
+"Das Training läuft außerhalb dieses Zeitfensters. Das Schließen der App stoppt es nicht.\n"
+"\n"
+"Prozess-ID: {pid}\n"
+"Protokolldatei:\n"
+"{log}\n"
+"\n"
+"Die Trainingsargumente wurden gespeichert unter:\n"
+"{args}\n"
+"\n"
+"Beenden Sie den Prozess über den Task-Manager oder Ihr Betriebssystem, falls Sie den Vorgang abbrechen müssen."
+
+#: ui/pages/train_page.py:779
+msgid "Could not start detached training"
+msgstr "Das detached Training konnte nicht gestartet werden."
+
+#: ui/pages/train_page.py:780
+msgid "Failed to launch the training subprocess. See Details for the error."
+msgstr ""
+"Das Launchen des Trainingseinheit-Unterprozesses ist gescheitert. Siehe "
+"Details für die Meldung."
+
+#: ui/pages/train_page.py:813
+msgid "Training LoRA adapter…"
+msgstr "Training LoRA-Adapter…"
+
+#: ui/pages/train_page.py:843
+msgid "Architecture '{arch}' not supported for {fw}. Supported: {sup}"
+msgstr ""
+"Die Architektur „{arch}“ wird für {fw} nicht unterstützt. Unterstützt: {sup}"
+
+#: ui/pages/train_page.py:858
+msgid "[done] Training complete. Model saved: {path}"
+msgstr "[erledigt] Training abgeschlossen. Modell gespeichert: {path}"
+
+#: ui/pages/train_page.py:877
+msgid ""
+"[stopped] Training cancelled — partial checkpoints may exist; check the "
+"output folder before re-running."
+msgstr ""
+"[abgebrochen] Training abgebrochen – es sind möglicherweise teilweise "
+"Checkpoints vorhanden; überprüfen Sie den Ausgabeordner, bevor Sie den "
+"Vorgang erneut ausführen."
+
+#: ui/pages/train_page.py:897
+msgid "Training failed"
+msgstr "Das Training ist fehlgeschlagen."
+
+#: ui/pages/train_page.py:898
+msgid ""
+"Training stopped with an error. See Details for the message from the "
+"trainer."
+msgstr ""
+"Das Training wurde aufgrund eines Fehlers abgebrochen. Unter „Details“ "
+"findest du die Meldung des Trainers."
+
+#: utils/notification_manager.py:22
+msgid " etc."
+msgstr " u.a."
+
+#: mb/pipeline_config.py:116
+msgid "Pipeline config file not found: %s, using defaults"
+msgstr ""
+"Pipeline-Konfigurationsdatei nicht gefunden: %s, Standardwerte werden "
+"verwendet"
+
+#: mb/pipeline_config.py:140
+msgid "Invalid data.test_per_class %r; using default %s"
+msgstr "Ungültige data.test_per_class %r; Standard %s wird verwendet"
+
+#: mb/pipeline_config.py:158
+msgid "Invalid data.test_small_class_threshold %r; using null"
+msgstr "Ungültige Daten.test_small_class_threshold %r; verwende null"
+
+#: mb/pipeline_config.py:169
+msgid "Invalid data.seed %r; using null"
+msgstr "Ungültiger data.seed %r; verwende null"
+
+#: mb/pipeline_config.py:177
+msgid "Invalid data.image_size %r; using default %s"
+msgstr "Ungültige data.image_size %r; verwende Standardwert %s"
+
+#: mb/pipeline_config.py:188
+msgid "Invalid data.batch_size %r; using null"
+msgstr "Ungültiger data.batch_size %r; verwende null"
+
+#: mb/pipeline_config.py:268
+msgid "Loaded pipeline configuration from %s"
+msgstr "Pipeline-Konfiguration von %s geladen"
+
+#: mb/pipeline_config.py:270
+msgid "Failed to load pipeline config from %s"
+msgstr "Laden der Pipeline‑Konfiguration von %s fehlgeschlagen"
+
+#: mb/pipeline_config.py:609
+msgid "Could not read existing pipeline file %s"
+msgstr "Konnte bestehende Pipeline-Datei %s nicht lesen"
+
+#: mb/pipeline_config.py:621
+msgid "Saved pipeline configuration to %s"
+msgstr "Pipeline-Konfiguration gespeichert unter %s"
+
+#: mb/space_estimate.py:83
+msgid "Error checking disk free space for: {path}: {e}"
+msgstr "Fehler beim Überprüfen des freien Speicherplatzes für: {path}: {e}"
+
+#: mb/space_estimate.py:315
+msgid "Could not write space estimate cache %s: %s"
+msgstr "Cache für Speicherabschätzung %s konnte nicht geschrieben werden: %s"
+
+#: mb/space_estimate.py:372
+msgid "Using cached convert estimate for fingerprint: {fp}"
+msgstr ""
+"Verwende zwischengespeicherte Konvertierungsschätzung für Fingerabdruck: "
+"{fp}"
+
+#: mb/space_estimate.py:388
+msgid "Convert space estimate: {msg}"
+msgstr "Konvertierungsplatzschätzung: {msg}"
+
+#: mb/cli/__init__.py:148
+msgid "Configuration error: {e}"
+msgstr "Konfigurationsfehler: {e}"
+
+#: mb/cli/__init__.py:151
+msgid "Error in data gather: {e}"
+msgstr "Fehler beim Sammeln der Daten: {e}"
+
+#: mb/cli/__init__.py:169
+msgid "Error in data convert: {e}"
+msgstr "Fehler bei der Datenkonvertierung: {e}"
+
+#: mb/cli/__init__.py:185
+msgid "Error in data deduplicate: {e}"
+msgstr "Fehler bei der Daten-Deduplizierung: {e}"
+
+#: mb/cli/__init__.py:202
+msgid "Error in data upscale: {e}"
+msgstr "Fehler beim Hochskalieren der Daten: {e}"
+
+#: mb/cli/__init__.py:252
+msgid "Using random seed: %s"
+msgstr "Verwende Zufalls-Seed: %s"
+
+#: mb/cli/__init__.py:269
+msgid "Error in data create-dataset: {e}"
+msgstr "Fehler beim Erstellen des Datensatzes: {e}"
+
+#: mb/cli/__init__.py:317
+msgid "Error in data fix-jpeg-extension-mismatch: {e}"
+msgstr "Fehler im Datenfix jpeg-extension-mismatch: {e}"
+
+#: mb/cli/__init__.py:343
+msgid "Error in data estimate-space: {e}"
+msgstr "Fehler im Daten‑Schätzbereich: {e}"
+
+#: mb/cli/__init__.py:395 mb/cli/__init__.py:492
+msgid "Supported architectures: {supported_archs}"
+msgstr "Unterstützte Architekturen: {supported_archs}"
+
+#: mb/cli/__init__.py:400
+msgid "Starting training from JSON ({framework}/{architecture})"
+msgstr "Training aus JSON starten ({framework}/{architecture})"
+
+#: mb/cli/__init__.py:497
+msgid "Starting training with {framework}/{architecture}"
+msgstr "Training starten mit {framework}/{architecture}"
+
+#: mb/cli/__init__.py:567
+msgid "Converting {input} ({source_framework}) -> {output} ({target})"
+msgstr "Umwandeln {input} ({source_framework}) → {output} ({target})"
+
+#: mb/conversion/converters.py:42
+msgid "onnx package not available; cannot inline external ONNX data"
+msgstr ""
+"ONNX-Paket nicht verfügbar; externe ONNX-Daten können nicht eingebettet "
+"werden"
+
+#: mb/conversion/converters.py:53
+msgid "Could not reload ONNX to inline external data: %s"
+msgstr "Konnte ONNX nicht erneut laden, um externe Daten einzubetten: %s"
+
+#: mb/conversion/converters.py:68
+msgid "Could not load external ONNX data: %s"
+msgstr "Externe ONNX-Daten konnten nicht geladen werden: %s"
+
+#: mb/conversion/converters.py:74
+msgid ""
+"ONNX weights (%s bytes) exceed the single-file protobuf limit; keeping "
+"external data files"
+msgstr ""
+"ONNX‑Gewichte (%s Byte) überschreiten das Einzeldatei‑Protobuf‑Limit; "
+"externe Daten werden beibehalten"
+
+#: mb/conversion/converters.py:83
+msgid "Failed to save self-contained ONNX: %s"
+msgstr "Fehler beim Speichern des eigenständigen ONNX: %s"
+
+#: mb/conversion/converters.py:110
+msgid "Could not remove external ONNX data file %s: %s"
+msgstr "Konnte die externe ONNX-Datendatei %s nicht entfernen: %s"
+
+#: mb/conversion/converters.py:132
+msgid "onnx package not available; cannot write ONNX metadata"
+msgstr ""
+"ONNX-Paket nicht verfügbar; ONNX-Metadaten können nicht geschrieben werden"
+
+#: mb/conversion/converters.py:139
+msgid "Could not reload ONNX to write metadata: %s"
+msgstr "ONNX konnte nicht neu geladen werden, um Metadaten zu schreiben: %s"
+
+#: mb/conversion/converters.py:154
+msgid "Could not save ONNX metadata: %s"
+msgstr "ONNX-Metadaten konnten nicht gespeichert werden: %s"
+
+#: mb/conversion/converters.py:291
+msgid "Successfully converted PyTorch model to ONNX: {output_path}"
+msgstr "PyTorch‑Modell erfolgreich nach ONNX konvertiert: {output_path}"
+
+#: mb/conversion/converters.py:296
+msgid "PyTorch not available for ONNX conversion: {e}"
+msgstr "PyTorch für ONNX-Konvertierung nicht verfügbar: {e}"
+
+#: mb/conversion/converters.py:299
+msgid "Failed to convert PyTorch model to ONNX: {e}"
+msgstr "Fehler beim Konvertieren des PyTorch‑Modells nach ONNX: {e}"
+
+#: mb/conversion/converters.py:326
+msgid ""
+"safetensors library not available. Install with: pip install safetensors"
+msgstr ""
+"safetensors-Bibliothek nicht verfügbar. Installieren mit: pip install "
+"safetensors"
+
+#: mb/conversion/converters.py:343
+msgid "Successfully converted PyTorch model to SafeTensors: {output_path}"
+msgstr "PyTorch-Modell erfolgreich in SafeTensors konvertiert: {output_path}"
+
+#: mb/conversion/converters.py:348 mb/conversion/converters.py:419
+msgid "Required library not available: {e}"
+msgstr "Erforderliche Bibliothek nicht verfügbar: {e}"
+
+#: mb/conversion/converters.py:351
+msgid "Failed to convert PyTorch model to SafeTensors: {e}"
+msgstr "Fehler beim Konvertieren des PyTorch‑Modells in SafeTensors: {e}"
+
+#: mb/conversion/converters.py:379
+msgid "tf2onnx library not available. Install with: pip install tf2onnx"
+msgstr ""
+"tf2onnx-Bibliothek nicht verfügbar. Installieren mit: pip install tf2onnx"
+
+#: mb/conversion/converters.py:396
+msgid "Unsupported input shape: {input_shape}"
+msgstr "Nicht unterstützte Eingabeform: {input_shape}"
+
+#: mb/conversion/converters.py:414
+msgid "Successfully converted Keras model to ONNX: {output_path}"
+msgstr "Keras-Modell erfolgreich in ONNX konvertiert: {output_path}"
+
+#: mb/conversion/converters.py:422
+msgid "Failed to convert Keras model to ONNX: {e}"
+msgstr "Fehler beim Konvertieren des Keras‑Modells zu ONNX: {e}"
+
+#: mb/conversion/converters.py:502
+msgid "Input model file not found: {input_path}"
+msgstr "Eingabemodelldatei nicht gefunden: {input_path}"
+
+#: mb/conversion/converters.py:511
+msgid "Could not detect framework for {input_path}"
+msgstr "Rahmenwerk für {input_path} konnte nicht erkannt werden"
+
+#: mb/conversion/converters.py:515
+msgid "Detected source framework: {source_framework}"
+msgstr "Erkanntes Quell-Framework: {source_framework}"
+
+#: mb/conversion/converters.py:520
+msgid "Unsupported target format: {target_format}"
+msgstr "Nicht unterstütztes Zielformat: {target_format}"
+
+#: mb/conversion/converters.py:521
+msgid "Supported formats: onnx, safetensors"
+msgstr "Unterstützte Formate: onnx, safetensors"
+
+#: mb/conversion/converters.py:529
+msgid ""
+"Architecture and num_classes are required for PyTorch -> ONNX conversion"
+msgstr ""
+"Für die PyTorch → ONNX-Konvertierung sind Architecture und num_classes "
+"erforderlich"
+
+#: mb/conversion/converters.py:549
+msgid "Keras -> SafeTensors conversion not supported"
+msgstr "Keras → SafeTensors-Konvertierung nicht unterstützt"
+
+#: mb/conversion/converters.py:550
+msgid "SafeTensors is primarily for PyTorch models"
+msgstr "SafeTensors ist hauptsächlich für PyTorch-Modelle gedacht"
+
+#: mb/conversion/converters.py:556
+msgid "Unsupported source framework: {source_framework}"
+msgstr "Nicht unterstütztes Quell-Framework: {source_framework}"
+
+#: mb/conversion/quantize.py:128
+msgid "Wrote %s variant: %s (%.1f MB)"
+msgstr "Schrieb %s Variante: %s (%.1f MB)"
+
+#: mb/data/convert.py:136
+msgid "Raw data path is not a directory: {raw_data_dir}"
+msgstr "Rohdaten-Pfad ist kein Verzeichnis: {raw_data_dir}"
+
+#: mb/data/convert.py:148
+msgid "Cannot write to raw data directory {raw_data_dir}: {e}"
+msgstr "Kann nicht in das Rohdatenverzeichnis {raw_data_dir} schreiben: {e}"
+
+#: mb/data/convert.py:203
+msgid "Permission denied accessing {class_dir}: {e}"
+msgstr "Zugriff verweigert auf {class_dir}: {e}"
+
+#: mb/data/convert.py:206
+msgid "Error scanning {class_dir}: {e}"
+msgstr "Fehler beim Scannen von {class_dir}: {e}"
+
+#: mb/data/convert.py:216 mb/data/convert.py:280 mb/data/gather.py:640
+#: mb/data/upscale.py:113
+msgid "Source file does not exist: {source_path}"
+msgstr "Quelldatei existiert nicht: {source_path}"
+
+#: mb/data/convert.py:220 mb/data/gather.py:644
+msgid "Source path is not a file: {source_path}"
+msgstr "Quellpfad ist keine Datei: {source_path}"
+
+#: mb/data/convert.py:248 mb/data/gather.py:661
+msgid "Failed to save converted image: {target_path}"
+msgstr "Fehler beim Speichern des konvertierten Bildes: {target_path}"
+
+#: mb/data/convert.py:255 mb/data/gather.py:668 mb/data/upscale.py:195
+msgid "Cannot identify image format: {source_path}"
+msgstr "Bildformat kann nicht erkannt werden: {source_path}"
+
+#: mb/data/convert.py:262 mb/data/convert.py:325
+msgid "Image too large (decompression bomb protection): {source_path}"
+msgstr "Bild zu groß (Schutz vor Dekompressionsbomben): {source_path}"
+
+#: mb/data/convert.py:264 mb/data/convert.py:327
+msgid "  Error: {error_msg}"
+msgstr "  Fehler: {error_msg}"
+
+#: mb/data/convert.py:265
+msgid "  Consider increasing Image.MAX_IMAGE_PIXELS or skipping this file"
+msgstr ""
+"  Erwägen Sie, Image.MAX_IMAGE_PIXELS zu erhöhen, oder überspringen Sie "
+"diese Datei"
+
+#: mb/data/convert.py:269 mb/data/gather.py:671
+msgid "OS error converting {source_path}: {e}"
+msgstr "OS-Fehler beim Konvertieren von {source_path}: {e}"
+
+#: mb/data/convert.py:273 mb/data/gather.py:674
+msgid "Error converting {source_path}: {e}"
+msgstr "Fehler beim Konvertieren von {source_path}: {e}"
+
+#: mb/data/convert.py:308
+msgid "Failed to process file: {target_path}"
+msgstr "Fehler beim Verarbeiten der Datei: {target_path}"
+
+#: mb/data/convert.py:316 mb/data/gather.py:703
+msgid "Permission error copying {source_path}: {e}"
+msgstr "Berechtigungsfehler beim Kopieren von {source_path}: {e}"
+
+#: mb/data/convert.py:330 mb/data/gather.py:708
+msgid "OS error copying {source_path}: {e}"
+msgstr "Betriebssystemfehler beim Kopieren von {source_path}: {e}"
+
+#: mb/data/convert.py:336 mb/data/gather.py:714
+msgid "Unexpected error copying {source_path}: {e}"
+msgstr "Unerwarteter Fehler beim Kopieren von {source_path}: {e}"
+
+#: mb/data/convert.py:531
+msgid ""
+"Could not extract a frame from video (install imageio + imageio-ffmpeg?): "
+"{source_path}"
+msgstr ""
+"Konnte keinen Frame aus dem Video extrahieren (installiere imageio + "
+"imageio-ffmpeg?): {source_path}"
+
+#: mb/data/convert.py:541
+msgid "Could not extract a frame from GIF: {source_path}"
+msgstr "Konnte keinen Frame aus dem GIF extrahieren: {source_path}"
+
+#: mb/data/convert.py:560
+msgid "Could not copy review JPEG {review_path}: {e}"
+msgstr "Konnte JPEG der Rezension {review_path} nicht kopieren: {e}"
+
+#: mb/data/convert.py:571
+msgid "CONVERSION SUMMARY"
+msgstr "KONVERTIERUNGSÜBERSICHT"
+
+#: mb/data/convert.py:573 mb/data/dataset.py:1020 mb/data/deduplicate.py:853
+#: mb/data/deduplicate.py:907
+msgid "Raw data directory: {raw_data_dir}"
+msgstr "Rohdatenverzeichnis: {raw_data_dir}"
+
+#: mb/data/convert.py:576
+msgid "Total files found: {total_files_found}"
+msgstr "Gesamtzahl gefundener Dateien: {total_files_found}"
+
+#: mb/data/convert.py:580
+msgid "Files converted to JPEG: {files_converted}"
+msgstr "Dateien in JPEG konvertiert: {files_converted}"
+
+#: mb/data/convert.py:582
+msgid "JPEG files copied: {files_copied}"
+msgstr "JPEG-Dateien kopiert: {files_copied}"
+
+#: mb/data/convert.py:586
+msgid "Random frames from video/GIF (JPEG): {files_visual_extracted}"
+msgstr "Zufällige Frames aus Video/GIF (JPEG): {files_visual_extracted}"
+
+#: mb/data/convert.py:590
+msgid "Files skipped (errors): {files_skipped}"
+msgstr "Übersprungene Dateien (Fehler): {files_skipped}"
+
+#: mb/data/convert.py:594 mb/data/gather.py:1069 mb/data/upscale.py:306
+msgid ""
+"\n"
+"ERRORS ENCOUNTERED:"
+msgstr " FEHLER AUFGETRETEN:"
+
+#: mb/data/convert.py:599 mb/data/gather.py:1073
+msgid "  {error_type}: {n_errors} errors"
+msgstr "  {error_type}: {n_errors} Fehler"
+
+#: mb/data/convert.py:604 mb/data/gather.py:1078 mb/data/upscale.py:316
+msgid "    ... and {n_more} more"
+msgstr "    ... und {n_more} weitere"
+
+#: mb/data/convert.py:609
+msgid ""
+"Legacy hash-named JPEGs renamed to plain stem.jpg: {files_promoted_to_plain}"
+msgstr ""
+"Alte, per Hash benannte JPEGs wurden in einfachen Namen stem.jpg umbenannt: "
+"{files_promoted_to_plain}"
+
+#: mb/data/convert.py:618
+msgid ""
+"\n"
+"Total files processed: {total_processed}"
+msgstr " Gesamtdateien verarbeitet: {total_processed}"
+
+#: mb/data/convert.py:659
+msgid ""
+"No unified snapshot found for run_id %r under %s (expected "
+"snapshot_%s.json)."
+msgstr ""
+"Kein einheitlicher Snapshot für run_id %r unter %s gefunden (erwartet "
+"snapshot_%s.json)."
+
+#: mb/data/convert.py:668
+msgid ""
+"Loaded unified snapshot for run_id %s — will update the same snapshot file"
+msgstr ""
+"Einheitlichen Snapshot für run_id %s geladen — dieselbe Snapshot-Datei wird "
+"aktualisiert"
+
+#: mb/data/convert.py:680
+msgid ""
+"Insufficient disk space for convert (heuristic). Free space or use "
+"skip_space_check / --skip-space-check if you accept the risk."
+msgstr ""
+"Nicht genügend Speicherplatz für die Konvertierung (heuristisch). "
+"Speicherplatz freigeben oder skip_space_check / --skip-space-check "
+"verwenden, falls Sie das Risiko akzeptieren."
+
+#: mb/data/convert.py:691
+msgid "Creating new unified snapshot with run_id: {run_id}"
+msgstr "Erstelle neuen einheitlichen Snapshot mit run_id: {run_id}"
+
+#: mb/data/convert.py:714 mb/data/find_jpeg_extension_mismatches.py:393
+msgid "No class directories found under %s"
+msgstr "Keine Klassenverzeichnisse unter %s gefunden"
+
+#: mb/data/convert.py:724
+msgid "Class directory does not exist: {class_dir}"
+msgstr "Klassenverzeichnis existiert nicht: {class_dir}"
+
+#: mb/data/convert.py:736
+msgid "No image files found in {class_name}"
+msgstr "Keine Bilddateien gefunden in {class_name}"
+
+#: mb/data/convert.py:758
+msgid "No image files found in any class directory"
+msgstr "Keine Bilddateien in irgendeinem Klassenverzeichnis gefunden"
+
+#: mb/data/convert.py:770
+msgid "Run ID for this pipeline: {run_id}"
+msgstr "Lauf‑ID für diese Pipeline: {run_id}"
+
+#: mb/data/convert.py:772
+msgid ""
+"Subsequent jobs should use this run ID to update the same snapshot file"
+msgstr ""
+"Nachfolgende Aufträge sollten diese Lauf‑ID verwenden, um dieselbe "
+"Schnappschussdatei zu aktualisieren"
+
+#: mb/data/dataset.py:287
+msgid ""
+"No class directories found under %s (check data.class_names / "
+"data.class_qualifying_subdir)"
+msgstr ""
+"Kein Klassenverzeichnis unter %s gefunden (prüfen Sie data.class_names / "
+"data.class_qualifying_subdir)"
+
+#: mb/data/dataset.py:291
+msgid "Class folders for dataset creation: %s"
+msgstr "Klassenordner für Datensatz-Erstellung: %s"
+
+#: mb/data/dataset.py:322
+msgid ""
+"Raw data directory for class '{class_name}' does not exist: {raw_class_dir}"
+msgstr ""
+"Rohdatenverzeichnis für die Klasse '{class_name}' existiert nicht: "
+"{raw_class_dir}"
+
+#: mb/data/dataset.py:332
+msgid ""
+"No image source directory for class '%s' (expected layout under %s); "
+"skipping"
+msgstr ""
+"Kein Bild‑Quellverzeichnis für Klasse '%s' (erwartetes Layout unter %s); "
+"überspringen"
+
+#: mb/data/dataset.py:359
+msgid "Failed to calculate hash for {image_file}, skipping"
+msgstr "Hash für {image_file} konnte nicht berechnet werden, überspringe"
+
+#: mb/data/dataset.py:458
+msgid "Image %s in class '%s' is %s, moving to review directory"
+msgstr "Bild %s in Klasse '%s' ist %s, verschiebe in Review‑Verzeichnis"
+
+#: mb/data/dataset.py:584
+msgid "Limiting each class to {target_count} images (max_train_per_class)"
+msgstr ""
+"Begrenzen jeder Klasse auf {target_count} Bilder (max_train_per_class)"
+
+#: mb/data/dataset.py:592
+msgid ""
+"Balancing training set to smallest class size: {target_count} images per "
+"class"
+msgstr ""
+"Ausgleich des Trainingssatzes auf die kleinste Klassenanzahl: {target_count}"
+" Bilder pro Klasse"
+
+#: mb/data/dataset.py:601
+msgid "Cannot balance: no images found in any class"
+msgstr ""
+"Ausbalancierung nicht möglich: Keine Bilder in irgendeiner Klasse gefunden"
+
+#: mb/data/dataset.py:641
+msgid ""
+"Class '{class_name}' has only {current_count} images, cannot reach target of"
+" {target_count}"
+msgstr ""
+"Klasse '{class_name}' hat nur {current_count} Bilder, kann das Ziel von "
+"{target_count} nicht erreichen"
+
+#: mb/data/dataset.py:656
+msgid "Balancing complete: removed {total_removed} images total"
+msgstr ""
+"Ausbalancierung abgeschlossen: {total_removed} Bilder insgesamt entfernt"
+
+#: mb/data/dataset.py:658
+msgid "Final balanced training set distribution:"
+msgstr "Endgültige ausgewogene Trainingsdatensatzverteilung:"
+
+#: mb/data/dataset.py:665
+msgid "  {class_name}: {final_count} images"
+msgstr "  {class_name}: {final_count} Bilder"
+
+#: mb/data/dataset.py:668
+msgid "No balancing needed - all classes already balanced"
+msgstr "Keine Balance nötig – alle Klassen bereits ausbalanciert"
+
+#: mb/data/dataset.py:781
+msgid ""
+"Creating test dataset (dataset_weighted: anchor=%s, "
+"small_class_threshold=%s, n_total=%s, mean_class_size=%s)..."
+msgstr ""
+"Erstelle Testdatensatz (dataset_weighted: anchor=%s, "
+"small_class_threshold=%s, n_total=%s, mean_class_size=%s)..."
+
+#: mb/data/dataset.py:790
+msgid "dataset_weighted: no training images found; skipping test split"
+msgstr ""
+"dataset_weighted: Keine Trainingsbilder gefunden; Testsplit wird "
+"übersprungen"
+
+#: mb/data/dataset.py:797
+msgid "Train directory for class '%s' does not exist"
+msgstr "Train-Verzeichnis für Klasse '%s' existiert nicht"
+
+#: mb/data/dataset.py:824
+msgid "Not enough images in class '%s': %s available, %s needed"
+msgstr "Nicht genug Bilder in Klasse '%s': %s verfügbar, %s benötigt"
+
+#: mb/data/dataset.py:842
+msgid "Moved %s images to test set for class '%s'"
+msgstr "%s Bilder zum Testsatz für Klasse '%s' verschoben"
+
+#: mb/data/dataset.py:848
+msgid "Creating test dataset (fixed: %s items per class)..."
+msgstr "Erstelle Testdatensatz (fixiert: %s Elemente pro Klasse)..."
+
+#: mb/data/dataset.py:857
+msgid "Train directory for class '{class_name}' does not exist"
+msgstr "Train-Verzeichnis für die Klasse '{class_name}' existiert nicht"
+
+#: mb/data/dataset.py:872
+msgid ""
+"Not enough images in class '{class_name}': {n_train_images} available, "
+"{anchor} needed"
+msgstr ""
+"Nicht genügend Bilder in Klasse '{class_name}': {n_train_images} verfügbar, "
+"{anchor} benötigt"
+
+#: mb/data/dataset.py:895
+msgid "Moved {n_selected_images} images to test set for class '{class_name}'"
+msgstr ""
+"{n_selected_images} Bilder in den Test‑Datensatz für die Klasse "
+"'{class_name}' verschoben"
+
+#: mb/data/dataset.py:918
+msgid "Unified snapshot updated with dataset creation data (run_id: {run_id})"
+msgstr ""
+"Vereinheitlichter Snapshot mit Datensatz‑Erstellungsdaten aktualisiert "
+"(run_id: {run_id})"
+
+#: mb/data/dataset.py:944
+msgid "DATASET CREATION SUMMARY"
+msgstr "DATENSATZERSTELLUNG ZUSAMMENFASSUNG"
+
+#: mb/data/dataset.py:947
+msgid ""
+"\n"
+"RAW DATA STATISTICS:"
+msgstr " ROHDATENSTATISTIKEN:"
+
+#: mb/data/dataset.py:950
+msgid "  {class_name}: {count} files found"
+msgstr "  {class_name}: {count} Dateien gefunden"
+
+#: mb/data/dataset.py:952
+msgid ""
+"\n"
+"PROCESSING STATISTICS:"
+msgstr " VERARBEITUNGSTATISTIKEN:"
+
+#: mb/data/dataset.py:960
+msgid ""
+"  {class_name}: {copied} copied, {corrupted} corrupted removed, "
+"{invalid_size} invalid file size + {invalid_dims} invalid dimensions moved "
+"to review"
+msgstr ""
+"  {class_name}: {copied} kopiert, {corrupted} fehlerhaft entfernt, "
+"{invalid_size} ungültige Dateigröße + {invalid_dims} ungültige Abmessungen "
+"zur Überprüfung verschoben"
+
+#: mb/data/dataset.py:972
+msgid ""
+"\n"
+"TEST SET CREATION:"
+msgstr " TESTSET ERSTELLUNG:"
+
+#: mb/data/dataset.py:977
+msgid "  {class_name}: {moved} files moved to test set"
+msgstr "  {class_name}: {moved} Dateien in Test‑Set verschoben"
+
+#: mb/data/dataset.py:980
+msgid ""
+"\n"
+"FINAL DATASET COUNTS:"
+msgstr " ENDGÜLTIGE DATENSATZ‑ANZAHLEN:"
+
+#: mb/data/dataset.py:981
+msgid "Training set:"
+msgstr "Trainingssatz:"
+
+#: mb/data/dataset.py:984 mb/data/dataset.py:989
+msgid "  {class_name}: {count} files"
+msgstr "  {class_name}: {count} Dateien"
+
+#: mb/data/dataset.py:986
+msgid "Test set:"
+msgstr "Testmenge:"
+
+#: mb/data/dataset.py:994
+msgid ""
+"\n"
+"TOTALS:"
+msgstr " SUMMEN:"
+
+#: mb/data/dataset.py:995
+msgid "  Training set: {total_train} files"
+msgstr "  Trainingsdatensatz: {total_train} Dateien"
+
+#: mb/data/dataset.py:996
+msgid "  Test set: {total_test} files"
+msgstr "  Testsatz: {total_test} Dateien"
+
+#: mb/data/dataset.py:997
+msgid "  Combined: {total} files"
+msgstr "  Kombiniert: {total} Dateien"
+
+#: mb/data/dataset.py:999
+msgid ""
+"\n"
+"Directories created:"
+msgstr " Verzeichnisse erstellt:"
+
+#: mb/data/dataset.py:1000
+msgid "  Training: {train_dir}"
+msgstr "  Training: {train_dir}"
+
+#: mb/data/dataset.py:1001
+msgid "  Test: {test_dir}"
+msgstr "  Test: {test_dir}"
+
+#: mb/data/dataset.py:1021
+msgid "Output data directory: {data_dir}"
+msgstr "Ausgabedatenverzeichnis: {data_dir}"
+
+#: mb/data/dataset.py:1023
+msgid "Test split: mode=%s, anchor (test_per_class)=%s"
+msgstr "Testaufteilung: Modus=%s, Anker (test_per_class)=%s"
+
+#: mb/data/dataset.py:1034 mb/data/deduplicate.py:919
+msgid "Raw data directory does not exist: {raw_data_dir}"
+msgstr "Rohdatenverzeichnis existiert nicht: {raw_data_dir}"
+
+#: mb/data/dataset.py:1051
+msgid "Loaded unified snapshot with run_id: {run_id}"
+msgstr "Einheitlicher Snapshot geladen mit run_id: {run_id}"
+
+#: mb/data/dataset.py:1057
+msgid ""
+"No unified snapshot found! Run ``mb data convert`` (or equivalent) first to "
+"create a snapshot."
+msgstr ""
+"Kein einheitlicher Snapshot gefunden! Führen Sie zuerst ``mb data convert`` "
+"(oder ein Äquivalent) aus, um einen Snapshot zu erstellen."
+
+#: mb/data/dataset.py:1058
+msgid "Or provide a valid --run-id if the snapshot exists elsewhere."
+msgstr ""
+"Oder geben Sie eine gültige --run-id an, falls der Snapshot an anderer "
+"Stelle existiert."
+
+#: mb/data/dataset.py:1072
+msgid ""
+"Insufficient disk space on the output data directory (heuristic). Free space"
+" or pass skip_space_check / --skip-space-check if you accept the risk."
+msgstr ""
+"Unzureichender Festplattenspeicher im Ausgabedaten‑Verzeichnis "
+"(heuristisch). Freier Speicherplatz oder überspringen Sie skip_space_check /"
+" --skip-space-check, wenn Sie das Risiko akzeptieren."
+
+#: mb/data/deduplicate.py:184
+msgid "Migrated %d file(s) from legacy small_images_review layout"
+msgstr "Migrierte %d Datei(en) aus dem alten small_images_review-Layout"
+
+#: mb/data/deduplicate.py:308 mb/data/gather.py:158
+msgid "Failed to load cache: {e}. Starting with empty cache."
+msgstr "Cache konnte nicht geladen werden: {e}. Starte mit leerem Cache."
+
+#: mb/data/deduplicate.py:333 mb/data/gather.py:183
+msgid "Failed to save cache: {e}"
+msgstr "Fehler beim Speichern des Caches: {e}"
+
+#: mb/data/deduplicate.py:395
+msgid "Error calculating file hash for {image_path}: {e}"
+msgstr "Fehler beim Berechnen des Dateihashs für {image_path}: {e}"
+
+#: mb/data/deduplicate.py:424 mb/data/gather.py:843
+msgid "Error calculating PIL hash for {image_path}: {e}"
+msgstr "Fehler beim Berechnen des PIL-Hash für {image_path}: {e}"
+
+#: mb/data/deduplicate.py:442 mb/data/deduplicate.py:479
+#: mb/data/deduplicate.py:558 mb/data/gather.py:860 mb/data/gather.py:897
+msgid "Directory does not exist: {directory}"
+msgstr "Verzeichnis existiert nicht: {directory}"
+
+#: mb/data/deduplicate.py:530 mb/data/gather.py:951
+msgid "Error removing duplicate {file_path}: {e}"
+msgstr "Fehler beim Entfernen des Duplikats {file_path}: {e}"
+
+#: mb/data/deduplicate.py:537 mb/data/gather.py:957
+msgid "Removed {removed_count} duplicate files from {directory}"
+msgstr "Entfernt {removed_count} doppelte Dateien aus {directory}"
+
+#: mb/data/deduplicate.py:608
+msgid "Error checking dimensions for {file_path}: {e}"
+msgstr "Fehler beim Überprüfen der Abmessungen für {file_path}: {e}"
+
+#: mb/data/deduplicate.py:618
+msgid "Removed {removed_count} very small images (< 80px) from {directory}"
+msgstr "Entfernt {removed_count} sehr kleine Bilder (< 80 px) aus {directory}"
+
+#: mb/data/deduplicate.py:623
+msgid ""
+"Moved {moved_count} small images (80-250px) from {directory} to review "
+"directory"
+msgstr ""
+"Verschob {moved_count} kleine Bilder (80‑250 px) von {directory} in das "
+"Review‑Verzeichnis"
+
+#: mb/data/deduplicate.py:649
+msgid "Skipping %d class directories without %s"
+msgstr "Überspringe %d Klassenverzeichnisse ohne %s"
+
+#: mb/data/deduplicate.py:705
+msgid ""
+"No unified snapshot found under %s; skipping deduplication snapshot update"
+msgstr ""
+"Kein einheitlicher Snapshot unter %s gefunden; "
+"deduplizierungs‑Snapshot‑Update wird übersprungen"
+
+#: mb/data/deduplicate.py:717
+msgid "Updated snapshot with deduplication results: %s"
+msgstr "Aktualisierter Schnappschuss mit Deduplizierungsergebnissen: %s"
+
+#: mb/data/deduplicate.py:723 mb/data/gather.py:982
+msgid "STARTING DEDUPLICATION PROCESS"
+msgstr "STARTEN DES DEDUPLIKATIONS-PROZESSES"
+
+#: mb/data/deduplicate.py:728
+msgid "No CONVERTED directories found for deduplication"
+msgstr "Keine CONVERTED-Verzeichnisse für Deduplizierung gefunden"
+
+#: mb/data/deduplicate.py:748
+msgid ""
+"\n"
+"List-only mode: still removes tiny images and duplicates *within* each CONVERTED folder; only *cross-class* duplicate groups are kept for review."
+msgstr ""
+" Listen‑Nur‑Modus: entfernt weiterhin kleine Bilder und Duplikate "
+"*innerhalb* jedes KONVERTIERTEN Ordners; nur *klassenübergreifende* "
+"Duplikatgruppen werden zur Überprüfung behalten."
+
+#: mb/data/deduplicate.py:790
+msgid "DEDUPLICATION LIST-ONLY SCAN COMPLETED"
+msgstr "DEDUPLIZIERUNG NUR-LISTEN-SCAN ABGESCHLOSSEN"
+
+#: mb/data/deduplicate.py:837
+msgid "Found {n_all_duplicates} duplicate groups across all directories"
+msgstr "Gefunden {n_all_duplicates} Duplikatgruppen in allen Verzeichnissen"
+
+#: mb/data/deduplicate.py:845 mb/data/gather.py:1010
+msgid "DEDUPLICATION PROCESS COMPLETED"
+msgstr "DEDUPLIZIERUNG ABGESCHLOSSEN"
+
+#: mb/data/deduplicate.py:851
+msgid "DEDUPLICATION SUMMARY"
+msgstr "Zusammenfassung der Deduplizierung"
+
+#: mb/data/deduplicate.py:856
+msgid "Very small images removed (< 80px): {small_images_removed}"
+msgstr "Sehr kleine Bilder entfernt (< 80 px): {small_images_removed}"
+
+#: mb/data/deduplicate.py:860
+msgid "Small images moved to review (80-250px): {small_images_moved}"
+msgstr ""
+"Kleine Bilder zur Überprüfung verschoben (80-250 px): {small_images_moved}"
+
+#: mb/data/deduplicate.py:863
+msgid "Review directory strategy: raw_data/<class>/small_images_review"
+msgstr "Verzeichnisstrategie überprüfen: raw_data/<class>/small_images_review"
+
+#: mb/data/deduplicate.py:866
+msgid "Duplicates removed: {duplicates_removed}"
+msgstr "Duplikate entfernt: {duplicates_removed}"
+
+#: mb/data/deduplicate.py:870
+msgid ""
+"Duplicates removed in visual media review dirs: "
+"{duplicates_removed_visual_review}"
+msgstr ""
+"Duplikate in den Verzeichnissen der visuellen Medienprüfung entfernt: "
+"{duplicates_removed_visual_review}"
+
+#: mb/data/deduplicate.py:878
+msgid ""
+"Duplicates removed in class small_images_review dirs: "
+"{duplicates_removed_small_review}"
+msgstr ""
+"Duplikate in Klasse small_images_review Verzeichnissen entfernt: "
+"{duplicates_removed_small_review}"
+
+#: mb/data/deduplicate.py:884
+msgid "Duplicate groups found across directories: {duplicates_found}"
+msgstr "Duplizierte Gruppen in Verzeichnissen gefunden: {duplicates_found}"
+
+#: mb/data/deduplicate.py:910
+msgid ""
+"Mode: list-only (cross-class duplicates for review; within-CONVERTED "
+"duplicates removed)"
+msgstr ""
+"Modus: Nur-Liste (klassenübergreifende Duplikate zur Überprüfung; innerhalb "
+"von CONVERTED Duplikate entfernt)"
+
+#: mb/data/find_jpeg_extension_mismatches.py:406
+msgid ""
+"No unified snapshot under %s; file repair will run but snapshot rows will "
+"not be updated. Run mb data convert first to create a snapshot if you need "
+"metadata alignment."
+msgstr ""
+"Kein einheitlicher Snapshot unter %s; die Dateireparatur wird ausgeführt, "
+"aber Snapshot‑Zeilen werden nicht aktualisiert. Führen Sie zunächst mb data "
+"convert aus, um einen Snapshot zu erstellen, wenn Sie eine "
+"Metadaten‑Abstimmung benötigen."
+
+#: mb/data/find_jpeg_extension_mismatches.py:506
+#: mb/data/find_jpeg_extension_mismatches.py:692
+msgid ""
+"Class %s: %d mislabeled .jpg/.jpeg file(s) are PNG/WebP/BMP/TIFF bytes "
+"(counted only; no repair unless --include-static-format-mismatches)."
+msgstr ""
+"Klasse %s: %d falsch gekennzeichnete .jpg/.jpeg‑Datei(en) sind "
+"PNG/WebP/BMP/TIFF‑Bytes (nur gezählt; keine Reparatur, es sei denn "
+"--include-static-format-mismatches)."
+
+#: mb/data/find_jpeg_extension_mismatches.py:512
+msgid "[dry-run] no mislabeled .jpg/.jpeg in %s"
+msgstr "[Trockenlauf] keine falsch benannten .jpg/.jpeg in %s"
+
+#: mb/data/find_jpeg_extension_mismatches.py:553
+msgid "Cannot infer extension for %s (sniff=%s pil=%s)"
+msgstr "Erweiterung für %s kann nicht ermittelt werden (sniff=%s pil=%s)"
+
+#: mb/data/find_jpeg_extension_mismatches.py:637
+msgid "Could not remove stale CONVERTED file %s: %s"
+msgstr "Konnte die veraltete CONVERTED-Datei %s nicht entfernen: %s"
+
+#: mb/data/find_jpeg_extension_mismatches.py:643
+msgid "Could not remove stale small review file %s: %s"
+msgstr "Konnte die veraltete kleine Review‑Datei %s nicht entfernen: %s"
+
+#: mb/data/find_jpeg_extension_mismatches.py:658
+msgid "Snapshot update failed after repair: %s"
+msgstr "Snapshot‑Aktualisierung nach Reparatur fehlgeschlagen: %s"
+
+#: mb/data/find_jpeg_extension_mismatches.py:676
+msgid "Repaired -> %s"
+msgstr "Repariert -> %s"
+
+#: mb/data/find_jpeg_extension_mismatches.py:678
+msgid "Repair failed for %s: %s"
+msgstr "Reparatur fehlgeschlagen für %s: %s"
+
+#: mb/data/gather.py:218
+msgid "Source directory does not exist: {source_dir}"
+msgstr "Quellverzeichnis existiert nicht: {source_dir}"
+
+#: mb/data/gather.py:225
+msgid "Source path is not a directory: {source_dir}"
+msgstr "Quellpfad ist kein Verzeichnis: {source_dir}"
+
+#: mb/data/gather.py:230
+msgid "No valid subdirectories specified"
+msgstr "Keine gültigen Unterverzeichnisse angegeben"
+
+#: mb/data/gather.py:244
+msgid "Specified subdirectories do not exist: {missing_subdirs}"
+msgstr "Angegebene Unterverzeichnisse existieren nicht: {missing_subdirs}"
+
+#: mb/data/gather.py:257
+msgid ""
+"Required qualifying subdirectory %r under each of --subdirs; missing or not "
+"a directory: %s"
+msgstr ""
+"Erforderliches qualifizierendes Unterverzeichnis %r unter jedem der "
+"--subdirs; fehlt oder ist kein Verzeichnis: %s"
+
+#: mb/data/gather.py:272
+msgid "Cannot write to target directory {target_dir}: {e}"
+msgstr "Kann nicht in das Zielverzeichnis {target_dir} schreiben: {e}"
+
+#: mb/data/gather.py:371
+msgid "Files needed to reach target: {files_needed}"
+msgstr "Für das Erreichen des Ziels benötigte Dateien: {files_needed}"
+
+#: mb/data/gather.py:375
+msgid "Target limit already reached. No new files needed."
+msgstr "Zielgrenze bereits erreicht. Keine neuen Dateien nötig."
+
+#: mb/data/gather.py:386
+msgid "Subdirectory does not exist: {subdir_path}"
+msgstr "Unterverzeichnis existiert nicht: {subdir_path}"
+
+#: mb/data/gather.py:428
+msgid "Permission denied accessing {subdir_path}: {e}"
+msgstr "Zugriff verweigert beim Zugriff auf {subdir_path}: {e}"
+
+#: mb/data/gather.py:432
+msgid "Error scanning {subdir_path}: {e}"
+msgstr "Fehler beim Scannen von {subdir_path}: {e}"
+
+#: mb/data/gather.py:451
+msgid "Found {total_files} unprocessed image files across all subdirectories"
+msgstr ""
+"Gefunden {total_files} unverarbeitete Bilddateien in allen "
+"Unterverzeichnissen"
+
+#: mb/data/gather.py:456
+msgid ""
+"No unprocessed image files found in any of the specified subdirectories"
+msgstr ""
+"In keinen der angegebenen Unterordner wurden unverarbeitete Bilddateien "
+"gefunden"
+
+#: mb/data/gather.py:473
+msgid "No image files found to select from"
+msgstr "Keine Bilddateien zum Auswählen gefunden"
+
+#: mb/data/gather.py:480
+msgid "Target limit already reached. No files to select."
+msgstr "Zielgrenze bereits erreicht. Keine Dateien zum Auswählen."
+
+#: mb/data/gather.py:491
+msgid ""
+"Found {n_all_files} unprocessed files, selecting all of them (need "
+"{files_needed} to reach target)"
+msgstr ""
+"Gefunden {n_all_files} unverarbeitete Dateien, alle werden ausgewählt (es "
+"werden {files_needed} benötigt, um das Ziel zu erreichen)"
+
+#: mb/data/gather.py:503
+msgid ""
+"Randomly selecting {files_needed} files from {n_all_files} available to "
+"reach target limit"
+msgstr ""
+"Zufällige Auswahl von {files_needed} Dateien aus {n_all_files} verfügbaren, "
+"um das Ziellimit zu erreichen"
+
+#: mb/data/gather.py:561
+msgid "Using weighted sampling with normalized weights:"
+msgstr "Gewichtetes Sampling mit normalisierten Gewichten:"
+
+#: mb/data/gather.py:630
+msgid "Selected {total_selected} files total using weighted sampling"
+msgstr ""
+"Ausgewählte {total_selected} Dateien insgesamt mit gewichteter Stichprobe"
+
+#: mb/data/gather.py:684
+msgid "Target file already exists, skipping: {target_path}"
+msgstr "Zieldatei existiert bereits, überspringe: {target_path}"
+
+#: mb/data/gather.py:694
+msgid "Failed to copy file: {target_path}"
+msgstr "Kopieren der Datei fehlgeschlagen: {target_path}"
+
+#: mb/data/gather.py:727
+msgid "Starting to process {total_files} files..."
+msgstr "Starte die Verarbeitung von {total_files} Dateien..."
+
+#: mb/data/gather.py:730
+msgid "Files will be placed in run-specific directory: {run_target_dir}"
+msgstr ""
+"Dateien werden im laufbezogenen Verzeichnis abgelegt: {run_target_dir}"
+
+#: mb/data/gather.py:739
+msgid "Target limit ({target_count}) already reached. Stopping processing."
+msgstr ""
+"Zielgrenze ({target_count}) bereits erreicht. Verarbeitung wird gestoppt."
+
+#: mb/data/gather.py:759
+msgid "Reached target limit of {target_count} files. Stopping processing."
+msgstr ""
+"Grenze von {target_count} Dateien erreicht. Verarbeitung wird beendet."
+
+#: mb/data/gather.py:814
+msgid "Error calculating hash for {image_path}: {e}"
+msgstr "Fehler bei der Berechnung des Hashes für {image_path}: {e}"
+
+#: mb/data/gather.py:916
+msgid "Found {n_duplicates} duplicate groups across all directories"
+msgstr "Gefunden {n_duplicates} Duplikatgruppen in allen Verzeichnissen"
+
+#: mb/data/gather.py:986
+msgid "No class/staging directories found for deduplication"
+msgstr "Keine Klassen-/Staging-Verzeichnisse für Deduplizierung gefunden"
+
+#: mb/data/gather.py:1016
+msgid "OPERATION SUMMARY"
+msgstr "Betriebsübersicht"
+
+#: mb/data/gather.py:1018 mb/data/gather.py:1137
+msgid "Run ID: {run_id}"
+msgstr "Lauf-ID: {run_id}"
+
+#: mb/data/gather.py:1021 mb/data/gather.py:1129
+msgid "Run-specific target directory: {run_target_dir}"
+msgstr "Laufspezifisches Zielverzeichnis: {run_target_dir}"
+
+#: mb/data/gather.py:1026 mb/data/gather.py:1134
+msgid "Rejected directory (flat): {rejected_dir}"
+msgstr "Abgelehntes Verzeichnis (flach): {rejected_dir}"
+
+#: mb/data/gather.py:1031
+msgid ""
+"\n"
+"Total unprocessed files found: {total_files_found}"
+msgstr " Gefundene nicht verarbeitete Dateien insgesamt: {total_files_found}"
+
+#: mb/data/gather.py:1035
+msgid "Already-processed files (excluded): {already_processed_count}"
+msgstr ""
+"Bereits verarbeitete Dateien (ausgeschlossen): {already_processed_count}"
+
+#: mb/data/gather.py:1039
+msgid "Files processed this run: {files_processed}"
+msgstr "Dateien verarbeitet in diesem Durchlauf: {files_processed}"
+
+#: mb/data/gather.py:1043
+msgid "Files successfully copied this run: {files_copied}"
+msgstr ""
+"Dateien wurden in diesem Durchlauf erfolgreich kopiert: {files_copied}"
+
+#: mb/data/gather.py:1047
+msgid "Files skipped (already existed): {n_skipped_files}"
+msgstr "Übersprungene Dateien (bereits vorhanden): {n_skipped_files}"
+
+#: mb/data/gather.py:1054
+msgid ""
+"\n"
+"Total files in target directory (all runs): {total_in_target}"
+msgstr ""
+" Gesamtdateien im Zielverzeichnis (alle Durchläufe): {total_in_target}"
+
+#: mb/data/gather.py:1056 mb/data/gather.py:1087 mb/data/gather.py:1136
+msgid "Target limit: {target_count}"
+msgstr "Zielgrenze: {target_count}"
+
+#: mb/data/gather.py:1057
+msgid "Remaining capacity: {max}"
+msgstr "Verbleibende Kapazität: {max}"
+
+#: mb/data/gather.py:1061
+msgid ""
+"\n"
+"Duplicates removed: {duplicates_removed}"
+msgstr " Duplikate entfernt: {duplicates_removed}"
+
+#: mb/data/gather.py:1065
+msgid "Duplicate groups found: {duplicates_found}"
+msgstr "Doppelte Gruppen gefunden: {duplicates_found}"
+
+#: mb/data/gather.py:1083
+msgid ""
+"\n"
+"Skipped files (already existed): {n_skipped_files}"
+msgstr " Übersprungene Dateien (bereits vorhanden): {n_skipped_files}"
+
+#: mb/data/gather.py:1086
+msgid ""
+"\n"
+"Target directory: {target_dir}"
+msgstr " Zielverzeichnis: {target_dir}"
+
+#: mb/data/gather.py:1090
+msgid "Files copied this run: {files_copied}"
+msgstr "Dateien kopiert in diesem Lauf: {files_copied}"
+
+#: mb/data/gather.py:1096
+msgid "Target limit reached! Total: {total_in_target}/{target_count}"
+msgstr "Zielgrenze erreicht! Gesamt: {total_in_target}/{target_count}"
+
+#: mb/data/gather.py:1101
+msgid ""
+"Target limit not yet reached. Current: {total_in_target}/{target_count}"
+msgstr ""
+"Zielgrenze noch nicht erreicht. Aktuell: {total_in_target}/{target_count}"
+
+#: mb/data/gather.py:1106
+msgid "Added {files_copied} files this run."
+msgstr "Dieses Mal wurden {files_copied} Dateien hinzugefügt."
+
+#: mb/data/gather.py:1119
+msgid "Source directory: {source_dir}"
+msgstr "Quellverzeichnis: {source_dir}"
+
+#: mb/data/gather.py:1120
+msgid "Valid subdirectories: {valid_subdirs}"
+msgstr "Gültige Unterverzeichnisse: {valid_subdirs}"
+
+#: mb/data/gather.py:1124
+msgid "Subdirectory weights: {subdir_weights}"
+msgstr "Gewichte der Unterverzeichnisse: {subdir_weights}"
+
+#: mb/data/gather.py:1126
+msgid "Target directory: {target_dir}"
+msgstr "Zielverzeichnis: {target_dir}"
+
+#: mb/data/gather.py:1152
+msgid "No unprocessed image files found in the specified subdirectories"
+msgstr ""
+"Keine unbearbeiteten Bilddateien in den angegebenen Unterordnern gefunden"
+
+#: mb/data/gather.py:1156
+msgid "Target limit already reached. No action needed."
+msgstr "Zielgrenze bereits erreicht. Keine Aktion erforderlich."
+
+#: mb/data/gather.py:1163
+msgid "No files available to process and target limit not reached"
+msgstr "Keine Dateien zum Verarbeiten verfügbar und Zielgrenze nicht erreicht"
+
+#: mb/data/gather.py:1173
+msgid ""
+"No files were selected for processing (target limit may already be reached)"
+msgstr ""
+"Es wurden keine Dateien zur Verarbeitung ausgewählt (das Ziel‑Limit ist "
+"möglicherweise bereits erreicht)"
+
+#: mb/data/label_schema.py:321
+msgid "Dropping unknown label %r for %s (line %d)"
+msgstr "Verwerfe unbekanntes Label %r für %s (Zeile %d)"
+
+#: mb/data/label_schema.py:325
+msgid "Loaded %d manifest entries from %s"
+msgstr "Geladene %d Manifesteinträge aus %s"
+
+#: mb/data/label_schema.py:354
+msgid ""
+"%d manifest entr%s name files that do not exist under %s; their labels are "
+"not applied. First few: %s"
+msgstr ""
+"%d Manifest-Eintr%s Namensdateien, die unter %s nicht existieren; ihre "
+"Bezeichnungen werden nicht angewendet. Erste: %s"
+
+#: mb/data/label_schema.py:413
+msgid "Wrote label schema: %s"
+msgstr "Label-Schema geschrieben: %s"
+
+#: mb/data/lora_dataset.py:173
+msgid "Could not read {source_path}: {e}"
+msgstr "Konnte {source_path} nicht lesen: {e}"
+
+#: mb/data/lora_dataset.py:185
+msgid "Could not copy {source_path}: {e}"
+msgstr "Konnte {source_path} nicht kopieren: {e}"
+
+#: mb/data/lora_dataset.py:195
+msgid "Could not open {source_path}: {e}"
+msgstr "Konnte {source_path} nicht öffnen: {e}"
+
+#: mb/data/upscale.py:66
+msgid "Review directory does not exist: {review_dir}"
+msgstr "Review-Verzeichnis existiert nicht: {review_dir}"
+
+#: mb/data/upscale.py:73
+msgid "Review path is not a directory: {review_dir}"
+msgstr "Review-Pfad ist kein Verzeichnis: {review_dir}"
+
+#: mb/data/upscale.py:180
+msgid "Failed to save upscaled image: {target_path}"
+msgstr "Fehler beim Speichern des hochskalierten Bildes: {target_path}"
+
+#: mb/data/upscale.py:198
+msgid "OS error upscaling {source_path}: {e}"
+msgstr "OS-Fehler beim Hochskalieren von {source_path}: {e}"
+
+#: mb/data/upscale.py:201
+msgid "Error upscaling {source_path}: {e}"
+msgstr "Fehler beim Hochskalieren von {source_path}: {e}"
+
+#: mb/data/upscale.py:212
+msgid "Category directory does not exist: {category_dir}"
+msgstr "Kategorie‑Verzeichnis existiert nicht: {category_dir}"
+
+#: mb/data/upscale.py:221
+msgid "No images found in category: {category}"
+msgstr "Keine Bilder in der Kategorie: {category}"
+
+#: mb/data/upscale.py:267
+msgid ""
+"Category {category}: {upscaled_count} upscaled, {skipped_count} skipped"
+msgstr ""
+"Kategorie {category}: {upscaled_count} hochskaliert, {skipped_count} "
+"übersprungen"
+
+#: mb/data/upscale.py:273
+msgid "UPSCALING SUMMARY"
+msgstr "Upscaling‑Zusammenfassung"
+
+#: mb/data/upscale.py:275 mb/data/upscale.py:330
+msgid "Review directory: {review_dir}"
+msgstr "Review-Verzeichnis: {review_dir}"
+
+#: mb/data/upscale.py:276 mb/data/upscale.py:331
+msgid "Upscaled directory: {upscaled_dir}"
+msgstr "Hochskaliertes Verzeichnis: {upscaled_dir}"
+
+#: mb/data/upscale.py:279 mb/data/upscale.py:334
+msgid "Target minimum dimension: {MIN_DIMENSION_TARGET}px"
+msgstr "Ziel-Mindestabmessung: {MIN_DIMENSION_TARGET}px"
+
+#: mb/data/upscale.py:286
+msgid ""
+"\n"
+"Total images found: {total_found}"
+msgstr " Insgesamt gefundene Bilder: {total_found}"
+
+#: mb/data/upscale.py:287
+msgid "Total images upscaled: {total_upscaled}"
+msgstr "Gesamtzahl hochskalierter Bilder: {total_upscaled}"
+
+#: mb/data/upscale.py:288
+msgid "Total images skipped: {total_skipped}"
+msgstr "Insgesamt übersprungene Bilder: {total_skipped}"
+
+#: mb/data/upscale.py:290
+msgid ""
+"\n"
+"Per-category breakdown:"
+msgstr " Aufschlüsselung nach Kategorien:"
+
+#: mb/data/upscale.py:299
+msgid "    Found: {found}"
+msgstr "    Gefunden: {found}"
+
+#: mb/data/upscale.py:300
+msgid "    Upscaled: {upscaled}"
+msgstr "    Hochskaliert: {upscaled}"
+
+#: mb/data/upscale.py:301
+msgid "    Skipped: {skipped}"
+msgstr "    Übersprungen: {skipped}"
+
+#: mb/data/upscale.py:303
+msgid "    Errors: {errors}"
+msgstr "    Fehler: {errors}"
+
+#: mb/data/upscale.py:311
+msgid "  {category}: {n_errors} errors"
+msgstr "  {category}: {n_errors} Fehler"
+
+#: mb/data/upscale.py:352
+msgid ""
+"No class subdirectories found under review dir (check data.class_names or "
+"layout under %s)"
+msgstr ""
+"Keine Klassenunterverzeichnisse im Überprüfungsordner gefunden (prüfen Sie "
+"data.class_names oder das Layout unter %s)"
+
+#: mb/evaluate/classification/image_multilabel_metrics.py:160
+msgid "Tuned %s -> %.2f (F1 %.4f)"
+msgstr "Abgestimmt %s -> %.2f (F1 %.4f)"
+
+#: mb/evaluate/classification/text_evaluation.py:137
+msgid "Threshold policy %s=%.3f is unreachable on val gold; using %.2f"
+msgstr ""
+"Schwellenwert‑Policy %s=%.3f ist bei val gold nicht erreichbar; verwende "
+"%.2f"
+
+#: mb/evaluate/classification/text_evaluation.py:294
+msgid "Rows truncated to %d tokens: %s"
+msgstr "Zeilen auf %d Token gekürzt: %s"
+
+#: mb/evaluate/classification/text_evaluation.py:470
+msgid ""
+"%d input line(s) contain a tab; their output rows have more than two columns"
+msgstr ""
+"%d Eingabezeile(n) enthalten einen Tab; ihre Ausgabereihen haben mehr als "
+"zwei Spalten"
+
+#: mb/models/preprocessing.py:261
+msgid "Training %s at %dx%d instead of its native %dx%d"
+msgstr "Training %s bei %dx%d statt seiner nativen %dx%d"
+
+#: mb/models/frameworks/keras/architectures.py:25
+msgid "TensorFlow not available. Keras architectures will not work."
+msgstr "TensorFlow nicht verfügbar. Keras-Architekturen funktionieren nicht."
+
+#: mb/models/frameworks/keras/data_loader.py:24
+msgid "TensorFlow not available. Keras data loaders will not work."
+msgstr "TensorFlow nicht verfügbar. Keras‑Datenlader funktionieren nicht."
+
+#: mb/models/frameworks/keras/data_loader.py:88
+msgid "Created Keras data generators:"
+msgstr "Keras‑Datengeneratoren erstellt:"
+
+#: mb/models/frameworks/keras/data_loader.py:91
+msgid "  Train: {samples} samples, {n_train_generator} batches"
+msgstr "  Training: {samples} Beispiele, {n_train_generator} Batches"
+
+#: mb/models/frameworks/keras/data_loader.py:95
+msgid "  Val: {samples} samples, {n_val_generator} batches"
+msgstr "  Val: {samples} Stichproben, {n_val_generator} Batches"
+
+#: mb/models/frameworks/keras/data_loader.py:97
+msgid "  Classes: {class_indices}"
+msgstr "  Klassen: {class_indices}"
+
+#: mb/models/frameworks/keras/trainer.py:30
+msgid "TensorFlow not available. Keras trainer will not work."
+msgstr "TensorFlow nicht verfügbar. Keras‑Trainer funktioniert nicht."
+
+#: mb/models/frameworks/keras/trainer.py:109
+#: mb/models/frameworks/pytorch/trainer.py:103
+msgid "Created {arch_s} model with {num_classes} classes"
+msgstr "Erstelltes {arch_s}-Modell mit {num_classes} Klassen"
+
+#: mb/models/frameworks/keras/trainer.py:198
+msgid ""
+"Resumed from checkpoint: frozen={frozen_epochs_completed}/{frozen_epochs}, "
+"unfrozen={unfrozen_epochs_completed}/{unfrozen_epochs}"
+msgstr ""
+"Fortgesetzt vom Checkpoint: "
+"gefroren={frozen_epochs_completed}/{frozen_epochs}, nicht "
+"gefroren={unfrozen_epochs_completed}/{unfrozen_epochs}"
+
+#: mb/models/frameworks/keras/trainer.py:235
+#: mb/models/frameworks/pytorch/trainer.py:219
+msgid "Phase 1: Training with frozen backbone ({frozen_epochs} epochs)"
+msgstr ""
+"Phase 1: Training mit eingefrorenem Backbone ({frozen_epochs} Epochen)"
+
+#: mb/models/frameworks/keras/trainer.py:288
+#: mb/models/frameworks/pytorch/trainer.py:301
+msgid "Frozen phase already completed, skipping"
+msgstr "Gefrorene Phase bereits abgeschlossen, überspringen"
+
+#: mb/models/frameworks/keras/trainer.py:294
+#: mb/models/frameworks/pytorch/trainer.py:307
+msgid "Phase 2: Fine-tuning all layers ({unfrozen_epochs} epochs)"
+msgstr "Phase 2: Feinabstimmung aller Schichten ({unfrozen_epochs} Epochen)"
+
+#: mb/models/frameworks/keras/trainer.py:359
+#: mb/models/frameworks/pytorch/trainer.py:377
+msgid "Unfrozen phase already completed, skipping"
+msgstr "Ungefrorene Phase bereits abgeschlossen, überspringen"
+
+#: mb/models/frameworks/keras/trainer.py:361
+msgid "Training completed"
+msgstr "Training abgeschlossen"
+
+#: mb/models/frameworks/keras/trainer.py:431
+msgid "Saved Keras model to {path}"
+msgstr "Keras‑Modell unter {path} gespeichert"
+
+#: mb/models/frameworks/keras/trainer.py:434
+msgid "Saved Keras model (SavedModel format) to {path}"
+msgstr "Keras-Modell (SavedModel-Format) nach {path} gespeichert"
+
+#: mb/models/frameworks/keras/trainer.py:465
+msgid "Loaded Keras model from {path}"
+msgstr "Keras-Modell von {path} geladen"
+
+#: mb/models/frameworks/keras/trainer.py:471
+msgid "Could not load model directly, rebuilding architecture: {architecture}"
+msgstr ""
+"Modell konnte nicht direkt geladen werden, Architektur wird neu aufgebaut: "
+"{architecture}"
+
+#: mb/models/frameworks/keras/trainer.py:475
+msgid "Loaded Keras model weights from {path}"
+msgstr "Keras‑Modellgewichte aus {path} geladen"
+
+#: mb/models/frameworks/keras/trainer.py:494
+msgid "Could not load model weights: {e}"
+msgstr "Modelldaten konnten nicht geladen werden: {e}"
+
+#: mb/models/frameworks/keras/trainer.py:497
+msgid "Failed to load checkpoint metadata: {e}"
+msgstr "Fehler beim Laden der Checkpoint-Metadaten: {e}"
+
+#: mb/models/frameworks/pytorch/data_loader.py:85
+msgid "No images found in {root}"
+msgstr "Keine Bilder gefunden in {root}"
+
+#: mb/models/frameworks/pytorch/data_loader.py:115
+msgid "Error loading image {img_path}: {e}"
+msgstr "Fehler beim Laden des Bildes {img_path}: {e}"
+
+#: mb/models/frameworks/pytorch/data_loader.py:320
+msgid "Class mismatch: train={train_classes}, val={val_classes}"
+msgstr "Klasseninkonsistenz: train={train_classes}, val={val_classes}"
+
+#: mb/models/frameworks/pytorch/data_loader.py:343
+msgid "Created data loaders:"
+msgstr "Datenlader erstellt:"
+
+#: mb/models/frameworks/pytorch/data_loader.py:346
+msgid "  Train: {n_train_dataset} samples, {n_train_loader} batches"
+msgstr "  Training: {n_train_dataset} Beispiele, {n_train_loader} Batches"
+
+#: mb/models/frameworks/pytorch/data_loader.py:350
+msgid "  Val: {n_val_dataset} samples, {n_val_loader} batches"
+msgstr "  Validierung: {n_val_dataset} Stichproben, {n_val_loader} Batches"
+
+#: mb/models/frameworks/pytorch/data_loader.py:352
+msgid "  Classes: {classes}"
+msgstr "  Klassen: {classes}"
+
+#: mb/models/frameworks/pytorch/trainer.py:194
+msgid ""
+"Resumed from checkpoint: epoch {start_epoch}, "
+"frozen={frozen_epochs_completed}/{frozen_epochs}, "
+"unfrozen={unfrozen_epochs_completed}/{unfrozen_epochs}"
+msgstr ""
+"Fortgesetzt vom Checkpoint: Epoche {start_epoch}, "
+"eingefroren={frozen_epochs_completed}/{frozen_epochs}, "
+"aufgeteuft={unfrozen_epochs_completed}/{unfrozen_epochs}"
+
+#: mb/models/frameworks/pytorch/trainer.py:381
+msgid "Training completed. Best validation accuracy: {best_val_acc:.4f}"
+msgstr ""
+"Training abgeschlossen. Beste Validierungsgenauigkeit: {best_val_acc:.4f}"
+
+#: mb/models/frameworks/pytorch/trainer.py:470
+msgid "Saved PyTorch model to {path}"
+msgstr "PyTorch‑Modell gespeichert unter {path}"
+
+#: mb/models/frameworks/pytorch/trainer.py:476
+msgid "Exported model to ONNX: {path}"
+msgstr "Modell nach ONNX exportiert: {path}"
+
+#: mb/models/frameworks/pytorch/trainer.py:504
+msgid "Loaded model from {path}"
+msgstr "Modell geladen von {path}"
+
+#: mb/models/frameworks/pytorch/trainer.py:714
+msgid "Failed to load checkpoint: {e}"
+msgstr "Laden des Checkpoints fehlgeschlagen: {e}"
+
+#: mb/models/text_backends/embedding_probe.py:309
+msgid "embedding_probe: reusing cached %s embeddings %s"
+msgstr ""
+"embedding_probe: Wiederverwendung zwischengespeicherter %s Einbettungen %s"
+
+#: mb/models/text_backends/embedding_probe.py:444
+msgid ""
+"embedding_probe: %s loaded at revision %s, but the head was trained on %s"
+msgstr ""
+"embedding_probe: %s geladen bei Revision %s, aber der Kopf wurde auf %s "
+"trainiert"
+
+#: mb/models/text_backends/encoder_finetune.py:244
+msgid "encoder_finetune: early stop after %d evaluations without improvement"
+msgstr "encoder_finetune: Früher Stopp nach %d Durchläufen ohne Verbesserung"
+
+#: mb/training/class_weights.py:135
+msgid ""
+"Class weighting requested but per-class counts are unavailable; using "
+"unweighted loss"
+msgstr ""
+"Klassengewichtung angefordert, aber Klassenanzahlen fehlen; ungewichteter "
+"Verlust wird verwendet"
+
+#: mb/training/class_weights.py:140
+msgid "Class weighting (%s, max=%.1f):"
+msgstr "Klassengewichtung (%s, max=%.1f):"
+
+#: mb/training/class_weights.py:142
+msgid "  %s: n=%d weight=%.4f"
+msgstr "  %s: n=%d Gewicht=%.4f"
+
+#: mb/training/hyperparams.py:116
+msgid "Missing required hyperparameters: {missing}"
+msgstr "Fehlende erforderliche Hyperparameter: {missing}"
+
+#: mb/training/hyperparams.py:121
+msgid "frozen_epochs must be >= 0"
+msgstr "frozen_epochs muss >= 0 sein"
+
+#: mb/training/hyperparams.py:125
+msgid "unfrozen_epochs must be >= 0"
+msgstr "unfrozen_epochs muss >= 0 sein"
+
+#: mb/training/hyperparams.py:129
+msgid "frozen_lr must be > 0"
+msgstr "frozen_lr muss > 0 sein"
+
+#: mb/training/lora_diffusion_trainer.py:278
+#: mb/training/lora_diffusion_trainer.py:411
+msgid "Loading base model components ({architecture}) from: {base_model}"
+msgstr "Lade Basismodell‑Komponenten ({architecture}) von: {base_model}"
+
+#: mb/training/lora_diffusion_trainer.py:318
+#: mb/training/lora_diffusion_trainer.py:465
+msgid "Training on {n_dataset} images, batch_size={batch_size}"
+msgstr "Training mit {n_dataset} Bildern, batch_size={batch_size}"
+
+#: mb/training/lora_diffusion_trainer.py:362
+#: mb/training/lora_diffusion_trainer.py:538
+msgid "LoRA adapter saved to: {output_dir}"
+msgstr "LoRA-Adapter gespeichert in: {output_dir}"
+
+#: mb/training/lora_diffusion_trainer.py:551
+msgid "LORA TRAINING STARTUP"
+msgstr "LoRa Trainings-Start-up"
+
+#: mb/training/lora_diffusion_trainer.py:553
+msgid "Base model: {base_model}"
+msgstr "Basismodell: {base_model}"
+
+#: mb/training/lora_diffusion_trainer.py:554
+msgid "Base architecture: {architecture}"
+msgstr "Basisarchitektur: {architecture}"
+
+#: mb/training/lora_diffusion_trainer.py:555
+msgid "Data dir: {data_dir}"
+msgstr "Datenverzeichnis: {data_dir}"
+
+#: mb/training/lora_diffusion_trainer.py:556
+msgid "Output dir: {output_dir}"
+msgstr "Output-Ordner: {output_dir}"
+
+#: mb/training/lora_diffusion_trainer.py:557
+msgid "Rank/alpha: {rank}/{alpha}"
+msgstr "Rang/Alpha: {rank}/{alpha}"
+
+#: mb/training/lora_diffusion_trainer.py:558
+msgid "Resolution: {resolution}"
+msgstr "Auflösung: {resolution}"
+
+#: mb/training/lora_diffusion_trainer.py:559
+msgid "Batch size: {batch_size}"
+msgstr "Batchgröße: {batch_size}"
+
+#: mb/training/lora_diffusion_trainer.py:560
+msgid "Learning rate: {learning_rate}"
+msgstr "Lernrate: {learning_rate}"
+
+#: mb/training/lora_diffusion_trainer.py:561
+msgid "Max train steps: {max_train_steps}"
+msgstr "Maximale Trainingsschritte: {max_train_steps}"
+
+#: mb/training/snapshot_integration.py:68
+msgid "No images found in {split}/{class_name}, skipping"
+msgstr "Keine Bilder gefunden in {split}/{class_name}, überspringen"
+
+#: mb/training/snapshot_integration.py:104
+msgid "Failed to hash {image_path}, skipping"
+msgstr "Hashen von {image_path} fehlgeschlagen, überspringe"
+
+#: mb/training/snapshot_integration.py:116
+msgid "Error processing {image_path}: {e}"
+msgstr "Fehler bei der Verarbeitung von {image_path}: {e}"
+
+#: mb/training/snapshot_integration.py:142
+msgid ""
+"Training snapshot updated: {train_total} train images, {test_total} test "
+"images"
+msgstr ""
+"Trainings‑Snapshot aktualisiert: {train_total} Trainingsbilder, {test_total}"
+" Testbilder"
+
+#: mb/training/text_trainer.py:178
+msgid ""
+"Dataset verification:\n"
+"%s"
+msgstr ""
+"Datensatzüberprüfung:\n"
+"%s"
+
+#: mb/training/text_trainer.py:213
+msgid "Text-classification run directory: %s"
+msgstr "Verzeichnis des Textklassifizierungslaufs: %s"
+
+#: mb/training/trainer.py:158
+msgid "Number of classes: {num_classes}"
+msgstr "Anzahl der Klassen: {num_classes}"
+
+#: mb/training/trainer.py:196
+msgid "Hyperparameters:"
+msgstr "Hyperparameter:"
+
+#: mb/training/trainer.py:270
+msgid ""
+"No unified snapshot found. Training will proceed without snapshot update."
+msgstr ""
+"Kein einheitlicher Snapshot gefunden. Das Training wird ohne "
+"Snapshot‑Aktualisierung fortgesetzt."
+
+#: mb/training/trainer.py:271
+msgid "Run data conversion and dataset creation first to create a snapshot."
+msgstr ""
+"Führen Sie zuerst Datenkonvertierung und Datensatzerstellung aus, um einen "
+"Schnappschuss zu erstellen."
+
+#: mb/training/trainer.py:302
+msgid "Starting training..."
+msgstr "Training wird gestartet..."
+
+#: mb/training/trainer.py:318
+msgid "Evaluating model..."
+msgstr "Modell wird bewertet..."
+
+#: mb/training/trainer.py:327
+msgid "Evaluation metrics:"
+msgstr "Evaluierungsmetriken:"
+
+#: mb/training/trainer.py:371
+msgid ""
+"Unified snapshot updated: {train_total} train, {test_total} test images"
+msgstr ""
+"Einheitlicher Snapshot aktualisiert: {train_total} Trainings‑Bilder, "
+"{test_total} Test‑Bilder"
+
+#: mb/training/trainer.py:389
+msgid "Model saved to: {model_path}"
+msgstr "Modell gespeichert unter: {model_path}"
+
+#: mb/utils/recent_run_history.py:91
+msgid "recent_run_history persist failed: %s"
+msgstr "Persistieren von recent_run_history fehlgeschlagen: %s"
+
+#: mb/utils/snapshot.py:273
+msgid "File not found (deleted?): {file_path}"
+msgstr "Datei nicht gefunden (gelöscht?): {file_path}"
+
+#: mb/utils/snapshot.py:278
+msgid "Permission denied reading file: {file_path}"
+msgstr "Zugriff verweigert beim Lesen der Datei: {file_path}"
+
+#: mb/utils/snapshot.py:283
+msgid "Error calculating hash for {file_path}: {e}"
+msgstr "Fehler beim Berechnen des Hashs für {file_path}: {e}"
+
+#: mb/utils/snapshot.py:979
+msgid "Unified snapshot saved to: {snapshot_path}"
+msgstr "Einheitlicher Schnappschuss gespeichert unter: {snapshot_path}"
+
+#: mb/utils/storage.py:62
+msgid ""
+"The directory {path} appears to be on external/removable storage. For best "
+"performance, move your data to an internal SSD."
+msgstr ""
+"Das Verzeichnis {path} scheint sich auf externem/wechselbarem Speicher zu "
+"befinden. Für beste Leistung verschieben Sie Ihre Daten auf eine interne "
+"SSD."
+
+#: mb/utils/storage.py:66
+msgid ""
+"Process will fail. Use --allow-external-storage to override this check if "
+"you must use external storage."
+msgstr ""
+"Der Vorgang schlägt fehl. Verwenden Sie --allow-external-storage, um diese "
+"Prüfung zu überschreiben, falls Sie externen Speicher nutzen müssen."
+
+#: mb/utils/storage.py:69
+msgid ""
+"External storage detected but override flag used. Performance may be "
+"significantly degraded."
+msgstr ""
+"Externer Speicher erkannt, aber Überschreibungs‑Flag verwendet. Die Leistung"
+" kann stark beeinträchtigt werden."
+
+#: mb/utils/storage.py:73
+msgid "Data directory {path} appears to be on internal storage. [Recommended]"
+msgstr ""
+"Datenverzeichnis {path} scheint sich im internen Speicher zu befinden. "
+"[Empfohlen]"
+
+#: mb/utils/storage.py:75
+msgid ""
+"Tip: Training on an internal SSD is strongly recommended for deep learning "
+"workflows with large datasets."
+msgstr ""
+"Hinweis: Das Training auf einer internen SSD wird für "
+"Deep‑Learning‑Workflows mit großen Datensätzen dringend empfohlen."
+
+#: mb/utils/storage.py:97
+msgid ""
+"Source ({source_path}) and target ({target_path}) are on the same drive."
+msgstr ""
+"Quelle ({source_path}) und Ziel ({target_path}) befinden sich auf demselben "
+"Laufwerk."
+
+#: mb/utils/storage.py:99
+msgid "Copy operations will be faster on the same drive."
+msgstr "Kopieroperationen sind auf dem selben Laufwerk schneller."
+
+#: mb/utils/storage.py:103
+msgid ""
+"Source ({source_path}) and target ({target_path}) are on different drives."
+msgstr ""
+"Quell ({source_path}) und Ziel ({target_path}) befinden sich auf "
+"verschiedenen Laufwerken."
+
+#: mb/utils/storage.py:106
+msgid ""
+"Copy operations across drives may be slower than same-drive operations."
+msgstr ""
+"Kopier‑Vorgänge über verschiedene Laufwerke können langsamer sein als "
+"Vorgänge auf demselben Laufwerk."
+
+#: mb/utils/storage.py:107
+msgid ""
+"Consider using the same drive for both source and target for better "
+"performance."
+msgstr ""
+"Verwenden Sie für Quelle und Ziel dasselbe Laufwerk, um die Leistung zu "
+"verbessern."
+
+#: mb/utils/storage.py:109
+msgid ""
+"Different drives detected but override flag used. Using copy operations."
+msgstr ""
+"Unterschiedliche Laufwerke erkannt, aber Override-Flag genutzt. "
+"Kopiervorgänge werden verwendet."
+
+#: ui/task_runner.py:87
+msgid "Background task failed"
+msgstr "Hintergrundaufgabe fehlgeschlagen"
+
+#: ui/controllers/cache_controller.py:83
+msgid "Error applying cached GUI state: %s"
+msgstr "Fehler beim Anwenden des zwischengespeicherten GUI-Zustands: %s"
+
+#: ui/controllers/cache_controller.py:120
+msgid "Failed to merge GUI form state into cache: %s"
+msgstr "Fehler beim Zusammenführen des GUI-Formularzustands in den Cache: %s"
+
+#: ui/controllers/cache_controller.py:126
+msgid "Failed to persist app info cache (sync): %s"
+msgstr ""
+"Fehler beim Speichern des Anwendungsinfo-Caches (Synchronisierung): %s"
+
+#: ui/controllers/cache_controller.py:137
+msgid "Failed to persist app info cache: %s"
+msgstr "Fehler beim Persistieren des App‑Info‑Caches: %s"
+
+#: ui/controllers/notification_controller.py:160
+msgid "Alert - Title: \"%s\" Message: %s"
+msgstr "Alarm - Titel: \"%s\" Nachricht: %s"
+
+#: ui/lib/fast_directory_picker_qt.py:247
+msgid "Failed to enumerate Windows drives: {e}"
+msgstr "Fehler beim Auflisten der Windows-Laufwerke: {e}"
+
+#: ui/lib/fast_directory_picker_qt.py:503
+msgid "Failed to create directory '{target_path}': {e}"
+msgstr "Fehler beim Erstellen des Verzeichnisses '{target_path}': {e}"
+
+#: ui/lib/fast_directory_picker_qt.py:772
+#: ui/lib/fast_directory_picker_qt.py:1094
+msgid "Failed to create directory '%s': %s"
+msgstr "Fehler beim Erstellen des Verzeichnisses '%s': %s"
+
+#: ui/pages/data_page.py:1288
+msgid "Could not resolve latest snapshot path: %s"
+msgstr "Konnte den neuesten Snapshot-Pfad nicht auflösen: %s"
+
+#: ui/pages/pipeline_config_page.py:1027
+msgid "Pipeline config saved to %s (%s)"
+msgstr "Pipeline‑Konfiguration gespeichert in %s (%s)"

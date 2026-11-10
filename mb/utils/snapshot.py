@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Set
 
 from mb.utils.logging_setup import get_logger
+from mb.utils.translations import _
 
 logger = get_logger(__name__)
 
@@ -269,17 +270,17 @@ def calculate_file_hash(file_path: Path, algorithm: str = 'md5', raw_data_dir: O
     except FileNotFoundError:
         # File was deleted between glob and hash calculation (race condition)
         if logger:
-            logger.warning(f"File not found (deleted?): {file_path}")
+            logger.warning(_("File not found (deleted?): {file_path}").format(file_path=file_path))
         return None
     except PermissionError:
         # Permission denied - shouldn't happen but handle gracefully
         if logger:
-            logger.warning(f"Permission denied reading file: {file_path}")
+            logger.warning(_("Permission denied reading file: {file_path}").format(file_path=file_path))
         return None
     except Exception as e:
         # Log other errors for debugging
         if logger:
-            logger.warning(f"Error calculating hash for {file_path}: {e}")
+            logger.warning(_("Error calculating hash for {file_path}: {e}").format(file_path=file_path, e=e))
         return None
 
 
@@ -975,6 +976,6 @@ def save_unified_snapshot(snapshot: UnifiedSnapshot, output_dir: Path, logger=No
     snapshot_path = output_dir / f"snapshot_{snapshot.run_id}.json"
     if snapshot.save(snapshot_path):
         if logger:
-            logger.info(f"Unified snapshot saved to: {snapshot_path}")
+            logger.info(_("Unified snapshot saved to: {snapshot_path}").format(snapshot_path=snapshot_path))
         return snapshot_path
     return None

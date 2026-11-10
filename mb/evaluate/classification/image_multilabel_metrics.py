@@ -157,7 +157,7 @@ def tune_thresholds(
             if f1 > best_f1:
                 best_f1 = f1
                 best_threshold = candidate
-        logger.info("Tuned %s -> %.2f (F1 %.4f)", name, best_threshold, best_f1)
+        logger.info(_("Tuned %s -> %.2f (F1 %.4f)"), name, best_threshold, best_f1)
         tuned.append(best_threshold)
     return tuned
 

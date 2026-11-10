@@ -16,6 +16,7 @@ from utils.app_info_cache import app_info_cache
 from utils.config import get_application_config
 from mb.utils.constants import ModelBuilderTaskType
 from mb.utils.logging_setup import get_logger
+from mb.utils.translations import _
 
 if TYPE_CHECKING:
     from ui.main_window import MainWindow
@@ -79,7 +80,7 @@ class CacheController:
                     if callable(restore):
                         restore(chunk)
         except Exception as e:
-            logger.warning("Error applying cached GUI state: %s", e)
+            logger.warning(_("Error applying cached GUI state: %s"), e)
 
         return app_info_cache.get("base_dir")
 
@@ -116,13 +117,13 @@ class CacheController:
                     blob[key] = data
             app_info_cache.set(GUI_FORM_STATE_META_KEY, blob)
         except Exception as e:
-            logger.warning("Failed to merge GUI form state into cache: %s", e)
+            logger.warning(_("Failed to merge GUI form state into cache: %s"), e)
 
         if sync:
             try:
                 app_info_cache.store()
             except Exception as e:
-                logger.warning("Failed to persist app info cache (sync): %s", e)
+                logger.warning(_("Failed to persist app info cache (sync): %s"), e)
             return
 
         if not self._persist_lock.acquire(blocking=False):
@@ -133,7 +134,7 @@ class CacheController:
                 try:
                     app_info_cache.store()
                 except Exception as e:
-                    logger.warning("Failed to persist app info cache: %s", e)
+                    logger.warning(_("Failed to persist app info cache: %s"), e)
             finally:
                 self._persist_lock.release()
 

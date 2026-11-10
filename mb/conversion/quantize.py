@@ -125,7 +125,7 @@ def quantize_onnx_model(
     _copy_metadata(source, destination)
 
     size_mb = destination.stat().st_size / (1024 * 1024)
-    logger.info("Wrote %s variant: %s (%.1f MB)", resolved_mode.value, destination, size_mb)
+    logger.info(_("Wrote %s variant: %s (%.1f MB)"), resolved_mode.value, destination, size_mb)
     return destination
 
 

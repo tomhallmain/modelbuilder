@@ -51,6 +51,7 @@ from mb.data.class_layout import (
 from mb.data.file_types import configured_gather_scan_suffixes
 from mb.models.types import ModelType
 from mb.pipeline_config import get_pipeline_config
+from mb.utils.translations import _
 
 # Configure logging
 logger = setup_logging(script_name="gather")
@@ -154,7 +155,7 @@ class ImageGatherer:
                 
                 logger.info(f"Loaded cache with {len(self.file_cache)} entries from {self.cache_file}")
             except Exception as e:
-                logger.warning(f"Failed to load cache: {e}. Starting with empty cache.")
+                logger.warning(_("Failed to load cache: {e}. Starting with empty cache.").format(e=e))
                 self.file_cache = {}
         else:
             logger.info("No existing cache found. Starting fresh.")
@@ -179,7 +180,7 @@ class ImageGatherer:
             self.cache_modified = False
             logger.debug(f"Saved cache with {len(self.file_cache)} entries to {self.cache_file}")
         except Exception as e:
-            logger.error(f"Failed to save cache: {e}")
+            logger.error(_("Failed to save cache: {e}").format(e=e))
     
     def get_cached_hash(self, file_path: Path) -> Optional[str]:
         """
@@ -212,15 +213,21 @@ class ImageGatherer:
     def validate_configuration(self) -> bool:
         """Validate the configuration and source directory."""
         if not self.source_dir.exists():
-            logger.error(f"Source directory does not exist: {self.source_dir}")
+            logger.error(
+                _(
+                    "Source directory does not exist: {source_dir}"
+                ).format(source_dir=self.source_dir))
             return False
             
         if not self.source_dir.is_dir():
-            logger.error(f"Source path is not a directory: {self.source_dir}")
+            logger.error(
+                _(
+                    "Source path is not a directory: {source_dir}"
+                ).format(source_dir=self.source_dir))
             return False
             
         if not self.valid_subdirs:
-            logger.error("No valid subdirectories specified")
+            logger.error(_("No valid subdirectories specified"))
             return False
             
         # Check if valid subdirectories exist
@@ -232,7 +239,10 @@ class ImageGatherer:
                 missing_subdirs.append(subdir)
                 
         if missing_subdirs:
-            logger.error(f"Specified subdirectories do not exist: {missing_subdirs}")
+            logger.error(
+                _(
+                    "Specified subdirectories do not exist: {missing_subdirs}"
+                ).format(missing_subdirs=missing_subdirs))
             return False
 
         q = normalize_qualifying_subdir(self.class_qualifying_subdir)
@@ -244,7 +254,7 @@ class ImageGatherer:
                     bad_qual.append(str(qual_path))
             if bad_qual:
                 logger.error(
-                    "Required qualifying subdirectory %r under each of --subdirs; missing or not a directory: %s",
+                    _("Required qualifying subdirectory %r under each of --subdirs; missing or not a directory: %s"),
                     q,
                     bad_qual,
                 )
@@ -257,7 +267,10 @@ class ImageGatherer:
             test_file.touch()
             test_file.unlink()
         except (PermissionError, OSError) as e:
-            logger.error(f"Cannot write to target directory {self.target_dir}: {e}")
+            logger.error(
+                _(
+                    "Cannot write to target directory {target_dir}: {e}"
+                ).format(target_dir=self.target_dir, e=e))
             return False
             
         return True
@@ -353,10 +366,13 @@ class ImageGatherer:
         
         logger.info(f"Current total in target directory: {self.stats['current_total_in_target']}")
         logger.info(f"Target limit: {self.target_count}")
-        logger.info(f"Files needed to reach target: {self.stats['files_needed']}")
+        logger.info(
+            _(
+                "Files needed to reach target: {files_needed}"
+            ).format(files_needed=self.stats['files_needed']))
         
         if self.stats['files_needed'] == 0:
-            logger.info("Target limit already reached. No new files needed.")
+            logger.info(_("Target limit already reached. No new files needed."))
             return {}
         
         files_checked = 0
@@ -367,7 +383,7 @@ class ImageGatherer:
         for subdir in self.valid_subdirs:
             subdir_path = self.source_dir / subdir
             if not subdir_path.exists():
-                logger.error(f"Subdirectory does not exist: {subdir_path}")
+                logger.error(_("Subdirectory does not exist: {subdir_path}").format(subdir_path=subdir_path))
                 continue
                 
             logger.info(f"Scanning subdirectory: {subdir}")
@@ -407,10 +423,13 @@ class ImageGatherer:
                         # Note: Removed debug logging for skipped files to reduce overhead
                         
             except PermissionError as e:
-                logger.error(f"Permission denied accessing {subdir_path}: {e}")
+                logger.error(
+                    _(
+                        "Permission denied accessing {subdir_path}: {e}"
+                    ).format(subdir_path=subdir_path, e=e))
                 self.stats['errors']['permission'].append(str(subdir_path))
             except Exception as e:
-                logger.error(f"Error scanning {subdir_path}: {e}")
+                logger.error(_("Error scanning {subdir_path}: {e}").format(subdir_path=subdir_path, e=e))
                 self.stats['errors']['scanning'].append((str(subdir_path), str(e)))
             
             # Save cache at the end of each subdirectory
@@ -427,11 +446,14 @@ class ImageGatherer:
         for subdir, files in files_by_subdir.items():
             logger.info(f"Found {len(files)} files in subdirectory '{subdir}'")
         
-        logger.info(f"Found {total_files} unprocessed image files across all subdirectories")
+        logger.info(
+            _(
+                "Found {total_files} unprocessed image files across all subdirectories"
+            ).format(total_files=total_files))
         
         # Check if any image files were found
         if total_files == 0:
-            logger.warning("No unprocessed image files found in any of the specified subdirectories")
+            logger.warning(_("No unprocessed image files found in any of the specified subdirectories"))
             return {}
             
         return files_by_subdir
@@ -448,14 +470,14 @@ class ImageGatherer:
             Dictionary mapping subdirectory names to lists of selected file paths
         """
         if not files_by_subdir:
-            logger.warning("No image files found to select from")
+            logger.warning(_("No image files found to select from"))
             return {}
         
         # Calculate how many files we need to reach the target limit
         files_needed = self.stats['files_needed']
         
         if files_needed <= 0:
-            logger.info("Target limit already reached. No files to select.")
+            logger.info(_("Target limit already reached. No files to select."))
             return {}
         
         # Flatten all files to check total
@@ -464,7 +486,11 @@ class ImageGatherer:
             all_files.extend(files)
         
         if len(all_files) <= files_needed:
-            logger.info(f"Found {len(all_files)} unprocessed files, selecting all of them (need {files_needed} to reach target)")
+            logger.info(
+                _(
+                    "Found {n_all_files} unprocessed files, selecting all of them (need "
+                    "{files_needed} to reach target)"
+                ).format(n_all_files=len(all_files), files_needed=files_needed))
             return files_by_subdir  # Return all files grouped by subdirectory
         
         # If weights are specified, use weighted sampling
@@ -472,7 +498,11 @@ class ImageGatherer:
             return self._select_weighted_files(files_by_subdir, files_needed)
         else:
             # No weights specified, use uniform random sampling
-            logger.info(f"Randomly selecting {files_needed} files from {len(all_files)} available to reach target limit")
+            logger.info(
+                _(
+                    "Randomly selecting {files_needed} files from {n_all_files} available to "
+                    "reach target limit"
+                ).format(files_needed=files_needed, n_all_files=len(all_files)))
             # Sample proportionally from each subdirectory
             selected_by_subdir = {}
             total_files = len(all_files)
@@ -528,7 +558,7 @@ class ImageGatherer:
         normalized_weights = {subdir: self.subdir_weights.get(subdir, 1.0) / total_weight 
                              for subdir in files_by_subdir.keys()}
         
-        logger.info("Using weighted sampling with normalized weights:")
+        logger.info(_("Using weighted sampling with normalized weights:"))
         for subdir in files_by_subdir.keys():
             original_weight = self.subdir_weights.get(subdir, 1.0)
             normalized_weight = normalized_weights[subdir]
@@ -595,7 +625,10 @@ class ImageGatherer:
                             break
         
         total_selected = sum(len(files) for files in selected_by_subdir.values())
-        logger.info(f"Selected {total_selected} files total using weighted sampling")
+        logger.info(
+            _(
+                "Selected {total_selected} files total using weighted sampling"
+            ).format(total_selected=total_selected))
         
         return selected_by_subdir
     
@@ -604,11 +637,11 @@ class ImageGatherer:
         try:
             # Check if source file exists and is readable
             if not source_path.exists():
-                logger.error(f"Source file does not exist: {source_path}")
+                logger.error(_("Source file does not exist: {source_path}").format(source_path=source_path))
                 return False
                 
             if not source_path.is_file():
-                logger.error(f"Source path is not a file: {source_path}")
+                logger.error(_("Source path is not a file: {source_path}").format(source_path=source_path))
                 return False
                 
             with Image.open(source_path) as img:
@@ -623,19 +656,22 @@ class ImageGatherer:
                 
                 # Verify the saved file exists and has content
                 if not target_path.exists() or target_path.stat().st_size == 0:
-                    logger.error(f"Failed to save converted image: {target_path}")
+                    logger.error(
+                        _(
+                            "Failed to save converted image: {target_path}"
+                        ).format(target_path=target_path))
                     return False
                     
                 return True
                 
         except UnidentifiedImageError:
-            logger.error(f"Cannot identify image format: {source_path}")
+            logger.error(_("Cannot identify image format: {source_path}").format(source_path=source_path))
             return False
         except OSError as e:
-            logger.error(f"OS error converting {source_path}: {e}")
+            logger.error(_("OS error converting {source_path}: {e}").format(source_path=source_path, e=e))
             return False
         except Exception as e:
-            logger.error(f"Error converting {source_path}: {e}")
+            logger.error(_("Error converting {source_path}: {e}").format(source_path=source_path, e=e))
             return False
     
     def copy_file(self, source_path: Path, target_path: Path) -> bool:
@@ -643,7 +679,10 @@ class ImageGatherer:
         try:
             # Check if target already exists
             if target_path.exists():
-                logger.warning(f"Target file already exists, skipping: {target_path}")
+                logger.warning(
+                    _(
+                        "Target file already exists, skipping: {target_path}"
+                    ).format(target_path=target_path))
                 self.stats['skipped_files'].append(str(source_path))
                 return False
             
@@ -652,22 +691,28 @@ class ImageGatherer:
             
             # Verify the copied file exists and has content
             if not target_path.exists() or target_path.stat().st_size == 0:
-                logger.error(f"Failed to copy file: {target_path}")
+                logger.error(_("Failed to copy file: {target_path}").format(target_path=target_path))
                 return False
             
             logger.debug(f"Copied: {source_path.name} -> {target_path.name}")
             return True
                 
         except PermissionError as e:
-            logger.error(f"Permission error copying {source_path}: {e}")
+            logger.error(
+                _(
+                    "Permission error copying {source_path}: {e}"
+                ).format(source_path=source_path, e=e))
             self.stats['errors']['permission'].append(str(source_path))
             return False
         except OSError as e:
-            logger.error(f"OS error copying {source_path}: {e}")
+            logger.error(_("OS error copying {source_path}: {e}").format(source_path=source_path, e=e))
             self.stats['errors']['copy'].append((str(source_path), str(e)))
             return False
         except Exception as e:
-            logger.error(f"Unexpected error copying {source_path}: {e}")
+            logger.error(
+                _(
+                    "Unexpected error copying {source_path}: {e}"
+                ).format(source_path=source_path, e=e))
             self.stats['errors']['unexpected'].append((str(source_path), str(e)))
             return False
     
@@ -679,14 +724,20 @@ class ImageGatherer:
             selected_files_by_subdir: Dictionary mapping source subdirectory names to lists of selected file paths
         """
         total_files = sum(len(files) for files in selected_files_by_subdir.values())
-        logger.info(f"Starting to process {total_files} files...")
-        logger.info(f"Files will be placed in run-specific directory: {self.run_target_dir}")
+        logger.info(_("Starting to process {total_files} files...").format(total_files=total_files))
+        logger.info(
+            _(
+                "Files will be placed in run-specific directory: {run_target_dir}"
+            ).format(run_target_dir=self.run_target_dir))
         logger.info(f"Files will be organized by source subdirectory within the run directory")
         
         # Check if we've already reached the target limit
         current_total = self.count_existing_files_in_target()
         if current_total >= self.target_count:
-            logger.info(f"Target limit ({self.target_count}) already reached. Stopping processing.")
+            logger.info(
+                _(
+                    "Target limit ({target_count}) already reached. Stopping processing."
+                ).format(target_count=self.target_count))
             return
         
         files_remaining = self.target_count - current_total
@@ -703,7 +754,10 @@ class ImageGatherer:
             for i, source_path in enumerate(selected_files, 1):
                 # Stop if we've reached the target limit
                 if self.stats['files_copied'] >= files_remaining:
-                    logger.info(f"Reached target limit of {self.target_count} files. Stopping processing.")
+                    logger.info(
+                        _(
+                            "Reached target limit of {target_count} files. Stopping processing."
+                        ).format(target_count=self.target_count))
                     break
                 
                 files_processed_count += 1
@@ -755,7 +809,10 @@ class ImageGatherer:
                     md5_hash.update(chunk)
             return md5_hash.hexdigest()
         except Exception as e:
-            logger.error(f"Error calculating hash for {image_path}: {e}")
+            logger.error(
+                _(
+                    "Error calculating hash for {image_path}: {e}"
+                ).format(image_path=image_path, e=e))
             return None
     
     def calculate_image_hash_pil(self, image_path: Path) -> str:
@@ -781,7 +838,10 @@ class ImageGatherer:
                 buffer.seek(0)
                 return hashlib.md5(buffer.getvalue()).hexdigest()
         except Exception as e:
-            logger.error(f"Error calculating PIL hash for {image_path}: {e}")
+            logger.error(
+                _(
+                    "Error calculating PIL hash for {image_path}: {e}"
+                ).format(image_path=image_path, e=e))
             return None
     
     def find_duplicates_in_directory(self, directory: Path) -> Dict[str, List[Path]]:
@@ -797,7 +857,7 @@ class ImageGatherer:
         hash_to_files = defaultdict(list)
         
         if not directory.exists():
-            logger.warning(f"Directory does not exist: {directory}")
+            logger.warning(_("Directory does not exist: {directory}").format(directory=directory))
             return hash_to_files
         
         logger.info(f"Scanning for duplicates in: {directory}")
@@ -834,7 +894,7 @@ class ImageGatherer:
         
         for directory in directories:
             if not directory.exists():
-                logger.warning(f"Directory does not exist: {directory}")
+                logger.warning(_("Directory does not exist: {directory}").format(directory=directory))
                 continue
                 
             logger.info(f"Scanning for duplicates in: {directory}")
@@ -851,7 +911,10 @@ class ImageGatherer:
         duplicates = {hash_val: files for hash_val, files in hash_to_files.items() if len(files) > 1}
         
         if duplicates:
-            logger.info(f"Found {len(duplicates)} duplicate groups across all directories")
+            logger.info(
+                _(
+                    "Found {n_duplicates} duplicate groups across all directories"
+                ).format(n_duplicates=len(duplicates)))
         
         return duplicates
     
@@ -883,10 +946,16 @@ class ImageGatherer:
                     removed_count += 1
                     logger.debug(f"Removed duplicate: {file_path}")
                 except Exception as e:
-                    logger.error(f"Error removing duplicate {file_path}: {e}")
+                    logger.error(
+                        _(
+                            "Error removing duplicate {file_path}: {e}"
+                        ).format(file_path=file_path, e=e))
         
         if removed_count > 0:
-            logger.info(f"Removed {removed_count} duplicate files from {directory}")
+            logger.info(
+                _(
+                    "Removed {removed_count} duplicate files from {directory}"
+                ).format(removed_count=removed_count, directory=directory))
         
         return removed_count
     
@@ -910,11 +979,11 @@ class ImageGatherer:
         existing_directories = [d for d in directories_to_check if d.exists()]
 
         logger.info("=" * 60)
-        logger.info("STARTING DEDUPLICATION PROCESS")
+        logger.info(_("STARTING DEDUPLICATION PROCESS"))
         logger.info("=" * 60)
 
         if not existing_directories:
-            logger.warning("No class/staging directories found for deduplication")
+            logger.warning(_("No class/staging directories found for deduplication"))
             return
 
         logger.info(f"Found directories: {[d.name for d in existing_directories]}")
@@ -938,56 +1007,104 @@ class ImageGatherer:
                     logger.info(f"  - {file_path}")
 
         logger.info("=" * 60)
-        logger.info("DEDUPLICATION PROCESS COMPLETED")
+        logger.info(_("DEDUPLICATION PROCESS COMPLETED"))
         logger.info("=" * 60)
     
     def print_summary(self) -> None:
         """Print a summary of the operation."""
         logger.info("=" * 60)
-        logger.info("OPERATION SUMMARY")
+        logger.info(_("OPERATION SUMMARY"))
         logger.info("=" * 60)
-        logger.info(f"Run ID: {self.run_id}")
-        logger.info(f"Run-specific target directory: {self.run_target_dir}")
+        logger.info(_("Run ID: {run_id}").format(run_id=self.run_id))
+        logger.info(
+            _(
+                "Run-specific target directory: {run_target_dir}"
+            ).format(run_target_dir=self.run_target_dir))
         if self.rejected_dir:
-            logger.info(f"Rejected directory (flat): {self.rejected_dir}")
+            logger.info(
+                _(
+                    "Rejected directory (flat): {rejected_dir}"
+                ).format(rejected_dir=self.rejected_dir))
         
-        logger.info(f"\nTotal unprocessed files found: {self.stats['total_files_found']}")
-        logger.info(f"Already-processed files (excluded): {self.stats['already_processed_count']}")
-        logger.info(f"Files processed this run: {self.stats['files_processed']}")
-        logger.info(f"Files successfully copied this run: {self.stats['files_copied']}")
-        logger.info(f"Files skipped (already existed): {len(self.stats['skipped_files'])}")
+        logger.info(
+            _(
+                "\nTotal unprocessed files found: {total_files_found}"
+            ).format(total_files_found=self.stats['total_files_found']))
+        logger.info(
+            _(
+                "Already-processed files (excluded): {already_processed_count}"
+            ).format(already_processed_count=self.stats['already_processed_count']))
+        logger.info(
+            _(
+                "Files processed this run: {files_processed}"
+            ).format(files_processed=self.stats['files_processed']))
+        logger.info(
+            _(
+                "Files successfully copied this run: {files_copied}"
+            ).format(files_copied=self.stats['files_copied']))
+        logger.info(
+            _(
+                "Files skipped (already existed): {n_skipped_files}"
+            ).format(n_skipped_files=len(self.stats['skipped_files'])))
         
         # Count totals across all subdirectories
         total_in_target = self.count_existing_files_in_target()
-        logger.info(f"\nTotal files in target directory (all runs): {total_in_target}")
-        logger.info(f"Target limit: {self.target_count}")
-        logger.info(f"Remaining capacity: {max(0, self.target_count - total_in_target)}")
+        logger.info(
+            _(
+                "\nTotal files in target directory (all runs): {total_in_target}"
+            ).format(total_in_target=total_in_target))
+        logger.info(_("Target limit: {target_count}").format(target_count=self.target_count))
+        logger.info(_("Remaining capacity: {max}").format(max=max(0, self.target_count - total_in_target)))
         
-        logger.info(f"\nDuplicates removed: {self.stats['duplicates_removed']}")
-        logger.info(f"Duplicate groups found: {self.stats['duplicates_found']}")
+        logger.info(
+            _(
+                "\nDuplicates removed: {duplicates_removed}"
+            ).format(duplicates_removed=self.stats['duplicates_removed']))
+        logger.info(
+            _(
+                "Duplicate groups found: {duplicates_found}"
+            ).format(duplicates_found=self.stats['duplicates_found']))
         
         if self.stats['errors']:
-            logger.info("\nERRORS ENCOUNTERED:")
+            logger.info(_("\nERRORS ENCOUNTERED:"))
             for error_type, errors in self.stats['errors'].items():
-                logger.info(f"  {error_type}: {len(errors)} errors")
+                logger.info(
+                    _(
+                        "  {error_type}: {n_errors} errors"
+                    ).format(error_type=error_type, n_errors=len(errors)))
                 for error in errors[:5]:  # Show first 5 errors
                     logger.info(f"    - {error}")
                 if len(errors) > 5:
-                    logger.info(f"    ... and {len(errors) - 5} more")
+                    logger.info(_("    ... and {n_more} more").format(n_more=len(errors) - 5))
         
         if self.stats['skipped_files']:
-            logger.info(f"\nSkipped files (already existed): {len(self.stats['skipped_files'])}")
+            logger.info(
+                _(
+                    "\nSkipped files (already existed): {n_skipped_files}"
+                ).format(n_skipped_files=len(self.stats['skipped_files'])))
         
-        logger.info(f"\nTarget directory: {self.target_dir}")
-        logger.info(f"Target limit: {self.target_count}")
-        logger.info(f"Files copied this run: {self.stats['files_copied']}")
+        logger.info(_("\nTarget directory: {target_dir}").format(target_dir=self.target_dir))
+        logger.info(_("Target limit: {target_count}").format(target_count=self.target_count))
+        logger.info(
+            _(
+                "Files copied this run: {files_copied}"
+            ).format(files_copied=self.stats['files_copied']))
         
         if total_in_target >= self.target_count:
-            logger.info(f"Target limit reached! Total: {total_in_target}/{self.target_count}")
+            logger.info(
+                _(
+                    "Target limit reached! Total: {total_in_target}/{target_count}"
+                ).format(total_in_target=total_in_target, target_count=self.target_count))
         else:
-            logger.info(f"Target limit not yet reached. Current: {total_in_target}/{self.target_count}")
+            logger.info(
+                _(
+                    "Target limit not yet reached. Current: {total_in_target}/{target_count}"
+                ).format(total_in_target=total_in_target, target_count=self.target_count))
             if self.stats['files_copied'] > 0:
-                logger.info(f"Added {self.stats['files_copied']} files this run.")
+                logger.info(
+                    _(
+                        "Added {files_copied} files this run."
+                    ).format(files_copied=self.stats['files_copied']))
     
     def run(self, cancel_event: Optional[threading.Event] = None) -> bool:
         """Main execution method. *cancel_event* is checked periodically when set (e.g. GUI Cancel)."""
@@ -999,16 +1116,25 @@ class ImageGatherer:
 
     def _run_impl(self) -> bool:
         log_startup_info(logger, "Coherent image gathering process")
-        logger.info(f"Source directory: {self.source_dir}")
-        logger.info(f"Valid subdirectories: {self.valid_subdirs}")
+        logger.info(_("Source directory: {source_dir}").format(source_dir=self.source_dir))
+        logger.info(_("Valid subdirectories: {valid_subdirs}").format(valid_subdirs=self.valid_subdirs))
         if self.subdir_weights:
-            logger.info(f"Subdirectory weights: {self.subdir_weights}")
-        logger.info(f"Target directory: {self.target_dir}")
-        logger.info(f"Run-specific target directory: {self.run_target_dir}")
+            logger.info(
+                _(
+                    "Subdirectory weights: {subdir_weights}"
+                ).format(subdir_weights=self.subdir_weights))
+        logger.info(_("Target directory: {target_dir}").format(target_dir=self.target_dir))
+        logger.info(
+            _(
+                "Run-specific target directory: {run_target_dir}"
+            ).format(run_target_dir=self.run_target_dir))
         if self.rejected_dir:
-            logger.info(f"Rejected directory (flat): {self.rejected_dir}")
-        logger.info(f"Target limit: {self.target_count}")
-        logger.info(f"Run ID: {self.run_id}")
+            logger.info(
+                _(
+                    "Rejected directory (flat): {rejected_dir}"
+                ).format(rejected_dir=self.rejected_dir))
+        logger.info(_("Target limit: {target_count}").format(target_count=self.target_count))
+        logger.info(_("Run ID: {run_id}").format(run_id=self.run_id))
         
         check_cancel_event(self._cancel_event)
         
@@ -1023,18 +1149,18 @@ class ImageGatherer:
         files_by_subdir = self.find_image_files()
         check_cancel_event(self._cancel_event)
         if not files_by_subdir:
-            logger.warning("No unprocessed image files found in the specified subdirectories")
+            logger.warning(_("No unprocessed image files found in the specified subdirectories"))
             # This is not necessarily a failure - target limit might already be reached
             current_total = self.count_existing_files_in_target()
             if current_total >= self.target_count:
-                logger.info("Target limit already reached. No action needed.")
+                logger.info(_("Target limit already reached. No action needed."))
                 # Save cache before early return
                 if self.cache_modified:
                     self.save_cache()
                 self.print_summary()
                 return True
             else:
-                logger.error("No files available to process and target limit not reached")
+                logger.error(_("No files available to process and target limit not reached"))
                 # Save cache before early return
                 if self.cache_modified:
                     self.save_cache()
@@ -1044,7 +1170,7 @@ class ImageGatherer:
         selected_files_by_subdir = self.select_random_files(files_by_subdir)
         check_cancel_event(self._cancel_event)
         if not selected_files_by_subdir:
-            logger.info("No files were selected for processing (target limit may already be reached)")
+            logger.info(_("No files were selected for processing (target limit may already be reached)"))
             # Save cache before early return
             if self.cache_modified:
                 self.save_cache()

@@ -22,6 +22,7 @@ from PySide6.QtCore import QObject, Qt, QRunnable, QThreadPool, Signal, Slot
 
 from mb.cancellation import OperationCancelled
 from mb.utils.logging_setup import get_logger
+from mb.utils.translations import _
 
 from ui.task_context import LongTaskContext, TaskCancelled
 
@@ -83,7 +84,7 @@ class TaskRunnable(QRunnable):
         except TaskCancelled:
             self.signals.cancelled.emit()
         except Exception as exc:  # pragma: no cover - runtime safety
-            _logger.exception("Background task failed")
+            _logger.exception(_("Background task failed"))
             self.signals.error.emit(str(exc))
         finally:
             self.signals.done.emit()

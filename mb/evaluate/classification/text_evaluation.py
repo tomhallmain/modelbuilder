@@ -134,7 +134,7 @@ def choose_thresholds(labels: np.ndarray, probs: np.ndarray, config: TextRunConf
     fallback = chosen is None
     if fallback:
         logger.warning(
-            "Threshold policy %s=%.3f is unreachable on val gold; using %.2f",
+            _("Threshold policy %s=%.3f is unreachable on val gold; using %.2f"),
             kind.value,
             target,
             FALLBACK_THRESHOLD,
@@ -291,7 +291,7 @@ def evaluate_text_run(
         truncation[split] = backend.count_truncated([ds.texts[i] for i in idx])
     if any(v is not None for v in truncation.values()):
         metrics["truncated_rows"] = truncation
-        logger.info("Rows truncated to %d tokens: %s", config.max_length, truncation)
+        logger.info(_("Rows truncated to %d tokens: %s"), config.max_length, truncation)
     write_json(run_dir / METRICS_FILE, metrics)
 
     _write_tsv(
@@ -467,7 +467,7 @@ def score_text_file(
     with_tab = sum(1 for t in lines if "\t" in t)
     if with_tab:
         logger.warning(
-            "%d input line(s) contain a tab; their output rows have more than two columns", with_tab
+            _("%d input line(s) contain a tab; their output rows have more than two columns"), with_tab
         )
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)

@@ -31,6 +31,7 @@ from mb.models.frameworks.registry import get_architecture, list_architectures
 from mb.models.types import ArchitectureType, ClassWeightingMode, FrameworkType, LabelMode
 from mb.training.class_weights import DEFAULT_MAX_CLASS_WEIGHT, resolve_class_weights
 from mb.utils.logging_setup import get_logger
+from mb.utils.translations import _
 
 logger = get_logger(__name__)
 
@@ -97,7 +98,10 @@ class PyTorchTrainer(FrameworkTrainer):
                 raise ValueError(f"Unknown architecture: {arch_s}")
 
         model = model.to(self.device)
-        logger.info(f"Created {arch_s} model with {num_classes} classes")
+        logger.info(
+            _(
+                "Created {arch_s} model with {num_classes} classes"
+            ).format(arch_s=arch_s, num_classes=num_classes))
         
         return model
     
@@ -185,9 +189,18 @@ class PyTorchTrainer(FrameworkTrainer):
                 frozen_epochs_completed = checkpoint.get('frozen_epochs_completed', 0)
                 unfrozen_epochs_completed = checkpoint.get('unfrozen_epochs_completed', 0)
                 best_val_acc = checkpoint.get('best_val_acc', 0.0)
-                logger.info(f"Resumed from checkpoint: epoch {start_epoch}, "
-                          f"frozen={frozen_epochs_completed}/{frozen_epochs}, "
-                          f"unfrozen={unfrozen_epochs_completed}/{unfrozen_epochs}")
+                logger.info(
+                    _(
+                        "Resumed from checkpoint: epoch {start_epoch}, "
+                        "frozen={frozen_epochs_completed}/{frozen_epochs}, "
+                        "unfrozen={unfrozen_epochs_completed}/{unfrozen_epochs}"
+                    ).format(
+                        start_epoch=start_epoch,
+                        frozen_epochs_completed=frozen_epochs_completed,
+                        frozen_epochs=frozen_epochs,
+                        unfrozen_epochs_completed=unfrozen_epochs_completed,
+                        unfrozen_epochs=unfrozen_epochs,
+                    ))
         
         # Loss, epoch metric, and weighting are chosen together: they are three views of the
         # same decision about what the output layer means. Weighting applies to the training
@@ -201,7 +214,10 @@ class PyTorchTrainer(FrameworkTrainer):
 
         # Phase 1: Frozen backbone training
         if frozen_epochs_completed < frozen_epochs:
-            logger.info(f"Phase 1: Training with frozen backbone ({frozen_epochs} epochs)")
+            logger.info(
+                _(
+                    "Phase 1: Training with frozen backbone ({frozen_epochs} epochs)"
+                ).format(frozen_epochs=frozen_epochs))
             
             # Freeze all layers except the classifier
             for param in model.parameters():
@@ -282,11 +298,14 @@ class PyTorchTrainer(FrameworkTrainer):
                     primary_metric=objective.primary_metric,
                 )
         else:
-            logger.info("Frozen phase already completed, skipping")
+            logger.info(_("Frozen phase already completed, skipping"))
         
         # Phase 2: Unfrozen fine-tuning
         if unfrozen_epochs_completed < unfrozen_epochs:
-            logger.info(f"Phase 2: Fine-tuning all layers ({unfrozen_epochs} epochs)")
+            logger.info(
+                _(
+                    "Phase 2: Fine-tuning all layers ({unfrozen_epochs} epochs)"
+                ).format(unfrozen_epochs=unfrozen_epochs))
             
             # Unfreeze all layers
             for param in model.parameters():
@@ -355,9 +374,12 @@ class PyTorchTrainer(FrameworkTrainer):
                     primary_metric=objective.primary_metric,
                 )
         else:
-            logger.info("Unfrozen phase already completed, skipping")
+            logger.info(_("Unfrozen phase already completed, skipping"))
         
-        logger.info(f"Training completed. Best validation accuracy: {best_val_acc:.4f}")
+        logger.info(
+            _(
+                "Training completed. Best validation accuracy: {best_val_acc:.4f}"
+            ).format(best_val_acc=best_val_acc))
         
         return model
     
@@ -445,13 +467,13 @@ class PyTorchTrainer(FrameworkTrainer):
         if format == "native" or format == "pth":
             # Save PyTorch state dict
             torch.save(model.state_dict(), path)
-            logger.info(f"Saved PyTorch model to {path}")
+            logger.info(_("Saved PyTorch model to {path}").format(path=path))
         elif format == "onnx":
             from mb.conversion.converters import export_torch_module_to_onnx
 
             model.eval()
             export_torch_module_to_onnx(model, path, image_size=224)
-            logger.info(f"Exported model to ONNX: {path}")
+            logger.info(_("Exported model to ONNX: {path}").format(path=path))
         else:
             raise ValueError(f"Unsupported format: {format}")
         
@@ -479,7 +501,7 @@ class PyTorchTrainer(FrameworkTrainer):
         model = self.create_model(architecture, num_classes, pretrained=False)
         model.load_state_dict(torch.load(path, map_location=self.device))
         model = model.to(self.device)
-        logger.info(f"Loaded model from {path}")
+        logger.info(_("Loaded model from {path}").format(path=path))
         return model
     
     def _build_objective(
@@ -689,5 +711,5 @@ class PyTorchTrainer(FrameworkTrainer):
             logger.info(f"Loaded checkpoint from {checkpoint_path}")
             return checkpoint
         except Exception as e:
-            logger.error(f"Failed to load checkpoint: {e}")
+            logger.error(_("Failed to load checkpoint: {e}").format(e=e))
             return None

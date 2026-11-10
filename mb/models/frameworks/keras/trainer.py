@@ -27,7 +27,7 @@ try:
     TF_AVAILABLE = True
 except ImportError:
     TF_AVAILABLE = False
-    logger.warning("TensorFlow not available. Keras trainer will not work.")
+    logger.warning(_("TensorFlow not available. Keras trainer will not work."))
 
 from mb.cancellation import check_cancel_event
 from mb.models.base import FrameworkTrainer
@@ -44,6 +44,7 @@ from mb.training.class_weights import (
     class_weight_dict,
     resolve_class_weights,
 )
+from mb.utils.translations import _
 
 
 class KerasTrainer(FrameworkTrainer):
@@ -103,7 +104,10 @@ class KerasTrainer(FrameworkTrainer):
             else:
                 raise ValueError(f"Unknown architecture: {arch_s}")
         
-        logger.info(f"Created {arch_s} model with {num_classes} classes")
+        logger.info(
+            _(
+                "Created {arch_s} model with {num_classes} classes"
+            ).format(arch_s=arch_s, num_classes=num_classes))
         
         return model
     
@@ -189,9 +193,17 @@ class KerasTrainer(FrameworkTrainer):
             if checkpoint_data:
                 frozen_epochs_completed = checkpoint_data.get('frozen_epochs_completed', 0)
                 unfrozen_epochs_completed = checkpoint_data.get('unfrozen_epochs_completed', 0)
-                logger.info(f"Resumed from checkpoint: "
-                          f"frozen={frozen_epochs_completed}/{frozen_epochs}, "
-                          f"unfrozen={unfrozen_epochs_completed}/{unfrozen_epochs}")
+                logger.info(
+                    _(
+                        "Resumed from checkpoint: "
+                        "frozen={frozen_epochs_completed}/{frozen_epochs}, "
+                        "unfrozen={unfrozen_epochs_completed}/{unfrozen_epochs}"
+                    ).format(
+                        frozen_epochs_completed=frozen_epochs_completed,
+                        frozen_epochs=frozen_epochs,
+                        unfrozen_epochs_completed=unfrozen_epochs_completed,
+                        unfrozen_epochs=unfrozen_epochs,
+                    ))
         
         # Class weights apply to the training loss only; Keras leaves validation loss
         # unweighted, which matches the PyTorch trainer and keeps val_loss comparable
@@ -218,7 +230,10 @@ class KerasTrainer(FrameworkTrainer):
 
         # Phase 1: Frozen backbone training
         if frozen_epochs_completed < frozen_epochs:
-            logger.info(f"Phase 1: Training with frozen backbone ({frozen_epochs} epochs)")
+            logger.info(
+                _(
+                    "Phase 1: Training with frozen backbone ({frozen_epochs} epochs)"
+                ).format(frozen_epochs=frozen_epochs))
             
             # Freeze all layers except the classifier
             for layer in model.layers:
@@ -270,11 +285,14 @@ class KerasTrainer(FrameworkTrainer):
             
             frozen_epochs_completed = frozen_epochs
         else:
-            logger.info("Frozen phase already completed, skipping")
+            logger.info(_("Frozen phase already completed, skipping"))
         
         # Phase 2: Unfrozen fine-tuning
         if unfrozen_epochs_completed < unfrozen_epochs:
-            logger.info(f"Phase 2: Fine-tuning all layers ({unfrozen_epochs} epochs)")
+            logger.info(
+                _(
+                    "Phase 2: Fine-tuning all layers ({unfrozen_epochs} epochs)"
+                ).format(unfrozen_epochs=unfrozen_epochs))
             
             # Unfreeze all layers
             for layer in model.layers:
@@ -338,9 +356,9 @@ class KerasTrainer(FrameworkTrainer):
             
             unfrozen_epochs_completed = unfrozen_epochs
         else:
-            logger.info("Unfrozen phase already completed, skipping")
+            logger.info(_("Unfrozen phase already completed, skipping"))
         
-        logger.info("Training completed")
+        logger.info(_("Training completed"))
         
         return model
     
@@ -410,10 +428,10 @@ class KerasTrainer(FrameworkTrainer):
         
         if format == "native" or format == "h5":
             model.save(str(path))
-            logger.info(f"Saved Keras model to {path}")
+            logger.info(_("Saved Keras model to {path}").format(path=path))
         elif format == "saved_model":
             model.save(str(path))
-            logger.info(f"Saved Keras model (SavedModel format) to {path}")
+            logger.info(_("Saved Keras model (SavedModel format) to {path}").format(path=path))
         else:
             raise ValueError(f"Unsupported format: {format}")
         
@@ -444,14 +462,17 @@ class KerasTrainer(FrameworkTrainer):
         try:
             # Try loading as SavedModel first
             model = keras.models.load_model(str(path))
-            logger.info(f"Loaded Keras model from {path}")
+            logger.info(_("Loaded Keras model from {path}").format(path=path))
             return model
         except Exception:
             # If that fails, might need to rebuild architecture
-            logger.warning(f"Could not load model directly, rebuilding architecture: {architecture}")
+            logger.warning(
+                _(
+                    "Could not load model directly, rebuilding architecture: {architecture}"
+                ).format(architecture=architecture))
             model = self.create_model(architecture, num_classes, pretrained=False)
             model.load_weights(str(path))
-            logger.info(f"Loaded Keras model weights from {path}")
+            logger.info(_("Loaded Keras model weights from {path}").format(path=path))
             return model
     
     def _load_checkpoint(
@@ -470,8 +491,8 @@ class KerasTrainer(FrameworkTrainer):
                     model.load_weights(str(checkpoint_path))
                     logger.info(f"Loaded checkpoint from {checkpoint_path}")
                 except Exception as e:
-                    logger.warning(f"Could not load model weights: {e}")
+                    logger.warning(_("Could not load model weights: {e}").format(e=e))
                 return metadata
             except Exception as e:
-                logger.error(f"Failed to load checkpoint metadata: {e}")
+                logger.error(_("Failed to load checkpoint metadata: {e}").format(e=e))
         return None

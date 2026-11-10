@@ -306,7 +306,7 @@ def load_model(model_dir, meta, device):
         path = cache_dir / f"{key}.npy"
         done = cache_dir / f"{key}.done"
         if path.is_file() and done.is_file():
-            logger.info("embedding_probe: reusing cached %s embeddings %s", label, path)
+            logger.info(_("embedding_probe: reusing cached %s embeddings %s"), label, path)
             return np.load(path, mmap_mode="r")
         out = np.lib.format.open_memmap(path, mode="w+", dtype=np.float16, shape=(len(texts), self.dim))
         self._embed_into(texts, out, cancel_event, progress, label)
@@ -441,7 +441,7 @@ def load_model(model_dir, meta, device):
         saved_rev = meta.get("model_revision")
         if saved_rev and b.revision and saved_rev != b.revision:
             logger.warning(
-                "embedding_probe: %s loaded at revision %s, but the head was trained on %s",
+                _("embedding_probe: %s loaded at revision %s, but the head was trained on %s"),
                 b.model_id,
                 b.revision,
                 saved_rev,

@@ -244,7 +244,7 @@ class _DirectoryPickerCache:
                 roots.append((normalized_root, label))
                 seen_roots.add(normalized_root.casefold())
         except Exception as e:
-            logger.error(f"Failed to enumerate Windows drives: {e}")
+            logger.error(_("Failed to enumerate Windows drives: {e}").format(e=e))
 
         if not roots:
             roots = [("C:\\", "C:\\")]
@@ -498,7 +498,10 @@ class FastDirectoryPickerDialog(QDialog):
             self._status_label.setText(_("A folder with that name already exists."))
             self._status_label.setVisible(True)
         except OSError as e:
-            logger.warning(f"Failed to create directory '{target_path}': {e}")
+            logger.warning(
+                _(
+                    "Failed to create directory '{target_path}': {e}"
+                ).format(target_path=target_path, e=e))
             self._status_label.setText(
                 _("Failed to create folder (check permissions/path).")
             )
@@ -766,7 +769,7 @@ class FastOpenFilePickerDialog(QDialog):
             self._status_label.setText(_("A folder with that name already exists."))
             self._status_label.setVisible(True)
         except OSError as e:
-            logger.warning("Failed to create directory '%s': %s", target_path, e)
+            logger.warning(_("Failed to create directory '%s': %s"), target_path, e)
             self._status_label.setText(_("Failed to create folder (check permissions/path)."))
             self._status_label.setVisible(True)
 
@@ -1088,7 +1091,7 @@ class FastSaveFilePickerDialog(QDialog):
             self._status_label.setText(_("A folder with that name already exists."))
             self._status_label.setVisible(True)
         except OSError as e:
-            logger.warning("Failed to create directory '%s': %s", target_path, e)
+            logger.warning(_("Failed to create directory '%s': %s"), target_path, e)
             self._status_label.setText(_("Failed to create folder (check permissions/path)."))
             self._status_label.setVisible(True)
 

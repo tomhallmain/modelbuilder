@@ -157,7 +157,7 @@ class NotificationController:
         severity: str = "normal",
         master: Optional[QWidget] = None,
     ) -> bool:
-        logger.warning('Alert - Title: "%s" Message: %s', title, message)
+        logger.warning(_('Alert - Title: "%s" Message: %s'), title, message)
         parent = master or self._app
 
         if severity == "high" and kind == "askokcancel":

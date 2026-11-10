@@ -16,6 +16,7 @@ from typing import Any, Dict, Optional
 
 from mb.cancellation import check_cancel_event
 from mb.utils.logging_setup import get_logger
+from mb.utils.translations import _
 
 logger = get_logger(__name__)
 
@@ -38,7 +39,7 @@ def inline_onnx_external_data(output_path: Path) -> bool:
         import onnx
         from onnx.external_data_helper import load_external_data_for_model
     except ImportError:
-        logger.warning("onnx package not available; cannot inline external ONNX data")
+        logger.warning(_("onnx package not available; cannot inline external ONNX data"))
         return False
 
     output_path = Path(output_path)
@@ -49,7 +50,7 @@ def inline_onnx_external_data(output_path: Path) -> bool:
         # would always come up empty and we'd never find the sidecar file to remove.
         model = onnx.load(str(output_path), load_external_data=False)
     except Exception as e:
-        logger.warning("Could not reload ONNX to inline external data: %s", e)
+        logger.warning(_("Could not reload ONNX to inline external data: %s"), e)
         return False
 
     external_files: set[Path] = set()
@@ -64,14 +65,14 @@ def inline_onnx_external_data(output_path: Path) -> bool:
     try:
         load_external_data_for_model(model, str(output_path.parent))
     except Exception as e:
-        logger.warning("Could not load external ONNX data: %s", e)
+        logger.warning(_("Could not load external ONNX data: %s"), e)
         return False
 
     weight_bytes = sum(len(t.raw_data) for t in model.graph.initializer if t.raw_data)
     if weight_bytes > _ONNX_EMBED_MAX_BYTES:
         logger.warning(
-            "ONNX weights (%s bytes) exceed the single-file protobuf limit; "
-            "keeping external data files",
+            _("ONNX weights (%s bytes) exceed the single-file protobuf limit; "
+            "keeping external data files"),
             f"{weight_bytes:,}",
         )
         return False
@@ -79,7 +80,7 @@ def inline_onnx_external_data(output_path: Path) -> bool:
     try:
         onnx.save_model(model, str(output_path), save_as_external_data=False)
     except Exception as e:
-        logger.warning("Failed to save self-contained ONNX: %s", e)
+        logger.warning(_("Failed to save self-contained ONNX: %s"), e)
         return False
 
     # Drop our reference (and anything onnx/protobuf may still hold internally) before
@@ -106,7 +107,7 @@ def _unlink_with_retry(path: Path, *, attempts: int = 5, initial_delay: float = 
             return
         except OSError as e:
             if attempt == attempts:
-                logger.warning("Could not remove external ONNX data file %s: %s", path, e)
+                logger.warning(_("Could not remove external ONNX data file %s: %s"), path, e)
                 return
             time.sleep(delay)
             delay *= 2
@@ -128,14 +129,14 @@ def write_onnx_metadata(output_path: Path, metadata: Dict[str, str]) -> bool:
     try:
         import onnx
     except ImportError:
-        logger.warning("onnx package not available; cannot write ONNX metadata")
+        logger.warning(_("onnx package not available; cannot write ONNX metadata"))
         return False
 
     output_path = Path(output_path)
     try:
         model = onnx.load(str(output_path))
     except Exception as e:
-        logger.warning("Could not reload ONNX to write metadata: %s", e)
+        logger.warning(_("Could not reload ONNX to write metadata: %s"), e)
         return False
 
     existing = {prop.key: prop for prop in model.metadata_props}
@@ -150,7 +151,7 @@ def write_onnx_metadata(output_path: Path, metadata: Dict[str, str]) -> bool:
     try:
         onnx.save_model(model, str(output_path))
     except Exception as e:
-        logger.warning("Could not save ONNX metadata: %s", e)
+        logger.warning(_("Could not save ONNX metadata: %s"), e)
         return False
     logger.info("Wrote %d ONNX metadata entries to %s", len(metadata), output_path)
     return True
@@ -285,14 +286,17 @@ def convert_pytorch_to_onnx(
             ),
         )
 
-        logger.info(f"Successfully converted PyTorch model to ONNX: {output_path}")
+        logger.info(
+            _(
+                "Successfully converted PyTorch model to ONNX: {output_path}"
+            ).format(output_path=output_path))
         return True
         
     except ImportError as e:
-        logger.error(f"PyTorch not available for ONNX conversion: {e}")
+        logger.error(_("PyTorch not available for ONNX conversion: {e}").format(e=e))
         return False
     except Exception as e:
-        logger.error(f"Failed to convert PyTorch model to ONNX: {e}", exc_info=True)
+        logger.error(_("Failed to convert PyTorch model to ONNX: {e}").format(e=e), exc_info=True)
         return False
 
 
@@ -319,7 +323,7 @@ def convert_pytorch_to_safetensors(
             from safetensors.torch import save_file
         except ImportError:
             logger.error(
-                "safetensors library not available. Install with: pip install safetensors"
+                _("safetensors library not available. Install with: pip install safetensors")
             )
             return False
         
@@ -334,14 +338,17 @@ def convert_pytorch_to_safetensors(
         output_path.parent.mkdir(parents=True, exist_ok=True)
         save_file(state_dict, str(output_path))
         
-        logger.info(f"Successfully converted PyTorch model to SafeTensors: {output_path}")
+        logger.info(
+            _(
+                "Successfully converted PyTorch model to SafeTensors: {output_path}"
+            ).format(output_path=output_path))
         return True
         
     except ImportError as e:
-        logger.error(f"Required library not available: {e}")
+        logger.error(_("Required library not available: {e}").format(e=e))
         return False
     except Exception as e:
-        logger.error(f"Failed to convert PyTorch model to SafeTensors: {e}", exc_info=True)
+        logger.error(_("Failed to convert PyTorch model to SafeTensors: {e}").format(e=e), exc_info=True)
         return False
 
 
@@ -369,7 +376,7 @@ def convert_keras_to_onnx(
             import tf2onnx
         except ImportError:
             logger.error(
-                "tf2onnx library not available. Install with: pip install tf2onnx"
+                _("tf2onnx library not available. Install with: pip install tf2onnx")
             )
             return False
         
@@ -386,7 +393,7 @@ def convert_keras_to_onnx(
                 name='input'
             )
         else:
-            logger.error(f"Unsupported input shape: {input_shape}")
+            logger.error(_("Unsupported input shape: {input_shape}").format(input_shape=input_shape))
             return False
         
         # Convert to ONNX
@@ -395,21 +402,24 @@ def convert_keras_to_onnx(
         spec = (input_spec,)
         output_path_str = str(output_path)
         
-        model_proto, _ = tf2onnx.convert.from_keras(
+        model_proto, _unused = tf2onnx.convert.from_keras(
             model,
             input_signature=spec,
             opset=kwargs.get('opset_version', 11),
             output_path=output_path_str
         )
         
-        logger.info(f"Successfully converted Keras model to ONNX: {output_path}")
+        logger.info(
+            _(
+                "Successfully converted Keras model to ONNX: {output_path}"
+            ).format(output_path=output_path))
         return True
         
     except ImportError as e:
-        logger.error(f"Required library not available: {e}")
+        logger.error(_("Required library not available: {e}").format(e=e))
         return False
     except Exception as e:
-        logger.error(f"Failed to convert Keras model to ONNX: {e}", exc_info=True)
+        logger.error(_("Failed to convert Keras model to ONNX: {e}").format(e=e), exc_info=True)
         return False
 
 
@@ -489,7 +499,7 @@ def convert_model(
         True if conversion successful, False otherwise
     """
     if not input_path.exists():
-        logger.error(f"Input model file not found: {input_path}")
+        logger.error(_("Input model file not found: {input_path}").format(input_path=input_path))
         return False
     
     check_cancel_event(cancel_event)
@@ -498,14 +508,17 @@ def convert_model(
     if source_framework is None:
         source_framework = detect_model_framework(input_path)
         if source_framework is None:
-            logger.error(f"Could not detect framework for {input_path}")
+            logger.error(_("Could not detect framework for {input_path}").format(input_path=input_path))
             return False
-        logger.info(f"Detected source framework: {source_framework}")
+        logger.info(
+            _(
+                "Detected source framework: {source_framework}"
+            ).format(source_framework=source_framework))
     
     # Validate target format
     if target_format not in ['onnx', 'safetensors']:
-        logger.error(f"Unsupported target format: {target_format}")
-        logger.info("Supported formats: onnx, safetensors")
+        logger.error(_("Unsupported target format: {target_format}").format(target_format=target_format))
+        logger.info(_("Supported formats: onnx, safetensors"))
         return False
     
     # PyTorch conversions
@@ -513,7 +526,7 @@ def convert_model(
         if target_format == 'onnx':
             if architecture is None or num_classes is None:
                 logger.error(
-                    "Architecture and num_classes are required for PyTorch -> ONNX conversion"
+                    _("Architecture and num_classes are required for PyTorch -> ONNX conversion")
                 )
                 return False
             return convert_pytorch_to_onnx(
@@ -533,12 +546,15 @@ def convert_model(
         if target_format == 'onnx':
             return convert_keras_to_onnx(input_path, output_path, **kwargs)
         elif target_format == 'safetensors':
-            logger.error("Keras -> SafeTensors conversion not supported")
-            logger.info("SafeTensors is primarily for PyTorch models")
+            logger.error(_("Keras -> SafeTensors conversion not supported"))
+            logger.info(_("SafeTensors is primarily for PyTorch models"))
             return False
     
     else:
-        logger.error(f"Unsupported source framework: {source_framework}")
+        logger.error(
+            _(
+                "Unsupported source framework: {source_framework}"
+            ).format(source_framework=source_framework))
         return False
     
     return False

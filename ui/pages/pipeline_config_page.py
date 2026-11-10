@@ -1024,7 +1024,7 @@ class PipelineConfigPage(QWidget):
             qt_alert(self, _("Pipeline"), _("Could not write:\n{path}\n\n{err}").format(path=target, err=e))
             return False
         logger.info(
-            "Pipeline config saved to %s (%s)",
+            _("Pipeline config saved to %s (%s)"),
             target,
             "manual" if show_success else "autosave",
         )

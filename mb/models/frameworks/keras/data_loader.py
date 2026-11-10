@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Tuple, Optional
 
 from mb.utils.logging_setup import get_logger
+from mb.utils.translations import _
 
 logger = get_logger(__name__)
 
@@ -20,7 +21,7 @@ try:
     TF_AVAILABLE = True
 except ImportError:
     TF_AVAILABLE = False
-    logger.warning("TensorFlow not available. Keras data loaders will not work.")
+    logger.warning(_("TensorFlow not available. Keras data loaders will not work."))
 
 
 def create_data_generators(
@@ -84,9 +85,15 @@ def create_data_generators(
         seed=42
     )
     
-    logger.info(f"Created Keras data generators:")
-    logger.info(f"  Train: {train_generator.samples} samples, {len(train_generator)} batches")
-    logger.info(f"  Val: {val_generator.samples} samples, {len(val_generator)} batches")
-    logger.info(f"  Classes: {train_generator.class_indices}")
+    logger.info(_("Created Keras data generators:"))
+    logger.info(
+        _(
+            "  Train: {samples} samples, {n_train_generator} batches"
+        ).format(samples=train_generator.samples, n_train_generator=len(train_generator)))
+    logger.info(
+        _(
+            "  Val: {samples} samples, {n_val_generator} batches"
+        ).format(samples=val_generator.samples, n_val_generator=len(val_generator)))
+    logger.info(_("  Classes: {class_indices}").format(class_indices=train_generator.class_indices))
     
     return train_generator, val_generator

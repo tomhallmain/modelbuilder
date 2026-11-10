@@ -39,6 +39,7 @@ from mb.utils.constants import DatasetSplitMode
 from mb.training.text_config import PIPELINE_SECTION as TEXT_PIPELINE_SECTION
 from mb.training.text_config import TEXT_CLASSIFICATION_DEFAULTS
 from mb.utils.logging_setup import get_logger
+from mb.utils.translations import _
 
 logger = get_logger("mb.pipeline_config")
 
@@ -112,7 +113,7 @@ class PipelineConfig:
         if config_path and config_path.exists():
             self.load_from_file(config_path)
         elif config_path:
-            logger.warning("Pipeline config file not found: %s, using defaults", config_path)
+            logger.warning(_("Pipeline config file not found: %s, using defaults"), config_path)
 
         self._coerce_data_values()
 
@@ -136,7 +137,7 @@ class PipelineConfig:
         try:
             raw["test_per_class"] = max(1, int(float(tp)))
         except (TypeError, ValueError):
-            logger.warning("Invalid data.test_per_class %r; using default %s", tp, _fallback("test_per_class"))
+            logger.warning(_("Invalid data.test_per_class %r; using default %s"), tp, _fallback("test_per_class"))
             raw["test_per_class"] = int(_fallback("test_per_class"))
 
         # test_split_mode (stored as string for YAML / to_dict)
@@ -154,7 +155,7 @@ class PipelineConfig:
             try:
                 raw["test_small_class_threshold"] = max(1, int(float(tst)))
             except (TypeError, ValueError):
-                logger.warning("Invalid data.test_small_class_threshold %r; using null", tst)
+                logger.warning(_("Invalid data.test_small_class_threshold %r; using null"), tst)
                 raw["test_small_class_threshold"] = None
 
         # seed (optional int for create-dataset)
@@ -165,7 +166,7 @@ class PipelineConfig:
             try:
                 raw["seed"] = int(float(sd))
             except (TypeError, ValueError):
-                logger.warning("Invalid data.seed %r; using null", sd)
+                logger.warning(_("Invalid data.seed %r; using null"), sd)
                 raw["seed"] = None
 
         # image_size
@@ -173,7 +174,7 @@ class PipelineConfig:
         try:
             raw["image_size"] = max(1, int(float(im)))
         except (TypeError, ValueError):
-            logger.warning("Invalid data.image_size %r; using default %s", im, _fallback("image_size"))
+            logger.warning(_("Invalid data.image_size %r; using default %s"), im, _fallback("image_size"))
             raw["image_size"] = int(_fallback("image_size"))
 
         # batch_size: int or None
@@ -184,7 +185,7 @@ class PipelineConfig:
             try:
                 raw["batch_size"] = max(1, int(float(bs)))
             except (TypeError, ValueError):
-                logger.warning("Invalid data.batch_size %r; using null", bs)
+                logger.warning(_("Invalid data.batch_size %r; using null"), bs)
                 raw["batch_size"] = None
 
     def _get_defaults(self) -> Dict[str, Any]:
@@ -264,9 +265,9 @@ class PipelineConfig:
             filtered = {k: v for k, v in raw.items() if k in _PIPELINE_KEYS}
             self._config = self._deep_merge(self._deep_merge({}, self._defaults), filtered)
             self._active_path = config_path
-            logger.info("Loaded pipeline configuration from %s", config_path)
+            logger.info(_("Loaded pipeline configuration from %s"), config_path)
         except Exception:
-            logger.exception("Failed to load pipeline config from %s", config_path)
+            logger.exception(_("Failed to load pipeline config from %s"), config_path)
             self._config = self._deep_merge({}, self._defaults)
             self._active_path = None
 
@@ -605,7 +606,7 @@ def save_pipeline_yaml(path: Path, pipeline_config: Dict[str, Any]) -> None:
             with open(path, encoding="utf-8") as f:
                 existing = yaml.safe_load(f) or {}
         except Exception:
-            logger.exception("Could not read existing pipeline file %s", path)
+            logger.exception(_("Could not read existing pipeline file %s"), path)
             existing = {}
         if isinstance(existing, dict):
             merged = dict(existing)
@@ -617,4 +618,4 @@ def save_pipeline_yaml(path: Path, pipeline_config: Dict[str, Any]) -> None:
         out = subset
     with open(path, "w", encoding="utf-8") as f:
         yaml.dump(out, f, default_flow_style=False, sort_keys=False)
-    logger.info("Saved pipeline configuration to %s", path)
+    logger.info(_("Saved pipeline configuration to %s"), path)

@@ -29,6 +29,7 @@ from mb.models.types import ModelType, VisualMediaSourceType
 from mb.pipeline_config import get_pipeline_config
 from mb.utils.logging_setup import get_logger
 from mb.utils.snapshot import UnifiedSnapshot, find_latest_unified_snapshot_path
+from mb.utils.translations import _
 
 logger = get_logger("mb.space_estimate")
 
@@ -79,7 +80,7 @@ def _disk_free_bytes(path: Path) -> int:
         logger.info(f"Checking disk free space for: {path}")
         return int(shutil.disk_usage(path).free)
     except OSError as e:
-        logger.error(f"Error checking disk free space for: {path}: {e}")
+        logger.error(_("Error checking disk free space for: {path}: {e}").format(path=path, e=e))
         return 0
 
 
@@ -311,7 +312,7 @@ def save_space_cache(raw_data_dir: Path, cache: Dict[str, Any]) -> None:
         with open(p, "w", encoding="utf-8") as f:
             json.dump(cache, f, indent=2)
     except OSError as e:
-        logger.warning("Could not write space estimate cache %s: %s", p, e)
+        logger.warning(_("Could not write space estimate cache %s: %s"), p, e)
 
 
 def snapshot_has_valid_convert_estimate(
@@ -368,7 +369,7 @@ def run_convert_estimate(
         n = int(cache["convert"].get("file_count", len(paths)))
         src_sum = int(cache["convert"].get("source_total_bytes", 0))
     elif snapshot_has_valid_convert_estimate(snapshot, fp):
-        logger.info(f"Using cached convert estimate for fingerprint: {fp}")
+        logger.info(_("Using cached convert estimate for fingerprint: {fp}").format(fp=fp))
         c = snapshot.space_estimates["convert"]
         need = int(c["estimated_need_bytes"])
         n = int(c.get("file_count", len(paths)))
@@ -384,7 +385,7 @@ def run_convert_estimate(
     )
     if not ok:
         msg += f" Short by ~{format_bytes(need - free)}."
-    logger.info(f"Convert space estimate: {msg}")
+    logger.info(_("Convert space estimate: {msg}").format(msg=msg))
     rep = SpaceEstimateReport(
         operation="convert",
         fingerprint=fp,

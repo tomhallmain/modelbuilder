@@ -68,6 +68,7 @@ from mb.utils.snapshot import (
     save_unified_snapshot,
     set_step_errors_for_invocation,
 )
+from mb.utils.translations import _
 
 logger = setup_logging(script_name="fix_jpeg_mismatch")
 
@@ -389,7 +390,7 @@ def repair_mislabeled_jpeg_extensions(
         class_qualifying_subdir=qual,
     )
     if not class_names:
-        logger.warning("No class directories found under %s", raw_data_dir)
+        logger.warning(_("No class directories found under %s"), raw_data_dir)
         log_completion_info(logger, True, "no class folders to scan")
         return True, stats
 
@@ -402,8 +403,8 @@ def repair_mislabeled_jpeg_extensions(
         snapshot = find_unified_snapshot([raw_data_dir], run_id=None, logger=logger)
         if snapshot is None:
             logger.warning(
-                "No unified snapshot under %s; file repair will run but snapshot rows will not be updated. "
-                "Run mb data convert first to create a snapshot if you need metadata alignment.",
+                _("No unified snapshot under %s; file repair will run but snapshot rows will not be updated. "
+                "Run mb data convert first to create a snapshot if you need metadata alignment."),
                 raw_data_dir,
             )
         else:
@@ -427,7 +428,7 @@ def repair_mislabeled_jpeg_extensions(
 
         if dry_run:
             image_files = converter.find_image_files(class_dir, log_scan=False)
-            static_paths, _ = converter._split_static_and_extract(image_files)
+            static_paths, _unused = converter._split_static_and_extract(image_files)
             mismatches = [
                 p
                 for p in static_paths
@@ -443,7 +444,7 @@ def repair_mislabeled_jpeg_extensions(
                 expected_jpg_name = basename_map.get(src, "?")
                 head = read_file_header(src)
                 sniff = sniff_container(head)
-                pil_fmt, _ = pillow_format_and_gif_info(src)
+                pil_fmt, _unused = pillow_format_and_gif_info(src)
                 new_ext = extension_for_container(sniff, pil_fmt) or "?"
                 n_gif = (
                     _gif_frame_count(src)
@@ -502,20 +503,20 @@ def repair_mislabeled_jpeg_extensions(
             sk = stats.skipped_static_format_by_class.get(class_name, 0)
             if sk and not include_static_format_mismatches:
                 logger.info(
-                    "Class %s: %d mislabeled .jpg/.jpeg file(s) are PNG/WebP/BMP/TIFF bytes "
-                    "(counted only; no repair unless --include-static-format-mismatches).",
+                    _("Class %s: %d mislabeled .jpg/.jpeg file(s) are PNG/WebP/BMP/TIFF bytes "
+                    "(counted only; no repair unless --include-static-format-mismatches)."),
                     class_name,
                     sk,
                 )
             if not json_lines and not dry_run_quiet and not mismatches:
-                logger.info("[dry-run] no mislabeled .jpg/.jpeg in %s", class_name)
+                logger.info(_("[dry-run] no mislabeled .jpg/.jpeg in %s"), class_name)
             continue
 
         # Live repair: same scheduling as dry-run — one tree scan, one basename map, one sorted pass.
         failed_paths: Set[str] = set()
         check_cancel_event(cancel_event)
         image_files = converter.find_image_files(class_dir, log_scan=False)
-        static_paths, _ = converter._split_static_and_extract(image_files)
+        static_paths, _unused = converter._split_static_and_extract(image_files)
         static_paths.sort(key=lambda x: str(x))
         basename_map = assign_still_convert_output_basenames(
             static_paths,
@@ -546,10 +547,10 @@ def repair_mislabeled_jpeg_extensions(
 
             head = read_file_header(src)
             sniff = sniff_container(head)
-            pil_fmt, _ = pillow_format_and_gif_info(src)
+            pil_fmt, _unused = pillow_format_and_gif_info(src)
             new_ext = extension_for_container(sniff, pil_fmt)
             if not new_ext:
-                logger.error("Cannot infer extension for %s (sniff=%s pil=%s)", src, sniff, pil_fmt)
+                logger.error(_("Cannot infer extension for %s (sniff=%s pil=%s)"), src, sniff, pil_fmt)
                 failed_paths.add(key)
                 stats.files_failed += 1
                 continue
@@ -633,13 +634,13 @@ def repair_mislabeled_jpeg_extensions(
                         try:
                             junk_converted.unlink()
                         except OSError as e:
-                            logger.warning("Could not remove stale CONVERTED file %s: %s", junk_converted, e)
+                            logger.warning(_("Could not remove stale CONVERTED file %s: %s"), junk_converted, e)
 
                 if junk_small.exists():
                     try:
                         junk_small.unlink()
                     except OSError as e:
-                        logger.warning("Could not remove stale small review file %s: %s", junk_small, e)
+                        logger.warning(_("Could not remove stale small review file %s: %s"), junk_small, e)
 
                 if snapshot is not None:
                     try:
@@ -654,7 +655,7 @@ def repair_mislabeled_jpeg_extensions(
                         )
                         stats.snapshot_records_updated += 1
                     except Exception as e:
-                        logger.warning("Snapshot update failed after repair: %s", e, exc_info=True)
+                        logger.warning(_("Snapshot update failed after repair: %s"), e, exc_info=True)
                         stats.snapshot_apply_errors.append(f"{rel_original_old}: {e}")
 
                 stats.files_repaired += 1
@@ -672,9 +673,9 @@ def repair_mislabeled_jpeg_extensions(
                         "converted_jpeg": str(converted_out),
                     }
                     _emit_json_line(repaired_row, json_lines_to_logger=json_lines_to_logger)
-                logger.info("Repaired -> %s", dest_src)
+                logger.info(_("Repaired -> %s"), dest_src)
             except Exception as e:
-                logger.exception("Repair failed for %s: %s", src, e)
+                logger.exception(_("Repair failed for %s: %s"), src, e)
                 for p in created:
                     try:
                         p.unlink(missing_ok=True)
@@ -688,8 +689,8 @@ def repair_mislabeled_jpeg_extensions(
             sk_live = stats.skipped_static_format_by_class.get(class_name, 0)
             if sk_live and not include_static_format_mismatches:
                 logger.info(
-                    "Class %s: %d mislabeled .jpg/.jpeg file(s) are PNG/WebP/BMP/TIFF bytes "
-                    "(counted only; no repair unless --include-static-format-mismatches).",
+                    _("Class %s: %d mislabeled .jpg/.jpeg file(s) are PNG/WebP/BMP/TIFF bytes "
+                    "(counted only; no repair unless --include-static-format-mismatches)."),
                     class_name,
                     sk_live,
                 )

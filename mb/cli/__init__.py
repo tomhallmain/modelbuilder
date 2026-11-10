@@ -145,10 +145,10 @@ def handle_data_gather(args):
         success = gatherer.run()
         return 0 if success else 1
     except ValueError as e:
-        logger.error(f"Configuration error: {e}")
+        logger.error(_("Configuration error: {e}").format(e=e))
         return 1
     except Exception as e:
-        logger.error(f"Error in data gather: {e}", exc_info=True)
+        logger.error(_("Error in data gather: {e}").format(e=e), exc_info=True)
         return 1
 
 
@@ -166,7 +166,7 @@ def handle_data_convert(args):
         )
         return 0 if success else 1
     except Exception as e:
-        logger.error(f"Error in data convert: {e}", exc_info=True)
+        logger.error(_("Error in data convert: {e}").format(e=e), exc_info=True)
         return 1
 
 
@@ -182,7 +182,7 @@ def handle_data_deduplicate(args):
             print(deduplicator.duplicate_groups_as_json())
         return 0 if success else 1
     except Exception as e:
-        logger.error(f"Error in data deduplicate: {e}", exc_info=True)
+        logger.error(_("Error in data deduplicate: {e}").format(e=e), exc_info=True)
         return 1
 
 
@@ -199,7 +199,7 @@ def handle_data_upscale(args):
         success = upscaler.run()
         return 0 if success else 1
     except Exception as e:
-        logger.error(f"Error in data upscale: {e}", exc_info=True)
+        logger.error(_("Error in data upscale: {e}").format(e=e), exc_info=True)
         return 1
 
 
@@ -249,7 +249,7 @@ def handle_data_create_dataset(args):
             import random
 
             random.seed(ds_opts["seed"])
-            logger.info("Using random seed: %s", ds_opts["seed"])
+            logger.info(_("Using random seed: %s"), ds_opts["seed"])
 
         creator = DatasetCreator(
             raw_data_dir=args.raw_data_dir,
@@ -266,7 +266,7 @@ def handle_data_create_dataset(args):
         success = creator.run()
         return 0 if success else 1
     except Exception as e:
-        logger.error(f"Error in data create-dataset: {e}", exc_info=True)
+        logger.error(_("Error in data create-dataset: {e}").format(e=e), exc_info=True)
         return 1
 
 
@@ -314,7 +314,7 @@ def handle_data_fix_jpeg_extension_mismatch(args):
             return 1
         return 0
     except Exception as e:
-        logger.error(f"Error in data fix-jpeg-extension-mismatch: {e}", exc_info=True)
+        logger.error(_("Error in data fix-jpeg-extension-mismatch: {e}").format(e=e), exc_info=True)
         return 1
 
 
@@ -340,7 +340,7 @@ def handle_data_estimate_space(args):
         logger.info(report.message)
         return 0 if report.ok else 2
     except Exception as e:
-        logger.error(f"Error in data estimate-space: {e}", exc_info=True)
+        logger.error(_("Error in data estimate-space: {e}").format(e=e), exc_info=True)
         return 1
 
 
@@ -390,10 +390,15 @@ def handle_train(args):
                         arch=run_args.architecture.value, fw=run_args.framework.value
                     )
                 )
-                logger.info(f"Supported architectures: {supported_archs}")
+                logger.info(
+                    _(
+                        "Supported architectures: {supported_archs}"
+                    ).format(supported_archs=supported_archs))
                 return 1
             logger.info(
-                f"Starting training from JSON ({run_args.framework.value}/{run_args.architecture.value})"
+                _(
+                    "Starting training from JSON ({framework}/{architecture})"
+                ).format(framework=run_args.framework.value, architecture=run_args.architecture.value)
             )
             model_path = trainer.train(run_args)
             logger.info(
@@ -482,11 +487,14 @@ def handle_train(args):
                     arch=arch.value, fw=fw.value
                 )
             )
-            logger.info(f"Supported architectures: {supported_archs}")
+            logger.info(
+                _(
+                    "Supported architectures: {supported_archs}"
+                ).format(supported_archs=supported_archs))
             return 1
 
         # Train model
-        logger.info(f"Starting training with {fw.value}/{arch.value}")
+        logger.info(_("Starting training with {framework}/{architecture}").format(framework=fw.value, architecture=arch.value))
         run_args = TrainingRunArgs(
             framework=fw,
             architecture=arch,
@@ -554,7 +562,15 @@ def handle_convert(args):
                 return 1
         
         # Perform conversion
-        logger.info(f"Converting {args.input} ({source_framework}) -> {args.output} ({args.target})")
+        logger.info(
+            _(
+                "Converting {input} ({source_framework}) -> {output} ({target})"
+            ).format(
+                input=args.input,
+                source_framework=source_framework,
+                output=args.output,
+                target=args.target,
+            ))
         
         success = convert_model(
             input_path=args.input,

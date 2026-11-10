@@ -175,7 +175,7 @@ def train_text_classifier(
         reference_score_column=config.reference_score_column,
         cancel_event=cancel_event,
     )
-    logger.info("Dataset verification:\n%s", report.format())
+    logger.info(_("Dataset verification:\n%s"), report.format())
     if not report.ok:
         raise TextDatasetError(_("Dataset verification failed:\n{report}").format(report=report.format()))
     ds.drop_groups()
@@ -210,7 +210,7 @@ def train_text_classifier(
     )
 
     run_dir = _new_run_dir(config)
-    logger.info("Text-classification run directory: %s", run_dir)
+    logger.info(_("Text-classification run directory: %s"), run_dir)
     with open(run_dir / CONFIG_FILE, "w", encoding="utf-8") as f:
         yaml.safe_dump(config.to_dict(), f, sort_keys=False, allow_unicode=True)
     env = environment_info(config, device)

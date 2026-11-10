@@ -170,7 +170,7 @@ class LoraDatasetCreator:
         try:
             digest = hashlib.sha256(source_path.read_bytes()).hexdigest()
         except OSError as e:
-            logger.warning(f"Could not read {source_path}: {e}")
+            logger.warning(_("Could not read {source_path}: {e}").format(source_path=source_path, e=e))
             return None
         target_path = self.data_dir / f"{digest}.jpg"
 
@@ -182,7 +182,7 @@ class LoraDatasetCreator:
                 shutil.copy2(source_path, target_path)
                 ok = target_path.exists() and target_path.stat().st_size > 0
             except OSError as e:
-                logger.warning(f"Could not copy {source_path}: {e}")
+                logger.warning(_("Could not copy {source_path}: {e}").format(source_path=source_path, e=e))
                 ok = False
             return target_path if ok else None
 
@@ -192,6 +192,6 @@ class LoraDatasetCreator:
             with Image.open(source_path) as img:
                 ok = pil_image_to_jpeg_normalized(img, target_path)
         except OSError as e:
-            logger.warning(f"Could not open {source_path}: {e}")
+            logger.warning(_("Could not open {source_path}: {e}").format(source_path=source_path, e=e))
             ok = False
         return target_path if ok else None

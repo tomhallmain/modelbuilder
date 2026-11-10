@@ -65,6 +65,7 @@ from mb.utils.utils import (
     plain_still_jpeg_basename,
     Utils,
 )
+from mb.utils.translations import _
 
 # Configure logging
 logger = setup_logging(script_name="convert")
@@ -130,7 +131,10 @@ class ImageConverter:
         """Validate the raw data directory."""
         # Wake-aware directory check helps avoid false negatives on sleeping external drives.
         if not Utils.isdir_with_retry(str(self.raw_data_dir)):
-            logger.error(f"Raw data path is not a directory: {self.raw_data_dir}")
+            logger.error(
+                _(
+                    "Raw data path is not a directory: {raw_data_dir}"
+                ).format(raw_data_dir=self.raw_data_dir))
             return False
             
         # Check if raw data directory is writable
@@ -139,7 +143,10 @@ class ImageConverter:
             test_file.touch()
             test_file.unlink()
         except (PermissionError, OSError) as e:
-            logger.error(f"Cannot write to raw data directory {self.raw_data_dir}: {e}")
+            logger.error(
+                _(
+                    "Cannot write to raw data directory {raw_data_dir}: {e}"
+                ).format(raw_data_dir=self.raw_data_dir, e=e))
             return False
             
         return True
@@ -193,10 +200,10 @@ class ImageConverter:
                         image_files.append(file_path)
                         
         except PermissionError as e:
-            logger.error(f"Permission denied accessing {class_dir}: {e}")
+            logger.error(_("Permission denied accessing {class_dir}: {e}").format(class_dir=class_dir, e=e))
             self.stats['errors']['permission'].append(str(class_dir))
         except Exception as e:
-            logger.error(f"Error scanning {class_dir}: {e}")
+            logger.error(_("Error scanning {class_dir}: {e}").format(class_dir=class_dir, e=e))
             self.stats['errors']['scanning'].append((str(class_dir), str(e)))
         
         return image_files
@@ -206,11 +213,11 @@ class ImageConverter:
         """Convert image to JPEG format."""
         try:
             if not source_path.exists():
-                logger.error(f"Source file does not exist: {source_path}")
+                logger.error(_("Source file does not exist: {source_path}").format(source_path=source_path))
                 return False
                 
             if not source_path.is_file():
-                logger.error(f"Source path is not a file: {source_path}")
+                logger.error(_("Source path is not a file: {source_path}").format(source_path=source_path))
                 return False
                 
             with Image.open(source_path) as img:
@@ -236,32 +243,41 @@ class ImageConverter:
                 
                 # Verify the saved file exists and has content
                 if not target_path.exists() or target_path.stat().st_size == 0:
-                    logger.error(f"Failed to save converted image: {target_path}")
+                    logger.error(
+                        _(
+                            "Failed to save converted image: {target_path}"
+                        ).format(target_path=target_path))
                     return False
                     
                 return True
                 
         except UnidentifiedImageError:
-            logger.error(f"Cannot identify image format: {source_path}")
+            logger.error(_("Cannot identify image format: {source_path}").format(source_path=source_path))
             return False
         except OSError as e:
             error_msg = str(e)
             if "decompression bomb" in error_msg.lower() or "exceeds limit" in error_msg.lower():
-                logger.warning(f"Image too large (decompression bomb protection): {source_path}")
-                logger.warning(f"  Error: {error_msg}")
-                logger.warning(f"  Consider increasing Image.MAX_IMAGE_PIXELS or skipping this file")
+                logger.warning(
+                    _(
+                        "Image too large (decompression bomb protection): {source_path}"
+                    ).format(source_path=source_path))
+                logger.warning(_("  Error: {error_msg}").format(error_msg=error_msg))
+                logger.warning(_("  Consider increasing Image.MAX_IMAGE_PIXELS or skipping this file"))
             else:
-                logger.error(f"OS error converting {source_path}: {e}")
+                logger.error(
+                    _(
+                        "OS error converting {source_path}: {e}"
+                    ).format(source_path=source_path, e=e))
             return False
         except Exception as e:
-            logger.error(f"Error converting {source_path}: {e}")
+            logger.error(_("Error converting {source_path}: {e}").format(source_path=source_path, e=e))
             return False
     
     def copy_jpeg_file(self, source_path: Path, target_path: Path) -> bool:
         """Copy and resize a JPEG file to the target directory if needed."""
         try:
             if not source_path.exists():
-                logger.error(f"Source file does not exist: {source_path}")
+                logger.error(_("Source file does not exist: {source_path}").format(source_path=source_path))
                 return False
             
             # Open image to check dimensions and resize if needed
@@ -289,27 +305,36 @@ class ImageConverter:
             
             # Verify the file exists and has content
             if not target_path.exists() or target_path.stat().st_size == 0:
-                logger.error(f"Failed to process file: {target_path}")
+                logger.error(_("Failed to process file: {target_path}").format(target_path=target_path))
                 return False
             
             return True
                 
         except PermissionError as e:
-            logger.error(f"Permission error copying {source_path}: {e}")
+            logger.error(
+                _(
+                    "Permission error copying {source_path}: {e}"
+                ).format(source_path=source_path, e=e))
             self.stats['errors']['permission'].append(str(source_path))
             return False
         except OSError as e:
             error_msg = str(e)
             if "decompression bomb" in error_msg.lower() or "exceeds limit" in error_msg.lower():
-                logger.warning(f"Image too large (decompression bomb protection): {source_path}")
-                logger.warning(f"  Error: {error_msg}")
+                logger.warning(
+                    _(
+                        "Image too large (decompression bomb protection): {source_path}"
+                    ).format(source_path=source_path))
+                logger.warning(_("  Error: {error_msg}").format(error_msg=error_msg))
                 self.stats['errors']['decompression_bomb'].append((str(source_path), str(e)))
             else:
-                logger.error(f"OS error copying {source_path}: {e}")
+                logger.error(_("OS error copying {source_path}: {e}").format(source_path=source_path, e=e))
                 self.stats['errors']['copy'].append((str(source_path), str(e)))
             return False
         except Exception as e:
-            logger.error(f"Unexpected error copying {source_path}: {e}")
+            logger.error(
+                _(
+                    "Unexpected error copying {source_path}: {e}"
+                ).format(source_path=source_path, e=e))
             self.stats['errors']['unexpected'].append((str(source_path), str(e)))
             return False
 
@@ -502,13 +527,19 @@ class ImageConverter:
                 if not ok:
                     self.stats["errors"]["visual_video"].append(str(source_path))
                     logger.error(
-                        f"Could not extract a frame from video (install imageio + imageio-ffmpeg?): {source_path}"
+                        _(
+                            "Could not extract a frame from video (install imageio + "
+                            "imageio-ffmpeg?): {source_path}"
+                        ).format(source_path=source_path)
                     )
             elif source_path.suffix.lower() == ".gif":
                 ok = extract_random_gif_frame_to_jpeg(source_path, target_path, self._rng)
                 if not ok:
                     self.stats["errors"]["visual_gif"].append(str(source_path))
-                    logger.error(f"Could not extract a frame from GIF: {source_path}")
+                    logger.error(
+                        _(
+                            "Could not extract a frame from GIF: {source_path}"
+                        ).format(source_path=source_path))
             else:
                 self.stats["errors"]["visual_unknown"].append(str(source_path))
                 continue
@@ -524,7 +555,10 @@ class ImageConverter:
                 try:
                     shutil.copy2(target_path, review_path)
                 except OSError as e:
-                    logger.warning(f"Could not copy review JPEG {review_path}: {e}")
+                    logger.warning(
+                        _(
+                            "Could not copy review JPEG {review_path}: {e}"
+                        ).format(review_path=review_path, e=e))
                 if self.unified_snapshot:
                     self.unified_snapshot.add_pre_conversion_image(target_path, self.raw_data_dir)
                 logger.debug(f"Visual extract: {source_path.name} -> {target_path.name}")
@@ -534,30 +568,46 @@ class ImageConverter:
     def print_summary(self) -> None:
         """Print a summary of the operation."""
         logger.info("=" * 60)
-        logger.info("CONVERSION SUMMARY")
+        logger.info(_("CONVERSION SUMMARY"))
         logger.info("=" * 60)
-        logger.info(f"Raw data directory: {self.raw_data_dir}")
-        logger.info(f"Total files found: {self.stats['total_files_found']}")
-        logger.info(f"Files converted to JPEG: {self.stats['files_converted']}")
-        logger.info(f"JPEG files copied: {self.stats['files_copied']}")
+        logger.info(_("Raw data directory: {raw_data_dir}").format(raw_data_dir=self.raw_data_dir))
+        logger.info(
+            _(
+                "Total files found: {total_files_found}"
+            ).format(total_files_found=self.stats['total_files_found']))
+        logger.info(
+            _(
+                "Files converted to JPEG: {files_converted}"
+            ).format(files_converted=self.stats['files_converted']))
+        logger.info(_("JPEG files copied: {files_copied}").format(files_copied=self.stats['files_copied']))
         if self.stats["files_visual_extracted"]:
-            logger.info(f"Random frames from video/GIF (JPEG): {self.stats['files_visual_extracted']}")
-        logger.info(f"Files skipped (errors): {self.stats['files_skipped']}")
+            logger.info(
+                _(
+                    "Random frames from video/GIF (JPEG): {files_visual_extracted}"
+                ).format(files_visual_extracted=self.stats['files_visual_extracted']))
+        logger.info(
+            _(
+                "Files skipped (errors): {files_skipped}"
+            ).format(files_skipped=self.stats['files_skipped']))
         
         if self.stats['errors']:
-            logger.info("\nERRORS ENCOUNTERED:")
+            logger.info(_("\nERRORS ENCOUNTERED:"))
             max_detail = 100
             for error_type, errors in self.stats['errors'].items():
-                logger.info(f"  {error_type}: {len(errors)} errors")
+                logger.info(
+                    _(
+                        "  {error_type}: {n_errors} errors"
+                    ).format(error_type=error_type, n_errors=len(errors)))
                 for error in errors[:max_detail]:
                     logger.info(f"    - {error}")
                 if len(errors) > max_detail:
-                    logger.info(f"    ... and {len(errors) - max_detail} more")
+                    logger.info(_("    ... and {n_more} more").format(n_more=len(errors) - max_detail))
         
         if self.stats["files_promoted_to_plain"]:
             logger.info(
-                "Legacy hash-named JPEGs renamed to plain stem.jpg: "
-                f"{self.stats['files_promoted_to_plain']}"
+                _(
+                    "Legacy hash-named JPEGs renamed to plain stem.jpg: {files_promoted_to_plain}"
+                ).format(files_promoted_to_plain=self.stats['files_promoted_to_plain'])
             )
         total_processed = (
             self.stats["files_converted"]
@@ -565,7 +615,7 @@ class ImageConverter:
             + self.stats["files_visual_extracted"]
             + self.stats["files_promoted_to_plain"]
         )
-        logger.info(f"\nTotal files processed: {total_processed}")
+        logger.info(_("\nTotal files processed: {total_processed}").format(total_processed=total_processed))
     
     def run(
         self,
@@ -606,8 +656,8 @@ class ImageConverter:
             )
             if loaded is None:
                 logger.error(
-                    "No unified snapshot found for run_id %r under %s "
-                    "(expected snapshot_%s.json).",
+                    _("No unified snapshot found for run_id %r under %s "
+                    "(expected snapshot_%s.json)."),
                     resume_rid,
                     self.raw_data_dir,
                     resume_rid,
@@ -615,7 +665,7 @@ class ImageConverter:
                 return False
             snapshot_for_check = loaded
             logger.info(
-                "Loaded unified snapshot for run_id %s — will update the same snapshot file",
+                _("Loaded unified snapshot for run_id %s — will update the same snapshot file"),
                 loaded.run_id,
             )
 
@@ -627,8 +677,8 @@ class ImageConverter:
         )
         if not allowed:
             logger.error(
-                "Insufficient disk space for convert (heuristic). "
-                "Free space or use skip_space_check / --skip-space-check if you accept the risk."
+                _("Insufficient disk space for convert (heuristic). "
+                "Free space or use skip_space_check / --skip-space-check if you accept the risk.")
             )
             return False
         self._last_space_report = space_report
@@ -638,7 +688,7 @@ class ImageConverter:
             self.run_id = self.unified_snapshot.run_id
         else:
             self.run_id = generate_run_id()
-            logger.info(f"Creating new unified snapshot with run_id: {self.run_id}")
+            logger.info(_("Creating new unified snapshot with run_id: {run_id}").format(run_id=self.run_id))
             self.unified_snapshot = UnifiedSnapshot(
                 run_id=self.run_id,
                 raw_data_dir=str(self.raw_data_dir),
@@ -661,7 +711,7 @@ class ImageConverter:
             class_qualifying_subdir=qual,
         )
         if not class_names:
-            logger.warning("No class directories found under %s", self.raw_data_dir)
+            logger.warning(_("No class directories found under %s"), self.raw_data_dir)
             return True
 
         # Process each class directory
@@ -671,7 +721,7 @@ class ImageConverter:
             class_dir = self.raw_data_dir / class_name
             
             if not class_dir.exists():
-                logger.warning(f"Class directory does not exist: {class_dir}")
+                logger.warning(_("Class directory does not exist: {class_dir}").format(class_dir=class_dir))
                 continue
             
             logger.info(f"\n{'='*60}")
@@ -683,7 +733,7 @@ class ImageConverter:
             static_paths, extract_paths = self._split_static_and_extract(image_files)
 
             if not image_files:
-                logger.info(f"No image files found in {class_name}")
+                logger.info(_("No image files found in {class_name}").format(class_name=class_name))
                 continue
 
             self.stats["total_files_found"] += len(image_files)
@@ -705,7 +755,7 @@ class ImageConverter:
             all_image_files.extend(image_files)
         
         if not all_image_files:
-            logger.warning("No image files found in any class directory")
+            logger.warning(_("No image files found in any class directory"))
             return True  # Not an error, just nothing to do
         
         # Save unified snapshot at raw_data level (single file for all classes)
@@ -717,9 +767,9 @@ class ImageConverter:
                 flatten_convert_stats_errors(self.stats.get("errors")),
             )
         snapshot_path = save_unified_snapshot(self.unified_snapshot, self.raw_data_dir, logger)
-        logger.info(f"Run ID for this pipeline: {self.run_id}")
+        logger.info(_("Run ID for this pipeline: {run_id}").format(run_id=self.run_id))
         logger.info(
-            "Subsequent jobs should use this run ID to update the same snapshot file"
+            _("Subsequent jobs should use this run ID to update the same snapshot file")
         )
         
         # Print summary

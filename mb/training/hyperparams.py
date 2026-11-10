@@ -8,6 +8,7 @@ from various sources (config, CLI, defaults).
 from typing import Any, Dict, Optional, TYPE_CHECKING
 
 from mb.utils.logging_setup import get_logger
+from mb.utils.translations import _
 
 if TYPE_CHECKING:
     from mb.pipeline_config import PipelineConfig
@@ -112,20 +113,20 @@ class HyperparameterManager:
         missing = [key for key in required if key not in self._hyperparams]
         
         if missing:
-            logger.error(f"Missing required hyperparameters: {missing}")
+            logger.error(_("Missing required hyperparameters: {missing}").format(missing=missing))
             return False
         
         # Validate ranges
         if self._hyperparams.get('frozen_epochs', 0) < 0:
-            logger.error("frozen_epochs must be >= 0")
+            logger.error(_("frozen_epochs must be >= 0"))
             return False
         
         if self._hyperparams.get('unfrozen_epochs', 0) < 0:
-            logger.error("unfrozen_epochs must be >= 0")
+            logger.error(_("unfrozen_epochs must be >= 0"))
             return False
         
         if self._hyperparams.get('frozen_lr', 0) <= 0:
-            logger.error("frozen_lr must be > 0")
+            logger.error(_("frozen_lr must be > 0"))
             return False
         
         return True

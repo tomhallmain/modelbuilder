@@ -16,6 +16,7 @@ from mb.models.types import ResizeMode
 if TYPE_CHECKING:
     from mb.data.label_schema import LabelSchema
 from mb.utils.logging_setup import get_logger
+from mb.utils.translations import _
 
 logger = get_logger(__name__)
 
@@ -81,7 +82,7 @@ class ImageFolderDataset(Dataset):
         self.samples = unique_samples
         
         if len(self.samples) == 0:
-            logger.warning(f"No images found in {root}")
+            logger.warning(_("No images found in {root}").format(root=root))
     
     def __len__(self) -> int:
         """Return the number of samples."""
@@ -111,7 +112,7 @@ class ImageFolderDataset(Dataset):
             
             return image, label
         except Exception as e:
-            logger.error(f"Error loading image {img_path}: {e}")
+            logger.error(_("Error loading image {img_path}: {e}").format(img_path=img_path, e=e))
             # Return a black image as fallback
             if self.transform:
                 # Create a dummy image and transform it
@@ -315,7 +316,9 @@ def create_data_loaders(
     # Verify classes match
     if train_dataset.classes != val_dataset.classes:
         logger.warning(
-            f"Class mismatch: train={train_dataset.classes}, val={val_dataset.classes}"
+            _(
+                "Class mismatch: train={train_classes}, val={val_classes}"
+            ).format(train_classes=train_dataset.classes, val_classes=val_dataset.classes)
         )
     
     # Create data loaders
@@ -337,9 +340,15 @@ def create_data_loaders(
         drop_last=False
     )
     
-    logger.info(f"Created data loaders:")
-    logger.info(f"  Train: {len(train_dataset)} samples, {len(train_loader)} batches")
-    logger.info(f"  Val: {len(val_dataset)} samples, {len(val_loader)} batches")
-    logger.info(f"  Classes: {train_dataset.classes}")
+    logger.info(_("Created data loaders:"))
+    logger.info(
+        _(
+            "  Train: {n_train_dataset} samples, {n_train_loader} batches"
+        ).format(n_train_dataset=len(train_dataset), n_train_loader=len(train_loader)))
+    logger.info(
+        _(
+            "  Val: {n_val_dataset} samples, {n_val_loader} batches"
+        ).format(n_val_dataset=len(val_dataset), n_val_loader=len(val_loader)))
+    logger.info(_("  Classes: {classes}").format(classes=train_dataset.classes))
     
     return train_loader, val_loader

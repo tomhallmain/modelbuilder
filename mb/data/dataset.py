@@ -284,11 +284,11 @@ class DatasetCreator:
         self._class_names = names
         if not names:
             logger.error(
-                "No class directories found under %s (check data.class_names / data.class_qualifying_subdir)",
+                _("No class directories found under %s (check data.class_names / data.class_qualifying_subdir)"),
                 self.raw_data_dir,
             )
             return False
-        logger.info("Class folders for dataset creation: %s", names)
+        logger.info(_("Class folders for dataset creation: %s"), names)
         return True
 
     def validate_image(self, image_path: Path) -> bool:
@@ -317,7 +317,11 @@ class DatasetCreator:
             train_class_dir = self.train_dir / class_name
             
             if not raw_class_dir.exists():
-                logger.warning(f"Raw data directory for class '{class_name}' does not exist: {raw_class_dir}")
+                logger.warning(
+                    _(
+                        "Raw data directory for class '{class_name}' does not exist: "
+                        "{raw_class_dir}"
+                    ).format(class_name=class_name, raw_class_dir=raw_class_dir))
                 continue
                 
             train_class_dir.mkdir(exist_ok=True)
@@ -325,7 +329,7 @@ class DatasetCreator:
             media_dir = resolve_class_media_dir(raw_class_dir, self._class_qualifying_subdir)
             if media_dir is None or not media_dir.exists():
                 logger.warning(
-                    "No image source directory for class '%s' (expected layout under %s); skipping",
+                    _("No image source directory for class '%s' (expected layout under %s); skipping"),
                     class_name,
                     raw_class_dir,
                 )
@@ -350,7 +354,10 @@ class DatasetCreator:
                 
                 # Skip if hash calculation failed
                 if md5_hash is None or sha256_hash is None:
-                    logger.warning(f"Failed to calculate hash for {image_file}, skipping")
+                    logger.warning(
+                        _(
+                            "Failed to calculate hash for {image_file}, skipping"
+                        ).format(image_file=image_file))
                     self._note_dataset_issue(f"hash_failed: {image_file}")
                     continue
                 
@@ -448,7 +455,7 @@ class DatasetCreator:
     def _move_train_image_to_review(self, class_name: str, image_file: Path, reason: str) -> None:
         self._note_dataset_issue(f"review {class_name}/{image_file.name}: {reason}")
         logger.warning(
-            "Image %s in class '%s' is %s, moving to review directory",
+            _("Image %s in class '%s' is %s, moving to review directory"),
             image_file.name,
             class_name,
             reason,
@@ -572,19 +579,26 @@ class DatasetCreator:
         # Determine target count
         if self.max_train_per_class:
             target_count = self.max_train_per_class
-            logger.info(f"Limiting each class to {target_count} images (max_train_per_class)")
+            logger.info(
+                _(
+                    "Limiting each class to {target_count} images (max_train_per_class)"
+                ).format(target_count=target_count))
         elif self.balance_train:
             # Balance to smallest class
             min_count = min(class_counts.values()) if class_counts.values() else 0
             target_count = min_count
-            logger.info(f"Balancing training set to smallest class size: {target_count} images per class")
+            logger.info(
+                _(
+                    "Balancing training set to smallest class size: {target_count} images per "
+                    "class"
+                ).format(target_count=target_count))
         else:
             # Shouldn't reach here, but return early if neither option is set
             return
         
         if target_count == 0:
             self._note_dataset_issue("balance: no images found in any class")
-            logger.warning("Cannot balance: no images found in any class")
+            logger.warning(_("Cannot balance: no images found in any class"))
             return
         
         # Log current distribution
@@ -622,22 +636,36 @@ class DatasetCreator:
                 self._note_dataset_issue(
                     f"balance: class '{class_name}' has {current_count} images, cannot reach target {target_count}"
                 )
-                logger.warning(f"Class '{class_name}' has only {current_count} images, cannot reach target of {target_count}")
+                logger.warning(
+                    _(
+                        "Class '{class_name}' has only {current_count} images, cannot reach "
+                        "target of {target_count}"
+                    ).format(
+                        class_name=class_name,
+                        current_count=current_count,
+                        target_count=target_count,
+                    ))
             else:
                 logger.info(f"Class '{class_name}' already at target count: {current_count}")
         
         # Log summary
         total_removed = sum(removed_count.values())
         if total_removed > 0:
-            logger.info(f"Balancing complete: removed {total_removed} images total")
-            logger.info("Final balanced training set distribution:")
+            logger.info(
+                _(
+                    "Balancing complete: removed {total_removed} images total"
+                ).format(total_removed=total_removed))
+            logger.info(_("Final balanced training set distribution:"))
             for class_name in self._class_names:
                 train_class_dir = self.train_dir / class_name
                 if train_class_dir.exists():
                     final_count = len(list(train_class_dir.glob("*.jpg")))
-                    logger.info(f"  {class_name}: {final_count} images")
+                    logger.info(
+                        _(
+                            "  {class_name}: {final_count} images"
+                        ).format(class_name=class_name, final_count=final_count))
         else:
-            logger.info("No balancing needed - all classes already balanced")
+            logger.info(_("No balancing needed - all classes already balanced"))
 
     def _resolved_test_split_mode(self) -> DatasetSplitMode:
         if self._test_split_mode_override is not None:
@@ -750,8 +778,8 @@ class DatasetCreator:
             n_nonzero = sum(1 for v in counts.values() if v > 0)
             mean_class_size = n_total / max(1, n_nonzero)
             logger.info(
-                "Creating test dataset (dataset_weighted: anchor=%s, small_class_threshold=%s, "
-                "n_total=%s, mean_class_size=%s)...",
+                _("Creating test dataset (dataset_weighted: anchor=%s, small_class_threshold=%s, "
+                "n_total=%s, mean_class_size=%s)..."),
                 anchor,
                 thr,
                 n_total,
@@ -759,14 +787,14 @@ class DatasetCreator:
             )
             if n_total < 1:
                 self._note_dataset_issue("test_split: no images in train for dataset_weighted mode")
-                logger.warning("dataset_weighted: no training images found; skipping test split")
+                logger.warning(_("dataset_weighted: no training images found; skipping test split"))
                 return
 
             for class_name in self._class_names:
                 train_class_dir = self.train_dir / class_name
                 test_class_dir = self.test_dir / class_name
                 if not train_class_dir.exists():
-                    logger.warning("Train directory for class '%s' does not exist", class_name)
+                    logger.warning(_("Train directory for class '%s' does not exist"), class_name)
                     continue
                 test_class_dir.mkdir(exist_ok=True)
                 train_images = list(train_class_dir.glob("*.jpg"))
@@ -793,7 +821,7 @@ class DatasetCreator:
                         f"test_split: class '{class_name}' has {len(train_images)} images, fewer than target {target}"
                     )
                     logger.warning(
-                        "Not enough images in class '%s': %s available, %s needed",
+                        _("Not enough images in class '%s': %s available, %s needed"),
                         class_name,
                         len(train_images),
                         target,
@@ -811,20 +839,23 @@ class DatasetCreator:
                         self.unified_snapshot.update_dataset_split(old_final_path, "test")
 
                 logger.info(
-                    "Moved %s images to test set for class '%s'",
+                    _("Moved %s images to test set for class '%s'"),
                     len(selected_images),
                     class_name,
                 )
             return
 
-        logger.info("Creating test dataset (fixed: %s items per class)...", anchor)
+        logger.info(_("Creating test dataset (fixed: %s items per class)..."), anchor)
 
         for class_name in self._class_names:
             train_class_dir = self.train_dir / class_name
             test_class_dir = self.test_dir / class_name
 
             if not train_class_dir.exists():
-                logger.warning(f"Train directory for class '{class_name}' does not exist")
+                logger.warning(
+                    _(
+                        "Train directory for class '{class_name}' does not exist"
+                    ).format(class_name=class_name))
                 continue
 
             test_class_dir.mkdir(exist_ok=True)
@@ -837,7 +868,10 @@ class DatasetCreator:
                     f"test_split: class '{class_name}' has {len(train_images)} images, fewer than test_per_class={anchor}"
                 )
                 logger.warning(
-                    f"Not enough images in class '{class_name}': {len(train_images)} available, {anchor} needed"
+                    _(
+                        "Not enough images in class '{class_name}': {n_train_images} available, "
+                        "{anchor} needed"
+                    ).format(class_name=class_name, n_train_images=len(train_images), anchor=anchor)
                 )
                 # Use all available images for test
                 selected_images = train_images
@@ -856,7 +890,10 @@ class DatasetCreator:
                 if self.unified_snapshot:
                     self.unified_snapshot.update_dataset_split(old_final_path, "test")
 
-            logger.info(f"Moved {len(selected_images)} images to test set for class '{class_name}'")
+            logger.info(
+                _(
+                    "Moved {n_selected_images} images to test set for class '{class_name}'"
+                ).format(n_selected_images=len(selected_images), class_name=class_name))
 
     def save_dataset_snapshot(self) -> None:
         """Save unified snapshot to JSON file."""
@@ -876,7 +913,10 @@ class DatasetCreator:
             # Save unified snapshot
             snapshot_path = save_unified_snapshot(self.unified_snapshot, self.data_dir, logger)
             if snapshot_path:
-                logger.info(f"Unified snapshot updated with dataset creation data (run_id: {self.unified_snapshot.run_id})")
+                logger.info(
+                    _(
+                        "Unified snapshot updated with dataset creation data (run_id: {run_id})"
+                    ).format(run_id=self.unified_snapshot.run_id))
     
     def count_final_files(self) -> None:
         """Count final number of files in train and test directories."""
@@ -901,52 +941,64 @@ class DatasetCreator:
     def print_summary(self) -> None:
         """Print a comprehensive summary of the operation."""
         logger.info("=" * 80)
-        logger.info("DATASET CREATION SUMMARY")
+        logger.info(_("DATASET CREATION SUMMARY"))
         logger.info("=" * 80)
         
-        logger.info("\nRAW DATA STATISTICS:")
+        logger.info(_("\nRAW DATA STATISTICS:"))
         for class_name in self._class_names:
             count = self.stats['raw_files_found'][class_name]
-            logger.info(f"  {class_name}: {count} files found")
+            logger.info(_("  {class_name}: {count} files found").format(class_name=class_name, count=count))
         
-        logger.info("\nPROCESSING STATISTICS:")
+        logger.info(_("\nPROCESSING STATISTICS:"))
         for class_name in self._class_names:
             copied = self.stats['files_copied'][class_name]
             corrupted = self.stats['files_removed_corrupted'][class_name]
             invalid_size = self.stats['files_moved_size'][class_name]
             invalid_dims = self.stats['files_moved_dimensions'][class_name]
             logger.info(
-                f"  {class_name}: {copied} copied, {corrupted} corrupted removed, "
-                f"{invalid_size} invalid file size + {invalid_dims} invalid dimensions moved to review"
+                _(
+                    "  {class_name}: {copied} copied, {corrupted} corrupted removed, "
+                    "{invalid_size} invalid file size + {invalid_dims} invalid dimensions moved "
+                    "to review"
+                ).format(
+                    class_name=class_name,
+                    copied=copied,
+                    corrupted=corrupted,
+                    invalid_size=invalid_size,
+                    invalid_dims=invalid_dims,
+                )
             )
         
-        logger.info("\nTEST SET CREATION:")
+        logger.info(_("\nTEST SET CREATION:"))
         for class_name in self._class_names:
             moved = self.stats['test_files_moved'][class_name]
-            logger.info(f"  {class_name}: {moved} files moved to test set")
+            logger.info(
+                _(
+                    "  {class_name}: {moved} files moved to test set"
+                ).format(class_name=class_name, moved=moved))
         
-        logger.info("\nFINAL DATASET COUNTS:")
-        logger.info("Training set:")
+        logger.info(_("\nFINAL DATASET COUNTS:"))
+        logger.info(_("Training set:"))
         for class_name in self._class_names:
             count = self.stats['final_train_counts'][class_name]
-            logger.info(f"  {class_name}: {count} files")
+            logger.info(_("  {class_name}: {count} files").format(class_name=class_name, count=count))
         
-        logger.info("Test set:")
+        logger.info(_("Test set:"))
         for class_name in self._class_names:
             count = self.stats['final_test_counts'][class_name]
-            logger.info(f"  {class_name}: {count} files")
+            logger.info(_("  {class_name}: {count} files").format(class_name=class_name, count=count))
         
         # Calculate totals
         total_train = sum(self.stats['final_train_counts'].values())
         total_test = sum(self.stats['final_test_counts'].values())
-        logger.info(f"\nTOTALS:")
-        logger.info(f"  Training set: {total_train} files")
-        logger.info(f"  Test set: {total_test} files")
-        logger.info(f"  Combined: {total_train + total_test} files")
+        logger.info(_("\nTOTALS:"))
+        logger.info(_("  Training set: {total_train} files").format(total_train=total_train))
+        logger.info(_("  Test set: {total_test} files").format(total_test=total_test))
+        logger.info(_("  Combined: {total} files").format(total=total_train + total_test))
         
-        logger.info(f"\nDirectories created:")
-        logger.info(f"  Training: {self.train_dir}")
-        logger.info(f"  Test: {self.test_dir}")
+        logger.info(_("\nDirectories created:"))
+        logger.info(_("  Training: {train_dir}").format(train_dir=self.train_dir))
+        logger.info(_("  Test: {test_dir}").format(test_dir=self.test_dir))
     
     def run(
         self,
@@ -965,10 +1017,10 @@ class DatasetCreator:
 
     def _run_impl(self) -> bool:
         log_startup_info(logger, "Dataset creation process")
-        logger.info(f"Raw data directory: {self.raw_data_dir}")
-        logger.info(f"Output data directory: {self.data_dir}")
+        logger.info(_("Raw data directory: {raw_data_dir}").format(raw_data_dir=self.raw_data_dir))
+        logger.info(_("Output data directory: {data_dir}").format(data_dir=self.data_dir))
         logger.info(
-            "Test split: mode=%s, anchor (test_per_class)=%s",
+            _("Test split: mode=%s, anchor (test_per_class)=%s"),
             self._resolved_test_split_mode(),
             self.test_per_class,
         )
@@ -977,7 +1029,10 @@ class DatasetCreator:
         
         # Validate raw data directory
         if not self.raw_data_dir.exists():
-            logger.error(f"Raw data directory does not exist: {self.raw_data_dir}")
+            logger.error(
+                _(
+                    "Raw data directory does not exist: {raw_data_dir}"
+                ).format(raw_data_dir=self.raw_data_dir))
             return False
 
         if not self._resolve_class_names():
@@ -991,19 +1046,22 @@ class DatasetCreator:
         
         self.unified_snapshot = find_unified_snapshot(search_paths, run_id=self.run_id, logger=logger)
         if self.unified_snapshot:
-            logger.info(f"Loaded unified snapshot with run_id: {self.unified_snapshot.run_id}")
+            logger.info(
+                _(
+                    "Loaded unified snapshot with run_id: {run_id}"
+                ).format(run_id=self.unified_snapshot.run_id))
             logger.info(f"Total images in snapshot: {len(self.unified_snapshot.images)}")
             if not self.unified_snapshot.data_directory:
                 self.unified_snapshot.data_directory = str(self.data_dir)
         else:
-            logger.error("No unified snapshot found! Run ``mb data convert`` (or equivalent) first to create a snapshot.")
-            logger.error("Or provide a valid --run-id if the snapshot exists elsewhere.")
+            logger.error(_("No unified snapshot found! Run ``mb data convert`` (or equivalent) first to create a snapshot."))
+            logger.error(_("Or provide a valid --run-id if the snapshot exists elsewhere."))
             return False
 
         self._create_dataset_step_started_at = datetime.now(timezone.utc).isoformat()
         self._dataset_pipeline_issues = []
 
-        allowed, _ = check_create_dataset_allowed(
+        allowed, _unused = check_create_dataset_allowed(
             self.raw_data_dir,
             self.data_dir,
             snapshot=self.unified_snapshot,
@@ -1011,8 +1069,8 @@ class DatasetCreator:
         )
         if not allowed:
             logger.error(
-                "Insufficient disk space on the output data directory (heuristic). "
-                "Free space or pass skip_space_check / --skip-space-check if you accept the risk."
+                _("Insufficient disk space on the output data directory (heuristic). "
+                "Free space or pass skip_space_check / --skip-space-check if you accept the risk.")
             )
             return False
         

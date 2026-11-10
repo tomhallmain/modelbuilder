@@ -8,6 +8,7 @@ from typing import Union
 
 from mb.models.types import ArchitectureType
 from mb.utils.logging_setup import get_logger
+from mb.utils.translations import _
 
 logger = get_logger(__name__)
 
@@ -21,7 +22,7 @@ try:
     TF_AVAILABLE = True
 except ImportError:
     TF_AVAILABLE = False
-    logger.warning("TensorFlow not available. Keras architectures will not work.")
+    logger.warning(_("TensorFlow not available. Keras architectures will not work."))
 
 
 def create_resnet(

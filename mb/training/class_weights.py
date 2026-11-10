@@ -26,6 +26,7 @@ from typing import Any, Dict, List, Optional, Sequence
 
 from mb.models.types import ClassWeightingMode
 from mb.utils.logging_setup import get_logger
+from mb.utils.translations import _
 
 logger = get_logger(__name__)
 
@@ -131,14 +132,14 @@ def resolve_class_weights(
 
     counts = class_counts_from_loader(loader)
     if not counts:
-        logger.warning("Class weighting requested but per-class counts are unavailable; using unweighted loss")
+        logger.warning(_("Class weighting requested but per-class counts are unavailable; using unweighted loss"))
         return None
 
     weights = compute_class_weights(counts, max_weight=max_weight)
     names = list(class_names) if class_names else [str(i) for i in range(len(weights))]
-    logger.info("Class weighting (%s, max=%.1f):", mode.value, max_weight)
+    logger.info(_("Class weighting (%s, max=%.1f):"), mode.value, max_weight)
     for name, count, weight in zip(names, counts, weights):
-        logger.info("  %s: n=%d weight=%.4f", name, count, weight)
+        logger.info(_("  %s: n=%d weight=%.4f"), name, count, weight)
     return weights
 
 

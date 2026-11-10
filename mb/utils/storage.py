@@ -6,6 +6,7 @@ import os
 import sys
 from pathlib import Path
 import logging
+from mb.utils.translations import _
 
 
 def is_external_storage(path: Path) -> bool:
@@ -56,15 +57,22 @@ def check_target_external_storage(logger: logging.Logger, path: Path, override: 
     Returns True if external storage is detected and not overridden (process should fail).
     """
     if is_external_storage(path):
-        logger.error(f"The directory {path} appears to be on external/removable storage. For best performance, move your data to an internal SSD.")
+        logger.error(
+            _(
+                "The directory {path} appears to be on external/removable storage. For best "
+                "performance, move your data to an internal SSD."
+            ).format(path=path))
         if not override:
-            logger.error("Process will fail. Use --allow-external-storage to override this check if you must use external storage.")
+            logger.error(_("Process will fail. Use --allow-external-storage to override this check if you must use external storage."))
             return True  # Indicate process should fail
         else:
-            logger.warning("External storage detected but override flag used. Performance may be significantly degraded.")
+            logger.warning(_("External storage detected but override flag used. Performance may be significantly degraded."))
     else:
-        logger.info(f"Data directory {path} appears to be on internal storage. [Recommended]")
-    logger.info("Tip: Training on an internal SSD is strongly recommended for deep learning workflows with large datasets.")
+        logger.info(
+            _(
+                "Data directory {path} appears to be on internal storage. [Recommended]"
+            ).format(path=path))
+    logger.info(_("Tip: Training on an internal SSD is strongly recommended for deep learning workflows with large datasets."))
     return False  # Process can continue
 
 
@@ -84,12 +92,18 @@ def log_drive_optimization_advice(logger: logging.Logger, source_path: Path, tar
     Note: Copy operations preserve source files, which is desired for dataset creation.
     """
     if check_same_drive(source_path, target_path):
-        logger.info(f"Source ({source_path}) and target ({target_path}) are on the same drive.")
-        logger.info("Copy operations will be faster on the same drive.")
+        logger.info(
+            _(
+                "Source ({source_path}) and target ({target_path}) are on the same drive."
+            ).format(source_path=source_path, target_path=target_path))
+        logger.info(_("Copy operations will be faster on the same drive."))
     else:
-        logger.info(f"Source ({source_path}) and target ({target_path}) are on different drives.")
+        logger.info(
+            _(
+                "Source ({source_path}) and target ({target_path}) are on different drives."
+            ).format(source_path=source_path, target_path=target_path))
         if not override:
-            logger.info("Copy operations across drives may be slower than same-drive operations.")
-            logger.info("Consider using the same drive for both source and target for better performance.")
+            logger.info(_("Copy operations across drives may be slower than same-drive operations."))
+            logger.info(_("Consider using the same drive for both source and target for better performance."))
         else:
-            logger.info("Different drives detected but override flag used. Using copy operations.")
+            logger.info(_("Different drives detected but override flag used. Using copy operations."))

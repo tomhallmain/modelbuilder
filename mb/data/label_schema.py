@@ -318,11 +318,11 @@ def load_label_manifest(
                 )
             else:
                 logger.warning(
-                    "Dropping unknown label %r for %s (line %d)", text_name, rel, lineno
+                    _("Dropping unknown label %r for %s (line %d)"), text_name, rel, lineno
                 )
         out[rel] = names
 
-    logger.info("Loaded %d manifest entries from %s", len(out), path)
+    logger.info(_("Loaded %d manifest entries from %s"), len(out), path)
     return out
 
 
@@ -351,8 +351,8 @@ def report_unresolved_manifest_entries(
     unresolved = sorted(key for key in manifest if not (root / key).exists())
     if unresolved:
         logger.warning(
-            "%d manifest entr%s name files that do not exist under %s; their labels are "
-            "not applied. First few: %s",
+            _("%d manifest entr%s name files that do not exist under %s; their labels are "
+            "not applied. First few: %s"),
             len(unresolved),
             "y" if len(unresolved) == 1 else "ies",
             root,
@@ -410,5 +410,5 @@ def write_label_schema(path: Path, schema: LabelSchema) -> Path:
         path = label_schema_path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(schema.to_jsonable(), indent=2), encoding="utf-8")
-    logger.info("Wrote label schema: %s", path)
+    logger.info(_("Wrote label schema: %s"), path)
     return path

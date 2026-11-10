@@ -88,7 +88,7 @@ def append_recent_run(
         try:
             app_info_cache.store()
         except Exception as e:
-            logger.warning("recent_run_history persist failed: %s", e)
+            logger.warning(_("recent_run_history persist failed: %s"), e)
 
     threading.Thread(
         target=_persist, daemon=True, name="recent_run_history_store"

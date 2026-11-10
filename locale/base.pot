@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: APPLICATION 1.0\n"
 "Report-Msgid-Bugs-To: Translator Name <translator@example.com>\n"
-"POT-Creation-Date: 2026-10-08 16:34-0400\n"
-"PO-Revision-Date: 2026-10-08 16:34-0400\n"
+"POT-Creation-Date: 2026-11-09 19:12-0500\n"
+"PO-Revision-Date: 2026-11-09 19:12-0500\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -156,6 +156,62 @@ msgstr ""
 msgid "  total: {n}"
 msgstr ""
 
+#: mb/pipeline_config.py:116
+msgid "Pipeline config file not found: %s, using defaults"
+msgstr ""
+
+#: mb/pipeline_config.py:140
+msgid "Invalid data.test_per_class %r; using default %s"
+msgstr ""
+
+#: mb/pipeline_config.py:158
+msgid "Invalid data.test_small_class_threshold %r; using null"
+msgstr ""
+
+#: mb/pipeline_config.py:169
+msgid "Invalid data.seed %r; using null"
+msgstr ""
+
+#: mb/pipeline_config.py:177
+msgid "Invalid data.image_size %r; using default %s"
+msgstr ""
+
+#: mb/pipeline_config.py:188
+msgid "Invalid data.batch_size %r; using null"
+msgstr ""
+
+#: mb/pipeline_config.py:268
+msgid "Loaded pipeline configuration from %s"
+msgstr ""
+
+#: mb/pipeline_config.py:270
+msgid "Failed to load pipeline config from %s"
+msgstr ""
+
+#: mb/pipeline_config.py:609
+msgid "Could not read existing pipeline file %s"
+msgstr ""
+
+#: mb/pipeline_config.py:621
+msgid "Saved pipeline configuration to %s"
+msgstr ""
+
+#: mb/space_estimate.py:83
+msgid "Error checking disk free space for: {path}: {e}"
+msgstr ""
+
+#: mb/space_estimate.py:315
+msgid "Could not write space estimate cache %s: %s"
+msgstr ""
+
+#: mb/space_estimate.py:372
+msgid "Using cached convert estimate for fingerprint: {fp}"
+msgstr ""
+
+#: mb/space_estimate.py:388
+msgid "Convert space estimate: {msg}"
+msgstr ""
+
 #: mb/cli/__init__.py:58
 msgid "Model Builder - A unified CLI for building ML models"
 msgstr ""
@@ -188,6 +244,26 @@ msgstr ""
 msgid "Subdirectories in weights not found in --subdirs: {weights}"
 msgstr ""
 
+#: mb/cli/__init__.py:148
+msgid "Configuration error: {e}"
+msgstr ""
+
+#: mb/cli/__init__.py:151
+msgid "Error in data gather: {e}"
+msgstr ""
+
+#: mb/cli/__init__.py:169
+msgid "Error in data convert: {e}"
+msgstr ""
+
+#: mb/cli/__init__.py:185
+msgid "Error in data deduplicate: {e}"
+msgstr ""
+
+#: mb/cli/__init__.py:202
+msgid "Error in data upscale: {e}"
+msgstr ""
+
 #: mb/cli/__init__.py:220
 msgid "Image generation dataset creation is not implemented yet."
 msgstr ""
@@ -202,6 +278,14 @@ msgstr ""
 msgid "Process terminated due to external storage detection."
 msgstr ""
 
+#: mb/cli/__init__.py:252
+msgid "Using random seed: %s"
+msgstr ""
+
+#: mb/cli/__init__.py:269
+msgid "Error in data create-dataset: {e}"
+msgstr ""
+
 #: mb/cli/__init__.py:288
 msgid "--pillow and --quiet require --dry-run"
 msgstr ""
@@ -210,11 +294,19 @@ msgstr ""
 msgid "--pillow requires --json"
 msgstr ""
 
+#: mb/cli/__init__.py:317
+msgid "Error in data fix-jpeg-extension-mismatch: {e}"
+msgstr ""
+
 #: mb/cli/__init__.py:334
 msgid "--data-dir is required when operation is create-dataset"
 msgstr ""
 
-#: mb/cli/__init__.py:366 mb/cli/__init__.py:413
+#: mb/cli/__init__.py:343
+msgid "Error in data estimate-space: {e}"
+msgstr ""
+
+#: mb/cli/__init__.py:366 mb/cli/__init__.py:418
 msgid "Image generation training is not implemented yet."
 msgstr ""
 
@@ -226,195 +318,211 @@ msgstr ""
 msgid "Unsupported model type from config: {t}"
 msgstr ""
 
-#: mb/cli/__init__.py:377 mb/cli/__init__.py:438 mb/training/lora_diffusion_trainer.py:587
+#: mb/cli/__init__.py:377 mb/cli/__init__.py:443 mb/training/lora_diffusion_trainer.py:597
 msgid "Data directory does not exist: {path}"
 msgstr ""
 
-#: mb/cli/__init__.py:389 mb/cli/__init__.py:481
+#: mb/cli/__init__.py:389 mb/cli/__init__.py:486
 msgid "Architecture '{arch}' not supported for framework '{fw}'"
 msgstr ""
 
-#: mb/cli/__init__.py:400 mb/cli/__init__.py:508
+#: mb/cli/__init__.py:395 mb/cli/__init__.py:492
+msgid "Supported architectures: {supported_archs}"
+msgstr ""
+
+#: mb/cli/__init__.py:400
+msgid "Starting training from JSON ({framework}/{architecture})"
+msgstr ""
+
+#: mb/cli/__init__.py:405 mb/cli/__init__.py:516
 msgid "Training completed successfully. Model saved to: {path}"
 msgstr ""
 
-#: mb/cli/__init__.py:408 ui/controllers/train_page_controller.py:121
+#: mb/cli/__init__.py:413 ui/controllers/train_page_controller.py:121
 msgid "Unsupported framework: {fw}"
 msgstr ""
 
-#: mb/cli/__init__.py:424
+#: mb/cli/__init__.py:429
 msgid "Unsupported model type: {t}"
 msgstr ""
 
-#: mb/cli/__init__.py:432
+#: mb/cli/__init__.py:437
 msgid "Unsupported architecture: {arch}"
 msgstr ""
 
-#: mb/cli/__init__.py:513
+#: mb/cli/__init__.py:497
+msgid "Starting training with {framework}/{architecture}"
+msgstr ""
+
+#: mb/cli/__init__.py:521
 msgid "Training failed: {err}"
 msgstr ""
 
-#: mb/cli/__init__.py:524 mb/cli/__init__.py:637
+#: mb/cli/__init__.py:532 mb/cli/__init__.py:653
 msgid "Input model file not found: {path}"
 msgstr ""
 
-#: mb/cli/__init__.py:532
+#: mb/cli/__init__.py:540
 msgid ""
 "{path} looks like a LoRA adapter (from `mb train --model-type image_generation_lora`), not a full model checkpoint — "
 "`mb convert` doesn't apply to it. It's already a portable safetensors artifact, usable directly (e.g. a diffusers "
 "pipeline's load_lora_weights())."
 msgstr ""
 
-#: mb/cli/__init__.py:546
+#: mb/cli/__init__.py:554
 msgid "Could not detect source framework. Please specify --framework"
 msgstr ""
 
-#: mb/cli/__init__.py:552
+#: mb/cli/__init__.py:560
 msgid "PyTorch -> ONNX conversion requires --architecture and --num-classes"
 msgstr ""
 
-#: mb/cli/__init__.py:572
+#: mb/cli/__init__.py:567
+msgid "Converting {input} ({source_framework}) -> {output} ({target})"
+msgstr ""
+
+#: mb/cli/__init__.py:588
 msgid "Conversion completed successfully: {path}"
 msgstr ""
 
-#: mb/cli/__init__.py:578
+#: mb/cli/__init__.py:594
 msgid "--quantize applies to --target onnx only; skipping quantization."
 msgstr ""
 
-#: mb/cli/__init__.py:586
+#: mb/cli/__init__.py:602
 msgid "Only {n} of {total} quantized variants were written."
 msgstr ""
 
-#: mb/cli/__init__.py:592
+#: mb/cli/__init__.py:608
 msgid "Wrote quantized variant: {path}"
 msgstr ""
 
-#: mb/cli/__init__.py:595 ui/pages/convert_page.py:344
+#: mb/cli/__init__.py:611 ui/pages/convert_page.py:344
 msgid "Conversion failed"
 msgstr ""
 
-#: mb/cli/__init__.py:599
+#: mb/cli/__init__.py:615
 msgid "Conversion error: {err}"
 msgstr ""
 
-#: mb/cli/__init__.py:608 ui/pages/info_page.py:184
+#: mb/cli/__init__.py:624 ui/pages/info_page.py:184
 msgid "Model path not found: {path}"
 msgstr ""
 
-#: mb/cli/__init__.py:622 mb/cli/__init__.py:720 mb/evaluate/compare.py:157 mb/evaluate/compare.py:193
+#: mb/cli/__init__.py:638 mb/cli/__init__.py:736 mb/evaluate/compare.py:157 mb/evaluate/compare.py:193
 #: mb/evaluate/metrics.py:162 mb/evaluate/metrics.py:182 mb/evaluate/misclassified.py:84 mb/evaluate/misclassified.py:104
 #: ui/pages/info_page.py:198 ui/pages/text_page.py:320
 msgid "Data directory not found: {path}"
 msgstr ""
 
-#: mb/cli/__init__.py:645
+#: mb/cli/__init__.py:661
 msgid ""
 "{path} looks like a LoRA adapter (from `mb train --model-type image_generation_lora`), not a full model checkpoint — "
 "`mb export bundle` doesn't apply to it. It's already a portable safetensors artifact, usable directly (e.g. a "
 "diffusers pipeline's load_lora_weights())."
 msgstr ""
 
-#: mb/cli/__init__.py:670
+#: mb/cli/__init__.py:686
 msgid "Bundle export completed: {path}"
 msgstr ""
 
-#: mb/cli/__init__.py:671 ui/pages/export_page.py:338
+#: mb/cli/__init__.py:687 ui/pages/export_page.py:338
 msgid "Weights: {path}"
 msgstr ""
 
-#: mb/cli/__init__.py:672 ui/pages/export_page.py:339
+#: mb/cli/__init__.py:688 ui/pages/export_page.py:339
 msgid "Manifest: {path}"
 msgstr ""
 
-#: mb/cli/__init__.py:674 ui/pages/export_page.py:342
+#: mb/cli/__init__.py:690 ui/pages/export_page.py:342
 msgid "Architecture stub: {path}"
 msgstr ""
 
-#: mb/cli/__init__.py:677
+#: mb/cli/__init__.py:693
 msgid "Export failed: {err}"
 msgstr ""
 
-#: mb/cli/__init__.py:741 ui/pages/text_page.py:361
+#: mb/cli/__init__.py:757 ui/pages/text_page.py:361
 msgid "Test gold AP: {g} — full AP: {f} — decision threshold: {t:.4f}"
 msgstr ""
 
-#: mb/cli/__init__.py:747 ui/pages/text_page.py:364
+#: mb/cli/__init__.py:763 ui/pages/text_page.py:364
 msgid "Wrote {path}"
 msgstr ""
 
-#: mb/cli/__init__.py:756
+#: mb/cli/__init__.py:772
 msgid "Input file not found: {path}"
 msgstr ""
 
-#: mb/cli/__init__.py:764 ui/pages/text_page.py:383
+#: mb/cli/__init__.py:780 ui/pages/text_page.py:383
 msgid "Scored {n} lines -> {path}"
 msgstr ""
 
-#: mb/cli/__init__.py:781
+#: mb/cli/__init__.py:797
 msgid "Skipped (no metrics.json): {path}"
 msgstr ""
 
-#: mb/cli/__init__.py:783 tests/ui/test_text_page.py:44 ui/pages/text_page.py:422
+#: mb/cli/__init__.py:799 tests/ui/test_text_page.py:44 ui/pages/text_page.py:422
 msgid "No run directories with metrics.json were found."
 msgstr ""
 
-#: mb/cli/__init__.py:826
+#: mb/cli/__init__.py:842
 msgid "Config file not found: {path} (relative paths resolve from {cwd})"
 msgstr ""
 
-#: mb/cli/__init__.py:841
+#: mb/cli/__init__.py:857
 msgid "No data subcommand specified"
 msgstr ""
 
-#: mb/cli/__init__.py:846
+#: mb/cli/__init__.py:862
 msgid "Unknown data subcommand: {cmd}"
 msgstr ""
 
-#: mb/cli/__init__.py:868
+#: mb/cli/__init__.py:884
 msgid "No info subcommand specified"
 msgstr ""
 
-#: mb/cli/__init__.py:872
+#: mb/cli/__init__.py:888
 msgid "Unknown info subcommand: {cmd}"
 msgstr ""
 
-#: mb/cli/__init__.py:881
+#: mb/cli/__init__.py:897
 msgid "No export subcommand specified"
 msgstr ""
 
-#: mb/cli/__init__.py:885
+#: mb/cli/__init__.py:901
 msgid "Unknown export subcommand: {cmd}"
 msgstr ""
 
-#: mb/cli/__init__.py:889
+#: mb/cli/__init__.py:905
 msgid "Unhandled export subcommand: {cmd}"
 msgstr ""
 
-#: mb/cli/__init__.py:895
+#: mb/cli/__init__.py:911
 msgid "No evaluate subcommand specified"
 msgstr ""
 
-#: mb/cli/__init__.py:899
+#: mb/cli/__init__.py:915
 msgid "Unknown evaluate subcommand: {cmd}"
 msgstr ""
 
-#: mb/cli/__init__.py:906
+#: mb/cli/__init__.py:922
 msgid "No text subcommand specified"
 msgstr ""
 
-#: mb/cli/__init__.py:910
+#: mb/cli/__init__.py:926
 msgid "Unknown text subcommand: {cmd}"
 msgstr ""
 
-#: mb/cli/__init__.py:915 ui/pages/data_page.py:1270 ui/pages/data_page.py:1500
+#: mb/cli/__init__.py:931 ui/pages/data_page.py:1270 ui/pages/data_page.py:1500
 msgid "Unknown command: {cmd}"
 msgstr ""
 
-#: mb/cli/__init__.py:919
+#: mb/cli/__init__.py:935
 msgid "Interrupted by user"
 msgstr ""
 
-#: mb/cli/__init__.py:922
+#: mb/cli/__init__.py:938
 msgid "Error: {err}"
 msgstr ""
 
@@ -1226,6 +1334,122 @@ msgstr ""
 msgid "Load TrainingRunArgs from JSON (see mb.training.run_args); other train flags are ignored"
 msgstr ""
 
+#: mb/conversion/converters.py:42
+msgid "onnx package not available; cannot inline external ONNX data"
+msgstr ""
+
+#: mb/conversion/converters.py:53
+msgid "Could not reload ONNX to inline external data: %s"
+msgstr ""
+
+#: mb/conversion/converters.py:68
+msgid "Could not load external ONNX data: %s"
+msgstr ""
+
+#: mb/conversion/converters.py:74
+msgid "ONNX weights (%s bytes) exceed the single-file protobuf limit; keeping external data files"
+msgstr ""
+
+#: mb/conversion/converters.py:83
+msgid "Failed to save self-contained ONNX: %s"
+msgstr ""
+
+#: mb/conversion/converters.py:110
+msgid "Could not remove external ONNX data file %s: %s"
+msgstr ""
+
+#: mb/conversion/converters.py:132
+msgid "onnx package not available; cannot write ONNX metadata"
+msgstr ""
+
+#: mb/conversion/converters.py:139
+msgid "Could not reload ONNX to write metadata: %s"
+msgstr ""
+
+#: mb/conversion/converters.py:154
+msgid "Could not save ONNX metadata: %s"
+msgstr ""
+
+#: mb/conversion/converters.py:291
+msgid "Successfully converted PyTorch model to ONNX: {output_path}"
+msgstr ""
+
+#: mb/conversion/converters.py:296
+msgid "PyTorch not available for ONNX conversion: {e}"
+msgstr ""
+
+#: mb/conversion/converters.py:299
+msgid "Failed to convert PyTorch model to ONNX: {e}"
+msgstr ""
+
+#: mb/conversion/converters.py:326
+msgid "safetensors library not available. Install with: pip install safetensors"
+msgstr ""
+
+#: mb/conversion/converters.py:343
+msgid "Successfully converted PyTorch model to SafeTensors: {output_path}"
+msgstr ""
+
+#: mb/conversion/converters.py:348 mb/conversion/converters.py:419
+msgid "Required library not available: {e}"
+msgstr ""
+
+#: mb/conversion/converters.py:351
+msgid "Failed to convert PyTorch model to SafeTensors: {e}"
+msgstr ""
+
+#: mb/conversion/converters.py:379
+msgid "tf2onnx library not available. Install with: pip install tf2onnx"
+msgstr ""
+
+#: mb/conversion/converters.py:396
+msgid "Unsupported input shape: {input_shape}"
+msgstr ""
+
+#: mb/conversion/converters.py:414
+msgid "Successfully converted Keras model to ONNX: {output_path}"
+msgstr ""
+
+#: mb/conversion/converters.py:422
+msgid "Failed to convert Keras model to ONNX: {e}"
+msgstr ""
+
+#: mb/conversion/converters.py:502
+msgid "Input model file not found: {input_path}"
+msgstr ""
+
+#: mb/conversion/converters.py:511
+msgid "Could not detect framework for {input_path}"
+msgstr ""
+
+#: mb/conversion/converters.py:515
+msgid "Detected source framework: {source_framework}"
+msgstr ""
+
+#: mb/conversion/converters.py:520
+msgid "Unsupported target format: {target_format}"
+msgstr ""
+
+#: mb/conversion/converters.py:521
+msgid "Supported formats: onnx, safetensors"
+msgstr ""
+
+#: mb/conversion/converters.py:529
+msgid "Architecture and num_classes are required for PyTorch -> ONNX conversion"
+msgstr ""
+
+#: mb/conversion/converters.py:549
+msgid "Keras -> SafeTensors conversion not supported"
+msgstr ""
+
+#: mb/conversion/converters.py:550
+msgid "SafeTensors is primarily for PyTorch models"
+msgstr ""
+
+#: mb/conversion/converters.py:556
+msgid "Unsupported source framework: {source_framework}"
+msgstr ""
+
 #: mb/conversion/quantize.py:42
 msgid "fp16 quantization needs onnx and onnxconverter-common. Install with: pip install onnxconverter-common"
 msgstr ""
@@ -1246,48 +1470,832 @@ msgstr ""
 msgid "Quantization to {mode} failed: {err}"
 msgstr ""
 
+#: mb/conversion/quantize.py:128
+msgid "Wrote %s variant: %s (%.1f MB)"
+msgstr ""
+
+#: mb/data/convert.py:136
+msgid "Raw data path is not a directory: {raw_data_dir}"
+msgstr ""
+
+#: mb/data/convert.py:148
+msgid "Cannot write to raw data directory {raw_data_dir}: {e}"
+msgstr ""
+
+#: mb/data/convert.py:203
+msgid "Permission denied accessing {class_dir}: {e}"
+msgstr ""
+
+#: mb/data/convert.py:206
+msgid "Error scanning {class_dir}: {e}"
+msgstr ""
+
+#: mb/data/convert.py:216 mb/data/convert.py:280 mb/data/gather.py:640 mb/data/upscale.py:113
+msgid "Source file does not exist: {source_path}"
+msgstr ""
+
+#: mb/data/convert.py:220 mb/data/gather.py:644
+msgid "Source path is not a file: {source_path}"
+msgstr ""
+
+#: mb/data/convert.py:248 mb/data/gather.py:661
+msgid "Failed to save converted image: {target_path}"
+msgstr ""
+
+#: mb/data/convert.py:255 mb/data/gather.py:668 mb/data/upscale.py:195
+msgid "Cannot identify image format: {source_path}"
+msgstr ""
+
+#: mb/data/convert.py:262 mb/data/convert.py:325
+msgid "Image too large (decompression bomb protection): {source_path}"
+msgstr ""
+
+#: mb/data/convert.py:264 mb/data/convert.py:327
+msgid "  Error: {error_msg}"
+msgstr ""
+
+#: mb/data/convert.py:265
+msgid "  Consider increasing Image.MAX_IMAGE_PIXELS or skipping this file"
+msgstr ""
+
+#: mb/data/convert.py:269 mb/data/gather.py:671
+msgid "OS error converting {source_path}: {e}"
+msgstr ""
+
+#: mb/data/convert.py:273 mb/data/gather.py:674
+msgid "Error converting {source_path}: {e}"
+msgstr ""
+
+#: mb/data/convert.py:308
+msgid "Failed to process file: {target_path}"
+msgstr ""
+
+#: mb/data/convert.py:316 mb/data/gather.py:703
+msgid "Permission error copying {source_path}: {e}"
+msgstr ""
+
+#: mb/data/convert.py:330 mb/data/gather.py:708
+msgid "OS error copying {source_path}: {e}"
+msgstr ""
+
+#: mb/data/convert.py:336 mb/data/gather.py:714
+msgid "Unexpected error copying {source_path}: {e}"
+msgstr ""
+
+#: mb/data/convert.py:531
+msgid "Could not extract a frame from video (install imageio + imageio-ffmpeg?): {source_path}"
+msgstr ""
+
+#: mb/data/convert.py:541
+msgid "Could not extract a frame from GIF: {source_path}"
+msgstr ""
+
+#: mb/data/convert.py:560
+msgid "Could not copy review JPEG {review_path}: {e}"
+msgstr ""
+
+#: mb/data/convert.py:571
+msgid "CONVERSION SUMMARY"
+msgstr ""
+
+#: mb/data/convert.py:573 mb/data/dataset.py:1020 mb/data/deduplicate.py:853 mb/data/deduplicate.py:907
+msgid "Raw data directory: {raw_data_dir}"
+msgstr ""
+
+#: mb/data/convert.py:576
+msgid "Total files found: {total_files_found}"
+msgstr ""
+
+#: mb/data/convert.py:580
+msgid "Files converted to JPEG: {files_converted}"
+msgstr ""
+
+#: mb/data/convert.py:582
+msgid "JPEG files copied: {files_copied}"
+msgstr ""
+
+#: mb/data/convert.py:586
+msgid "Random frames from video/GIF (JPEG): {files_visual_extracted}"
+msgstr ""
+
+#: mb/data/convert.py:590
+msgid "Files skipped (errors): {files_skipped}"
+msgstr ""
+
+#: mb/data/convert.py:594 mb/data/gather.py:1069 mb/data/upscale.py:306
+msgid ""
+"\n"
+"ERRORS ENCOUNTERED:"
+msgstr ""
+
+#: mb/data/convert.py:599 mb/data/gather.py:1073
+msgid "  {error_type}: {n_errors} errors"
+msgstr ""
+
+#: mb/data/convert.py:604 mb/data/gather.py:1078 mb/data/upscale.py:316
+msgid "    ... and {n_more} more"
+msgstr ""
+
+#: mb/data/convert.py:609
+msgid "Legacy hash-named JPEGs renamed to plain stem.jpg: {files_promoted_to_plain}"
+msgstr ""
+
+#: mb/data/convert.py:618
+msgid ""
+"\n"
+"Total files processed: {total_processed}"
+msgstr ""
+
+#: mb/data/convert.py:659
+msgid "No unified snapshot found for run_id %r under %s (expected snapshot_%s.json)."
+msgstr ""
+
+#: mb/data/convert.py:668
+msgid "Loaded unified snapshot for run_id %s — will update the same snapshot file"
+msgstr ""
+
+#: mb/data/convert.py:680
+msgid ""
+"Insufficient disk space for convert (heuristic). Free space or use skip_space_check / --skip-space-check if you "
+"accept the risk."
+msgstr ""
+
+#: mb/data/convert.py:691
+msgid "Creating new unified snapshot with run_id: {run_id}"
+msgstr ""
+
+#: mb/data/convert.py:714 mb/data/find_jpeg_extension_mismatches.py:393
+msgid "No class directories found under %s"
+msgstr ""
+
+#: mb/data/convert.py:724
+msgid "Class directory does not exist: {class_dir}"
+msgstr ""
+
+#: mb/data/convert.py:736
+msgid "No image files found in {class_name}"
+msgstr ""
+
+#: mb/data/convert.py:758
+msgid "No image files found in any class directory"
+msgstr ""
+
+#: mb/data/convert.py:770
+msgid "Run ID for this pipeline: {run_id}"
+msgstr ""
+
+#: mb/data/convert.py:772
+msgid "Subsequent jobs should use this run ID to update the same snapshot file"
+msgstr ""
+
+#: mb/data/dataset.py:287
+msgid "No class directories found under %s (check data.class_names / data.class_qualifying_subdir)"
+msgstr ""
+
+#: mb/data/dataset.py:291
+msgid "Class folders for dataset creation: %s"
+msgstr ""
+
+#: mb/data/dataset.py:322
+msgid "Raw data directory for class '{class_name}' does not exist: {raw_class_dir}"
+msgstr ""
+
+#: mb/data/dataset.py:332
+msgid "No image source directory for class '%s' (expected layout under %s); skipping"
+msgstr ""
+
+#: mb/data/dataset.py:359
+msgid "Failed to calculate hash for {image_file}, skipping"
+msgstr ""
+
+#: mb/data/dataset.py:458
+msgid "Image %s in class '%s' is %s, moving to review directory"
+msgstr ""
+
+#: mb/data/dataset.py:584
+msgid "Limiting each class to {target_count} images (max_train_per_class)"
+msgstr ""
+
+#: mb/data/dataset.py:592
+msgid "Balancing training set to smallest class size: {target_count} images per class"
+msgstr ""
+
+#: mb/data/dataset.py:601
+msgid "Cannot balance: no images found in any class"
+msgstr ""
+
+#: mb/data/dataset.py:641
+msgid "Class '{class_name}' has only {current_count} images, cannot reach target of {target_count}"
+msgstr ""
+
+#: mb/data/dataset.py:656
+msgid "Balancing complete: removed {total_removed} images total"
+msgstr ""
+
+#: mb/data/dataset.py:658
+msgid "Final balanced training set distribution:"
+msgstr ""
+
+#: mb/data/dataset.py:665
+msgid "  {class_name}: {final_count} images"
+msgstr ""
+
+#: mb/data/dataset.py:668
+msgid "No balancing needed - all classes already balanced"
+msgstr ""
+
+#: mb/data/dataset.py:781
+msgid "Creating test dataset (dataset_weighted: anchor=%s, small_class_threshold=%s, n_total=%s, mean_class_size=%s)..."
+msgstr ""
+
+#: mb/data/dataset.py:790
+msgid "dataset_weighted: no training images found; skipping test split"
+msgstr ""
+
+#: mb/data/dataset.py:797
+msgid "Train directory for class '%s' does not exist"
+msgstr ""
+
+#: mb/data/dataset.py:824
+msgid "Not enough images in class '%s': %s available, %s needed"
+msgstr ""
+
+#: mb/data/dataset.py:842
+msgid "Moved %s images to test set for class '%s'"
+msgstr ""
+
+#: mb/data/dataset.py:848
+msgid "Creating test dataset (fixed: %s items per class)..."
+msgstr ""
+
+#: mb/data/dataset.py:857
+msgid "Train directory for class '{class_name}' does not exist"
+msgstr ""
+
+#: mb/data/dataset.py:872
+msgid "Not enough images in class '{class_name}': {n_train_images} available, {anchor} needed"
+msgstr ""
+
+#: mb/data/dataset.py:895
+msgid "Moved {n_selected_images} images to test set for class '{class_name}'"
+msgstr ""
+
+#: mb/data/dataset.py:918
+msgid "Unified snapshot updated with dataset creation data (run_id: {run_id})"
+msgstr ""
+
+#: mb/data/dataset.py:944
+msgid "DATASET CREATION SUMMARY"
+msgstr ""
+
+#: mb/data/dataset.py:947
+msgid ""
+"\n"
+"RAW DATA STATISTICS:"
+msgstr ""
+
+#: mb/data/dataset.py:950
+msgid "  {class_name}: {count} files found"
+msgstr ""
+
+#: mb/data/dataset.py:952
+msgid ""
+"\n"
+"PROCESSING STATISTICS:"
+msgstr ""
+
+#: mb/data/dataset.py:960
+msgid ""
+"  {class_name}: {copied} copied, {corrupted} corrupted removed, {invalid_size} invalid file size + {invalid_dims} "
+"invalid dimensions moved to review"
+msgstr ""
+
+#: mb/data/dataset.py:972
+msgid ""
+"\n"
+"TEST SET CREATION:"
+msgstr ""
+
+#: mb/data/dataset.py:977
+msgid "  {class_name}: {moved} files moved to test set"
+msgstr ""
+
+#: mb/data/dataset.py:980
+msgid ""
+"\n"
+"FINAL DATASET COUNTS:"
+msgstr ""
+
+#: mb/data/dataset.py:981
+msgid "Training set:"
+msgstr ""
+
+#: mb/data/dataset.py:984 mb/data/dataset.py:989
+msgid "  {class_name}: {count} files"
+msgstr ""
+
+#: mb/data/dataset.py:986
+msgid "Test set:"
+msgstr ""
+
+#: mb/data/dataset.py:994
+msgid ""
+"\n"
+"TOTALS:"
+msgstr ""
+
+#: mb/data/dataset.py:995
+msgid "  Training set: {total_train} files"
+msgstr ""
+
+#: mb/data/dataset.py:996
+msgid "  Test set: {total_test} files"
+msgstr ""
+
+#: mb/data/dataset.py:997
+msgid "  Combined: {total} files"
+msgstr ""
+
+#: mb/data/dataset.py:999
+msgid ""
+"\n"
+"Directories created:"
+msgstr ""
+
+#: mb/data/dataset.py:1000
+msgid "  Training: {train_dir}"
+msgstr ""
+
+#: mb/data/dataset.py:1001
+msgid "  Test: {test_dir}"
+msgstr ""
+
+#: mb/data/dataset.py:1021
+msgid "Output data directory: {data_dir}"
+msgstr ""
+
+#: mb/data/dataset.py:1023
+msgid "Test split: mode=%s, anchor (test_per_class)=%s"
+msgstr ""
+
+#: mb/data/dataset.py:1034 mb/data/deduplicate.py:919
+msgid "Raw data directory does not exist: {raw_data_dir}"
+msgstr ""
+
+#: mb/data/dataset.py:1051
+msgid "Loaded unified snapshot with run_id: {run_id}"
+msgstr ""
+
+#: mb/data/dataset.py:1057
+msgid "No unified snapshot found! Run ``mb data convert`` (or equivalent) first to create a snapshot."
+msgstr ""
+
+#: mb/data/dataset.py:1058
+msgid "Or provide a valid --run-id if the snapshot exists elsewhere."
+msgstr ""
+
 #: mb/data/dataset.py:1072
+msgid ""
+"Insufficient disk space on the output data directory (heuristic). Free space or pass skip_space_check / --skip-space-"
+"check if you accept the risk."
+msgstr ""
+
+#: mb/data/dataset.py:1130
 msgid "Source and target directories are on the same drive."
 msgstr ""
 
-#: mb/data/dataset.py:1074
+#: mb/data/dataset.py:1132
 msgid "The script will use copy operations (not move) to preserve source files."
 msgstr ""
 
-#: mb/data/dataset.py:1093
+#: mb/data/dataset.py:1151
 msgid "Source drive {drive} is the system drive. Proceeding without confirmation."
 msgstr ""
 
-#: mb/data/dataset.py:1103
+#: mb/data/dataset.py:1161
 msgid "NOTE: Source drive {src} is different from system drive {sys}."
 msgstr ""
 
-#: mb/data/dataset.py:1109
+#: mb/data/dataset.py:1167
 msgid "This may indicate an external drive that failed detection. Consider whether to proceed."
 msgstr ""
 
-#: mb/data/dataset.py:1115
+#: mb/data/dataset.py:1173
 msgid "NOTE: Unable to determine system drive. If this is not your main system drive,"
 msgstr ""
 
-#: mb/data/dataset.py:1120
+#: mb/data/dataset.py:1178
 msgid "it may indicate an external drive that failed detection. Consider whether to proceed."
 msgstr ""
 
-#: mb/data/dataset.py:1125
+#: mb/data/dataset.py:1183
 msgid "NOTE: If this is not your main system drive, it may indicate an external drive"
 msgstr ""
 
-#: mb/data/dataset.py:1127
+#: mb/data/dataset.py:1185
 msgid "that failed detection. Consider whether to proceed."
 msgstr ""
 
-#: mb/data/dataset.py:1129
+#: mb/data/dataset.py:1187
 msgid "Continue with same-drive operation? (y/N): "
 msgstr ""
 
-#: mb/data/dataset.py:1131
+#: mb/data/dataset.py:1189
 msgid "Operation cancelled by user."
+msgstr ""
+
+#: mb/data/deduplicate.py:184
+msgid "Migrated %d file(s) from legacy small_images_review layout"
+msgstr ""
+
+#: mb/data/deduplicate.py:308 mb/data/gather.py:158
+msgid "Failed to load cache: {e}. Starting with empty cache."
+msgstr ""
+
+#: mb/data/deduplicate.py:333 mb/data/gather.py:183
+msgid "Failed to save cache: {e}"
+msgstr ""
+
+#: mb/data/deduplicate.py:395
+msgid "Error calculating file hash for {image_path}: {e}"
+msgstr ""
+
+#: mb/data/deduplicate.py:424 mb/data/gather.py:843
+msgid "Error calculating PIL hash for {image_path}: {e}"
+msgstr ""
+
+#: mb/data/deduplicate.py:442 mb/data/deduplicate.py:479 mb/data/deduplicate.py:558 mb/data/gather.py:860
+#: mb/data/gather.py:897
+msgid "Directory does not exist: {directory}"
+msgstr ""
+
+#: mb/data/deduplicate.py:530 mb/data/gather.py:951
+msgid "Error removing duplicate {file_path}: {e}"
+msgstr ""
+
+#: mb/data/deduplicate.py:537 mb/data/gather.py:957
+msgid "Removed {removed_count} duplicate files from {directory}"
+msgstr ""
+
+#: mb/data/deduplicate.py:608
+msgid "Error checking dimensions for {file_path}: {e}"
+msgstr ""
+
+#: mb/data/deduplicate.py:618
+msgid "Removed {removed_count} very small images (< 80px) from {directory}"
+msgstr ""
+
+#: mb/data/deduplicate.py:623
+msgid "Moved {moved_count} small images (80-250px) from {directory} to review directory"
+msgstr ""
+
+#: mb/data/deduplicate.py:649
+msgid "Skipping %d class directories without %s"
+msgstr ""
+
+#: mb/data/deduplicate.py:705
+msgid "No unified snapshot found under %s; skipping deduplication snapshot update"
+msgstr ""
+
+#: mb/data/deduplicate.py:717
+msgid "Updated snapshot with deduplication results: %s"
+msgstr ""
+
+#: mb/data/deduplicate.py:723 mb/data/gather.py:982
+msgid "STARTING DEDUPLICATION PROCESS"
+msgstr ""
+
+#: mb/data/deduplicate.py:728
+msgid "No CONVERTED directories found for deduplication"
+msgstr ""
+
+#: mb/data/deduplicate.py:748
+msgid ""
+"\n"
+"List-only mode: still removes tiny images and duplicates *within* each CONVERTED folder; only *cross-class* duplicate"
+" groups are kept for review."
+msgstr ""
+
+#: mb/data/deduplicate.py:790
+msgid "DEDUPLICATION LIST-ONLY SCAN COMPLETED"
+msgstr ""
+
+#: mb/data/deduplicate.py:837
+msgid "Found {n_all_duplicates} duplicate groups across all directories"
+msgstr ""
+
+#: mb/data/deduplicate.py:845 mb/data/gather.py:1010
+msgid "DEDUPLICATION PROCESS COMPLETED"
+msgstr ""
+
+#: mb/data/deduplicate.py:851
+msgid "DEDUPLICATION SUMMARY"
+msgstr ""
+
+#: mb/data/deduplicate.py:856
+msgid "Very small images removed (< 80px): {small_images_removed}"
+msgstr ""
+
+#: mb/data/deduplicate.py:860
+msgid "Small images moved to review (80-250px): {small_images_moved}"
+msgstr ""
+
+#: mb/data/deduplicate.py:863
+msgid "Review directory strategy: raw_data/<class>/small_images_review"
+msgstr ""
+
+#: mb/data/deduplicate.py:866
+msgid "Duplicates removed: {duplicates_removed}"
+msgstr ""
+
+#: mb/data/deduplicate.py:870
+msgid "Duplicates removed in visual media review dirs: {duplicates_removed_visual_review}"
+msgstr ""
+
+#: mb/data/deduplicate.py:878
+msgid "Duplicates removed in class small_images_review dirs: {duplicates_removed_small_review}"
+msgstr ""
+
+#: mb/data/deduplicate.py:884
+msgid "Duplicate groups found across directories: {duplicates_found}"
+msgstr ""
+
+#: mb/data/deduplicate.py:910
+msgid "Mode: list-only (cross-class duplicates for review; within-CONVERTED duplicates removed)"
+msgstr ""
+
+#: mb/data/find_jpeg_extension_mismatches.py:406
+msgid ""
+"No unified snapshot under %s; file repair will run but snapshot rows will not be updated. Run mb data convert first "
+"to create a snapshot if you need metadata alignment."
+msgstr ""
+
+#: mb/data/find_jpeg_extension_mismatches.py:506 mb/data/find_jpeg_extension_mismatches.py:692
+msgid ""
+"Class %s: %d mislabeled .jpg/.jpeg file(s) are PNG/WebP/BMP/TIFF bytes (counted only; no repair unless --include-"
+"static-format-mismatches)."
+msgstr ""
+
+#: mb/data/find_jpeg_extension_mismatches.py:512
+msgid "[dry-run] no mislabeled .jpg/.jpeg in %s"
+msgstr ""
+
+#: mb/data/find_jpeg_extension_mismatches.py:553
+msgid "Cannot infer extension for %s (sniff=%s pil=%s)"
+msgstr ""
+
+#: mb/data/find_jpeg_extension_mismatches.py:637
+msgid "Could not remove stale CONVERTED file %s: %s"
+msgstr ""
+
+#: mb/data/find_jpeg_extension_mismatches.py:643
+msgid "Could not remove stale small review file %s: %s"
+msgstr ""
+
+#: mb/data/find_jpeg_extension_mismatches.py:658
+msgid "Snapshot update failed after repair: %s"
+msgstr ""
+
+#: mb/data/find_jpeg_extension_mismatches.py:676
+msgid "Repaired -> %s"
+msgstr ""
+
+#: mb/data/find_jpeg_extension_mismatches.py:678
+msgid "Repair failed for %s: %s"
+msgstr ""
+
+#: mb/data/gather.py:218
+msgid "Source directory does not exist: {source_dir}"
+msgstr ""
+
+#: mb/data/gather.py:225
+msgid "Source path is not a directory: {source_dir}"
+msgstr ""
+
+#: mb/data/gather.py:230
+msgid "No valid subdirectories specified"
+msgstr ""
+
+#: mb/data/gather.py:244
+msgid "Specified subdirectories do not exist: {missing_subdirs}"
+msgstr ""
+
+#: mb/data/gather.py:257
+msgid "Required qualifying subdirectory %r under each of --subdirs; missing or not a directory: %s"
+msgstr ""
+
+#: mb/data/gather.py:272
+msgid "Cannot write to target directory {target_dir}: {e}"
+msgstr ""
+
+#: mb/data/gather.py:371
+msgid "Files needed to reach target: {files_needed}"
+msgstr ""
+
+#: mb/data/gather.py:375
+msgid "Target limit already reached. No new files needed."
+msgstr ""
+
+#: mb/data/gather.py:386
+msgid "Subdirectory does not exist: {subdir_path}"
+msgstr ""
+
+#: mb/data/gather.py:428
+msgid "Permission denied accessing {subdir_path}: {e}"
+msgstr ""
+
+#: mb/data/gather.py:432
+msgid "Error scanning {subdir_path}: {e}"
+msgstr ""
+
+#: mb/data/gather.py:451
+msgid "Found {total_files} unprocessed image files across all subdirectories"
+msgstr ""
+
+#: mb/data/gather.py:456
+msgid "No unprocessed image files found in any of the specified subdirectories"
+msgstr ""
+
+#: mb/data/gather.py:473
+msgid "No image files found to select from"
+msgstr ""
+
+#: mb/data/gather.py:480
+msgid "Target limit already reached. No files to select."
+msgstr ""
+
+#: mb/data/gather.py:491
+msgid "Found {n_all_files} unprocessed files, selecting all of them (need {files_needed} to reach target)"
+msgstr ""
+
+#: mb/data/gather.py:503
+msgid "Randomly selecting {files_needed} files from {n_all_files} available to reach target limit"
+msgstr ""
+
+#: mb/data/gather.py:561
+msgid "Using weighted sampling with normalized weights:"
+msgstr ""
+
+#: mb/data/gather.py:630
+msgid "Selected {total_selected} files total using weighted sampling"
+msgstr ""
+
+#: mb/data/gather.py:684
+msgid "Target file already exists, skipping: {target_path}"
+msgstr ""
+
+#: mb/data/gather.py:694
+msgid "Failed to copy file: {target_path}"
+msgstr ""
+
+#: mb/data/gather.py:727
+msgid "Starting to process {total_files} files..."
+msgstr ""
+
+#: mb/data/gather.py:730
+msgid "Files will be placed in run-specific directory: {run_target_dir}"
+msgstr ""
+
+#: mb/data/gather.py:739
+msgid "Target limit ({target_count}) already reached. Stopping processing."
+msgstr ""
+
+#: mb/data/gather.py:759
+msgid "Reached target limit of {target_count} files. Stopping processing."
+msgstr ""
+
+#: mb/data/gather.py:814
+msgid "Error calculating hash for {image_path}: {e}"
+msgstr ""
+
+#: mb/data/gather.py:916
+msgid "Found {n_duplicates} duplicate groups across all directories"
+msgstr ""
+
+#: mb/data/gather.py:986
+msgid "No class/staging directories found for deduplication"
+msgstr ""
+
+#: mb/data/gather.py:1016
+msgid "OPERATION SUMMARY"
+msgstr ""
+
+#: mb/data/gather.py:1018 mb/data/gather.py:1137
+msgid "Run ID: {run_id}"
+msgstr ""
+
+#: mb/data/gather.py:1021 mb/data/gather.py:1129
+msgid "Run-specific target directory: {run_target_dir}"
+msgstr ""
+
+#: mb/data/gather.py:1026 mb/data/gather.py:1134
+msgid "Rejected directory (flat): {rejected_dir}"
+msgstr ""
+
+#: mb/data/gather.py:1031
+msgid ""
+"\n"
+"Total unprocessed files found: {total_files_found}"
+msgstr ""
+
+#: mb/data/gather.py:1035
+msgid "Already-processed files (excluded): {already_processed_count}"
+msgstr ""
+
+#: mb/data/gather.py:1039
+msgid "Files processed this run: {files_processed}"
+msgstr ""
+
+#: mb/data/gather.py:1043
+msgid "Files successfully copied this run: {files_copied}"
+msgstr ""
+
+#: mb/data/gather.py:1047
+msgid "Files skipped (already existed): {n_skipped_files}"
+msgstr ""
+
+#: mb/data/gather.py:1054
+msgid ""
+"\n"
+"Total files in target directory (all runs): {total_in_target}"
+msgstr ""
+
+#: mb/data/gather.py:1056 mb/data/gather.py:1087 mb/data/gather.py:1136
+msgid "Target limit: {target_count}"
+msgstr ""
+
+#: mb/data/gather.py:1057
+msgid "Remaining capacity: {max}"
+msgstr ""
+
+#: mb/data/gather.py:1061
+msgid ""
+"\n"
+"Duplicates removed: {duplicates_removed}"
+msgstr ""
+
+#: mb/data/gather.py:1065
+msgid "Duplicate groups found: {duplicates_found}"
+msgstr ""
+
+#: mb/data/gather.py:1083
+msgid ""
+"\n"
+"Skipped files (already existed): {n_skipped_files}"
+msgstr ""
+
+#: mb/data/gather.py:1086
+msgid ""
+"\n"
+"Target directory: {target_dir}"
+msgstr ""
+
+#: mb/data/gather.py:1090
+msgid "Files copied this run: {files_copied}"
+msgstr ""
+
+#: mb/data/gather.py:1096
+msgid "Target limit reached! Total: {total_in_target}/{target_count}"
+msgstr ""
+
+#: mb/data/gather.py:1101
+msgid "Target limit not yet reached. Current: {total_in_target}/{target_count}"
+msgstr ""
+
+#: mb/data/gather.py:1106
+msgid "Added {files_copied} files this run."
+msgstr ""
+
+#: mb/data/gather.py:1119
+msgid "Source directory: {source_dir}"
+msgstr ""
+
+#: mb/data/gather.py:1120
+msgid "Valid subdirectories: {valid_subdirs}"
+msgstr ""
+
+#: mb/data/gather.py:1124
+msgid "Subdirectory weights: {subdir_weights}"
+msgstr ""
+
+#: mb/data/gather.py:1126
+msgid "Target directory: {target_dir}"
+msgstr ""
+
+#: mb/data/gather.py:1152
+msgid "No unprocessed image files found in the specified subdirectories"
+msgstr ""
+
+#: mb/data/gather.py:1156
+msgid "Target limit already reached. No action needed."
+msgstr ""
+
+#: mb/data/gather.py:1163
+msgid "No files available to process and target limit not reached"
+msgstr ""
+
+#: mb/data/gather.py:1173
+msgid "No files were selected for processing (target limit may already be reached)"
 msgstr ""
 
 #: mb/data/label_schema.py:91
@@ -1370,6 +2378,22 @@ msgstr ""
 msgid "Manifest line {line} uses label {label}, which is not in the schema."
 msgstr ""
 
+#: mb/data/label_schema.py:321
+msgid "Dropping unknown label %r for %s (line %d)"
+msgstr ""
+
+#: mb/data/label_schema.py:325
+msgid "Loaded %d manifest entries from %s"
+msgstr ""
+
+#: mb/data/label_schema.py:354
+msgid "%d manifest entr%s name files that do not exist under %s; their labels are not applied. First few: %s"
+msgstr ""
+
+#: mb/data/label_schema.py:413
+msgid "Wrote label schema: %s"
+msgstr ""
+
 #: mb/data/lora_dataset.py:112
 msgid "Raw data directory does not exist: {path}"
 msgstr ""
@@ -1378,6 +2402,18 @@ msgstr ""
 #: mb/evaluate/classification/image_metrics.py:52 mb/evaluate/classification/image_metrics.py:163
 #: mb/evaluate/classification/image_misclassified.py:117 mb/evaluate/classification/image_multilabel_metrics.py:70
 msgid "No images found under {path}"
+msgstr ""
+
+#: mb/data/lora_dataset.py:173
+msgid "Could not read {source_path}: {e}"
+msgstr ""
+
+#: mb/data/lora_dataset.py:185
+msgid "Could not copy {source_path}: {e}"
+msgstr ""
+
+#: mb/data/lora_dataset.py:195
+msgid "Could not open {source_path}: {e}"
 msgstr ""
 
 #: mb/data/text_dataset.py:82 mb/data/text_dataset.py:91 mb/data/text_dataset.py:220
@@ -1546,6 +2582,98 @@ msgstr ""
 
 #: mb/data/text_dataset.py:690
 msgid "gold_tiers names unknown tier(s): {bad} (known: {known})"
+msgstr ""
+
+#: mb/data/upscale.py:66
+msgid "Review directory does not exist: {review_dir}"
+msgstr ""
+
+#: mb/data/upscale.py:73
+msgid "Review path is not a directory: {review_dir}"
+msgstr ""
+
+#: mb/data/upscale.py:180
+msgid "Failed to save upscaled image: {target_path}"
+msgstr ""
+
+#: mb/data/upscale.py:198
+msgid "OS error upscaling {source_path}: {e}"
+msgstr ""
+
+#: mb/data/upscale.py:201
+msgid "Error upscaling {source_path}: {e}"
+msgstr ""
+
+#: mb/data/upscale.py:212
+msgid "Category directory does not exist: {category_dir}"
+msgstr ""
+
+#: mb/data/upscale.py:221
+msgid "No images found in category: {category}"
+msgstr ""
+
+#: mb/data/upscale.py:267
+msgid "Category {category}: {upscaled_count} upscaled, {skipped_count} skipped"
+msgstr ""
+
+#: mb/data/upscale.py:273
+msgid "UPSCALING SUMMARY"
+msgstr ""
+
+#: mb/data/upscale.py:275 mb/data/upscale.py:330
+msgid "Review directory: {review_dir}"
+msgstr ""
+
+#: mb/data/upscale.py:276 mb/data/upscale.py:331
+msgid "Upscaled directory: {upscaled_dir}"
+msgstr ""
+
+#: mb/data/upscale.py:279 mb/data/upscale.py:334
+msgid "Target minimum dimension: {MIN_DIMENSION_TARGET}px"
+msgstr ""
+
+#: mb/data/upscale.py:286
+msgid ""
+"\n"
+"Total images found: {total_found}"
+msgstr ""
+
+#: mb/data/upscale.py:287
+msgid "Total images upscaled: {total_upscaled}"
+msgstr ""
+
+#: mb/data/upscale.py:288
+msgid "Total images skipped: {total_skipped}"
+msgstr ""
+
+#: mb/data/upscale.py:290
+msgid ""
+"\n"
+"Per-category breakdown:"
+msgstr ""
+
+#: mb/data/upscale.py:299
+msgid "    Found: {found}"
+msgstr ""
+
+#: mb/data/upscale.py:300
+msgid "    Upscaled: {upscaled}"
+msgstr ""
+
+#: mb/data/upscale.py:301
+msgid "    Skipped: {skipped}"
+msgstr ""
+
+#: mb/data/upscale.py:303
+msgid "    Errors: {errors}"
+msgstr ""
+
+#: mb/data/upscale.py:311
+msgid "  {category}: {n_errors} errors"
+msgstr ""
+
+#: mb/data/upscale.py:352
+msgid "No class subdirectories found under review dir (check data.class_names or layout under %s)"
 msgstr ""
 
 #: mb/evaluate/_weights.py:29
@@ -1839,6 +2967,10 @@ msgstr ""
 msgid "Unsupported framework for misclassified: {fw}"
 msgstr ""
 
+#: mb/evaluate/classification/image_multilabel_metrics.py:160
+msgid "Tuned %s -> %.2f (F1 %.4f)"
+msgstr ""
+
 #: mb/evaluate/classification/image_multilabel_metrics.py:252
 msgid "Micro F1: {v:.4f}"
 msgstr ""
@@ -1875,6 +3007,10 @@ msgstr ""
 msgid "Not a text-classification run directory (no {file}): {path}"
 msgstr ""
 
+#: mb/evaluate/classification/text_evaluation.py:137
+msgid "Threshold policy %s=%.3f is unreachable on val gold; using %.2f"
+msgstr ""
+
 #: mb/evaluate/classification/text_evaluation.py:228 mb/training/text_trainer.py:170
 msgid "Verifying dataset…"
 msgstr ""
@@ -1901,6 +3037,10 @@ msgstr ""
 msgid "Counting truncated rows…"
 msgstr ""
 
+#: mb/evaluate/classification/text_evaluation.py:294
+msgid "Rows truncated to %d tokens: %s"
+msgstr ""
+
 #: mb/evaluate/classification/text_evaluation.py:319
 msgid "Scoring {tier} rows for the review queue…"
 msgstr ""
@@ -1911,6 +3051,10 @@ msgstr ""
 
 #: mb/evaluate/classification/text_evaluation.py:364
 msgid "Evaluation complete."
+msgstr ""
+
+#: mb/evaluate/classification/text_evaluation.py:470
+msgid "%d input line(s) contain a tab; their output rows have more than two columns"
 msgstr ""
 
 #: mb/evaluate/classification/text_evaluation.py:531
@@ -1951,8 +3095,152 @@ msgid ""
 "train at a different size anyway."
 msgstr ""
 
+#: mb/models/preprocessing.py:261
+msgid "Training %s at %dx%d instead of its native %dx%d"
+msgstr ""
+
+#: mb/models/frameworks/keras/architectures.py:25
+msgid "TensorFlow not available. Keras architectures will not work."
+msgstr ""
+
+#: mb/models/frameworks/keras/data_loader.py:24
+msgid "TensorFlow not available. Keras data loaders will not work."
+msgstr ""
+
+#: mb/models/frameworks/keras/data_loader.py:88
+msgid "Created Keras data generators:"
+msgstr ""
+
+#: mb/models/frameworks/keras/data_loader.py:91
+msgid "  Train: {samples} samples, {n_train_generator} batches"
+msgstr ""
+
+#: mb/models/frameworks/keras/data_loader.py:95
+msgid "  Val: {samples} samples, {n_val_generator} batches"
+msgstr ""
+
+#: mb/models/frameworks/keras/data_loader.py:97
+msgid "  Classes: {class_indices}"
+msgstr ""
+
+#: mb/models/frameworks/keras/trainer.py:30
+msgid "TensorFlow not available. Keras trainer will not work."
+msgstr ""
+
+#: mb/models/frameworks/keras/trainer.py:109 mb/models/frameworks/pytorch/trainer.py:103
+msgid "Created {arch_s} model with {num_classes} classes"
+msgstr ""
+
+#: mb/models/frameworks/keras/trainer.py:198
+msgid ""
+"Resumed from checkpoint: frozen={frozen_epochs_completed}/{frozen_epochs}, "
+"unfrozen={unfrozen_epochs_completed}/{unfrozen_epochs}"
+msgstr ""
+
+#: mb/models/frameworks/keras/trainer.py:235 mb/models/frameworks/pytorch/trainer.py:219
+msgid "Phase 1: Training with frozen backbone ({frozen_epochs} epochs)"
+msgstr ""
+
+#: mb/models/frameworks/keras/trainer.py:288 mb/models/frameworks/pytorch/trainer.py:301
+msgid "Frozen phase already completed, skipping"
+msgstr ""
+
+#: mb/models/frameworks/keras/trainer.py:294 mb/models/frameworks/pytorch/trainer.py:307
+msgid "Phase 2: Fine-tuning all layers ({unfrozen_epochs} epochs)"
+msgstr ""
+
+#: mb/models/frameworks/keras/trainer.py:359 mb/models/frameworks/pytorch/trainer.py:377
+msgid "Unfrozen phase already completed, skipping"
+msgstr ""
+
+#: mb/models/frameworks/keras/trainer.py:361
+msgid "Training completed"
+msgstr ""
+
+#: mb/models/frameworks/keras/trainer.py:431
+msgid "Saved Keras model to {path}"
+msgstr ""
+
+#: mb/models/frameworks/keras/trainer.py:434
+msgid "Saved Keras model (SavedModel format) to {path}"
+msgstr ""
+
+#: mb/models/frameworks/keras/trainer.py:465
+msgid "Loaded Keras model from {path}"
+msgstr ""
+
+#: mb/models/frameworks/keras/trainer.py:471
+msgid "Could not load model directly, rebuilding architecture: {architecture}"
+msgstr ""
+
+#: mb/models/frameworks/keras/trainer.py:475
+msgid "Loaded Keras model weights from {path}"
+msgstr ""
+
+#: mb/models/frameworks/keras/trainer.py:494
+msgid "Could not load model weights: {e}"
+msgstr ""
+
+#: mb/models/frameworks/keras/trainer.py:497
+msgid "Failed to load checkpoint metadata: {e}"
+msgstr ""
+
+#: mb/models/frameworks/pytorch/data_loader.py:85
+msgid "No images found in {root}"
+msgstr ""
+
+#: mb/models/frameworks/pytorch/data_loader.py:115
+msgid "Error loading image {img_path}: {e}"
+msgstr ""
+
+#: mb/models/frameworks/pytorch/data_loader.py:320
+msgid "Class mismatch: train={train_classes}, val={val_classes}"
+msgstr ""
+
+#: mb/models/frameworks/pytorch/data_loader.py:343
+msgid "Created data loaders:"
+msgstr ""
+
+#: mb/models/frameworks/pytorch/data_loader.py:346
+msgid "  Train: {n_train_dataset} samples, {n_train_loader} batches"
+msgstr ""
+
+#: mb/models/frameworks/pytorch/data_loader.py:350
+msgid "  Val: {n_val_dataset} samples, {n_val_loader} batches"
+msgstr ""
+
+#: mb/models/frameworks/pytorch/data_loader.py:352
+msgid "  Classes: {classes}"
+msgstr ""
+
 #: mb/models/frameworks/pytorch/hf_architectures.py:206
 msgid "transformers>={version} is required for Hugging Face backbones. Install it with: pip install -e \".[transformers]\""
+msgstr ""
+
+#: mb/models/frameworks/pytorch/trainer.py:194
+msgid ""
+"Resumed from checkpoint: epoch {start_epoch}, frozen={frozen_epochs_completed}/{frozen_epochs}, "
+"unfrozen={unfrozen_epochs_completed}/{unfrozen_epochs}"
+msgstr ""
+
+#: mb/models/frameworks/pytorch/trainer.py:381
+msgid "Training completed. Best validation accuracy: {best_val_acc:.4f}"
+msgstr ""
+
+#: mb/models/frameworks/pytorch/trainer.py:470
+msgid "Saved PyTorch model to {path}"
+msgstr ""
+
+#: mb/models/frameworks/pytorch/trainer.py:476
+msgid "Exported model to ONNX: {path}"
+msgstr ""
+
+#: mb/models/frameworks/pytorch/trainer.py:504
+msgid "Loaded model from {path}"
+msgstr ""
+
+#: mb/models/frameworks/pytorch/trainer.py:714
+msgid "Failed to load checkpoint: {e}"
 msgstr ""
 
 #: mb/models/text_backends/__init__.py:41
@@ -2011,6 +3299,10 @@ msgstr ""
 msgid "Embedding {what}: {i}/{n}"
 msgstr ""
 
+#: mb/models/text_backends/embedding_probe.py:309
+msgid "embedding_probe: reusing cached %s embeddings %s"
+msgstr ""
+
 #: mb/models/text_backends/embedding_probe.py:347
 msgid "backend_options.pooling must be one of: {c}"
 msgstr ""
@@ -2039,8 +3331,44 @@ msgstr ""
 msgid "texts"
 msgstr ""
 
+#: mb/models/text_backends/embedding_probe.py:444
+msgid "embedding_probe: %s loaded at revision %s, but the head was trained on %s"
+msgstr ""
+
 #: mb/models/text_backends/encoder_finetune.py:221
 msgid "Epoch {e}/{E} — step {s}/{S} — loss {l:.4f}"
+msgstr ""
+
+#: mb/models/text_backends/encoder_finetune.py:244
+msgid "encoder_finetune: early stop after %d evaluations without improvement"
+msgstr ""
+
+#: mb/training/class_weights.py:135
+msgid "Class weighting requested but per-class counts are unavailable; using unweighted loss"
+msgstr ""
+
+#: mb/training/class_weights.py:140
+msgid "Class weighting (%s, max=%.1f):"
+msgstr ""
+
+#: mb/training/class_weights.py:142
+msgid "  %s: n=%d weight=%.4f"
+msgstr ""
+
+#: mb/training/hyperparams.py:116
+msgid "Missing required hyperparameters: {missing}"
+msgstr ""
+
+#: mb/training/hyperparams.py:121
+msgid "frozen_epochs must be >= 0"
+msgstr ""
+
+#: mb/training/hyperparams.py:125
+msgid "unfrozen_epochs must be >= 0"
+msgstr ""
+
+#: mb/training/hyperparams.py:129
+msgid "frozen_lr must be > 0"
 msgstr ""
 
 #: mb/training/lora_diffusion_trainer.py:82
@@ -2063,22 +3391,90 @@ msgstr ""
 msgid "No prepared images found under {path}"
 msgstr ""
 
-#: mb/training/lora_diffusion_trainer.py:534
+#: mb/training/lora_diffusion_trainer.py:278 mb/training/lora_diffusion_trainer.py:411
+msgid "Loading base model components ({architecture}) from: {base_model}"
+msgstr ""
+
+#: mb/training/lora_diffusion_trainer.py:318 mb/training/lora_diffusion_trainer.py:465
+msgid "Training on {n_dataset} images, batch_size={batch_size}"
+msgstr ""
+
+#: mb/training/lora_diffusion_trainer.py:362 mb/training/lora_diffusion_trainer.py:538
+msgid "LoRA adapter saved to: {output_dir}"
+msgstr ""
+
+#: mb/training/lora_diffusion_trainer.py:544
 msgid ""
 "Image-generation LoRA training requires the 'lora' extras: pip install -e \".[lora]\" (diffusers, peft, "
 "transformers). Underlying error: {err}"
 msgstr ""
 
-#: mb/training/lora_diffusion_trainer.py:564
+#: mb/training/lora_diffusion_trainer.py:551
+msgid "LORA TRAINING STARTUP"
+msgstr ""
+
+#: mb/training/lora_diffusion_trainer.py:553
+msgid "Base model: {base_model}"
+msgstr ""
+
+#: mb/training/lora_diffusion_trainer.py:554
+msgid "Base architecture: {architecture}"
+msgstr ""
+
+#: mb/training/lora_diffusion_trainer.py:555
+msgid "Data dir: {data_dir}"
+msgstr ""
+
+#: mb/training/lora_diffusion_trainer.py:556
+msgid "Output dir: {output_dir}"
+msgstr ""
+
+#: mb/training/lora_diffusion_trainer.py:557
+msgid "Rank/alpha: {rank}/{alpha}"
+msgstr ""
+
+#: mb/training/lora_diffusion_trainer.py:558
+msgid "Resolution: {resolution}"
+msgstr ""
+
+#: mb/training/lora_diffusion_trainer.py:559
+msgid "Batch size: {batch_size}"
+msgstr ""
+
+#: mb/training/lora_diffusion_trainer.py:560
+msgid "Learning rate: {learning_rate}"
+msgstr ""
+
+#: mb/training/lora_diffusion_trainer.py:561
+msgid "Max train steps: {max_train_steps}"
+msgstr ""
+
+#: mb/training/lora_diffusion_trainer.py:574
 msgid "--model-type image_generation_lora only supports --framework pytorch (got: {fw})."
 msgstr ""
 
-#: mb/training/lora_diffusion_trainer.py:603
+#: mb/training/lora_diffusion_trainer.py:613
 msgid "LoRA training failed: {err}"
 msgstr ""
 
-#: mb/training/lora_diffusion_trainer.py:608
+#: mb/training/lora_diffusion_trainer.py:618
 msgid "Training completed successfully. Adapter saved to: {path}"
+msgstr ""
+
+#: mb/training/snapshot_integration.py:68
+msgid "No images found in {split}/{class_name}, skipping"
+msgstr ""
+
+#: mb/training/snapshot_integration.py:104
+msgid "Failed to hash {image_path}, skipping"
+msgstr ""
+
+#: mb/training/snapshot_integration.py:116
+msgid "Error processing {image_path}: {e}"
+msgstr ""
+
+#: mb/training/snapshot_integration.py:142
+msgid "Training snapshot updated: {train_total} train images, {test_total} test images"
 msgstr ""
 
 #: mb/training/text_config.py:107
@@ -2173,8 +3569,18 @@ msgstr ""
 msgid "Loading dataset…"
 msgstr ""
 
+#: mb/training/text_trainer.py:178
+msgid ""
+"Dataset verification:\n"
+"%s"
+msgstr ""
+
 #: mb/training/text_trainer.py:199
 msgid "The val split needs both labels for model selection and calibration."
+msgstr ""
+
+#: mb/training/text_trainer.py:213
+msgid "Text-classification run directory: %s"
 msgstr ""
 
 #: mb/training/text_trainer.py:264
@@ -2209,12 +3615,52 @@ msgstr ""
 msgid "Multi-label training is implemented for PyTorch only; --framework {fw} would silently train a single-label model."
 msgstr ""
 
+#: mb/training/trainer.py:158
+msgid "Number of classes: {num_classes}"
+msgstr ""
+
+#: mb/training/trainer.py:196
+msgid "Hyperparameters:"
+msgstr ""
+
+#: mb/training/trainer.py:270
+msgid "No unified snapshot found. Training will proceed without snapshot update."
+msgstr ""
+
+#: mb/training/trainer.py:271
+msgid "Run data conversion and dataset creation first to create a snapshot."
+msgstr ""
+
+#: mb/training/trainer.py:302
+msgid "Starting training..."
+msgstr ""
+
+#: mb/training/trainer.py:318
+msgid "Evaluating model..."
+msgstr ""
+
+#: mb/training/trainer.py:327
+msgid "Evaluation metrics:"
+msgstr ""
+
+#: mb/training/trainer.py:371
+msgid "Unified snapshot updated: {train_total} train, {test_total} test images"
+msgstr ""
+
+#: mb/training/trainer.py:389
+msgid "Model saved to: {model_path}"
+msgstr ""
+
 #: mb/utils/constants.py:84
 msgid "System"
 msgstr ""
 
 #: mb/utils/constants.py:103
 msgid "Access Password Administration"
+msgstr ""
+
+#: mb/utils/recent_run_history.py:91
+msgid "recent_run_history persist failed: %s"
 msgstr ""
 
 #: mb/utils/recent_run_history.py:134
@@ -2234,6 +3680,68 @@ msgstr ""
 
 #: mb/utils/recent_run_history.py:144
 msgid "fail"
+msgstr ""
+
+#: mb/utils/snapshot.py:273
+msgid "File not found (deleted?): {file_path}"
+msgstr ""
+
+#: mb/utils/snapshot.py:278
+msgid "Permission denied reading file: {file_path}"
+msgstr ""
+
+#: mb/utils/snapshot.py:283
+msgid "Error calculating hash for {file_path}: {e}"
+msgstr ""
+
+#: mb/utils/snapshot.py:979
+msgid "Unified snapshot saved to: {snapshot_path}"
+msgstr ""
+
+#: mb/utils/storage.py:62
+msgid ""
+"The directory {path} appears to be on external/removable storage. For best performance, move your data to an internal"
+" SSD."
+msgstr ""
+
+#: mb/utils/storage.py:66
+msgid "Process will fail. Use --allow-external-storage to override this check if you must use external storage."
+msgstr ""
+
+#: mb/utils/storage.py:69
+msgid "External storage detected but override flag used. Performance may be significantly degraded."
+msgstr ""
+
+#: mb/utils/storage.py:73
+msgid "Data directory {path} appears to be on internal storage. [Recommended]"
+msgstr ""
+
+#: mb/utils/storage.py:75
+msgid "Tip: Training on an internal SSD is strongly recommended for deep learning workflows with large datasets."
+msgstr ""
+
+#: mb/utils/storage.py:97
+msgid "Source ({source_path}) and target ({target_path}) are on the same drive."
+msgstr ""
+
+#: mb/utils/storage.py:99
+msgid "Copy operations will be faster on the same drive."
+msgstr ""
+
+#: mb/utils/storage.py:103
+msgid "Source ({source_path}) and target ({target_path}) are on different drives."
+msgstr ""
+
+#: mb/utils/storage.py:106
+msgid "Copy operations across drives may be slower than same-drive operations."
+msgstr ""
+
+#: mb/utils/storage.py:107
+msgid "Consider using the same drive for both source and target for better performance."
+msgstr ""
+
+#: mb/utils/storage.py:109
+msgid "Different drives detected but override flag used. Using copy operations."
 msgstr ""
 
 #: ui/app.py:28 ui/main_window.py:87 ui/main_window.py:123
@@ -2318,6 +3826,30 @@ msgid ""
 "anyway?"
 msgstr ""
 
+#: ui/task_runner.py:87
+msgid "Background task failed"
+msgstr ""
+
+#: ui/controllers/cache_controller.py:83
+msgid "Error applying cached GUI state: %s"
+msgstr ""
+
+#: ui/controllers/cache_controller.py:120
+msgid "Failed to merge GUI form state into cache: %s"
+msgstr ""
+
+#: ui/controllers/cache_controller.py:126
+msgid "Failed to persist app info cache (sync): %s"
+msgstr ""
+
+#: ui/controllers/cache_controller.py:137
+msgid "Failed to persist app info cache: %s"
+msgstr ""
+
+#: ui/controllers/notification_controller.py:160
+msgid "Alert - Title: \"%s\" Message: %s"
+msgstr ""
+
 #: ui/controllers/notification_controller.py:175
 msgid "Error"
 msgstr ""
@@ -2362,8 +3894,8 @@ msgstr ""
 msgid "Base architecture '{arch}' is recognized but not implemented yet."
 msgstr ""
 
-#: ui/lib/custom_dialogs_qt.py:120 ui/lib/fast_directory_picker_qt.py:410 ui/lib/fast_directory_picker_qt.py:672
-#: ui/lib/fast_directory_picker_qt.py:993 ui/lib/qt_alert.py:28 ui/lib/task_progress.py:38
+#: ui/lib/custom_dialogs_qt.py:120 ui/lib/fast_directory_picker_qt.py:410 ui/lib/fast_directory_picker_qt.py:675
+#: ui/lib/fast_directory_picker_qt.py:996 ui/lib/qt_alert.py:28 ui/lib/task_progress.py:38
 #: ui/lib/training_progress_dialog.py:77
 msgid "Cancel"
 msgstr ""
@@ -2487,39 +4019,43 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:334 ui/lib/fast_directory_picker_qt.py:1235
+#: ui/lib/fast_directory_picker_qt.py:247
+msgid "Failed to enumerate Windows drives: {e}"
+msgstr ""
+
+#: ui/lib/fast_directory_picker_qt.py:334 ui/lib/fast_directory_picker_qt.py:1238
 msgid "Select Directory"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:357 ui/lib/fast_directory_picker_qt.py:614 ui/lib/fast_directory_picker_qt.py:927
+#: ui/lib/fast_directory_picker_qt.py:357 ui/lib/fast_directory_picker_qt.py:617 ui/lib/fast_directory_picker_qt.py:930
 msgid "Locations"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:362 ui/lib/fast_directory_picker_qt.py:619 ui/lib/fast_directory_picker_qt.py:932
+#: ui/lib/fast_directory_picker_qt.py:362 ui/lib/fast_directory_picker_qt.py:622 ui/lib/fast_directory_picker_qt.py:935
 msgid "Refresh locations"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:375 ui/lib/fast_directory_picker_qt.py:945
+#: ui/lib/fast_directory_picker_qt.py:375 ui/lib/fast_directory_picker_qt.py:948
 msgid "Type or paste a directory path"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:379 ui/lib/fast_directory_picker_qt.py:636 ui/lib/fast_directory_picker_qt.py:949
+#: ui/lib/fast_directory_picker_qt.py:379 ui/lib/fast_directory_picker_qt.py:639 ui/lib/fast_directory_picker_qt.py:952
 msgid "Go"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:383 ui/lib/fast_directory_picker_qt.py:640 ui/lib/fast_directory_picker_qt.py:953
+#: ui/lib/fast_directory_picker_qt.py:383 ui/lib/fast_directory_picker_qt.py:643 ui/lib/fast_directory_picker_qt.py:956
 msgid "Up"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:387 ui/lib/fast_directory_picker_qt.py:644 ui/lib/fast_directory_picker_qt.py:957
+#: ui/lib/fast_directory_picker_qt.py:387 ui/lib/fast_directory_picker_qt.py:647 ui/lib/fast_directory_picker_qt.py:960
 msgid "New Folder"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:391 ui/lib/fast_directory_picker_qt.py:648 ui/lib/fast_directory_picker_qt.py:961
+#: ui/lib/fast_directory_picker_qt.py:391 ui/lib/fast_directory_picker_qt.py:651 ui/lib/fast_directory_picker_qt.py:964
 msgid "Refresh"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:395 ui/lib/fast_directory_picker_qt.py:652 ui/lib/fast_directory_picker_qt.py:965
+#: ui/lib/fast_directory_picker_qt.py:395 ui/lib/fast_directory_picker_qt.py:655 ui/lib/fast_directory_picker_qt.py:968
 msgid "Folders"
 msgstr ""
 
@@ -2527,84 +4063,92 @@ msgstr ""
 msgid "Select"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:479 ui/lib/fast_directory_picker_qt.py:749 ui/lib/fast_directory_picker_qt.py:1071
+#: ui/lib/fast_directory_picker_qt.py:479 ui/lib/fast_directory_picker_qt.py:752 ui/lib/fast_directory_picker_qt.py:1074
 msgid "Create New Folder"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:480 ui/lib/fast_directory_picker_qt.py:750 ui/lib/fast_directory_picker_qt.py:1072
+#: ui/lib/fast_directory_picker_qt.py:480 ui/lib/fast_directory_picker_qt.py:753 ui/lib/fast_directory_picker_qt.py:1075
 msgid "Folder name:"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:486 ui/lib/fast_directory_picker_qt.py:756 ui/lib/fast_directory_picker_qt.py:1078
+#: ui/lib/fast_directory_picker_qt.py:486 ui/lib/fast_directory_picker_qt.py:759 ui/lib/fast_directory_picker_qt.py:1081
 msgid "Folder name cannot be empty."
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:498 ui/lib/fast_directory_picker_qt.py:766 ui/lib/fast_directory_picker_qt.py:1088
+#: ui/lib/fast_directory_picker_qt.py:498 ui/lib/fast_directory_picker_qt.py:769 ui/lib/fast_directory_picker_qt.py:1091
 msgid "A folder with that name already exists."
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:503 ui/lib/fast_directory_picker_qt.py:770 ui/lib/fast_directory_picker_qt.py:1092
+#: ui/lib/fast_directory_picker_qt.py:503
+msgid "Failed to create directory '{target_path}': {e}"
+msgstr ""
+
+#: ui/lib/fast_directory_picker_qt.py:506 ui/lib/fast_directory_picker_qt.py:773 ui/lib/fast_directory_picker_qt.py:1095
 msgid "Failed to create folder (check permissions/path)."
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:552 ui/lib/fast_directory_picker_qt.py:847 ui/lib/fast_directory_picker_qt.py:1154
+#: ui/lib/fast_directory_picker_qt.py:555 ui/lib/fast_directory_picker_qt.py:850 ui/lib/fast_directory_picker_qt.py:1157
 msgid "No folders found (or folder is not currently accessible)."
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:589 ui/lib/fast_directory_picker_qt.py:1283
+#: ui/lib/fast_directory_picker_qt.py:592 ui/lib/fast_directory_picker_qt.py:1286
 msgid "Open File"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:632
+#: ui/lib/fast_directory_picker_qt.py:635
 msgid "Type or paste a directory or file path"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:657
+#: ui/lib/fast_directory_picker_qt.py:660
 msgid "Files"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:676
+#: ui/lib/fast_directory_picker_qt.py:679
 msgid "Open"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:801 ui/lib/fast_directory_picker_qt.py:1122
+#: ui/lib/fast_directory_picker_qt.py:772 ui/lib/fast_directory_picker_qt.py:1094
+msgid "Failed to create directory '%s': %s"
+msgstr ""
+
+#: ui/lib/fast_directory_picker_qt.py:804 ui/lib/fast_directory_picker_qt.py:1125
 msgid "Path not found or not accessible."
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:886
+#: ui/lib/fast_directory_picker_qt.py:889
 msgid "Select a file or navigate into a folder."
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:903 ui/lib/fast_directory_picker_qt.py:1333
+#: ui/lib/fast_directory_picker_qt.py:906 ui/lib/fast_directory_picker_qt.py:1336
 msgid "Save File"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:970
+#: ui/lib/fast_directory_picker_qt.py:973
 msgid "Files (optional — double-click to fill name)"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:977
+#: ui/lib/fast_directory_picker_qt.py:980
 msgid "File name"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:979
+#: ui/lib/fast_directory_picker_qt.py:982
 msgid "output.onnx"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:997 ui/pages/config_page.py:82 ui/pages/config_page.py:160
+#: ui/lib/fast_directory_picker_qt.py:1000 ui/pages/config_page.py:82 ui/pages/config_page.py:160
 #: ui/pages/pipeline_config_page.py:257
 msgid "Save"
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:1172
+#: ui/lib/fast_directory_picker_qt.py:1175
 msgid "Enter a file name."
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:1176
+#: ui/lib/fast_directory_picker_qt.py:1179
 msgid "Use a simple file name (no path separators)."
 msgstr ""
 
-#: ui/lib/fast_directory_picker_qt.py:1194
+#: ui/lib/fast_directory_picker_qt.py:1197
 msgid "Current Base Directory"
 msgstr ""
 
@@ -3407,6 +4951,10 @@ msgstr ""
 msgid ""
 "No loadable unified snapshot for Run ID {rid!r} in the search paths (see the Run ID field tooltip for locations "
 "checked)."
+msgstr ""
+
+#: ui/pages/data_page.py:1288
+msgid "Could not resolve latest snapshot path: %s"
 msgstr ""
 
 #: ui/pages/data_page.py:1312 ui/pages/data_page.py:1337
@@ -4360,6 +5908,10 @@ msgstr ""
 
 #: ui/pages/pipeline_config_page.py:1002
 msgid "No model/data/training/paths/text_classification keys found."
+msgstr ""
+
+#: ui/pages/pipeline_config_page.py:1027
+msgid "Pipeline config saved to %s (%s)"
 msgstr ""
 
 #: ui/pages/pipeline_config_page.py:1074

@@ -27,6 +27,7 @@ from mb.utils.logging_setup import log_completion_info, log_startup_info, setup_
 from mb.cancellation import check_cancel_event
 from mb.data.class_layout import discover_review_bucket_names, layout_dict_for_discovery
 from mb.data.file_types import configured_media_suffixes
+from mb.utils.translations import _
 
 # Configure logging
 logger = setup_logging(script_name="upscale_small_images")
@@ -60,11 +61,17 @@ class ImageUpscaler:
     def validate_configuration(self) -> bool:
         """Validate the review directory."""
         if not self.review_dir.exists():
-            logger.error(f"Review directory does not exist: {self.review_dir}")
+            logger.error(
+                _(
+                    "Review directory does not exist: {review_dir}"
+                ).format(review_dir=self.review_dir))
             return False
             
         if not self.review_dir.is_dir():
-            logger.error(f"Review path is not a directory: {self.review_dir}")
+            logger.error(
+                _(
+                    "Review path is not a directory: {review_dir}"
+                ).format(review_dir=self.review_dir))
             return False
             
         return True
@@ -103,7 +110,7 @@ class ImageUpscaler:
         """
         try:
             if not source_path.exists():
-                logger.error(f"Source file does not exist: {source_path}")
+                logger.error(_("Source file does not exist: {source_path}").format(source_path=source_path))
                 return False, False
             
             # Open image and get dimensions, ensuring proper cleanup on Windows
@@ -168,7 +175,10 @@ class ImageUpscaler:
                 
                 # Verify the saved file exists and has content
                 if not target_path.exists() or target_path.stat().st_size == 0:
-                    logger.error(f"Failed to save upscaled image: {target_path}")
+                    logger.error(
+                        _(
+                            "Failed to save upscaled image: {target_path}"
+                        ).format(target_path=target_path))
                     return False, False
                 
                 logger.debug(f"Upscaled {source_path.name} from {width}x{height} to {new_width}x{new_height}")
@@ -182,13 +192,13 @@ class ImageUpscaler:
                 time.sleep(0.01)
                 
         except UnidentifiedImageError:
-            logger.error(f"Cannot identify image format: {source_path}")
+            logger.error(_("Cannot identify image format: {source_path}").format(source_path=source_path))
             return False, False
         except OSError as e:
-            logger.error(f"OS error upscaling {source_path}: {e}")
+            logger.error(_("OS error upscaling {source_path}: {e}").format(source_path=source_path, e=e))
             return False, False
         except Exception as e:
-            logger.error(f"Error upscaling {source_path}: {e}")
+            logger.error(_("Error upscaling {source_path}: {e}").format(source_path=source_path, e=e))
             return False, False
     
     def process_category(self, category: str) -> None:
@@ -197,7 +207,10 @@ class ImageUpscaler:
         
         category_dir = self.review_dir / category
         if not category_dir.exists():
-            logger.warning(f"Category directory does not exist: {category_dir}")
+            logger.warning(
+                _(
+                    "Category directory does not exist: {category_dir}"
+                ).format(category_dir=category_dir))
             return
         
         # Find all images in this category (including subdirectories)
@@ -205,7 +218,7 @@ class ImageUpscaler:
         self.stats['total_found'][category] = len(image_files)
         
         if not image_files:
-            logger.info(f"No images found in category: {category}")
+            logger.info(_("No images found in category: {category}").format(category=category))
             return
         
         logger.info(f"Found {len(image_files)} images in category: {category}")
@@ -249,26 +262,32 @@ class ImageUpscaler:
         self.stats['upscaled'][category] = upscaled_count
         self.stats['skipped'][category] = skipped_count
         
-        logger.info(f"Category {category}: {upscaled_count} upscaled, {skipped_count} skipped")
+        logger.info(
+            _(
+                "Category {category}: {upscaled_count} upscaled, {skipped_count} skipped"
+            ).format(category=category, upscaled_count=upscaled_count, skipped_count=skipped_count))
     
     def print_summary(self) -> None:
         """Print a summary of the upscaling operation."""
         logger.info("=" * 60)
-        logger.info("UPSCALING SUMMARY")
+        logger.info(_("UPSCALING SUMMARY"))
         logger.info("=" * 60)
-        logger.info(f"Review directory: {self.review_dir}")
-        logger.info(f"Upscaled directory: {self.upscaled_dir}")
-        logger.info(f"Target minimum dimension: {MIN_DIMENSION_TARGET}px")
+        logger.info(_("Review directory: {review_dir}").format(review_dir=self.review_dir))
+        logger.info(_("Upscaled directory: {upscaled_dir}").format(upscaled_dir=self.upscaled_dir))
+        logger.info(
+            _(
+                "Target minimum dimension: {MIN_DIMENSION_TARGET}px"
+            ).format(MIN_DIMENSION_TARGET=MIN_DIMENSION_TARGET))
         
         total_found = sum(self.stats['total_found'].values())
         total_upscaled = sum(self.stats['upscaled'].values())
         total_skipped = sum(self.stats['skipped'].values())
         
-        logger.info(f"\nTotal images found: {total_found}")
-        logger.info(f"Total images upscaled: {total_upscaled}")
-        logger.info(f"Total images skipped: {total_skipped}")
+        logger.info(_("\nTotal images found: {total_found}").format(total_found=total_found))
+        logger.info(_("Total images upscaled: {total_upscaled}").format(total_upscaled=total_upscaled))
+        logger.info(_("Total images skipped: {total_skipped}").format(total_skipped=total_skipped))
         
-        logger.info("\nPer-category breakdown:")
+        logger.info(_("\nPer-category breakdown:"))
         for category in self._bucket_names:
             found = self.stats['total_found'][category]
             upscaled = self.stats['upscaled'][category]
@@ -277,21 +296,24 @@ class ImageUpscaler:
             
             if found > 0:
                 logger.info(f"  {category}:")
-                logger.info(f"    Found: {found}")
-                logger.info(f"    Upscaled: {upscaled}")
-                logger.info(f"    Skipped: {skipped}")
+                logger.info(_("    Found: {found}").format(found=found))
+                logger.info(_("    Upscaled: {upscaled}").format(upscaled=upscaled))
+                logger.info(_("    Skipped: {skipped}").format(skipped=skipped))
                 if errors > 0:
-                    logger.info(f"    Errors: {errors}")
+                    logger.info(_("    Errors: {errors}").format(errors=errors))
         
         if any(self.stats['errors'].values()):
-            logger.info("\nERRORS ENCOUNTERED:")
+            logger.info(_("\nERRORS ENCOUNTERED:"))
             for category, errors in self.stats['errors'].items():
                 if errors:
-                    logger.info(f"  {category}: {len(errors)} errors")
+                    logger.info(
+                        _(
+                            "  {category}: {n_errors} errors"
+                        ).format(category=category, n_errors=len(errors)))
                     for error in errors[:5]:  # Show first 5 errors
                         logger.info(f"    - {error}")
                     if len(errors) > 5:
-                        logger.info(f"    ... and {len(errors) - 5} more")
+                        logger.info(_("    ... and {n_more} more").format(n_more=len(errors) - 5))
         
         logger.info("=" * 60)
     
@@ -305,9 +327,12 @@ class ImageUpscaler:
 
     def _run_impl(self) -> bool:
         log_startup_info(logger, "Small image upscaling process")
-        logger.info(f"Review directory: {self.review_dir}")
-        logger.info(f"Upscaled directory: {self.upscaled_dir}")
-        logger.info(f"Target minimum dimension: {MIN_DIMENSION_TARGET}px")
+        logger.info(_("Review directory: {review_dir}").format(review_dir=self.review_dir))
+        logger.info(_("Upscaled directory: {upscaled_dir}").format(upscaled_dir=self.upscaled_dir))
+        logger.info(
+            _(
+                "Target minimum dimension: {MIN_DIMENSION_TARGET}px"
+            ).format(MIN_DIMENSION_TARGET=MIN_DIMENSION_TARGET))
         
         check_cancel_event(self._cancel_event)
         
@@ -324,7 +349,7 @@ class ImageUpscaler:
 
         if not self._bucket_names:
             logger.warning(
-                "No class subdirectories found under review dir (check data.class_names or layout under %s)",
+                _("No class subdirectories found under review dir (check data.class_names or layout under %s)"),
                 self.review_dir,
             )
 

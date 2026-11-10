@@ -155,7 +155,7 @@ class ModelTrainer:
 
         # Get number of classes
         num_classes = handler.get_num_classes(data_dir)
-        logger.info(f"Number of classes: {num_classes}")
+        logger.info(_("Number of classes: {num_classes}").format(num_classes=num_classes))
 
         # Get hyperparameters
         model_type_defaults = handler.get_default_hyperparams()
@@ -193,7 +193,7 @@ class ModelTrainer:
         if num_workers < 0:
             num_workers = 0
         
-        logger.info("Hyperparameters:")
+        logger.info(_("Hyperparameters:"))
         for key, value in hyperparams.items():
             logger.info(f"  {key}: {value}")
         
@@ -267,8 +267,8 @@ class ModelTrainer:
                         "Gather cache loaded successfully - hash lookups will be faster"
                     )
             else:
-                logger.warning("No unified snapshot found. Training will proceed without snapshot update.")
-                logger.warning("Run data conversion and dataset creation first to create a snapshot.")
+                logger.warning(_("No unified snapshot found. Training will proceed without snapshot update."))
+                logger.warning(_("Run data conversion and dataset creation first to create a snapshot."))
 
         train_lo = p_after_snapshot
         train_hi = 0.88
@@ -299,7 +299,7 @@ class ModelTrainer:
 
         # Train model (framework reports 0..1 within the training loop only)
         _emit("Training…", train_lo)
-        logger.info("Starting training...")
+        logger.info(_("Starting training..."))
         t_train0 = time.perf_counter()
         trained_model = self.framework_trainer.train(
             model=model,
@@ -315,7 +315,7 @@ class ModelTrainer:
 
         # Evaluate model
         _emit("Evaluating…", train_hi)
-        logger.info("Evaluating model...")
+        logger.info(_("Evaluating model..."))
         metrics = self.framework_trainer.evaluate(
             trained_model,
             val_loader,
@@ -324,7 +324,7 @@ class ModelTrainer:
         )
         t_eval1 = time.perf_counter()
         _emit("Evaluating…", eval_end)
-        logger.info("Evaluation metrics:")
+        logger.info(_("Evaluation metrics:"))
         for metric_name, metric_value in metrics.items():
             logger.info(f"  {metric_name}: {metric_value:.4f}")
         
@@ -367,7 +367,9 @@ class ModelTrainer:
                 train_total = summary.get('training_train_count', 0)
                 test_total = summary.get('training_test_count', 0)
                 logger.info(
-                    f"Unified snapshot updated: {train_total} train, {test_total} test images"
+                    _(
+                        "Unified snapshot updated: {train_total} train, {test_total} test images"
+                    ).format(train_total=train_total, test_total=test_total)
                 )
             _emit("Updating snapshot…", snapshot_end)
         
@@ -384,7 +386,7 @@ class ModelTrainer:
         else:
             raise ValueError(f"Unknown framework: {self.framework!r}")
         
-        logger.info(f"Model saved to: {model_path}")
+        logger.info(_("Model saved to: {model_path}").format(model_path=model_path))
         
         return model_path
     

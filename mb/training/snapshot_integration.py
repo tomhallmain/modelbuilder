@@ -15,6 +15,7 @@ from mb.cancellation import check_cancel_event
 from mb.data.file_types import configured_media_suffixes
 from mb.utils.logging_setup import get_logger
 from mb.utils.snapshot import UnifiedSnapshot, calculate_file_hash
+from mb.utils.translations import _
 
 logger = get_logger(__name__)
 
@@ -62,7 +63,10 @@ def update_training_snapshot(
         logger.info(f"Found {len(image_files)} images in {split}/{class_name}")
 
         if not image_files:
-            logger.warning(f"No images found in {split}/{class_name}, skipping")
+            logger.warning(
+                _(
+                    "No images found in {split}/{class_name}, skipping"
+                ).format(split=split, class_name=class_name))
             return
 
         # Process each image
@@ -97,7 +101,7 @@ def update_training_snapshot(
                     logger=logger
                 )
                 if image_hash is None:
-                    logger.warning(f"Failed to hash {image_path}, skipping")
+                    logger.warning(_("Failed to hash {image_path}, skipping").format(image_path=image_path))
                     continue
 
                 # Add training info - the method will find the record and update it
@@ -109,7 +113,7 @@ def update_training_snapshot(
                     basename=image_path.name
                 )
             except Exception as e:
-                logger.error(f"Error processing {image_path}: {e}")
+                logger.error(_("Error processing {image_path}: {e}").format(image_path=image_path, e=e))
                 continue
 
         # Log completion for this class
@@ -134,5 +138,7 @@ def update_training_snapshot(
     train_total = summary.get('training_train_count', 0)
     test_total = summary.get('training_test_count', 0)
     logger.info(
-        f"Training snapshot updated: {train_total} train images, {test_total} test images"
+        _(
+            "Training snapshot updated: {train_total} train images, {test_total} test images"
+        ).format(train_total=train_total, test_total=test_total)
     )

@@ -39,6 +39,7 @@ from mb.data.class_layout import (
 from mb.data.file_types import configured_media_suffixes
 from mb.models.types import ModelBuildStepCommand
 from mb.utils.snapshot import find_unified_snapshot, save_unified_snapshot, set_step_errors_for_invocation
+from mb.utils.translations import _
 
 # Configure logging
 logger = setup_logging(script_name="deduplicate_images")
@@ -180,7 +181,7 @@ class ImageDeduplicator:
                         f"legacy_small_review_migration_move_error: {legacy_file}: {e}"
                     )
         if migrated > 0:
-            logger.info("Migrated %d file(s) from legacy small_images_review layout", migrated)
+            logger.info(_("Migrated %d file(s) from legacy small_images_review layout"), migrated)
         return migrated
 
     def _try_fix_truncated_converted_from_snapshot(self, converted_path: Path) -> bool:
@@ -304,7 +305,7 @@ class ImageDeduplicator:
                 
                 logger.info(f"Loaded cache with {len(self.file_cache)} entries from {self.cache_file}")
             except Exception as e:
-                logger.warning(f"Failed to load cache: {e}. Starting with empty cache.")
+                logger.warning(_("Failed to load cache: {e}. Starting with empty cache.").format(e=e))
                 self.file_cache = {}
         else:
             logger.info("No existing cache found. Starting fresh.")
@@ -329,7 +330,7 @@ class ImageDeduplicator:
             self.cache_modified = False
             logger.debug(f"Saved cache with {len(self.file_cache)} entries to {self.cache_file}")
         except Exception as e:
-            logger.error(f"Failed to save cache: {e}")
+            logger.error(_("Failed to save cache: {e}").format(e=e))
     
     def get_cached_hash(self, file_path: Path) -> Optional[str]:
         """
@@ -389,7 +390,10 @@ class ImageDeduplicator:
             self.cache_hash(image_path, hash_value)
             return hash_value
         except Exception as e:
-            logger.error(f"Error calculating file hash for {image_path}: {e}")
+            logger.error(
+                _(
+                    "Error calculating file hash for {image_path}: {e}"
+                ).format(image_path=image_path, e=e))
             self._note_dedup_error(f"hash_error: {image_path}: {e}")
             return None
     
@@ -415,7 +419,10 @@ class ImageDeduplicator:
                 buffer.seek(0)
                 return hashlib.md5(buffer.getvalue()).hexdigest()
         except Exception as e:
-            logger.error(f"Error calculating PIL hash for {image_path}: {e}")
+            logger.error(
+                _(
+                    "Error calculating PIL hash for {image_path}: {e}"
+                ).format(image_path=image_path, e=e))
             self._note_dedup_error(f"pil_hash_error: {image_path}: {e}")
             return None
     
@@ -432,7 +439,7 @@ class ImageDeduplicator:
         hash_to_files = defaultdict(list)
         
         if not directory.exists():
-            logger.warning(f"Directory does not exist: {directory}")
+            logger.warning(_("Directory does not exist: {directory}").format(directory=directory))
             return hash_to_files
         
         logger.info(f"Scanning for duplicates in: {directory}")
@@ -469,7 +476,7 @@ class ImageDeduplicator:
         
         for directory in directories:
             if not directory.exists():
-                logger.warning(f"Directory does not exist: {directory}")
+                logger.warning(_("Directory does not exist: {directory}").format(directory=directory))
                 continue
                 
             logger.info(f"Scanning for duplicates in: {directory}")
@@ -518,11 +525,17 @@ class ImageDeduplicator:
                     removed_count += 1
                     logger.debug(f"Removed duplicate: {file_path}")
                 except Exception as e:
-                    logger.error(f"Error removing duplicate {file_path}: {e}")
+                    logger.error(
+                        _(
+                            "Error removing duplicate {file_path}: {e}"
+                        ).format(file_path=file_path, e=e))
                     self._note_dedup_error(f"remove_duplicate_error: {file_path}: {e}")
         
         if removed_count > 0:
-            logger.info(f"Removed {removed_count} duplicate files from {directory}")
+            logger.info(
+                _(
+                    "Removed {removed_count} duplicate files from {directory}"
+                ).format(removed_count=removed_count, directory=directory))
         
         return removed_count
     
@@ -542,7 +555,7 @@ class ImageDeduplicator:
         moved_count = 0
         
         if not directory.exists():
-            logger.warning(f"Directory does not exist: {directory}")
+            logger.warning(_("Directory does not exist: {directory}").format(directory=directory))
             return removed_count, moved_count
         
         logger.info(f"Scanning {directory} for small images...")
@@ -590,16 +603,26 @@ class ImageDeduplicator:
                         moved_count += 1
                         logger.debug(f"Moved small image for review: {file_path} ({width}x{height}) -> {target_path}")
                 except Exception as e:
-                    logger.error(f"Error checking dimensions for {file_path}: {e}")
+                    logger.error(
+                        _(
+                            "Error checking dimensions for {file_path}: {e}"
+                        ).format(file_path=file_path, e=e))
                     error_text = str(e)
                     self._note_dedup_error(f"small_image_check_error: {file_path}: {error_text}")
                     if "image file is truncated" in error_text.lower():
                         self._try_fix_truncated_converted_from_snapshot(file_path)
         
         if removed_count > 0:
-            logger.info(f"Removed {removed_count} very small images (< 80px) from {directory}")
+            logger.info(
+                _(
+                    "Removed {removed_count} very small images (< 80px) from {directory}"
+                ).format(removed_count=removed_count, directory=directory))
         if moved_count > 0:
-            logger.info(f"Moved {moved_count} small images (80-250px) from {directory} to review directory")
+            logger.info(
+                _(
+                    "Moved {moved_count} small images (80-250px) from {directory} to review "
+                    "directory"
+                ).format(moved_count=moved_count, directory=directory))
         
         return removed_count, moved_count
     
@@ -623,7 +646,7 @@ class ImageDeduplicator:
 
         if skipped_without_converted:
             logger.info(
-                "Skipping %d class directories without %s",
+                _("Skipping %d class directories without %s"),
                 len(skipped_without_converted),
                 CONVERTED_MEDIA_SUBDIR,
             )
@@ -679,7 +702,7 @@ class ImageDeduplicator:
         """Persist deduplication metadata into unified snapshot when available."""
         snapshot = find_unified_snapshot([self.raw_data_dir], run_id=run_id, logger=logger)
         if not snapshot:
-            logger.warning("No unified snapshot found under %s; skipping deduplication snapshot update", self.raw_data_dir)
+            logger.warning(_("No unified snapshot found under %s; skipping deduplication snapshot update"), self.raw_data_dir)
             return
         snapshot.set_deduplication_results(self.duplicate_groups)
         if self._deduplicate_step_started_at:
@@ -691,18 +714,18 @@ class ImageDeduplicator:
             )
         saved = save_unified_snapshot(snapshot, self.raw_data_dir, logger=logger)
         if saved is not None:
-            logger.info("Updated snapshot with deduplication results: %s", saved)
+            logger.info(_("Updated snapshot with deduplication results: %s"), saved)
 
     def perform_deduplication(self, *, list_only: bool = False) -> None:
         """Perform deduplication only within class ``CONVERTED`` directories under raw data."""
         check_cancel_event(getattr(self, "_cancel_event", None))
         logger.info("=" * 60)
-        logger.info("STARTING DEDUPLICATION PROCESS")
+        logger.info(_("STARTING DEDUPLICATION PROCESS"))
         logger.info("=" * 60)
         converted_directories = self._discover_converted_directories()
 
         if not converted_directories:
-            logger.warning("No CONVERTED directories found for deduplication")
+            logger.warning(_("No CONVERTED directories found for deduplication"))
             self.duplicate_groups = []
             return
 
@@ -722,8 +745,8 @@ class ImageDeduplicator:
             )
         if list_only:
             logger.info(
-                "\nList-only mode: still removes tiny images and duplicates *within* each "
-                "CONVERTED folder; only *cross-class* duplicate groups are kept for review."
+                _("\nList-only mode: still removes tiny images and duplicates *within* each "
+                "CONVERTED folder; only *cross-class* duplicate groups are kept for review.")
             )
             logger.info("\nStep 0: Processing small images...")
             logger.info("  - Removing images with any dimension < 80px")
@@ -764,7 +787,7 @@ class ImageDeduplicator:
             self.stats["duplicates_found"] = len(all_duplicates)
             self.duplicate_groups = self._serialize_duplicate_groups(all_duplicates)
             logger.info("=" * 60)
-            logger.info("DEDUPLICATION LIST-ONLY SCAN COMPLETED")
+            logger.info(_("DEDUPLICATION LIST-ONLY SCAN COMPLETED"))
             logger.info("=" * 60)
             return
 
@@ -809,34 +832,57 @@ class ImageDeduplicator:
         self.duplicate_groups = self._serialize_duplicate_groups(all_duplicates)
         
         if all_duplicates:
-            logger.info(f"Found {len(all_duplicates)} duplicate groups across all directories")
+            logger.info(
+                _(
+                    "Found {n_all_duplicates} duplicate groups across all directories"
+                ).format(n_all_duplicates=len(all_duplicates)))
             for hash_val, files in all_duplicates.items():
                 logger.info(f"Duplicate group ({len(files)} files):")
                 for file_path in files:
                     logger.info(f"  - {file_path}")
 
         logger.info("=" * 60)
-        logger.info("DEDUPLICATION PROCESS COMPLETED")
+        logger.info(_("DEDUPLICATION PROCESS COMPLETED"))
         logger.info("=" * 60)
     
     def print_summary(self) -> None:
         """Print a summary of the deduplication operation."""
         logger.info("=" * 60)
-        logger.info("DEDUPLICATION SUMMARY")
+        logger.info(_("DEDUPLICATION SUMMARY"))
         logger.info("=" * 60)
-        logger.info(f"Raw data directory: {self.raw_data_dir}")
-        logger.info(f"Very small images removed (< 80px): {self.stats['small_images_removed']}")
-        logger.info(f"Small images moved to review (80-250px): {self.stats['small_images_moved']}")
+        logger.info(_("Raw data directory: {raw_data_dir}").format(raw_data_dir=self.raw_data_dir))
+        logger.info(
+            _(
+                "Very small images removed (< 80px): {small_images_removed}"
+            ).format(small_images_removed=self.stats['small_images_removed']))
+        logger.info(
+            _(
+                "Small images moved to review (80-250px): {small_images_moved}"
+            ).format(small_images_moved=self.stats['small_images_moved']))
         if self.stats['small_images_moved'] > 0:
-            logger.info("Review directory strategy: raw_data/<class>/small_images_review")
-        logger.info(f"Duplicates removed: {self.stats['duplicates_removed']}")
+            logger.info(_("Review directory strategy: raw_data/<class>/small_images_review"))
         logger.info(
-            f"Duplicates removed in visual media review dirs: {self.stats['duplicates_removed_visual_review']}"
+            _(
+                "Duplicates removed: {duplicates_removed}"
+            ).format(duplicates_removed=self.stats['duplicates_removed']))
+        logger.info(
+            _(
+                "Duplicates removed in visual media review dirs: "
+                "{duplicates_removed_visual_review}"
+            ).format(
+                duplicates_removed_visual_review=self.stats['duplicates_removed_visual_review'],
+            )
         )
         logger.info(
-            f"Duplicates removed in class small_images_review dirs: {self.stats['duplicates_removed_small_review']}"
+            _(
+                "Duplicates removed in class small_images_review dirs: "
+                "{duplicates_removed_small_review}"
+            ).format(duplicates_removed_small_review=self.stats['duplicates_removed_small_review'])
         )
-        logger.info(f"Duplicate groups found across directories: {self.stats['duplicates_found']}")
+        logger.info(
+            _(
+                "Duplicate groups found across directories: {duplicates_found}"
+            ).format(duplicates_found=self.stats['duplicates_found']))
         logger.info("=" * 60)
     
     def run(
@@ -858,17 +904,20 @@ class ImageDeduplicator:
         self._deduplicate_step_started_at = datetime.now().isoformat()
         self._active_snapshot = find_unified_snapshot([self.raw_data_dir], run_id=run_id, logger=logger)
         log_startup_info(logger, "Image deduplication process")
-        logger.info(f"Raw data directory: {self.raw_data_dir}")
+        logger.info(_("Raw data directory: {raw_data_dir}").format(raw_data_dir=self.raw_data_dir))
         if list_only:
             logger.info(
-                "Mode: list-only (cross-class duplicates for review; within-CONVERTED duplicates removed)"
+                _("Mode: list-only (cross-class duplicates for review; within-CONVERTED duplicates removed)")
             )
         
         check_cancel_event(self._cancel_event)
         
         # Validate raw data directory
         if not self.raw_data_dir.exists():
-            logger.error(f"Raw data directory does not exist: {self.raw_data_dir}")
+            logger.error(
+                _(
+                    "Raw data directory does not exist: {raw_data_dir}"
+                ).format(raw_data_dir=self.raw_data_dir))
             return False
         
         # Perform deduplication

@@ -1285,7 +1285,7 @@ class DataPage(QWidget):
                 p = find_latest_unified_snapshot_path(paths) if paths else None
                 return str(p.resolve()) if p else None
         except OSError as exc:
-            logger.warning("Could not resolve latest snapshot path: %s", exc)
+            logger.warning(_("Could not resolve latest snapshot path: %s"), exc)
         return None
 
     def _apply_space_estimate_to_ui(self, message: str) -> None:

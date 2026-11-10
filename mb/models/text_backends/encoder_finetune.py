@@ -241,7 +241,7 @@ def load_model(model_dir, meta, device):
                         stop = True
                         break
             if stop:
-                logger.info("encoder_finetune: early stop after %d evaluations without improvement", stopper.bad_evals)
+                logger.info(_("encoder_finetune: early stop after %d evaluations without improvement"), stopper.bad_evals)
                 break
         if best_state is not None:
             self.model.load_state_dict(best_state)
