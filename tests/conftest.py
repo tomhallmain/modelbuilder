@@ -23,6 +23,16 @@ if not os.environ.get("MODELBUILDER_TEST_APP_DATA"):
 
 # Isolate :mod:`utils.app_info_cache` from encrypted store / user cache (see ``IsolationAppInfoCache``).
 os.environ.setdefault("MODELBUILDER_TEST_CACHE", "1")
+# The encryptor backs up its key store off-drive after every write, and with no
+# destination set it picks the first writable external drive -- the developer's
+# real one. Pinned into the session dir. MODELBUILDER_KEY_STORE_DIR is left
+# unset: nothing here replaces the real keychain, and a key store in a scratch
+# dir reached with it would migrate the real keychain items into the scratch
+# dir and delete them. Tests that need a key store set both, with a fake
+# keyring (tests/unit/test_encryptor.py).
+os.environ["MODELBUILDER_KEY_BACKUP_DIR"] = os.path.join(
+    os.environ["MODELBUILDER_TEST_APP_DATA"], "key_backup"
+)
 
 from pathlib import Path
 from typing import List

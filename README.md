@@ -127,6 +127,10 @@ Configuration can be provided via:
 
 See `ARCHITECTURE.md` for detailed architecture documentation.
 
+## Encrypted cache keys
+
+The app info cache (`app_info_cache.enc`) is encrypted. Its keys sit in `MyPersonalApplicationsService/modelbuilder__key_store.json` under `%LOCALAPPDATA%` on Windows, `~/Library/Application Support` on macOS and `$XDG_DATA_HOME` (default `~/.local/share`) elsewhere; only the passphrase protecting them stays in the OS keychain. Keys kept in the keychain by older versions are moved into that file on first start. After every write the key store is backed up to an external drive (set `MODELBUILDER_KEY_BACKUP_DIR` to choose where). Run `python scripts/key_material.py` to check that backup's state, or `python scripts/key_material.py backup` to take one by hand.
+
 ## Supported Architectures
 
 **PyTorch**: resnet18, resnet34, resnet50, resnet101, resnet152, efficientnet_b0, efficientnet_b1
