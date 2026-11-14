@@ -55,6 +55,21 @@ def get_log_directory() -> Path:
     return log_dir
 
 
+def close_log_file_handlers() -> None:
+    """Close the file handlers :func:`get_logger` attached to ``modelbuilder.*`` loggers.
+
+    Windows will not delete an open file, so this must run before the log
+    directory is removed (the test suite removes its app data dir at exit).
+    """
+    for name, log in list(logging.Logger.manager.loggerDict.items()):
+        if not (name.startswith("modelbuilder.") and isinstance(log, logging.Logger)):
+            continue
+        for handler in list(log.handlers):
+            if isinstance(handler, logging.FileHandler):
+                log.removeHandler(handler)
+                handler.close()
+
+
 def _cleanup_old_logs(log_dir: Path, logger: logging.Logger) -> None:
     """
     Clean up log files that are older than 30 days if there are more than 10 log files.

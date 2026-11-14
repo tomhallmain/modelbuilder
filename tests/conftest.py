@@ -13,16 +13,28 @@ import os
 import shutil
 import tempfile
 
-# Ephemeral app-data root: application.yaml, pipeline.yaml, and logs never use the developer's
-# Roaming folder during pytest (see :func:`utils.config.get_user_application_config_path`).
-# tests/ui/conftest.py may set this first (it loads before this file); only create one temp dir.
+# Ephemeral app-data root: application.yaml, pipeline.yaml, logs and the app info
+# cache never use the developer's app data folder during pytest (see
+# :func:`mb.utils.logging_setup.get_app_data_dir`), and repo-root cache files are
+# not moved while it is set. tests/ui/conftest.py may set this first (it loads
+# before this file); only create one temp dir.
 if not os.environ.get("MODELBUILDER_TEST_APP_DATA"):
     _test_app_data = tempfile.mkdtemp(prefix="modelbuilder_test_appdata_")
     os.environ["MODELBUILDER_TEST_APP_DATA"] = _test_app_data
-    atexit.register(lambda: shutil.rmtree(_test_app_data, ignore_errors=True))
+
+    def _remove_test_app_data() -> None:
+        from mb.utils.logging_setup import close_log_file_handlers
+
+        close_log_file_handlers()
+        shutil.rmtree(_test_app_data, ignore_errors=True)
+
+    atexit.register(_remove_test_app_data)
 
 # Isolate :mod:`utils.app_info_cache` from encrypted store / user cache (see ``IsolationAppInfoCache``).
-os.environ.setdefault("MODELBUILDER_TEST_CACHE", "1")
+# Set when unset or empty: an empty value counts as off and would load the real
+# cache with the real key material. An explicit ``0`` still opts out.
+if not os.environ.get("MODELBUILDER_TEST_CACHE", "").strip():
+    os.environ["MODELBUILDER_TEST_CACHE"] = "1"
 # The encryptor backs up its key store off-drive after every write, and with no
 # destination set it picks the first writable external drive -- the developer's
 # real one. Pinned into the session dir. MODELBUILDER_KEY_STORE_DIR is left

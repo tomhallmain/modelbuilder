@@ -22,7 +22,15 @@ from typing import Callable
 if not os.environ.get("MODELBUILDER_TEST_APP_DATA"):
     _test_app_data_ui = tempfile.mkdtemp(prefix="modelbuilder_test_appdata_")
     os.environ["MODELBUILDER_TEST_APP_DATA"] = _test_app_data_ui
-    atexit.register(lambda: shutil.rmtree(_test_app_data_ui, ignore_errors=True))
+
+    def _remove_test_app_data_ui() -> None:
+        # Windows will not delete the log files while their handlers are open.
+        from mb.utils.logging_setup import close_log_file_handlers
+
+        close_log_file_handlers()
+        shutil.rmtree(_test_app_data_ui, ignore_errors=True)
+
+    atexit.register(_remove_test_app_data_ui)
 
 # Must run before importing Qt or ui.*
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
