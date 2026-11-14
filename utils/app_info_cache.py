@@ -1,4 +1,5 @@
 from abc import ABC
+import glob
 import json
 import os
 import shutil
@@ -6,10 +7,74 @@ import threading
 from typing import Any, Dict, List
 
 from mb.utils.constants import AppInfo
-from mb.utils.logging_setup import get_logger
+from mb.utils.logging_setup import get_app_data_dir, get_logger
+from mb.utils.translations import _
 from utils.encryptor import encrypt_data_to_file, decrypt_data_from_file
 
 logger = get_logger(__name__)
+
+CACHE_FILENAME = "app_info_cache.enc"
+JSON_FILENAME = "app_info_cache.json"
+# Where earlier versions kept the cache files.
+_LEGACY_CACHE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def app_info_cache_dir() -> str:
+    """``cache/`` under the app data directory. Created if missing."""
+    path = os.path.join(str(get_app_data_dir()), "cache")
+    os.makedirs(path, exist_ok=True)
+    return path
+
+
+def _move_legacy_cache_files(target_dir: str) -> str:
+    """Move the cache, its backups and any JSON fallback from the repo root into
+    *target_dir*; return the directory to use the cache from.
+
+    All or nothing on name clashes: if any of them already exists in *target_dir*,
+    none is moved, so the main file and its backups stay together. If the main file
+    fails to move, the rest stay too and the repo root is returned, so this run does
+    not start from an empty cache. Skipped under ``MODELBUILDER_TEST_APP_DATA``: the
+    repo files are the user's real cache and that directory is a scratch one.
+    """
+    if os.environ.get("MODELBUILDER_TEST_APP_DATA"):
+        return target_dir
+    if os.path.normcase(os.path.abspath(target_dir)) == os.path.normcase(_LEGACY_CACHE_DIR):
+        return target_dir
+    sources = []
+    for name in (CACHE_FILENAME, CACHE_FILENAME + ".bak*", JSON_FILENAME):
+        sources.extend(glob.glob(os.path.join(glob.escape(_LEGACY_CACHE_DIR), name)))
+    if not sources:
+        return target_dir
+
+    clashes = [
+        src for src in sources
+        if os.path.exists(os.path.join(target_dir, os.path.basename(src)))
+    ]
+    if clashes:
+        logger.warning(
+            _("Not moving the application cache from {src_dir} to {dest_dir}: {names} "
+              "already exist there. Remove whichever copy is stale.").format(
+                src_dir=_LEGACY_CACHE_DIR,
+                dest_dir=target_dir,
+                names=", ".join(sorted(os.path.basename(src) for src in clashes)),
+            )
+        )
+        return target_dir
+
+    # Main file first: if it fails to move, its backups stay beside it.
+    for src in sorted(sources, key=lambda p: os.path.basename(p) != CACHE_FILENAME):
+        dest = os.path.join(target_dir, os.path.basename(src))
+        try:
+            shutil.move(src, dest)
+        except FileNotFoundError:
+            continue  # another process moved it first
+        except OSError as e:
+            logger.error(_("Failed to move {src} to {dest}: {error}").format(src=src, dest=dest, error=e))
+            if os.path.basename(src) == CACHE_FILENAME:
+                return _LEGACY_CACHE_DIR
+            continue
+        logger.info(_("Moved {src} to {dest}").format(src=src, dest=dest))
+    return target_dir
 
 
 class InflationMonitor(ABC):
@@ -197,7 +262,8 @@ def _use_test_isolation_cache() -> bool:
     ``app_info_cache.enc`` tree. Set from ``tests/conftest.py`` under pytest.
 
     Set ``MODELBUILDER_TEST_CACHE=0`` to force the production :class:`AppInfoCache`
-    inside a pytest run (can touch the user's encrypted cache — use with care).
+    inside a pytest run. Its cache file then sits under ``MODELBUILDER_TEST_APP_DATA``,
+    but it is encrypted with the user's real key material — use with care.
     """
     v = (os.environ.get("MODELBUILDER_TEST_CACHE") or "").strip().lower()
     if v in ("0", "false", "no", "off", ""):
@@ -302,13 +368,14 @@ class IsolationAppInfoCache(InflationMonitor):
 
 
 class AppInfoCache(InflationMonitor):
-    CACHE_LOC = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "app_info_cache.enc")
-    JSON_LOC = os.path.join(os.path.dirname(os.path.abspath(os.path.dirname(__file__))), "app_info_cache.json")
     META_INFO_KEY = "info"
     NUM_BACKUPS = 4
 
     def __init__(self):
         super().__init__()
+        cache_dir = _move_legacy_cache_files(app_info_cache_dir())
+        self.cache_loc = os.path.join(cache_dir, CACHE_FILENAME)
+        self.json_loc = os.path.join(cache_dir, JSON_FILENAME)
         self._lock = threading.RLock()
         self._cache = {self.META_INFO_KEY: {}}
         self.load()
@@ -347,14 +414,14 @@ class AppInfoCache(InflationMonitor):
                     cache_data,
                     AppInfo.SERVICE_NAME,
                     AppInfo.APP_IDENTIFIER,
-                    AppInfoCache.CACHE_LOC,
+                    self.cache_loc,
                 )
                 return True
             except Exception as e:
                 logger.error(f"Error encrypting cache: {e}")
 
             try:
-                with open(AppInfoCache.JSON_LOC, "w", encoding="utf-8") as f:
+                with open(self.json_loc, "w", encoding="utf-8") as f:
                     json.dump(self._cache, f)
                 return False  # Encryption failed, but JSON fallback succeeded
             except Exception as e:
@@ -367,23 +434,23 @@ class AppInfoCache(InflationMonitor):
     def load(self):
         with self._lock:
             try:
-                if os.path.exists(AppInfoCache.JSON_LOC):
+                if os.path.exists(self.json_loc):
                     logger.info("Detected JSON-format application cache, will attempt migration to encrypted store")
-                    with open(AppInfoCache.JSON_LOC, "r", encoding="utf-8") as f:
+                    with open(self.json_loc, "r", encoding="utf-8") as f:
                         raw = json.load(f)
                     self._normalize_loaded_cache(raw)
                     if self.store():
-                        logger.info(f"Migrated application cache from {AppInfoCache.JSON_LOC} to encrypted store")
-                        os.remove(AppInfoCache.JSON_LOC)
+                        logger.info(f"Migrated application cache from {self.json_loc} to encrypted store")
+                        os.remove(self.json_loc)
                     else:
                         logger.warning("Encrypted store of application cache failed; keeping JSON cache file")
                     return
 
                 # Try encrypted cache and backups in order
-                cache_paths = [self.CACHE_LOC] + self._get_backup_paths()
+                cache_paths = [self.cache_loc] + self._get_backup_paths()
                 any_exist = any(os.path.exists(path) for path in cache_paths)
                 if not any_exist:
-                    logger.info(f"No cache file found at {self.CACHE_LOC}, creating new cache")
+                    logger.info(f"No cache file found at {self.cache_loc}, creating new cache")
                     return
 
                 for path in cache_paths:
@@ -391,8 +458,8 @@ class AppInfoCache(InflationMonitor):
                         try:
                             raw = self._try_load_cache_from_file(path)
                             self._normalize_loaded_cache(raw)
-                            if path == self.CACHE_LOC:
-                                message = f"Loaded cache from {self.CACHE_LOC}"
+                            if path == self.cache_loc:
+                                message = f"Loaded cache from {self.cache_loc}"
                                 rotated_count = self._rotate_backups()
                                 if rotated_count > 0:
                                     message += f", rotated {rotated_count} backups"
@@ -433,7 +500,7 @@ class AppInfoCache(InflationMonitor):
     def export_as_json(self, json_path=None):
         """Export the current cache as a JSON file (not encrypted)."""
         if json_path is None:
-            json_path = AppInfoCache.JSON_LOC
+            json_path = self.json_loc
         with self._lock:
             with open(json_path, "w", encoding="utf-8") as f:
                 json.dump(self._cache, f, ensure_ascii=False, indent=2)
@@ -444,7 +511,7 @@ class AppInfoCache(InflationMonitor):
         backup_paths = []
         for i in range(1, self.NUM_BACKUPS + 1):
             index = "" if i == 1 else f"{i}"
-            path = f"{self.CACHE_LOC}.bak{index}"
+            path = f"{self.cache_loc}.bak{index}"
             backup_paths.append(path)
         return backup_paths
 
@@ -464,7 +531,7 @@ class AppInfoCache(InflationMonitor):
                 rotated_count += 1
         
         # Copy main cache to first backup position
-        shutil.copy2(self.CACHE_LOC, backup_paths[0])
+        shutil.copy2(self.cache_loc, backup_paths[0])
         
         return rotated_count
 

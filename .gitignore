@@ -19,5 +19,4 @@ legacy/
 logs/
 
 app_info_cache.*
-utils/app_info_cache.py
 

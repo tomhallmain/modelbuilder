@@ -26,21 +26,31 @@ def _test_quiet_logger_full_names() -> FrozenSet[str]:
     return frozenset(f"modelbuilder.{m}" for m in _TEST_QUIET_LOG_MODULES)
 
 
-def get_log_directory() -> Path:
+def get_app_data_dir() -> Path:
     """
-    Directory for ``modelbuilder_*.log`` files — the same path used when
-    :func:`get_logger` attaches its file handler. Ensures the directory exists.
+    Per-user app data directory: ``%APPDATA%/ModelBuilder`` (Windows) or
+    ``~/.local/share/ModelBuilder`` (Unix). Ensures the directory exists.
 
-    When ``MODELBUILDER_TEST_APP_DATA`` is set (pytest), logs go under that
-    directory so tests do not write to the real app-data folder.
+    When ``MODELBUILDER_TEST_APP_DATA`` is set (pytest), that directory is used
+    so tests do not write to the real app-data folder.
     """
     test_root = os.environ.get("MODELBUILDER_TEST_APP_DATA")
     if test_root:
-        log_dir = Path(test_root) / "logs"
-        log_dir.mkdir(parents=True, exist_ok=True)
-        return log_dir
-    appdata_dir: str = os.getenv("APPDATA") if sys.platform == "win32" else os.path.expanduser("~/.local/share")
-    log_dir: Path = Path(appdata_dir) / "ModelBuilder" / "logs"
+        app_dir = Path(test_root)
+    else:
+        appdata_dir: str = os.getenv("APPDATA") if sys.platform == "win32" else os.path.expanduser("~/.local/share")
+        app_dir = Path(appdata_dir) / "ModelBuilder"
+    app_dir.mkdir(parents=True, exist_ok=True)
+    return app_dir
+
+
+def get_log_directory() -> Path:
+    """
+    Directory for ``modelbuilder_*.log`` files — the same path used when
+    :func:`get_logger` attaches its file handler: ``logs/`` under
+    :func:`get_app_data_dir`. Ensures the directory exists.
+    """
+    log_dir: Path = get_app_data_dir() / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
     return log_dir
 
