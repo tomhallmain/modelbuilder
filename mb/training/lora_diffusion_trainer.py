@@ -140,8 +140,12 @@ def build_lora_training_config_from_args(args: Namespace, pipeline: Any) -> Lora
             )
         )
 
-    data_dir = args.data_dir or Path(pipeline.get("data.data_dir", "data"))
-    output_dir = args.output_dir or Path(pipeline.get("paths.models_dir", "data/models"))
+    from mb.pipeline_config import pipeline_path
+
+    data_dir = args.data_dir or pipeline_path(pipeline, pipeline.get("data.data_dir") or "data")
+    output_dir = args.output_dir or pipeline_path(
+        pipeline, pipeline.get("paths.models_dir") or "data/models"
+    )
 
     rank = args.lora_rank if args.lora_rank is not None else 16
     alpha = args.lora_alpha if args.lora_alpha is not None else rank

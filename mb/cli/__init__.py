@@ -13,7 +13,9 @@ import logging
 from mb import __version__
 from mb.pipeline_config import (
     data_class_layout_defaults,
+    gather_pipeline_defaults,
     get_pipeline_config,
+    pipeline_path,
     reload_pipeline_config,
     resolve_create_dataset_cli,
     resolve_fix_jpeg_raw_data_dir_cli,
@@ -83,6 +85,15 @@ def create_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _fill_data_path_defaults(args, *, data_dir: bool = False) -> None:
+    """Fill ``--raw-data-dir`` (and ``--data-dir`` when *data_dir*) left unset from the
+    active pipeline config. Call after :func:`reload_pipeline_config`."""
+    if getattr(args, "raw_data_dir", None) is None:
+        args.raw_data_dir = gather_pipeline_defaults()["raw_data_dir"]
+    if data_dir and getattr(args, "data_dir", None) is None:
+        args.data_dir = get_pipeline_config().path("data.data_dir", "data")
+
+
 def handle_data_gather(args):
     """Handle 'mb data gather' command."""
     try:
@@ -125,6 +136,17 @@ def handle_data_gather(args):
                 )
                 return 1
         
+        # Parser defaults are None so these come from the config named by --config.
+        gd = gather_pipeline_defaults()
+        if args.raw_data_dir is None:
+            args.raw_data_dir = gd["raw_data_dir"]
+        if args.target_dir is None:
+            args.target_dir = gd["target_dir"]
+        if args.rejected_dir is None:
+            args.rejected_dir = gd["rejected_dir"]
+        if args.target_count is None:
+            args.target_count = gd["target_count"]
+
         layout = data_class_layout_defaults()
         mt = resolve_model_type_cli(args)
         # Create and run gatherer
@@ -158,6 +180,7 @@ def handle_data_convert(args):
     # Today ImageConverter is JPEG-oriented; --format is accepted but not yet applied.
     try:
         reload_pipeline_config(getattr(args, "config", None), force=True)
+        _fill_data_path_defaults(args)
         mt = resolve_model_type_cli(args)
         converter = ImageConverter(raw_data_dir=args.raw_data_dir, model_type=mt)
         success = converter.run(
@@ -173,6 +196,8 @@ def handle_data_convert(args):
 def handle_data_deduplicate(args):
     """Handle 'mb data deduplicate' command."""
     try:
+        reload_pipeline_config(getattr(args, "config", None), force=True)
+        _fill_data_path_defaults(args)
         deduplicator = ImageDeduplicator(raw_data_dir=args.raw_data_dir)
         success = deduplicator.run(
             list_only=bool(getattr(args, "list_only", False)),
@@ -189,6 +214,8 @@ def handle_data_deduplicate(args):
 def handle_data_upscale(args):
     """Handle 'mb data upscale' command."""
     try:
+        reload_pipeline_config(getattr(args, "config", None), force=True)
+        _fill_data_path_defaults(args)
         # Determine review directory
         if hasattr(args, 'review_dir') and args.review_dir:
             review_dir = args.review_dir
@@ -207,6 +234,7 @@ def handle_data_create_dataset(args):
     """Handle 'mb data create-dataset' command."""
     try:
         reload_pipeline_config(getattr(args, "config", None), force=True)
+        _fill_data_path_defaults(args, data_dir=True)
         mt = resolve_model_type_cli(args)
 
         if mt == ModelType.IMAGE_GENERATION_LORA:
@@ -322,6 +350,7 @@ def handle_data_estimate_space(args):
     """Handle ``mb data estimate-space``."""
     try:
         reload_pipeline_config(getattr(args, "config", None), force=True)
+        _fill_data_path_defaults(args)
         mt = resolve_model_type_cli(args)
         if args.operation == ModelBuildStepCommand.CONVERT.value:
             from mb.space_estimate import run_convert_estimate
@@ -438,13 +467,13 @@ def handle_train(args):
             return 1
         
         # Determine data directory
-        data_dir = args.data_dir or Path(pipeline.get('data.data_dir', 'data'))
+        data_dir = args.data_dir or pipeline.path('data.data_dir', 'data')
         if not data_dir.exists():
             logger.error(_("Data directory does not exist: {path}").format(path=data_dir))
             return 1
         
         # Determine output directory
-        output_dir = args.output_dir or Path(pipeline.get('paths.models_dir', 'data/models'))
+        output_dir = args.output_dir or pipeline.path('paths.models_dir', 'data/models')
         output_dir.mkdir(parents=True, exist_ok=True)
         
         # Prepare CLI hyperparameters
@@ -721,8 +750,9 @@ def handle_evaluate_compare(args) -> int:
 def _text_data_dir_default() -> Path:
     from mb.training.text_config import TEXT_CLASSIFICATION_DEFAULTS
 
-    raw = get_pipeline_config().get("text_classification.data_dir")
-    return Path(str(raw).strip() if raw else TEXT_CLASSIFICATION_DEFAULTS["data_dir"])
+    return get_pipeline_config().path(
+        "text_classification.data_dir", TEXT_CLASSIFICATION_DEFAULTS["data_dir"]
+    )
 
 
 def handle_text_verify(args) -> int:

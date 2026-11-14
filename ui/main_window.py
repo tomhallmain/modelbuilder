@@ -43,7 +43,7 @@ from ui.pages import (
     TrainPage,
 )
 from ui.workspace import Workspace, default_settings, effective_pipeline_config_path
-from mb.pipeline_config import reload_pipeline_config
+from mb.pipeline_config import reload_pipeline_config, set_workspace_root
 
 from utils.config import (
     DEFAULT_APPLICATION_YAML,
@@ -79,6 +79,7 @@ class MainWindow(QMainWindow):
 
         self._settings = default_settings()
         self._workspace = Workspace.load(self._settings)
+        set_workspace_root(self._workspace.root)
         reload_application_config(self._effective_application_config_path())
         reload_pipeline_config(self._effective_pipeline_config_path())
         apply_theme(QApplication.instance())
@@ -332,6 +333,7 @@ class MainWindow(QMainWindow):
         if not path:
             return
         self._workspace.root = Path(path)
+        set_workspace_root(self._workspace.root)
         self._workspace.save(self._settings)
         self.reload_mb_yaml_config()
         self._apply_workspace_to_ui()

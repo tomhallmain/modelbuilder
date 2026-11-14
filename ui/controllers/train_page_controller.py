@@ -73,15 +73,23 @@ def build_training_request(values: TrainPageFieldValues, pipeline: Any = None) -
 
     *pipeline* supplies ``text_classification`` defaults (default: the active pipeline).
     """
-    if values.model_type == ModelType.IMAGE_GENERATION_LORA:
-        return _build_lora_config(values)
-    if values.model_type == ModelType.TEXT_CLASSIFICATION:
-        if pipeline is None:
-            from mb.pipeline_config import get_pipeline_config
+    if pipeline is None:
+        from mb.pipeline_config import get_pipeline_config
 
-            pipeline = get_pipeline_config()
+        pipeline = get_pipeline_config()
+    if values.model_type == ModelType.IMAGE_GENERATION_LORA:
+        return _build_lora_config(values, pipeline)
+    if values.model_type == ModelType.TEXT_CLASSIFICATION:
         return _build_text_config(values, pipeline)
-    return _build_classification_run_args(values)
+    return _build_classification_run_args(values, pipeline)
+
+
+def _field_path(pipeline: Any, text: str, default: str) -> Path:
+    """A path field's value, resolved like the pipeline config's own paths: the GUI has
+    no meaningful cwd once packaged."""
+    from mb.pipeline_config import pipeline_path
+
+    return pipeline_path(pipeline, text.strip() or default)
 
 
 def _parse_optional_seed(text: str) -> Optional[int]:
@@ -95,9 +103,11 @@ def _parse_optional_seed(text: str) -> Optional[int]:
 
 
 def _build_text_config(values: TrainPageFieldValues, pipeline: Any) -> TextRunConfig:
+    data_text = values.data_dir_text.strip()
+    runs_text = values.output_dir_text.strip()
     overrides = {
-        "data_dir": values.data_dir_text.strip() or None,
-        "runs_dir": values.output_dir_text.strip() or None,
+        "data_dir": str(_field_path(pipeline, data_text, "")) if data_text else None,
+        "runs_dir": str(_field_path(pipeline, runs_text, "")) if runs_text else None,
         "backend": values.text_backend.strip() or None,
         "model_id": values.architecture_text.strip() or None,
         "seed": _parse_optional_seed(values.seed_text),
@@ -113,9 +123,9 @@ def _build_text_config(values: TrainPageFieldValues, pipeline: Any) -> TextRunCo
     return config
 
 
-def _build_classification_run_args(values: TrainPageFieldValues) -> TrainingRunArgs:
-    data_dir = Path(values.data_dir_text.strip() or "data")
-    output_dir = Path(values.output_dir_text.strip() or "data/models")
+def _build_classification_run_args(values: TrainPageFieldValues, pipeline: Any) -> TrainingRunArgs:
+    data_dir = _field_path(pipeline, values.data_dir_text, "data")
+    output_dir = _field_path(pipeline, values.output_dir_text, "data/models")
     fw = FrameworkType.try_from(values.framework_text)
     if fw is None:
         raise ValueError(_("Unsupported framework: {fw}").format(fw=values.framework_text))
@@ -158,7 +168,7 @@ def _build_classification_run_args(values: TrainPageFieldValues) -> TrainingRunA
     )
 
 
-def _build_lora_config(values: TrainPageFieldValues) -> LoraTrainingConfig:
+def _build_lora_config(values: TrainPageFieldValues, pipeline: Any) -> LoraTrainingConfig:
     from mb.models.generation_architectures import (
         BaseGenerationArchitecture,
         detect_base_architecture,
@@ -179,10 +189,10 @@ def _build_lora_config(values: TrainPageFieldValues) -> LoraTrainingConfig:
             _("Base model (a local checkpoint path or hub id) is required for image-generation LoRA.")
         )
 
-    data_dir = Path(values.data_dir_text.strip() or "data")
+    data_dir = _field_path(pipeline, values.data_dir_text, "data")
     if not data_dir.exists():
         raise ValueError(_("Data directory does not exist."))
-    output_dir = Path(values.output_dir_text.strip() or "data/models")
+    output_dir = _field_path(pipeline, values.output_dir_text, "data/models")
 
     base_arch = BaseGenerationArchitecture.try_from(values.base_model_architecture_text)
     if base_arch is None:

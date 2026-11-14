@@ -23,6 +23,7 @@ from mb.pipeline_config import (
     resolve_gather_path_under_raw,
     resolve_model_type_cli,
 )
+from mb.utils.app_paths import default_work_dir
 from mb.utils.constants import DatasetSplitMode
 
 
@@ -64,9 +65,11 @@ class TestPipelineConfigLoad(unittest.TestCase):
     def test_gather_raw_data_uses_data_raw_data_dir(self) -> None:
         reload_pipeline_config(None, force=True)
         gd = gather_pipeline_defaults()
-        self.assertEqual(gd["raw_data_dir"].name, "raw_data")
-        self.assertEqual(gd["target_dir"], Path("raw_data") / "coherent")
-        self.assertEqual(gd["rejected_dir"], Path("raw_data") / "rejected")
+        # Packaged defaults: relative paths resolve under the work dir.
+        raw = default_work_dir() / "raw_data"
+        self.assertEqual(gd["raw_data_dir"], raw)
+        self.assertEqual(gd["target_dir"], raw / "coherent")
+        self.assertEqual(gd["rejected_dir"], raw / "rejected")
 
     def test_resolve_gather_relative_under_raw(self) -> None:
         r = resolve_gather_path_under_raw("raw_data", "coherent", "coherent")

@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QGroupBox,
@@ -151,8 +149,8 @@ class HomePage(QWidget):
 
     def refresh_snapshot_panel(self) -> None:
         pc = get_pipeline_config()
-        raw = Path(str(pc.get("data.raw_data_dir", "raw_data")))
-        data = Path(str(pc.get("data.data_dir", "data")))
+        raw = pc.path("data.raw_data_dir", "raw_data")
+        data = pc.path("data.data_dir", "data")
         text = format_latest_unified_snapshot_summary([raw, data])
         if not text.strip():
             self._snapshot_detail.setPlainText(

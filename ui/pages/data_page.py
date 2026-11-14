@@ -388,7 +388,10 @@ class DataPage(QWidget):
         self._sync_data_tab_run_without_log()
 
     def _pipeline_raw_path(self) -> Path:
-        return Path(self.gather_raw_data_dir.text().strip() or "raw_data")
+        return get_pipeline_config().resolve_path(self.gather_raw_data_dir.text().strip() or "raw_data")
+
+    def _dataset_data_path(self) -> Path:
+        return get_pipeline_config().resolve_path(self.dataset_data_dir.text().strip() or "data")
 
     def _pipeline_shared_dict(self) -> dict[str, str]:
         return {
@@ -1014,7 +1017,7 @@ class DataPage(QWidget):
 
     def _on_dataset_use_latest_run_id(self) -> None:
         raw_d = self._pipeline_raw_path()
-        data_d = Path(self.dataset_data_dir.text().strip() or "data")
+        data_d = self._dataset_data_path()
         paths = unified_snapshot_search_paths_for_dataset(raw_d, data_d)
         rid = run_id_from_latest_unified_snapshot(paths, quiet=True)
         if not rid:
@@ -1060,7 +1063,7 @@ class DataPage(QWidget):
             ).format(raw=raw_shared)
         )
         raw_d = raw_shared
-        data_d = Path(self.dataset_data_dir.text().strip() or "data")
+        data_d = self._dataset_data_path()
         if raw_d.exists():
             paths = unified_snapshot_search_paths_for_dataset(raw_d, data_d)
             path_lines = "\n".join(f"  {i + 1}. {p}" for i, p in enumerate(paths))
@@ -1168,14 +1171,14 @@ class DataPage(QWidget):
                 "source_dir": source_dir,
                 "subdirs": subdirs,
                 "target_count": int(self.gather_target_count.value()),
-                "target_dir": Path(
+                "target_dir": get_pipeline_config().resolve_path(
                     self.gather_target_dir.text().strip() or str(gd["target_dir"])
                 ),
-                "rejected_dir": Path(self.gather_rejected_dir.text().strip())
+                "rejected_dir": get_pipeline_config().resolve_path(self.gather_rejected_dir.text().strip())
                 if self.gather_rejected_dir.text().strip()
                 else None,
                 "subdir_weights": weights if weights else None,
-                "raw_data_dir": Path(
+                "raw_data_dir": get_pipeline_config().resolve_path(
                     self.gather_raw_data_dir.text().strip() or str(gd["raw_data_dir"])
                 ),
             }
@@ -1225,7 +1228,7 @@ class DataPage(QWidget):
                     )
                 )
             raw_data_dir = self._pipeline_raw_path()
-            data_dir = Path(self.dataset_data_dir.text().strip() or "data")
+            data_dir = self._dataset_data_path()
             if not raw_data_dir.exists():
                 raise ValueError(_("Raw data dir does not exist."))
             if mt == ModelType.IMAGE_GENERATION_LORA:

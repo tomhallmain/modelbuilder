@@ -21,7 +21,7 @@ def _classification_values(**overrides) -> TrainPageFieldValues:
         model_type=ModelType.IMAGE_CLASSIFICATION,
         framework_text="pytorch",
         architecture_text="resnet34",
-        data_dir_text=".",
+        data_dir_text=str(Path.cwd()),
         output_dir_text="data/models",
         batch_size=0,
         image_size=224,
@@ -44,7 +44,7 @@ def _lora_values(**overrides) -> TrainPageFieldValues:
         model_type=ModelType.IMAGE_GENERATION_LORA,
         framework_text="",
         architecture_text="some-base-model",
-        data_dir_text=".",
+        data_dir_text=str(Path.cwd()),
         output_dir_text="data/models",
         batch_size=1,
         image_size=512,
@@ -65,7 +65,7 @@ def test_classification_builds_training_run_args() -> None:
     assert isinstance(request, TrainingRunArgs)
     assert request.framework.value == "pytorch"
     assert request.architecture.value == "resnet34"
-    assert request.data_dir == Path(".")
+    assert request.data_dir == Path.cwd()
     assert request.cli_hyperparams["frozen_epochs"] == 5
     assert "batch_size" not in request.cli_hyperparams  # 0 means "auto", omitted
 

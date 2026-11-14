@@ -2,12 +2,11 @@ import gettext
 import os
 from pathlib import Path
 
+from mb.utils.app_paths import resource_path
 from mb.utils.logging_setup import get_logger
 from mb.utils.utils import Utils
 
 logger = get_logger("translations")
-
-_REPO_ROOT = Path(__file__).resolve().parents[2]
 
 # Locales offered in the desktop Config page. Other YAML values are treated as unsupported
 # (combo falls back to “system default” until the user picks en/de).
@@ -67,7 +66,7 @@ elif "_" in _locale:
     _locale = _locale.split("_")[0]
 
 class I18N:
-    localedir = str(_REPO_ROOT / "locale")
+    localedir = str(resource_path("locale"))
     locale = "en"
     translate = gettext.translation(
         "base", localedir, languages=[_locale or "en"], fallback=True

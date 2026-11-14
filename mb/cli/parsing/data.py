@@ -7,12 +7,12 @@ from pathlib import Path
 from mb.cli.parsing.common import MODEL_TYPE_CLI_CHOICES
 from mb.models.types import ModelBuildStepCommand
 from mb.utils.constants import ModelBuilderTaskType
-from mb.pipeline_config import gather_pipeline_defaults
 from mb.utils.translations import _
 
 
 def register(subparsers) -> None:
-    _gather_def = gather_pipeline_defaults()
+    # Path and gather defaults stay None here: the parser is built before --config is
+    # loaded, so the handlers fill them in from that config.
     data_parser = subparsers.add_parser(
         ModelBuilderTaskType.DATA.value,
         help=_("Data processing operations"),
@@ -48,7 +48,7 @@ def register(subparsers) -> None:
     gather_parser.add_argument(
         "--target-count",
         type=int,
-        default=_gather_def["target_count"],
+        default=None,
         help=_(
             "Target number of images to gather (default: from pipeline data.gather.default_target_count). "
             "Treated as a limit, not an exact requirement."
@@ -57,13 +57,13 @@ def register(subparsers) -> None:
     gather_parser.add_argument(
         "--target-dir",
         type=Path,
-        default=_gather_def["target_dir"],
+        default=None,
         help=_("Target directory for gathered images (default: from pipeline data.gather.default_target_dir)"),
     )
     gather_parser.add_argument(
         "--rejected-dir",
         type=Path,
-        default=_gather_def["rejected_dir"],
+        default=None,
         help=_("Rejected directory for manually rejected images (default: data.gather.default_rejected_dir)"),
     )
     gather_parser.add_argument(
@@ -78,7 +78,7 @@ def register(subparsers) -> None:
     gather_parser.add_argument(
         "--raw-data-dir",
         type=Path,
-        default=_gather_def["raw_data_dir"],
+        default=None,
         help=_("Root directory for raw data (default: data.raw_data_dir in pipeline config)"),
     )
     gather_parser.add_argument(
@@ -103,8 +103,8 @@ def register(subparsers) -> None:
     convert_parser.add_argument(
         "--raw-data-dir",
         type=Path,
-        default=Path("raw_data"),
-        help=_("Raw data directory (default: raw_data)"),
+        default=None,
+        help=_("Raw data directory (default: data.raw_data_dir in pipeline config)"),
     )
     convert_parser.add_argument(
         "--format",
@@ -154,9 +154,10 @@ def register(subparsers) -> None:
     dedup_parser.add_argument(
         "--raw-data-dir",
         type=Path,
-        default=Path("raw_data"),
+        default=None,
         help=_(
-            "Root raw data directory containing class subdirectories (default: raw_data). "
+            "Root raw data directory containing class subdirectories "
+            "(default: data.raw_data_dir in pipeline config). "
             "Typical layouts include multiple class folders under this root."
         ),
     )
@@ -190,8 +191,8 @@ def register(subparsers) -> None:
     upscale_parser.add_argument(
         "--raw-data-dir",
         type=Path,
-        default=Path("raw_data"),
-        help=_("Raw data directory (default: raw_data)"),
+        default=None,
+        help=_("Raw data directory (default: data.raw_data_dir in pipeline config)"),
     )
     upscale_parser.add_argument(
         "--review-dir",
@@ -216,14 +217,14 @@ def register(subparsers) -> None:
     dataset_parser.add_argument(
         "--raw-data-dir",
         type=Path,
-        default=Path("raw_data"),
-        help=_("Raw data directory (default: raw_data)"),
+        default=None,
+        help=_("Raw data directory (default: data.raw_data_dir in pipeline config)"),
     )
     dataset_parser.add_argument(
         "--data-dir",
         type=Path,
-        default=Path("data"),
-        help=_("Output data directory (default: data)"),
+        default=None,
+        help=_("Output data directory (default: data.data_dir in pipeline config)"),
     )
     dataset_parser.add_argument(
         "--test-per-class",
@@ -409,8 +410,8 @@ def register(subparsers) -> None:
     estimate_space_parser.add_argument(
         "--raw-data-dir",
         type=Path,
-        default=Path("raw_data"),
-        help=_("Raw data directory (default: raw_data)"),
+        default=None,
+        help=_("Raw data directory (default: data.raw_data_dir in pipeline config)"),
     )
     estimate_space_parser.add_argument(
         "--data-dir",

@@ -19,7 +19,7 @@ from PySide6.QtWidgets import (
 )
 
 from mb.export.bundle import export_bundle
-from mb.pipeline_config import get_pipeline_config
+from mb.pipeline_config import get_pipeline_config, pipeline_path
 from mb.utils.constants import ModelBuilderTaskType
 from mb.utils.recent_run_history import append_recent_run
 from mb.utils.snapshot import run_id_from_latest_unified_snapshot
@@ -237,7 +237,7 @@ class ExportPage(QWidget):
             self.architecture.setText(arch.strip())
         data_dir = pc.get("data.data_dir")
         if isinstance(data_dir, str) and data_dir.strip() and not self.data_dir.text().strip():
-            self.data_dir.setText(data_dir.strip())
+            self.data_dir.setText(str(pipeline_path(pc, data_dir)))
         image_size = pc.get("data.image_size")
         try:
             parsed = int(float(image_size))
@@ -249,9 +249,9 @@ class ExportPage(QWidget):
             raw_dir = pc.get("data.raw_data_dir")
             search_paths: list[Path] = []
             if isinstance(data_dir, str) and data_dir.strip():
-                search_paths.append(Path(data_dir.strip()))
+                search_paths.append(pipeline_path(pc, data_dir))
             if isinstance(raw_dir, str) and raw_dir.strip():
-                search_paths.append(Path(raw_dir.strip()))
+                search_paths.append(pipeline_path(pc, raw_dir))
             if search_paths:
                 rid = run_id_from_latest_unified_snapshot(search_paths, quiet=True)
                 if isinstance(rid, str) and rid.strip():

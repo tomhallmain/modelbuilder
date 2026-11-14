@@ -28,7 +28,7 @@ from mb.models.types import ArchitectureType, FrameworkType, LabelMode, ModelTyp
 from mb.pipeline_config import get_pipeline_config
 from mb.training.lora_diffusion_trainer import LoraTrainingConfig
 from mb.training.run_args import TrainingRunArgs
-from mb.training.text_config import TextRunConfig
+from mb.training.text_config import TEXT_CLASSIFICATION_DEFAULTS, TextRunConfig
 from mb.utils.logging_setup import setup_logging
 from ui.controllers.model_type_field_visibility import apply_model_type_field_visibility
 from ui.controllers.train_page_controller import TrainPageFieldValues, build_training_request
@@ -497,7 +497,7 @@ class TrainPage(QWidget):
         return row, latest
 
     def _on_train_use_latest_run_id(self) -> None:
-        data_dir = Path(self.data_dir.text().strip() or "data")
+        data_dir = get_pipeline_config().resolve_path(self.data_dir.text().strip() or "data")
         rid = run_id_from_latest_unified_snapshot([data_dir], quiet=True)
         if not rid:
             qt_alert(
@@ -595,9 +595,13 @@ class TrainPage(QWidget):
         """Swap untouched image defaults in the path fields for the pipeline's text paths."""
         pc = get_pipeline_config()
         if self.data_dir.text().strip() in ("", "data"):
-            self.data_dir.setText(str(pc.get("text_classification.data_dir") or ""))
+            self.data_dir.setText(
+                str(pc.path("text_classification.data_dir", TEXT_CLASSIFICATION_DEFAULTS["data_dir"]))
+            )
         if self.output_dir.text().strip() in ("", "data/models"):
-            self.output_dir.setText(str(pc.get("text_classification.runs_dir") or ""))
+            self.output_dir.setText(
+                str(pc.path("text_classification.runs_dir", TEXT_CLASSIFICATION_DEFAULTS["runs_dir"]))
+            )
 
     def _refresh_architecture_hint(self) -> None:
         if self._current_model_type() == ModelType.IMAGE_GENERATION_LORA:

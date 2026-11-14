@@ -16,16 +16,16 @@ from typing import Any, Dict, Optional
 
 import yaml
 
+from mb.utils.app_paths import RESOURCE_ROOT, resource_path
 from mb.utils.logging_setup import get_logger
 from mb.utils.utils import Utils
 
 logger = get_logger("config")
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
 # Packaged example (tracked under mb/config/). Workspace may use configs/application.yaml;
-# configs/default.yaml may still exist as a legacy combined file.
-DEFAULT_APPLICATION_YAML = _REPO_ROOT / "mb" / "config" / "application.example.yaml"
-LEGACY_DEFAULT_YAML = _REPO_ROOT / "configs" / "default.yaml"
+# configs/default.yaml may still exist in a checkout as a legacy combined file.
+DEFAULT_APPLICATION_YAML = resource_path("mb", "config", "application.example.yaml")
+LEGACY_DEFAULT_YAML = RESOURCE_ROOT / "configs" / "default.yaml"
 
 _APPLICATION_KEYS = frozenset({"gui", "app"})
 

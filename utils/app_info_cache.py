@@ -7,6 +7,7 @@ import threading
 from typing import Any, Dict, List
 
 from mb.utils.constants import AppInfo
+from mb.utils.app_paths import IS_BUILD
 from mb.utils.logging_setup import get_app_data_dir, get_logger
 from mb.utils.translations import _
 from utils.encryptor import encrypt_data_to_file, decrypt_data_from_file
@@ -34,9 +35,10 @@ def _move_legacy_cache_files(target_dir: str) -> str:
     none is moved, so the main file and its backups stay together. If the main file
     fails to move, the rest stay too and the repo root is returned, so this run does
     not start from an empty cache. Skipped under ``MODELBUILDER_TEST_APP_DATA``: the
-    repo files are the user's real cache and that directory is a scratch one.
+    repo files are the user's real cache and that directory is a scratch one. Skipped in
+    a build too: its folder holds only bundled files.
     """
-    if os.environ.get("MODELBUILDER_TEST_APP_DATA"):
+    if IS_BUILD or os.environ.get("MODELBUILDER_TEST_APP_DATA"):
         return target_dir
     if os.path.normcase(os.path.abspath(target_dir)) == os.path.normcase(_LEGACY_CACHE_DIR):
         return target_dir

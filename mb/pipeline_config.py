@@ -12,6 +12,13 @@ Default file: ``mb/config/default_pipeline.yaml`` (shipped with the package).
 :mod:`mb.data.gather` / ``mb data gather``; raw layout and class layout also use
 ``data.*`` (see :func:`gather_pipeline_defaults`).
 
+**Relative paths** (``data.raw_data_dir``, ``data.data_dir``, ``paths.models_dir``,
+``text_classification.data_dir`` / ``runs_dir``) resolve against
+:meth:`PipelineConfig.base_dir` (see :func:`pipeline_base_dir`), not the process cwd:
+an executable's cwd depends on how it was started. Read them through
+:meth:`PipelineConfig.path` / :meth:`PipelineConfig.resolve_path`; ``get`` returns the
+stored value, which is what gets saved back to YAML.
+
 After merge, :meth:`PipelineConfig._coerce_data_values` normalizes ``data.*`` types so a
 hand-edited YAML cannot break CLI commands. :func:`resolve_data_cli` merges an argparse
 ``args`` namespace with the active pipeline config, field by field, for the ``mb data *``
@@ -22,6 +29,7 @@ subcommands (see :func:`resolve_create_dataset_cli`, :func:`resolve_model_type_c
 from __future__ import annotations
 
 import copy
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Sequence
@@ -38,13 +46,65 @@ from mb.models.types import (
 from mb.utils.constants import DatasetSplitMode
 from mb.training.text_config import PIPELINE_SECTION as TEXT_PIPELINE_SECTION
 from mb.training.text_config import TEXT_CLASSIFICATION_DEFAULTS
-from mb.utils.logging_setup import get_logger
+from mb.utils.app_paths import default_work_dir, resource_path
+from mb.utils.logging_setup import get_app_data_dir, get_logger
 from mb.utils.translations import _
 
 logger = get_logger("mb.pipeline_config")
 
-_MB_ROOT = Path(__file__).resolve().parent
-DEFAULT_PIPELINE_YAML = _MB_ROOT / "config" / "default_pipeline.yaml"
+DEFAULT_PIPELINE_YAML = resource_path("mb", "config", "default_pipeline.yaml")
+
+# The GUI's workspace root (File -> Set workspace folder), or None. Set by the GUI.
+_workspace_root: Optional[Path] = None
+
+
+def set_workspace_root(root: Optional[Path]) -> None:
+    """Record the GUI workspace root that :func:`pipeline_base_dir` prefers."""
+    global _workspace_root
+    _workspace_root = Path(root) if root else None
+
+
+def _absolute(path: Path) -> Path:
+    return Path(os.path.abspath(Path(path).expanduser()))
+
+
+def _is_within(path: Path, root: Path) -> bool:
+    try:
+        path.relative_to(root)
+        return True
+    except ValueError:
+        return False
+
+
+def _is_app_owned_config(path: Path) -> bool:
+    """The packaged defaults, or a file in the app data dir (the GUI's saved pipeline.yaml)."""
+    p = _absolute(path)
+    return p == _absolute(DEFAULT_PIPELINE_YAML) or _is_within(p, _absolute(get_app_data_dir()))
+
+
+def pipeline_base_dir(active_path: Optional[Path]) -> Path:
+    """Directory that relative paths in the pipeline config loaded from *active_path* resolve against.
+
+    - a user YAML inside the GUI workspace (``<root>/configs/pipeline.yaml``): the workspace root
+    - any other user YAML: the folder holding it
+    - packaged defaults or the app data dir's pipeline.yaml: the GUI workspace root if set,
+      else :func:`~mb.utils.app_paths.default_work_dir`. The app data dir holds app state
+      and is no place for datasets.
+    """
+    root = _absolute(_workspace_root) if _workspace_root is not None else None
+    if active_path is not None and not _is_app_owned_config(active_path):
+        p = _absolute(active_path)
+        if root is not None and _is_within(p, root):
+            return root
+        return p.parent
+    return root if root is not None else _absolute(default_work_dir())
+
+
+def pipeline_path(pipeline: Any, value: Any) -> Path:
+    """*value* resolved by *pipeline*'s :meth:`PipelineConfig.resolve_path`, or as a plain
+    ``Path`` for stand-ins (tests) that only implement ``get``."""
+    resolve = getattr(pipeline, "resolve_path", None)
+    return resolve(value) if resolve is not None else Path(str(value).strip())
 
 _PIPELINE_KEYS = frozenset({"model", "data", "training", "paths", TEXT_PIPELINE_SECTION})
 PIPELINE_ROOT_KEYS = _PIPELINE_KEYS
@@ -324,6 +384,26 @@ class PipelineConfig:
         return self._active_path
 
     @property
+    def base_dir(self) -> Path:
+        """Directory relative paths in this config resolve against (:func:`pipeline_base_dir`).
+
+        Computed on each call: the GUI may set its workspace root after the config loaded.
+        """
+        return pipeline_base_dir(self._active_path)
+
+    def resolve_path(self, value: Any) -> Path:
+        """*value* as an absolute path: ``~`` expanded, relative paths joined onto :attr:`base_dir`."""
+        p = Path(str(value).strip()).expanduser()
+        return p if p.is_absolute() else self.base_dir / p
+
+    def path(self, key_path: str, default: str) -> Path:
+        """The path stored under *key_path* (or *default* when unset or blank), resolved."""
+        v = self.get(key_path)
+        if v is None or not str(v).strip():
+            v = default
+        return self.resolve_path(v)
+
+    @property
     def file_types(self) -> List[str]:
         """Image extensions plus video extensions when using pipeline video types in UI helpers."""
         ft = list(self.get("data.image_types") or [])
@@ -548,7 +628,8 @@ def gather_pipeline_defaults() -> Dict[str, Any]:
     """
     Defaults for :mod:`mb.data.gather` (``mb data gather``, Data page gather tab).
 
-    Relative gather target/rejected paths are resolved under ``data.raw_data_dir``
+    ``raw_data_dir`` is resolved like every config path (:meth:`PipelineConfig.resolve_path`);
+    relative gather target/rejected paths are resolved under it
     (see :func:`resolve_gather_path_under_raw`), not the process cwd. Legacy YAML may
     still define ``data.gather.default_raw_data_dir``; it is used only if present
     and ``data.raw_data_dir`` is missing or empty after merge.
@@ -561,7 +642,7 @@ def gather_pipeline_defaults() -> Dict[str, Any]:
         raw = g.get("default_raw_data_dir") or "raw_data"
     else:
         raw = str(raw).strip()
-    raw_str = str(raw)
+    raw_str = str(pc.resolve_path(raw))
 
     def _gather_cfg_str(key: str, default: str) -> str:
         v = g.get(key, default)

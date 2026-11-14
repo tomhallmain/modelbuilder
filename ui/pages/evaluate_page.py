@@ -297,7 +297,7 @@ class EvaluatePage(QWidget):
         pc = get_pipeline_config()
         dd = pc.get("data.data_dir")
         if isinstance(dd, str) and dd.strip() and not self.data_dir.text().strip():
-            self.data_dir.setText(dd.strip())
+            self.data_dir.setText(str(pc.resolve_path(dd)))
         arch = pc.get("model.default_architecture")
         if isinstance(arch, str) and arch.strip() and not self.architecture.text().strip():
             self.architecture.setText(arch.strip())

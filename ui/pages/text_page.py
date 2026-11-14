@@ -309,10 +309,13 @@ class TextPage(QWidget):
 
     def _run_verify(self) -> None:
         from mb.data.text_dataset import verify_text_dataset
-        from mb.training.text_config import dataset_file_options
+        from mb.training.text_config import TEXT_CLASSIFICATION_DEFAULTS, dataset_file_options
 
-        raw = self.verify_data_dir.text().strip() or str(get_pipeline_config().get("text_classification.data_dir") or "")
-        data_dir = Path(raw)
+        pc = get_pipeline_config()
+        raw = self.verify_data_dir.text().strip()
+        data_dir = pc.resolve_path(raw) if raw else pc.path(
+            "text_classification.data_dir", TEXT_CLASSIFICATION_DEFAULTS["data_dir"]
+        )
         if not data_dir.is_dir():
             qt_alert(
                 self,

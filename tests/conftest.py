@@ -45,6 +45,11 @@ if not os.environ.get("MODELBUILDER_TEST_CACHE", "").strip():
 os.environ["MODELBUILDER_KEY_BACKUP_DIR"] = os.path.join(
     os.environ["MODELBUILDER_TEST_APP_DATA"], "key_backup"
 )
+# Relative dataset/model/run paths with no user YAML resolve under the work dir
+# (default <Documents>/ModelBuilder), so a test that trains on defaults writes there.
+os.environ["MODELBUILDER_WORK_DIR"] = os.path.join(
+    os.environ["MODELBUILDER_TEST_APP_DATA"], "work"
+)
 
 from pathlib import Path
 from typing import List
@@ -68,6 +73,16 @@ def _quiet_modelbuilder_loggers() -> None:
         lg.setLevel(logging.WARNING)
         for h in lg.handlers:
             h.setLevel(logging.WARNING)
+
+
+@pytest.fixture(autouse=True)
+def _reset_pipeline_workspace_root():
+    """A MainWindow built by a UI test records the GUI workspace root module-wide; later
+    tests must not resolve config paths against it."""
+    yield
+    from mb.pipeline_config import set_workspace_root
+
+    set_workspace_root(None)
 
 
 def pytest_configure(config: pytest.Config) -> None:

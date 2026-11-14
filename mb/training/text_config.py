@@ -548,4 +548,13 @@ def resolve_text_run_config(pipeline: Any, overrides: Optional[Mapping[str, Any]
         section = copy.deepcopy(TEXT_CLASSIFICATION_DEFAULTS)
     if not isinstance(section, Mapping):
         raise TextConfigError([_("text_classification must be a mapping")])
+    # The section's own relative paths resolve against the config's base dir; overrides
+    # (CLI flags) are taken as given, so relative ones stay relative to the cwd.
+    resolve = getattr(pipeline, "resolve_path", None)
+    if resolve is not None:
+        section = dict(section)
+        for key in ("data_dir", "runs_dir"):
+            v = section.get(key, TEXT_CLASSIFICATION_DEFAULTS[key])
+            if isinstance(v, (str, Path)) and str(v).strip():
+                section[key] = str(resolve(v))
     return parse_text_run_config(apply_text_overrides(section, overrides or {}))
