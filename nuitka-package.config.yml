@@ -1,0 +1,47 @@
+# Additions to Nuitka's own package configuration, read by build_exe.py
+# (--user-package-configuration-file). Nuitka 4.2.2 merges only
+# implicit-imports into a module its own configuration lists and stops on any
+# other key ("duplicate config for module name"), so a dlls rule for such a
+# package goes on another of its modules, with relative_to.
+---
+# torchvision 0.29 names its extensions _C_stable/image_stable; Nuitka's entries
+# name _C/image. Without _C_stable, importing torchvision fails at
+# "operator torchvision::nms does not exist".
+- module-name: 'torchvision.extension'
+  implicit-imports:
+    - depends:
+        - 'torchvision._C_stable'
+
+- module-name: 'torchvision.io.image'
+  implicit-imports:
+    - depends:
+        - 'torchvision.image_stable'
+
+# The image libraries next to those extensions that Nuitka's torchvision entry
+# does not list (it lists zlib, libjpeg, libpng*).
+- module-name: 'torchvision.io'
+  dlls:
+    - from_filenames:
+        relative_to: 'torchvision'
+        prefixes:
+          - 'jpeg8'
+          - 'libwebp'
+          - 'libsharpyuv'
+          - 'nvjpeg64'
+
+# huggingface_hub.utils loads its submodules on attribute access
+# (importlib.import_module); transformers' import needs e.g. _chunk_utils.
+- module-name: 'huggingface_hub.utils'
+  implicit-imports:
+    - depends:
+        - 'huggingface_hub.utils.*'
+
+# torch.onnx imports these by name on first use (_LazyModule); the dynamo
+# exporter fails without them at "No module named 'onnxscript._framework_apis'".
+- module-name: 'torch.onnx._internal._lazy_import'
+  implicit-imports:
+    - depends:
+        - 'onnx'
+        - 'onnx_ir'
+        - 'onnxscript'
+        - 'onnxscript._framework_apis.*'
