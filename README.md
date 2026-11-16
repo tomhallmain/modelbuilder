@@ -39,7 +39,7 @@ If installing an extra makes pip upgrade torch (e.g. to satisfy a newer `transfo
 CUDA build is silently replaced by a CPU one. Check afterwards with
 `python -c "import torch; print(torch.version.cuda, torch.cuda.is_available())"` and, if
 needed, restore CUDA without touching other packages:
-`pip install --force-reinstall --no-deps torch torchvision --index-url https://download.pytorch.org/whl/cu130`.
+`pip install --force-reinstall --no-deps torch==2.14.1 torchvision==0.29.1 --index-url https://download.pytorch.org/whl/cu130`.
 
 Launch GUI after install: `mb-gui` or `python -m ui`. Rationale and Phase 7 detail: [docs/GUI_PLAN.md](docs/GUI_PLAN.md), [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md).
 
@@ -150,12 +150,16 @@ python build_exe.py --with-headless [--with-oqs]
 - The build installs its own `.venv-build` from `requirements-build.txt`, adding the PyTorch
   CUDA 13.0 index, so the executables carry torch `+cu130` and train on the GPU only where the
   NVIDIA driver supports CUDA 13 (see [PyTorch with CUDA](#pytorch-with-cuda)); elsewhere they
-  run on the CPU. A `.venv-build` left from another CUDA tag keeps its torch: delete it first.
-  The build warns when its torch is not a `+cu130` build.
+  run on the CPU. `requirements-build.txt` pins torch to a release the cu130 index has; for
+  one it lacks, pip would take PyPI's CPU torch. A `.venv-build` left from another CUDA tag
+  keeps its torch: delete it first. The build stops before compiling when its torch is not a
+  `+cu130` build.
 - `--with-oqs` bundles liboqs for quantum-safe keys; build with it when
   `python scripts/key_material.py` reports the quantum encryptor.
 - tensorflow (Keras) and the LoRA stack (diffusers, peft) are not in the build.
 - Each executable is smoke-tested (`--smoke-test`) with all app data in a scratch directory.
+  Its output goes to the build log; after a failure its log files are kept in
+  `build/logs/smoke-<exe>-<build id>/`.
   The build records itself in `build/nuitka/build_info.json` and the build venv in
   `build/nuitka/build-requirements.lock.txt`; `--lock=<file>` repeats a recorded build.
 - At first start an executable unpacks to `unpacked/` in the app data directory; settings,

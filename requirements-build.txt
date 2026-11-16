@@ -22,9 +22,15 @@ PySide6==6.11.2
 
 # PyTorch, ONNX, SafeTensors (requirements-ml.txt). build_exe.py adds the PyTorch
 # CUDA index (TORCH_INDEX_URL) to the install, since PyPI's Windows torch wheels
-# are CPU-only; installing this file by hand gives a CPU torch on Windows.
-torch>=2.0.0
-torchvision>=0.15.0
+# are CPU-only; installing this file by hand gives a CPU torch on Windows. Pinned
+# to the newest release that index has: pip takes PyPI's CPU torch for a release
+# the index lacks (torch 2.15.0 is built for cu132/cu134, not cu130). torch 2.14.1
+# is the development environment's; change both together with TORCH_INDEX_URL.
+# torch 2.15.0 also renames context-decorated functions by assigning __code__
+# (torch/utils/_contextlib.py), which a Nuitka build refuses: import torch fails
+# with "__code__ is not writable in Nuitka". 2.14.1 does not.
+torch==2.14.1
+torchvision==0.29.1
 onnx>=1.12.0
 onnxscript>=0.1.0
 onnxruntime>=1.16.0

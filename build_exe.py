@@ -133,8 +133,10 @@ TRANSFORMERS_PROBED_VERSION = "5.19"
 
 # Added to every build venv install. pip prefers this index's "+cu130" builds over
 # PyPI's same release (a higher local version), and a lock file names them
-# without the index. The CUDA version of the development environment; a CUDA 13
-# build needs an NVIDIA driver recent enough for CUDA 13 on the machine running it.
+# without the index. For a release the index lacks, pip takes PyPI's (CPU on
+# Windows), so requirements-build.txt pins torch to one it has. The CUDA version
+# of the development environment; a CUDA 13 build needs an NVIDIA driver recent
+# enough for CUDA 13 on the machine running it.
 TORCH_INDEX_URL = "https://download.pytorch.org/whl/cu130"
 
 # Same source as requirements-optional.txt; not on PyPI.
@@ -286,26 +288,26 @@ def _check_transformers_version(packages: dict) -> None:
 
 
 def _check_torch_build(packages: dict) -> None:
-    """Warn when the build venv's torch is not from TORCH_INDEX_URL's CUDA version: on
-    Windows a build without ``+cu`` is PyPI's CPU one, and a ``.venv-build`` made with
-    another index keeps its torch, since ``torch>=2.0.0`` is already met. Linux's PyPI
-    wheels are CUDA builds without a local version."""
+    """Stop before compiling when the build venv's torch is not from TORCH_INDEX_URL's
+    CUDA version. On Windows a torch without ``+cu`` is PyPI's CPU build: pip takes it
+    when the pinned release is missing from the index. A ``.venv-build`` made with
+    another index keeps its torch while the pin is met. Linux's PyPI wheels are CUDA
+    builds without a local version."""
     installed = packages.get("torch") or ""
     expected = "+" + TORCH_INDEX_URL.rstrip("/").rsplit("/", 1)[-1]
     if not installed:
         return
     if "+cu" not in installed:
         if sys.platform == "win32":
-            logger.warning(
-                f"torch {installed} is not a CUDA build: the executables will train on the CPU only. "
-                f"Check that {TORCH_INDEX_URL} has a torch build for this Python, or install a CUDA "
-                "torch into .venv-build by hand."
+            sys.exit(
+                f"torch {installed} is not a CUDA build; the executables would train on the CPU only. "
+                f"Pin torch and torchvision in requirements-build.txt to a release that {TORCH_INDEX_URL} "
+                "has for this Python, then delete .venv-build and build again."
             )
     elif expected not in installed:
-        logger.warning(
+        sys.exit(
             f"torch {installed} is not from {TORCH_INDEX_URL} ({expected}). A .venv-build made with "
-            "another CUDA index keeps its torch; delete .venv-build and build again for the "
-            "intended CUDA version."
+            "another CUDA index keeps its torch; delete .venv-build and build again."
         )
 
 
@@ -428,6 +430,10 @@ def _common_args(exe_name: str, unpack_prefix: str, version: str, build_id: str,
         # The ffmpeg binary mb data convert runs for video frames ships as
         # imageio-ffmpeg package data.
         "--include-package-data=imageio_ffmpeg",
+        # filelock's __init__ loads its submodules on attribute access
+        # (importlib.import_module), which Nuitka can't follow: without them
+        # importing transformers ends in "No module named 'filelock._soft'".
+        "--include-package=filelock",
         *([f"--user-package-configuration-file={PACKAGE_CONFIG}"] if os.path.isfile(PACKAGE_CONFIG) else []),
         *([f"--user-plugin={memory_wait_plugin}"] if memory_wait_plugin else []),
         *[f"--nofollow-import-to={p}" for p in (*NOT_SHIPPED, *EXCLUDED_PACKAGES)],
@@ -528,15 +534,41 @@ def _smoke_test_env(scratch: str) -> dict:
     return env
 
 
-def _smoke_test(exe_path: str, with_oqs: bool) -> None:
+def _smoke_test(exe_path: str, with_oqs: bool, build_id: str) -> None:
     # Run from outside the repo so a passing test can't depend on the checkout. On
     # Windows Nuitka resolves {HOME} without the HOME set here, so the exe still
     # unpacks to the real unpacked/ folder, which a later start of this build reuses.
+    # The output is captured: started without redirected handles, the GUI exe
+    # (--windows-console-mode=attach) wrote to the console directly, past a redirect
+    # of this script's output. stdin is given because redirecting only some handles
+    # fails in an exe started without valid standard handles.
     command = [exe_path, "--smoke-test", *(["--expect-oqs"] if with_oqs else [])]
-    with tempfile.TemporaryDirectory(prefix="modelbuilder-smoke-") as scratch:
-        result = subprocess.run(command, cwd=os.path.expanduser("~"), env=_smoke_test_env(scratch))
-    if result.returncode != 0:
-        sys.exit(f"Smoke test failed: `{' '.join(command)}` exited {result.returncode}.")
+    with tempfile.TemporaryDirectory(prefix="modelbuilder-smoke-", ignore_cleanup_errors=True) as scratch:
+        result = subprocess.run(
+            command, cwd=os.path.expanduser("~"), env=_smoke_test_env(scratch),
+            stdin=subprocess.DEVNULL, capture_output=True, text=True, encoding="utf-8", errors="replace",
+        )
+        logger.info(f"Smoke test output:\n{(result.stdout + result.stderr).rstrip()}")
+        if result.returncode != 0:
+            kept = _keep_smoke_logs(scratch, os.path.splitext(os.path.basename(exe_path))[0], build_id)
+            sys.exit(
+                f"Smoke test failed: `{' '.join(command)}` exited {result.returncode} "
+                f"({result.returncode & 0xFFFFFFFF:#010x}). Its log files are in {kept}."
+            )
+
+
+def _keep_smoke_logs(scratch: str, exe_base: str, build_id: str) -> str:
+    """Copy the *.log files (app log, faults.log) of a failed smoke run out of its
+    scratch directory, which is removed afterwards; returns the folder."""
+    target = os.path.join(LOG_DIR, f"smoke-{exe_base}-{build_id}")
+    for folder, _, files in os.walk(scratch):
+        for name in files:
+            if name.endswith(".log"):
+                source = os.path.join(folder, name)
+                destination = os.path.join(target, os.path.relpath(source, scratch))
+                os.makedirs(os.path.dirname(destination), exist_ok=True)
+                shutil.copy2(source, destination)
+    return target
 
 
 # exe base name, entry script, unpack folder prefix, target-specific args
@@ -605,7 +637,7 @@ def main() -> None:
                 sys.exit(f"Nuitka exited {result.returncode} compiling {base_name}; its output is above.")
         exe_path = _copy_to_dist(exe_name)
         with _timed(f"Smoke-testing {exe_name}"):
-            _smoke_test(exe_path, with_oqs)
+            _smoke_test(exe_path, with_oqs, build_id)
         logger.info(f"Built {exe_path}")
 
 
