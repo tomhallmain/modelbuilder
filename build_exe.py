@@ -483,6 +483,27 @@ def _oqs_args(python: str, with_oqs: bool) -> list:
     ]
 
 
+# Prints the directory of the package named in argv, without importing it.
+_PACKAGE_DIR_PROBE = (
+    "import importlib.util, sys\n"
+    "print(importlib.util.find_spec(sys.argv[1]).submodule_search_locations[0])\n"
+)
+
+
+def _onnxscript_args(python: str) -> list:
+    """onnxscript's @script decorator reads each function's source
+    (inspect.getsource) when torch_lib's ops modules load, on the first ONNX export.
+    Compiled code has none. As bytecode the functions keep their relative file
+    names, which linecache looks up under sys.path, so the .py files go along."""
+    probe = subprocess.run([python, "-c", _PACKAGE_DIR_PROBE, "onnxscript"],
+                           capture_output=True, text=True, check=True)
+    package_dir = probe.stdout.strip().splitlines()[-1]
+    return [
+        "--noinclude-custom-mode=onnxscript:bytecode",
+        f"--include-data-files={package_dir}=onnxscript/=**/*.py",
+    ]
+
+
 def _nuitka_env(min_free_memory=None) -> dict:
     env = dict(os.environ)
     if min_free_memory is not None:
@@ -621,13 +642,14 @@ def main() -> None:
     if sys.platform == "win32" and _has_icon():
         _write_windows_icon(python)
     oqs_args = _oqs_args(python, with_oqs)
+    onnxscript_args = _onnxscript_args(python)
     memory_wait_plugin = _memory_wait_plugin()
 
     for base_name, entry, unpack_prefix, target_args in _targets(with_headless):
         exe_name = _exe_name(base_name)
         nuitka_args = [
             *_common_args(exe_name, unpack_prefix, version, build_id, memory_wait_plugin),
-            *target_args(), *oqs_args,
+            *target_args(), *oqs_args, *onnxscript_args,
             *args, os.path.join(REPO_ROOT, entry),
         ]
         with _timed(f"Compiling {base_name} with Nuitka"):

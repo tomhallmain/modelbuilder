@@ -9,6 +9,9 @@
 Nuitka==4.2.2
 zstandard
 psutil
+# Nuitka installs this version on its own to check nuitka-package.config.yml,
+# after the lock file is written; listed so the lock file names it.
+jsonschema==4.6.0
 
 # Core (requirements.txt without the test packages)
 Pillow>=9.0.0
