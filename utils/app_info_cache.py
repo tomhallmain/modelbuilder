@@ -34,11 +34,12 @@ def _move_legacy_cache_files(target_dir: str) -> str:
     All or nothing on name clashes: if any of them already exists in *target_dir*,
     none is moved, so the main file and its backups stay together. If the main file
     fails to move, the rest stay too and the repo root is returned, so this run does
-    not start from an empty cache. Skipped under ``MODELBUILDER_TEST_APP_DATA``: the
-    repo files are the user's real cache and that directory is a scratch one. Skipped in
-    a build too: its folder holds only bundled files.
+    not start from an empty cache. Skipped under ``MODELBUILDER_TEST_APP_DATA`` and in a
+    smoke test run (``MODELBUILDER_SMOKE_DIR``): the repo files are the user's real cache
+    and those directories are scratch ones. Skipped in a build too: its folder holds only
+    bundled files.
     """
-    if IS_BUILD or os.environ.get("MODELBUILDER_TEST_APP_DATA"):
+    if IS_BUILD or os.environ.get("MODELBUILDER_TEST_APP_DATA") or os.environ.get("MODELBUILDER_SMOKE_DIR"):
         return target_dir
     if os.path.normcase(os.path.abspath(target_dir)) == os.path.normcase(_LEGACY_CACHE_DIR):
         return target_dir

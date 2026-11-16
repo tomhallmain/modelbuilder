@@ -20,3 +20,6 @@ logs/
 
 app_info_cache.*
 
+
+# Nuitka build venv (build_exe.py)
+.venv-build/

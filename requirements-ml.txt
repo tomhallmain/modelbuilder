@@ -8,9 +8,11 @@
 #   pip install -e ".[text]"             # text classification (mb train --model-type text_classification)
 #   pip install -e ".[all]"              # everything above
 
-# On Windows, PyPI torch wheels are CPU-only; for a GPU, install a CUDA build from
-# https://pytorch.org/get-started/locally/ first. A later install that upgrades torch from
-# PyPI (e.g. to satisfy a newer transformers) replaces it with a CPU build.
+# On Windows, PyPI torch wheels are CPU-only; for a GPU, install a CUDA build first, e.g.
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu130
+# (cu130 is what the compiled build uses; it needs a driver supporting CUDA 13, see the
+# README, "PyTorch with CUDA"). A later install that upgrades torch from PyPI (e.g. to
+# satisfy a newer transformers) replaces it with a CPU build.
 torch>=2.0.0
 torchvision>=0.15.0
 

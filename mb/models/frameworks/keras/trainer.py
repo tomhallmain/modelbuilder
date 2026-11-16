@@ -14,6 +14,7 @@ import threading
 from datetime import datetime
 
 from mb.utils.logging_setup import get_logger
+from mb.utils.translations import _
 
 logger = get_logger(__name__)
 
@@ -44,7 +45,6 @@ from mb.training.class_weights import (
     class_weight_dict,
     resolve_class_weights,
 )
-from mb.utils.translations import _
 
 
 class KerasTrainer(FrameworkTrainer):

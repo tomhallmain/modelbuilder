@@ -4,6 +4,7 @@ Workspace state: project root, optional config path, persisted with QSettings.
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -80,6 +81,14 @@ def resolve_pipeline_save_path(_ws: "Workspace") -> Path:
     return get_user_pipeline_config_path()
 
 
+#: An INI file to keep the GUI settings in instead of the native store; the smoke test sets it.
+SETTINGS_INI_ENV_VAR = "MODELBUILDER_SETTINGS_INI"
+
+
 def default_settings() -> QSettings:
-    """Application-scoped settings (user registry on Windows, plist on macOS, etc.)."""
+    """Application-scoped settings (user registry on Windows, plist on macOS, etc.),
+    or the INI file named by ``MODELBUILDER_SETTINGS_INI``."""
+    ini_path = os.environ.get(SETTINGS_INI_ENV_VAR)
+    if ini_path:
+        return QSettings(ini_path, QSettings.Format.IniFormat)
     return QSettings("ModelBuilder", "ModelBuilderGUI")

@@ -157,8 +157,12 @@ class PipelineConfigPage(QWidget):
         # MainWindow already called reload_pipeline_config with the same path; avoid a second load.
         # Defer until after this page is parented under MainWindow: during __init__ self.window()
         # is still None, so _refresh_from_disk would call reload_pipeline_config(None) and replace
-        # the user pipeline with packaged defaults.
-        QTimer.singleShot(0, self._startup_pipeline_refresh)
+        # the user pipeline with packaged defaults. The timer is a child of this page, so it
+        # dies with the page and never calls into a page deleted before the event loop ran.
+        startup_refresh = QTimer(self)
+        startup_refresh.setSingleShot(True)
+        startup_refresh.timeout.connect(self._startup_pipeline_refresh)
+        startup_refresh.start(0)
         self._last_saved_cfg: dict[str, Any] = {}
         # Last loaded text_classification section; keys without a form field pass through.
         self._loaded_text_cfg: dict[str, Any] = copy.deepcopy(TEXT_CLASSIFICATION_DEFAULTS)

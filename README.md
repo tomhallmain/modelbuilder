@@ -20,6 +20,27 @@ pip install -e .
 # Optional extras: .[pytorch]  .[keras]  .[all]
 ```
 
+### PyTorch with CUDA
+
+On Windows, PyPI only has CPU builds of torch. For training on an NVIDIA GPU, install torch
+from the PyTorch index before the extras. The compiled build uses CUDA 13.0 (`cu130`), so the
+same tag keeps a checkout and the build on the same torch:
+
+```bash
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu130
+pip install -e ".[pytorch]"
+```
+
+CUDA 13 needs an NVIDIA driver that supports it: `nvidia-smi` must show `CUDA Version: 13.0`
+or higher. With an older driver, update it, or pick the tag that driver supports at
+https://pytorch.org/get-started/locally/ (e.g. `cu128`).
+
+If installing an extra makes pip upgrade torch (e.g. to satisfy a newer `transformers`), a
+CUDA build is silently replaced by a CPU one. Check afterwards with
+`python -c "import torch; print(torch.version.cuda, torch.cuda.is_available())"` and, if
+needed, restore CUDA without touching other packages:
+`pip install --force-reinstall --no-deps torch torchvision --index-url https://download.pytorch.org/whl/cu130`.
+
 Launch GUI after install: `mb-gui` or `python -m ui`. Rationale and Phase 7 detail: [docs/GUI_PLAN.md](docs/GUI_PLAN.md), [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md).
 
 ## Tests
@@ -55,12 +76,8 @@ name are set per dataset in the config. Everything is
 configured by the pipeline YAML's `text_classification` section (see
 `mb/config/text_classification.example.yaml`); unknown keys there are errors.
 
-On Windows, PyPI only has CPU builds of torch. If installing an extra makes pip upgrade torch
-(e.g. to satisfy a newer `transformers`), a CUDA build is silently replaced by a CPU one. Check
-afterwards with `python -c "import torch; print(torch.version.cuda, torch.cuda.is_available())"`
-and, if needed, restore CUDA without touching other packages:
-`pip install --force-reinstall --no-deps torch torchvision --index-url https://download.pytorch.org/whl/cu128`
-(choose the CUDA tag for your driver at https://pytorch.org/get-started/locally/).
+The neural backends need torch; for a GPU see [PyTorch with CUDA](#pytorch-with-cuda), as
+installing `.[text]` can replace a CUDA torch with a CPU one.
 
 ```bash
 pip install -e ".[text]"            # char_ngram_linear (CPU)
@@ -117,6 +134,39 @@ mb convert --input PATH --output PATH --target onnx|safetensors \
 mb info model --path PATH
 mb info dataset --data-dir PATH
 ```
+
+## Build
+
+`build_exe.py` compiles single-file executables with [Nuitka](https://nuitka.net/) into
+`dist/`: `ModelBuilder` (the GUI) and, with `--with-headless`, `ModelBuilderHeadless` (the
+`mb` CLI without Qt); `.exe` on Windows. Nuitka does not cross-compile, so build on each target
+OS. Needs a C compiler (on Windows Visual Studio Build Tools, or Nuitka downloads MinGW) and the
+Python named in `.python-version`.
+
+```bash
+python build_exe.py --with-headless [--with-oqs]
+```
+
+- The build installs its own `.venv-build` from `requirements-build.txt`, adding the PyTorch
+  CUDA 13.0 index, so the executables carry torch `+cu130` and train on the GPU only where the
+  NVIDIA driver supports CUDA 13 (see [PyTorch with CUDA](#pytorch-with-cuda)); elsewhere they
+  run on the CPU. A `.venv-build` left from another CUDA tag keeps its torch: delete it first.
+  The build warns when its torch is not a `+cu130` build.
+- `--with-oqs` bundles liboqs for quantum-safe keys; build with it when
+  `python scripts/key_material.py` reports the quantum encryptor.
+- tensorflow (Keras) and the LoRA stack (diffusers, peft) are not in the build.
+- Each executable is smoke-tested (`--smoke-test`) with all app data in a scratch directory.
+  The build records itself in `build/nuitka/build_info.json` and the build venv in
+  `build/nuitka/build-requirements.lock.txt`; `--lock=<file>` repeats a recorded build.
+- At first start an executable unpacks to `unpacked/` in the app data directory; settings,
+  cache and keys are the same as a checkout's (see below).
+
+Before compressing, the build waits for enough free memory, using the plugin that
+[app-release](https://github.com/tomhallmain/release-tools) ships; without app-release
+installed it warns and does not wait. Releases are made with `app-release <checkout>` (a
+separate tool, installed with pipx; see its README for the options), from a committed checkout,
+with `--variant cuda` for the CUDA build, e.g. `app-release . --no-upload --variant cuda` and
+then `app-release . --variant cuda`.
 
 ## Configuration
 

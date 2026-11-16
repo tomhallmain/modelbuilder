@@ -12,16 +12,8 @@ if readme_file.exists():
     with open(readme_file, "r", encoding="utf-8") as f:
         long_description = f.read()
 
-# Read version from package
-version = "0.1.0"
-try:
-    with open(Path(__file__).parent / "mb" / "__init__.py", "r") as f:
-        for line in f:
-            if line.startswith("__version__"):
-                version = line.split("=")[1].strip().strip('"').strip("'")
-                break
-except Exception:
-    pass
+# The version lives only in the repo-root VERSION file (app-release's --bump rewrites it).
+version = (Path(__file__).parent / "VERSION").read_text(encoding="utf-8").strip()
 
 setup(
     name="modelbuilder",

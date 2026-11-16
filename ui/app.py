@@ -20,6 +20,10 @@ def main() -> int:
 
     from PySide6.QtCore import QThreadPool
 
+    from ui.qt_message_log import install_qt_message_handler
+
+    install_qt_message_handler()
+
     from mb.utils.translations import _
     from ui.main_window import MainWindow
     from utils.notification_manager import notification_manager

@@ -6,4 +6,10 @@ with support for PyTorch, Keras/TensorFlow, and extensible architecture for
 additional frameworks and model types.
 """
 
-__version__ = "0.1.0"
+from mb.utils.version import app_version as _app_version
+
+try:
+    # The repo-root VERSION file, bundled in a build; the only place the version is kept.
+    __version__ = _app_version()
+except OSError:
+    __version__ = "unknown"

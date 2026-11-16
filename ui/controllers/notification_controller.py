@@ -23,6 +23,17 @@ from mb.utils.translations import _
 logger = get_logger("ui.controllers.notification_controller")
 
 
+def _single_shot(owner: QObject, msec: int, callback) -> None:
+    """Run *callback* once after *msec*, on a timer owned by *owner*: the timer is
+    deleted with it, so the callback never reaches a widget that is already gone
+    (e.g. a window closed while a toast or title message was still showing)."""
+    timer = QTimer(owner)
+    timer.setSingleShot(True)
+    timer.timeout.connect(callback)
+    timer.timeout.connect(timer.deleteLater)
+    timer.start(msec)
+
+
 class _NotificationSignals(QObject):
     toast_requested = Signal(str, int, str)
     title_notify_requested = Signal(str, str, int)
@@ -37,6 +48,9 @@ class NotificationController:
         self._signals.toast_requested.connect(self._do_toast)
         self._signals.title_notify_requested.connect(self._do_title_notify)
         self._status_title_override_active = False
+        # Toasts are top-level widgets without a parent, which PySide deletes as soon as
+        # nothing in Python references them; each stays here until its timer closes it.
+        self._toasts: set[QWidget] = set()
         wid = getattr(main_window, "window_id", 0)
         notification_manager.set_current_title(
             main_window.windowTitle() or "",
@@ -80,6 +94,8 @@ class NotificationController:
             | Qt.WindowType.WindowDoesNotAcceptFocus,
         )
         toast_widget.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating, True)
+        # Closing deletes the widget, and with it its timer, instead of keeping it hidden.
+        toast_widget.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
         toast_widget.setFixedSize(width, height)
         toast_widget.move(x, y)
         fg = style_foreground_hex()
@@ -113,10 +129,13 @@ class NotificationController:
             except Exception:
                 pass
 
-        QTimer.singleShot(
-            time_in_seconds * 1000,
-            lambda: toast_widget.close() if toast_widget else None,
-        )
+        self._toasts.add(toast_widget)
+
+        def close_toast() -> None:
+            self._toasts.discard(toast_widget)
+            toast_widget.close()
+
+        _single_shot(toast_widget, time_in_seconds * 1000, close_toast)
 
     def title_notify(
         self,
@@ -134,10 +153,7 @@ class NotificationController:
 
     def _do_title_notify(self, message: str, base_message: str, time_in_seconds: int) -> None:
         self._app.setWindowTitle(message)
-        QTimer.singleShot(
-            time_in_seconds * 1000,
-            lambda: self._app.setWindowTitle(base_message),
-        )
+        _single_shot(self._app, time_in_seconds * 1000, lambda: self._app.setWindowTitle(base_message))
 
     def set_status_title(self, message: Optional[str]) -> None:
         if message and message.strip() != "":

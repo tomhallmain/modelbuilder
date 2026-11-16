@@ -1,0 +1,8 @@
+# app-release settings (https://github.com/tomhallmain/release-tools); every setting is
+# optional, with names and defaults in its src/app_release/config.py.
+
+[notes]
+# The executables' torch comes from the CUDA 13.0 index (TORCH_INDEX_URL in build_exe.py).
+extra = [
+    "GPU training needs an NVIDIA driver that supports CUDA 13.0 (`nvidia-smi` shows `CUDA Version: 13.0` or higher); with an older driver the executables train on the CPU.",
+]

@@ -1,0 +1,37 @@
+# The build venv for build_exe.py (.venv-build). Tests and liboqs-python are left
+# out; build_exe.py --with-oqs installs liboqs-python. The memory-wait plugin comes
+# from app-release (https://github.com/tomhallmain/release-tools), not from here.
+
+# Build tools. Nuitka 4.2.2 with PySide6 6.11.2 is the pair the other apps' builds
+# work with; Nuitka 4.3 with PySide6 6.12.0 crashed natively at startup in one of
+# them. zstandard compresses the onefile payload; psutil is read by the memory-wait
+# plugin off Windows and by the unpack-folder cleanup.
+Nuitka==4.2.2
+zstandard
+psutil
+
+# Core (requirements.txt without the test packages)
+Pillow>=9.0.0
+numpy>=1.25.2,<2.0
+imageio>=2.31.0
+imageio-ffmpeg>=0.4.9
+pyyaml>=6.0
+cryptography>=41.0.0
+keyring>=24.0.0
+PySide6==6.11.2
+
+# PyTorch, ONNX, SafeTensors (requirements-ml.txt). build_exe.py adds the PyTorch
+# CUDA index (TORCH_INDEX_URL) to the install, since PyPI's Windows torch wheels
+# are CPU-only; installing this file by hand gives a CPU torch on Windows.
+torch>=2.0.0
+torchvision>=0.15.0
+onnx>=1.12.0
+onnxscript>=0.1.0
+onnxruntime>=1.16.0
+safetensors>=0.4.0
+
+# Hugging Face backbones (SigLIP2) and text classification. tensorflow (Keras) and
+# diffusers/peft (LoRA) are not in the build; build_exe.py keeps them out.
+transformers>=4.50.0
+scikit-learn>=1.3.0
+scipy>=1.10.0
