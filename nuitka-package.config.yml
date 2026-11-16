@@ -45,3 +45,16 @@
         - 'onnx_ir'
         - 'onnxscript'
         - 'onnxscript._framework_apis.*'
+
+# Nuitka replaces torch's source-reading get_assignments_with_compile_ignored_comments
+# with a table it fills at compile time, but only for modules named config/_config.
+# config_comms (no @compile_ignored entries) is missing from it, so torch.export
+# fails at "KeyError: 'torch._inductor.config_comms'".
+- module-name: 'torch._inductor.config_comms'
+  anti-bloat:
+    - description: 'add this module to the compile-ignored table'
+      replacements_plain:
+        'install_config_module(sys.modules[__name__])': |
+          import torch.utils._config_module as _config_module
+          _config_module._static_compile_ignored_keys.setdefault(__name__, set())
+          install_config_module(sys.modules[__name__])

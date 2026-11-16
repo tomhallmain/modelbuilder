@@ -9,6 +9,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Tuple, Optional
 
+from mb.utils.app_paths import IS_BUILD
 from mb.utils.logging_setup import get_logger
 from mb.utils.translations import _
 
@@ -21,7 +22,11 @@ try:
     TF_AVAILABLE = True
 except ImportError:
     TF_AVAILABLE = False
-    logger.warning(_("TensorFlow not available. Keras data loaders will not work."))
+    # The compiled build leaves TensorFlow out; a warning there would show on every start.
+    if IS_BUILD:
+        logger.debug("TensorFlow is not in this build; Keras data loaders are unavailable.")
+    else:
+        logger.warning(_("TensorFlow not available. Keras data loaders will not work."))
 
 
 def create_data_generators(
