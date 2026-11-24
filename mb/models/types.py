@@ -119,6 +119,9 @@ class ArchitectureType(str, Enum):
     SIGLIP2_BASE_PATCH16_256 = "siglip2_base_patch16_256"
     SIGLIP2_BASE_PATCH16_384 = "siglip2_base_patch16_384"
     SIGLIP2_BASE_PATCH16_512 = "siglip2_base_patch16_512"
+    # SO400M: the ~400M-parameter shape-optimized SigLIP2 vision tower (1152 wide, 27 layers).
+    SIGLIP2_SO400M_PATCH16_384 = "siglip2_so400m_patch16_384"
+    SIGLIP2_SO400M_PATCH16_512 = "siglip2_so400m_patch16_512"
     VIT_BASE_PATCH16_224 = "vit_base_patch16_224"
     # FocalNet: a focal-modulation CNN/attention hybrid, neither ViT nor ResNet. Crops rather
     # than squashing, so it needs the shortest-edge resize policy.
@@ -225,6 +228,66 @@ class LabelMode(str, Enum):
             return None
         if isinstance(raw, LabelMode):
             return raw
+        s = str(raw).strip().lower()
+        try:
+            return cls(s)
+        except ValueError:
+            return None
+
+
+class OptimizerType(str, Enum):
+    """``training.optimizer`` — optimizer used by the PyTorch image-classification trainer."""
+
+    ADAM = "adam"
+    """Adam; ``training.weight_decay`` is applied as an L2 term on the gradient."""
+    ADAMW = "adamw"
+    """AdamW; ``training.weight_decay`` is decoupled from the gradient update."""
+
+    @classmethod
+    def get_default(cls) -> OptimizerType:
+        """Default optimizer (matches packaged :file:`mb/config/default_pipeline.yaml`)."""
+        return cls.ADAM
+
+    @classmethod
+    def registered_values(cls) -> FrozenSet[str]:
+        """Set of all enum values (for config validation)."""
+        return frozenset(m.value for m in cls)
+
+    @classmethod
+    def try_from(cls, raw: object) -> OptimizerType | None:
+        if raw is None:
+            return None
+        s = str(raw).strip().lower()
+        try:
+            return cls(s)
+        except ValueError:
+            return None
+
+
+class MixedPrecisionMode(str, Enum):
+    """``training.mixed_precision`` — autocast dtype for the PyTorch trainer's forward passes."""
+
+    NONE = "none"
+    """Full fp32."""
+    BF16 = "bf16"
+    """bfloat16 autocast; needs a GPU with bf16 support (or the CPU). No loss scaling."""
+    FP16 = "fp16"
+    """float16 autocast with dynamic loss scaling; CUDA only."""
+
+    @classmethod
+    def get_default(cls) -> MixedPrecisionMode:
+        """Default precision (matches packaged :file:`mb/config/default_pipeline.yaml`)."""
+        return cls.NONE
+
+    @classmethod
+    def registered_values(cls) -> FrozenSet[str]:
+        """Set of all enum values (for config validation)."""
+        return frozenset(m.value for m in cls)
+
+    @classmethod
+    def try_from(cls, raw: object) -> MixedPrecisionMode | None:
+        if raw is None:
+            return None
         s = str(raw).strip().lower()
         try:
             return cls(s)

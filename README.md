@@ -120,6 +120,19 @@ mb train [--framework pytorch|keras] [--architecture NAME] \
     [--resume-from PATH] [--run-id ID]
 ```
 
+Large transformer backbones (e.g. `siglip2_so400m_patch16_512`, which needs the
+`transformers` extra) generally need the opt-in fine-tuning options to fit and train well
+on a single GPU:
+
+```bash
+mb train --architecture siglip2_so400m_patch16_512 --batch-size 8 --grad-accum-steps 4 \
+    --optimizer adamw --weight-decay 0.05 --layer-decay 0.75 \
+    --mixed-precision bf16 --gradient-checkpointing --restore-best
+```
+
+All of these default to the original behavior (Adam, fp32, one learning rate, final-epoch
+weights) and can also be set under `training:` in the pipeline config.
+
 ### Conversion
 
 ```bash

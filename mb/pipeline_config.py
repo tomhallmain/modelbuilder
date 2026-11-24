@@ -41,7 +41,9 @@ from mb.models.types import (
     ClassWeightingMode,
     FrameworkType,
     LabelMode,
+    MixedPrecisionMode,
     ModelType,
+    OptimizerType,
 )
 from mb.utils.constants import DatasetSplitMode
 from mb.training.text_config import PIPELINE_SECTION as TEXT_PIPELINE_SECTION
@@ -309,6 +311,15 @@ class PipelineConfig:
                 "class_weighting": ClassWeightingMode.get_default().value,
                 # Ceiling on any single class weight (inverse_frequency only).
                 "class_weight_max": 50.0,
+                # PyTorch image classification only. Defaults reproduce plain Adam, fp32, one
+                # learning rate, and keeping the final epoch's weights.
+                "optimizer": OptimizerType.get_default().value,
+                "weight_decay": 0.0,
+                "layer_decay": 1.0,
+                "grad_accum_steps": 1,
+                "mixed_precision": MixedPrecisionMode.get_default().value,
+                "gradient_checkpointing": False,
+                "restore_best": False,
             },
             "paths": {
                 "models_dir": "data/models",
@@ -374,6 +385,13 @@ class PipelineConfig:
             "num_workers": self.get("training.num_workers"),
             "class_weighting": self.get("training.class_weighting"),
             "class_weight_max": self.get("training.class_weight_max"),
+            "optimizer": self.get("training.optimizer"),
+            "weight_decay": self.get("training.weight_decay"),
+            "layer_decay": self.get("training.layer_decay"),
+            "grad_accum_steps": self.get("training.grad_accum_steps"),
+            "mixed_precision": self.get("training.mixed_precision"),
+            "gradient_checkpointing": self.get("training.gradient_checkpointing"),
+            "restore_best": self.get("training.restore_best"),
             "image_size": self.get("data.image_size"),
             "batch_size": self.get("data.batch_size"),
         }

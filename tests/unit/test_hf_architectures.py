@@ -55,6 +55,8 @@ _EXPECTED_CONTRACTS = {
     "siglip2_base_patch16_256": _contract(_HALF, _HALF, 256, ResizeMode.SQUASH, None, True),
     "siglip2_base_patch16_384": _contract(_HALF, _HALF, 384, ResizeMode.SQUASH, None, True),
     "siglip2_base_patch16_512": _contract(_HALF, _HALF, 512, ResizeMode.SQUASH, None, True),
+    "siglip2_so400m_patch16_384": _contract(_HALF, _HALF, 384, ResizeMode.SQUASH, None, True),
+    "siglip2_so400m_patch16_512": _contract(_HALF, _HALF, 512, ResizeMode.SQUASH, None, True),
     "vit_base_patch16_224": _contract(_HALF, _HALF, 224, ResizeMode.SQUASH, None, True),
     "focalnet_tiny": _contract(
         _IMAGENET_MEAN, _IMAGENET_STD, 224, ResizeMode.SHORTEST_EDGE_CROP, 256, False
@@ -262,3 +264,61 @@ def test_unknown_architecture_is_rejected() -> None:
 
     with pytest.raises(ValueError):
         create_hf_classifier("vit_base_patch16_999", num_classes=2, pretrained=False)
+
+
+# vision_config of each non-base checkpoint's config.json, transcribed independently of the
+# source table for the same reason as _EXPECTED_CONTRACTS.
+_EXPECTED_VISION_DIMS = {
+    "siglip2_so400m_patch16_384": {
+        "hidden_size": 1152,
+        "intermediate_size": 4304,
+        "num_hidden_layers": 27,
+        "num_attention_heads": 16,
+    },
+    "siglip2_so400m_patch16_512": {
+        "hidden_size": 1152,
+        "intermediate_size": 4304,
+        "num_hidden_layers": 27,
+        "num_attention_heads": 16,
+    },
+}
+
+
+@pytest.mark.parametrize("arch", _HF_ARCHITECTURES)
+def test_vision_dims_match_the_checkpoint(arch: str) -> None:
+    """Base-sized backbones declare no dims; every other size declares exactly its own."""
+    assert dict(HF_BACKBONES[arch].vision_dims) == _EXPECTED_VISION_DIMS.get(arch, {})
+
+
+@pytest.mark.requires_transformers
+@pytest.mark.parametrize("arch", sorted(_EXPECTED_VISION_DIMS))
+def test_offline_config_is_built_at_the_checkpoint_size(arch: str) -> None:
+    """
+    Offline construction must build the checkpoint's size, not the config class default.
+
+    Checked on the config alone, so it costs nothing at these model sizes. A base-sized
+    config here would load none of the trained weights.
+    """
+    pytest.importorskip("transformers")
+    from mb.models.preprocessing import preprocessing_spec_for
+
+    size = preprocessing_spec_for(arch).image_size
+    config = HF_BACKBONES[arch].build_config(size, 3, "single_label_classification")
+    vision = config.vision_config
+    for key, value in _EXPECTED_VISION_DIMS[arch].items():
+        assert getattr(vision, key) == value
+    assert vision.image_size == size
+    assert vision.patch_size == 16
+
+
+@pytest.mark.requires_transformers
+def test_gradient_checkpointing_can_be_enabled() -> None:
+    pytest.importorskip("transformers")
+    pytest.importorskip("torch")
+    from mb.models.frameworks.pytorch.hf_architectures import create_hf_classifier
+
+    model = create_hf_classifier(
+        ArchitectureType.VIT_BASE_PATCH16_224, num_classes=2, pretrained=False
+    )
+    assert model.enable_gradient_checkpointing() is True
+    assert model.hf.is_gradient_checkpointing

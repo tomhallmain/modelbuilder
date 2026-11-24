@@ -150,6 +150,8 @@ _SPECS: Dict[str, PreprocessingSpec] = {
     ArchitectureType.SIGLIP2_BASE_PATCH16_256.value: _fixed_grid_half_norm_spec(256),
     ArchitectureType.SIGLIP2_BASE_PATCH16_384.value: _fixed_grid_half_norm_spec(384),
     ArchitectureType.SIGLIP2_BASE_PATCH16_512.value: _fixed_grid_half_norm_spec(512),
+    ArchitectureType.SIGLIP2_SO400M_PATCH16_384.value: _fixed_grid_half_norm_spec(384),
+    ArchitectureType.SIGLIP2_SO400M_PATCH16_512.value: _fixed_grid_half_norm_spec(512),
     ArchitectureType.VIT_BASE_PATCH16_224.value: _fixed_grid_half_norm_spec(224),
     # FocalNet keeps ImageNet statistics but crops rather than squashing, and has no absolute
     # position embeddings, so it tolerates other input sizes.

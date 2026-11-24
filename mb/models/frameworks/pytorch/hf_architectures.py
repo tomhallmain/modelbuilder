@@ -24,7 +24,7 @@ hardcoding it here.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, Iterator, Union
+from typing import Any, Dict, Iterator, Tuple, Union
 
 import torch.nn as nn
 
@@ -70,6 +70,10 @@ class HFBackbone:
         nested_vision_config: Whether the patch geometry belongs under a ``vision_config``
             key. SigLIP is a composite vision-plus-text config; ViT is flat.
         patch_size: Patch grid the checkpoint was trained with.
+        vision_dims: Width/depth keywords for the vision tower, as ``(name, value)`` pairs,
+            copied from the checkpoint's ``config.json``. Empty means the config class's
+            defaults, which are base-sized; any other size must list them, or offline
+            construction and the export stub build a model the saved weights do not fit.
 
     Every field is plain data rather than a callable, because the same description has to be
     emitted into the standalone ``model_architecture.py`` an export bundle ships — a stub
@@ -85,10 +89,12 @@ class HFBackbone:
     config_class: str
     nested_vision_config: bool = False
     patch_size: int = 16
+    vision_dims: Tuple[Tuple[str, int], ...] = ()
 
     def config_kwargs(self, image_size: int) -> Dict[str, Any]:
-        """Geometry keywords for :attr:`config_class`, shaped for this family."""
-        geometry = {"image_size": image_size, "patch_size": self.patch_size}
+        """Geometry and size keywords for :attr:`config_class`, shaped for this family."""
+        geometry: Dict[str, Any] = {"image_size": image_size, "patch_size": self.patch_size}
+        geometry.update(dict(self.vision_dims))
         return {"vision_config": geometry} if self.nested_vision_config else geometry
 
     def build_config(self, image_size: int, num_classes: int, problem_type: str) -> Any:
@@ -103,6 +109,14 @@ class HFBackbone:
         )
 
 
+# vision_config of google/siglip2-so400m-patch16-{384,512}/config.json (identical in both).
+_SIGLIP_SO400M_DIMS: Tuple[Tuple[str, int], ...] = (
+    ("hidden_size", 1152),
+    ("intermediate_size", 4304),
+    ("num_hidden_layers", 27),
+    ("num_attention_heads", 16),
+)
+
 HF_BACKBONES: Dict[str, HFBackbone] = {
     ArchitectureType.SIGLIP2_BASE_PATCH16_224.value: HFBackbone(
         "google/siglip2-base-patch16-224", "SiglipConfig", nested_vision_config=True
@@ -115,6 +129,18 @@ HF_BACKBONES: Dict[str, HFBackbone] = {
     ),
     ArchitectureType.SIGLIP2_BASE_PATCH16_512.value: HFBackbone(
         "google/siglip2-base-patch16-512", "SiglipConfig", nested_vision_config=True
+    ),
+    ArchitectureType.SIGLIP2_SO400M_PATCH16_384.value: HFBackbone(
+        "google/siglip2-so400m-patch16-384",
+        "SiglipConfig",
+        nested_vision_config=True,
+        vision_dims=_SIGLIP_SO400M_DIMS,
+    ),
+    ArchitectureType.SIGLIP2_SO400M_PATCH16_512.value: HFBackbone(
+        "google/siglip2-so400m-patch16-512",
+        "SiglipConfig",
+        nested_vision_config=True,
+        vision_dims=_SIGLIP_SO400M_DIMS,
     ),
     # The in21k checkpoint has no classification head, which is what fine-tuning wants; the
     # plain -224 variant carries an ImageNet-1k head that would be discarded anyway.
@@ -147,6 +173,7 @@ def hf_backbone_export_table() -> Dict[str, Dict[str, Any]]:
             "config_class": backbone.config_class,
             "nested_vision_config": backbone.nested_vision_config,
             "patch_size": backbone.patch_size,
+            "vision_dims": dict(backbone.vision_dims),
             "image_size": preprocessing_spec_for(name).image_size,
         }
         for name, backbone in HF_BACKBONES.items()
@@ -194,6 +221,21 @@ class HFImageClassifier(nn.Module):
         with what was actually trained.
         """
         self.hf.config.problem_type = problem_type_for(label_mode)
+
+    def enable_gradient_checkpointing(self) -> bool:
+        """
+        Recompute activations in the backward pass instead of storing them.
+
+        Trades roughly a third more compute for much lower activation memory, which is what
+        lets the larger backbones train at high resolution on one GPU. Returns False when
+        the wrapped model does not support it.
+        """
+        if not getattr(self.hf, "supports_gradient_checkpointing", False):
+            return False
+        # Non-reentrant checkpointing works with a frozen embedding layer, which the
+        # reentrant variant silently gets wrong (no gradients reach the checkpointed blocks).
+        self.hf.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
+        return True
 
 
 def _require_transformers():

@@ -40,7 +40,9 @@ from mb.models.types import (
     ClassWeightingMode,
     FrameworkType,
     LabelMode,
+    MixedPrecisionMode,
     ModelType,
+    OptimizerType,
     TextBackendType,
     TextCalibrationMethod,
     TextThresholdPolicy,
@@ -226,6 +228,13 @@ class PipelineConfigPage(QWidget):
                 _("DataLoader workers"),
                 _("Class weighting"),
                 _("Max class weight"),
+                _("Optimizer"),
+                _("Weight decay"),
+                _("Layer-wise LR decay"),
+                _("Gradient accumulation steps"),
+                _("Mixed precision"),
+                _("Gradient checkpointing"),
+                _("Keep best epoch's weights"),
                 "",
             ],
         )
@@ -525,6 +534,38 @@ class PipelineConfigPage(QWidget):
         self._t_class_weight_max.setRange(1.0, 10_000.0)
         self._t_class_weight_max.setDecimals(2)
         form.addRow(_("Max class weight"), self._t_class_weight_max)
+
+        self._t_optimizer = QComboBox()
+        for opt in OptimizerType:
+            self._t_optimizer.addItem(opt.value, opt.value)
+        form.addRow(_("Optimizer"), self._t_optimizer)
+
+        self._t_weight_decay = QDoubleSpinBox()
+        self._t_weight_decay.setRange(0.0, 10.0)
+        self._t_weight_decay.setDecimals(6)
+        self._t_weight_decay.setSingleStep(0.01)
+        form.addRow(_("Weight decay"), self._t_weight_decay)
+
+        self._t_layer_decay = QDoubleSpinBox()
+        self._t_layer_decay.setRange(0.01, 1.0)
+        self._t_layer_decay.setDecimals(4)
+        self._t_layer_decay.setSingleStep(0.05)
+        form.addRow(_("Layer-wise LR decay"), self._t_layer_decay)
+
+        self._t_grad_accum = QSpinBox()
+        self._t_grad_accum.setRange(1, 4096)
+        form.addRow(_("Gradient accumulation steps"), self._t_grad_accum)
+
+        self._t_mixed_precision = QComboBox()
+        for mode in MixedPrecisionMode:
+            self._t_mixed_precision.addItem(mode.value, mode.value)
+        form.addRow(_("Mixed precision"), self._t_mixed_precision)
+
+        self._t_grad_ckpt = QCheckBox()
+        form.addRow(_("Gradient checkpointing"), self._t_grad_ckpt)
+
+        self._t_restore_best = QCheckBox()
+        form.addRow(_("Keep best epoch's weights"), self._t_restore_best)
 
         self._store_ck = QCheckBox()
         form.addRow("", self._store_ck)
@@ -853,6 +894,18 @@ class PipelineConfigPage(QWidget):
                     or ClassWeightingMode.get_default().value
                 ),
                 "class_weight_max": float(self._t_class_weight_max.value()),
+                "optimizer": str(
+                    self._t_optimizer.currentData() or OptimizerType.get_default().value
+                ),
+                "weight_decay": float(self._t_weight_decay.value()),
+                "layer_decay": float(self._t_layer_decay.value()),
+                "grad_accum_steps": int(self._t_grad_accum.value()),
+                "mixed_precision": str(
+                    self._t_mixed_precision.currentData()
+                    or MixedPrecisionMode.get_default().value
+                ),
+                "gradient_checkpointing": self._t_grad_ckpt.isChecked(),
+                "restore_best": self._t_restore_best.isChecked(),
                 "store_checkpoints": self._store_ck.isChecked(),
             },
             "paths": {
@@ -918,6 +971,18 @@ class PipelineConfigPage(QWidget):
         cw_idx = self._t_class_weighting.findData(cw.value)
         self._t_class_weighting.setCurrentIndex(cw_idx if cw_idx >= 0 else 0)
         self._t_class_weight_max.setValue(float(t.get("class_weight_max") or 50.0))
+        opt = OptimizerType.try_from(t.get("optimizer")) or OptimizerType.get_default()
+        opt_idx = self._t_optimizer.findData(opt.value)
+        self._t_optimizer.setCurrentIndex(opt_idx if opt_idx >= 0 else 0)
+        self._t_weight_decay.setValue(float(t.get("weight_decay") or 0.0))
+        # 0 is outside the valid range, so a missing or zero value means "disabled" (1.0).
+        self._t_layer_decay.setValue(float(t.get("layer_decay") or 1.0))
+        self._t_grad_accum.setValue(int(t.get("grad_accum_steps") or 1))
+        mp = MixedPrecisionMode.try_from(t.get("mixed_precision")) or MixedPrecisionMode.get_default()
+        mp_idx = self._t_mixed_precision.findData(mp.value)
+        self._t_mixed_precision.setCurrentIndex(mp_idx if mp_idx >= 0 else 0)
+        self._t_grad_ckpt.setChecked(bool(t.get("gradient_checkpointing")))
+        self._t_restore_best.setChecked(bool(t.get("restore_best")))
         self._store_ck.setChecked(bool(t.get("store_checkpoints")))
 
         p = cfg.get("paths") or {}

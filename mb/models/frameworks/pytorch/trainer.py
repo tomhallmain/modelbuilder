@@ -12,6 +12,7 @@ from torch.optim.lr_scheduler import OneCycleLR, CosineAnnealingLR
 from pathlib import Path
 from typing import Any, Callable, Dict, Optional, Tuple, Union
 import json
+import math
 import threading
 from datetime import datetime
 
@@ -20,6 +21,14 @@ from mb.models.base import FrameworkTrainer
 from mb.training.gui_progress import subepoch_progress_emit
 from mb.models.frameworks.pytorch.data_loader import create_data_loaders
 from mb.models.frameworks.pytorch.architectures import create_resnet, create_efficientnet
+from mb.models.frameworks.pytorch.optimization import (
+    autocast_context,
+    build_optimizer,
+    make_grad_scaler,
+    optimizer_steps_per_epoch,
+    resolve_autocast_dtype,
+    resolve_optimization_settings,
+)
 from mb.models.frameworks.pytorch.objectives import (
     ClassificationObjective,
     MultiLabelF1,
@@ -34,6 +43,9 @@ from mb.utils.logging_setup import get_logger
 from mb.utils.translations import _
 
 logger = get_logger(__name__)
+
+# Written to the run's output directory when training.restore_best is on.
+BEST_WEIGHTS_FILENAME = "best_model_weights.pth"
 
 
 class PyTorchTrainer(FrameworkTrainer):
@@ -212,6 +224,30 @@ class PyTorchTrainer(FrameworkTrainer):
         make_accumulator = objective.make_accumulator
         logger.info("Objective: %s, tracking %s", objective.label_mode.value, objective.primary_metric)
 
+        settings = resolve_optimization_settings(hyperparams)
+        autocast_dtype = resolve_autocast_dtype(settings.mixed_precision, self.device)
+        accum = settings.grad_accum_steps
+        logger.info(
+            _(
+                "Optimization: optimizer={optimizer}, weight_decay={wd}, layer_decay={ld}, "
+                "grad_accum_steps={accum}, mixed_precision={precision}"
+            ).format(
+                optimizer=settings.optimizer.value,
+                wd=settings.weight_decay,
+                ld=settings.layer_decay,
+                accum=accum,
+                precision="fp32" if autocast_dtype is None else str(autocast_dtype).replace("torch.", ""),
+            ))
+        if settings.gradient_checkpointing:
+            enable_gc = getattr(model, "enable_gradient_checkpointing", None)
+            if callable(enable_gc) and enable_gc():
+                logger.info(_("Gradient checkpointing enabled"))
+            else:
+                logger.warning(
+                    _("Gradient checkpointing is not supported by this architecture; ignoring"))
+        best_weights_path = output_dir / BEST_WEIGHTS_FILENAME
+        epoch_kwargs = {"grad_accum_steps": accum, "autocast_dtype": autocast_dtype}
+
         # Phase 1: Frozen backbone training
         if frozen_epochs_completed < frozen_epochs:
             logger.info(
@@ -242,10 +278,10 @@ class PyTorchTrainer(FrameworkTrainer):
                     f"{type(model).__name__}; the frozen phase would train nothing"
                 )
 
-            optimizer = optim.Adam(
-                filter(lambda p: p.requires_grad, model.parameters()),
-                lr=frozen_lr
+            optimizer, _group_lrs = build_optimizer(
+                model, frozen_lr, settings, trainable_only=True
             )
+            scaler = make_grad_scaler(autocast_dtype)
             
             remaining_frozen = frozen_epochs - frozen_epochs_completed
             frozen_start_completed = frozen_epochs_completed
@@ -269,6 +305,8 @@ class PyTorchTrainer(FrameworkTrainer):
                     cancel_event=cancel_event,
                     on_batch_step=emit,
                     make_accumulator=make_accumulator,
+                    scaler=scaler,
+                    **epoch_kwargs,
                 )
 
                 # Validate
@@ -278,12 +316,15 @@ class PyTorchTrainer(FrameworkTrainer):
                     train_step_count=len(train_loader),
                     on_batch_step=emit,
                     make_accumulator=make_accumulator,
+                    autocast_dtype=autocast_dtype,
                 )
                 
                 logger.info(f"  Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}")
                 logger.info(f"  Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}")
                 
                 frozen_epochs_completed += 1
+                if settings.restore_best and val_acc > best_val_acc:
+                    self._save_best_weights(model, best_weights_path, val_acc, epoch_num)
                 best_val_acc = max(best_val_acc, val_acc)
                 
                 # Save checkpoint
@@ -312,11 +353,17 @@ class PyTorchTrainer(FrameworkTrainer):
                 param.requires_grad = True
             
             # Use OneCycleLR scheduler for learning rate scheduling
-            total_steps = len(train_loader) * (unfrozen_epochs - unfrozen_epochs_completed)
-            optimizer = optim.Adam(model.parameters(), lr=unfrozen_lr_max)
+            total_steps = optimizer_steps_per_epoch(len(train_loader), accum) * (
+                unfrozen_epochs - unfrozen_epochs_completed
+            )
+            optimizer, group_lrs = build_optimizer(
+                model, unfrozen_lr_max, settings, apply_layer_decay=True
+            )
+            scaler = make_grad_scaler(autocast_dtype)
             scheduler = OneCycleLR(
                 optimizer,
-                max_lr=unfrozen_lr_max,
+                # A single group keeps the scalar form, so the default schedule is unchanged.
+                max_lr=group_lrs if len(group_lrs) > 1 else unfrozen_lr_max,
                 total_steps=total_steps,
                 pct_start=unfrozen_pct_start,
                 anneal_strategy='cos'
@@ -344,6 +391,8 @@ class PyTorchTrainer(FrameworkTrainer):
                     cancel_event=cancel_event,
                     on_batch_step=emit,
                     make_accumulator=make_accumulator,
+                    scaler=scaler,
+                    **epoch_kwargs,
                 )
 
                 # Validate
@@ -353,13 +402,18 @@ class PyTorchTrainer(FrameworkTrainer):
                     train_step_count=len(train_loader),
                     on_batch_step=emit,
                     make_accumulator=make_accumulator,
+                    autocast_dtype=autocast_dtype,
                 )
                 
                 logger.info(f"  Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}")
                 logger.info(f"  Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}")
-                logger.info(f"  LR: {scheduler.get_last_lr()[0]:.6f}")
+                logger.info(f"  LR: {scheduler.get_last_lr()[-1]:.6f}")
                 
                 unfrozen_epochs_completed += 1
+                if settings.restore_best and val_acc > best_val_acc:
+                    self._save_best_weights(
+                        model, best_weights_path, val_acc, frozen_epochs + epoch_num
+                    )
                 best_val_acc = max(best_val_acc, val_acc)
                 
                 # Save checkpoint
@@ -380,8 +434,50 @@ class PyTorchTrainer(FrameworkTrainer):
             _(
                 "Training completed. Best validation accuracy: {best_val_acc:.4f}"
             ).format(best_val_acc=best_val_acc))
-        
+
+        if settings.restore_best:
+            self._restore_best_weights(model, best_weights_path, best_val_acc)
+
         return model
+
+    def _save_best_weights(
+        self, model: nn.Module, path: Path, metric: float, epoch: int
+    ) -> None:
+        """Write the weights of the best epoch so far, with the metric that earned it."""
+        torch.save(
+            {"model_state_dict": model.state_dict(), "best_val_acc": float(metric), "epoch": epoch},
+            path,
+        )
+        logger.info(
+            _("New best validation metric {metric:.4f} at epoch {epoch}; saved {path}").format(
+                metric=metric, epoch=epoch, path=path))
+
+    def _restore_best_weights(self, model: nn.Module, path: Path, best_val_acc: float) -> None:
+        """
+        Load the best epoch's weights into *model*, keeping the final weights if unavailable.
+
+        The stored metric must equal this run's best: a file left by an earlier run in the
+        same output directory, or a resume into a directory that never saw the best epoch,
+        would otherwise restore weights this run did not produce.
+        """
+        if not path.is_file():
+            logger.warning(
+                _("No best-epoch weights at {path}; keeping the final epoch's weights").format(
+                    path=path))
+            return
+        saved = torch.load(path, map_location=self.device)
+        stored = float(saved.get("best_val_acc", float("nan")))
+        if not math.isclose(stored, float(best_val_acc), rel_tol=0.0, abs_tol=1e-9):
+            logger.warning(
+                _(
+                    "Best-epoch weights at {path} record {stored:.4f}, not this run's best "
+                    "{best:.4f}; keeping the final epoch's weights"
+                ).format(path=path, stored=stored, best=best_val_acc))
+            return
+        model.load_state_dict(saved["model_state_dict"])
+        logger.info(
+            _("Restored best-epoch weights (epoch {epoch}, metric {metric:.4f})").format(
+                epoch=saved.get("epoch"), metric=stored))
     
     def evaluate(
         self,
@@ -564,15 +660,25 @@ class PyTorchTrainer(FrameworkTrainer):
         cancel_event: Optional[threading.Event] = None,
         on_batch_step: Optional[Callable[[int], None]] = None,
         make_accumulator: Optional[Callable[[], Any]] = None,
+        grad_accum_steps: int = 1,
+        autocast_dtype: Optional[torch.dtype] = None,
+        scaler: Optional[Any] = None,
     ) -> Tuple[float, float]:
         """Train for one epoch.
 
         *make_accumulator* builds the epoch metric; the default is top-1 accuracy, which is
         what the metric was before label mode became selectable.
+
+        With *grad_accum_steps* > 1, gradients from that many batches are summed before each
+        optimizer (and scheduler) step; a trailing partial group still steps, which is what
+        :func:`optimizer_steps_per_epoch` counts. *autocast_dtype* enables mixed precision,
+        and *scaler* is the fp16 loss scaler.
         """
         model.train()
         running_loss = 0.0
         metric = (make_accumulator or SingleLabelAccuracy)()
+        accum = max(1, int(grad_accum_steps))
+        num_batches = len(train_loader)
 
         for batch_idx, (inputs, targets) in enumerate(train_loader):
             check_cancel_event(cancel_event)
@@ -582,17 +688,33 @@ class PyTorchTrainer(FrameworkTrainer):
             targets = targets.to(self.device)
 
             # Forward pass
-            optimizer.zero_grad()
-            outputs = model(inputs)
+            if batch_idx % accum == 0:
+                optimizer.zero_grad()
+            with autocast_context(self.device, autocast_dtype):
+                outputs = model(inputs)
+            if autocast_dtype is not None:
+                outputs = outputs.float()
             loss = criterion(outputs, targets)
 
-            # Backward pass
-            loss.backward()
-            optimizer.step()
+            # Backward pass. The loss is averaged over the batches in this accumulation
+            # group, so the summed gradient matches one batch of the combined size.
+            group_size = min(accum, num_batches - (batch_idx // accum) * accum)
+            backward_loss = loss / group_size if group_size > 1 else loss
+            if scaler is not None:
+                scaler.scale(backward_loss).backward()
+            else:
+                backward_loss.backward()
 
-            # Update scheduler if provided
-            if scheduler:
-                scheduler.step()
+            if (batch_idx + 1) % accum == 0 or batch_idx + 1 == num_batches:
+                if scaler is not None:
+                    scaler.step(optimizer)
+                    scaler.update()
+                else:
+                    optimizer.step()
+
+                # Update scheduler if provided
+                if scheduler:
+                    scheduler.step()
 
             # Statistics
             running_loss += loss.item()
@@ -614,8 +736,9 @@ class PyTorchTrainer(FrameworkTrainer):
         train_step_count: int = 0,
         on_batch_step: Optional[Callable[[int], None]] = None,
         make_accumulator: Optional[Callable[[], Any]] = None,
+        autocast_dtype: Optional[torch.dtype] = None,
     ) -> Tuple[float, float]:
-        """Validate the model."""
+        """Validate the model (under autocast when *autocast_dtype* is set)."""
         model.eval()
         running_loss = 0.0
         metric = (make_accumulator or SingleLabelAccuracy)()
@@ -629,7 +752,10 @@ class PyTorchTrainer(FrameworkTrainer):
                     targets = torch.as_tensor(targets)
                 targets = targets.to(self.device)
 
-                outputs = model(inputs)
+                with autocast_context(self.device, autocast_dtype):
+                    outputs = model(inputs)
+                if autocast_dtype is not None:
+                    outputs = outputs.float()
                 loss = criterion(outputs, targets)
 
                 running_loss += loss.item()

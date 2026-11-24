@@ -158,6 +158,9 @@ class HFImageClassifier(nn.Module):
         if spec is None:
             raise ValueError(f"Unsupported transformers architecture: {{architecture}}")
         geometry = {{"image_size": spec["image_size"], "patch_size": spec["patch_size"]}}
+        # Width/depth for backbones that are not base-sized; without them the config class
+        # defaults build a model the saved weights do not fit.
+        geometry.update(spec.get("vision_dims") or {{}})
         if spec["nested_vision_config"]:
             geometry = {{"vision_config": geometry}}
         config_cls = getattr(transformers, spec["config_class"])

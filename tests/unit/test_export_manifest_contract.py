@@ -160,3 +160,4 @@ def test_stub_can_rebuild_every_hugging_face_backbone() -> None:
         assert entry["config_class"] == backbone.config_class
         assert entry["nested_vision_config"] == backbone.nested_vision_config
         assert entry["patch_size"] == backbone.patch_size
+        assert entry["vision_dims"] == dict(backbone.vision_dims)

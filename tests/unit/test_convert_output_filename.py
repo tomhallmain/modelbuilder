@@ -42,8 +42,10 @@ def test_convert_output_jpeg_filename_differs_for_same_stem_different_paths(tmp_
 def test_convert_output_jpeg_filename_respects_single_component_length(tmp_path: Path) -> None:
     # Windows rejects a single path component >255 chars; use max legal stem for .png (251 chars).
     long_stem = "a" * 251
+    # Not created on disk: the name is derived from the path string alone, and under the
+    # pytest temp dir the full path exceeds Windows' 260-character MAX_PATH, so writing it
+    # fails unless long paths are enabled on the machine.
     p = tmp_path / f"{long_stem}.png"
-    p.write_bytes(b"x")
     name = convert_output_jpeg_filename(p)
     assert name.endswith(".jpg")
     assert len(name) <= 255

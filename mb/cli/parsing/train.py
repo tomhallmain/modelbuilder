@@ -6,7 +6,14 @@ from pathlib import Path
 
 from mb.cli.parsing.common import MODEL_TYPE_CLI_CHOICES
 from mb.models.generation_architectures import BaseGenerationArchitecture
-from mb.models.types import ClassWeightingMode, FrameworkType, LabelMode, TextBackendType
+from mb.models.types import (
+    ClassWeightingMode,
+    FrameworkType,
+    LabelMode,
+    MixedPrecisionMode,
+    OptimizerType,
+    TextBackendType,
+)
 from mb.utils.constants import ModelBuilderTaskType
 from mb.utils.translations import _
 
@@ -136,6 +143,62 @@ def register(subparsers) -> None:
         help=_(
             "Ceiling on any single class weight (--class-weighting inverse_frequency only; "
             "default: from config)"
+        ),
+    )
+    train_parser.add_argument(
+        "--optimizer",
+        choices=[o.value for o in OptimizerType],
+        help=_("Optimizer (PyTorch image_classification only; default: from config, adam)"),
+    )
+    train_parser.add_argument(
+        "--weight-decay",
+        type=float,
+        help=_(
+            "Weight decay, not applied to biases or normalization scales (PyTorch "
+            "image_classification only; default: from config, 0)"
+        ),
+    )
+    train_parser.add_argument(
+        "--layer-decay",
+        type=float,
+        help=_(
+            "Layer-wise learning-rate decay in (0, 1] for the fine-tuning phase; 1 disables. "
+            "Affects plain transformer encoders such as siglip2_* and vit_* only (default: "
+            "from config, 1)"
+        ),
+    )
+    train_parser.add_argument(
+        "--grad-accum-steps",
+        type=int,
+        help=_(
+            "Batches per optimizer step; the effective batch size is --batch-size times this "
+            "(PyTorch image_classification only; default: from config, 1)"
+        ),
+    )
+    train_parser.add_argument(
+        "--mixed-precision",
+        choices=[m.value for m in MixedPrecisionMode],
+        help=_(
+            "Autocast precision (PyTorch image_classification only; default: from config, "
+            "none). fp16 needs CUDA; bf16 needs a GPU that supports it."
+        ),
+    )
+    train_parser.add_argument(
+        "--gradient-checkpointing",
+        action="store_true",
+        default=None,
+        help=_(
+            "Recompute activations during the backward pass to reduce memory (Hugging Face "
+            "backbones only)"
+        ),
+    )
+    train_parser.add_argument(
+        "--restore-best",
+        action="store_true",
+        default=None,
+        help=_(
+            "Use the best-validating epoch's weights as the final model instead of the last "
+            "epoch's (PyTorch image_classification only)"
         ),
     )
     train_parser.add_argument(

@@ -40,12 +40,16 @@ def test_log_files_are_written_inside_the_test_run():
     """conftest sets MODELBUILDER_TEST_APP_DATA before the first logger is made;
     set too late, the file handlers open files in the real logs folder."""
     root = _norm(os.environ["MODELBUILDER_TEST_APP_DATA"])
+    # pytest attaches its own handlers (including a FileHandler on os.devnull when no
+    # --log-file is set) to every non-propagating logger for the duration of each test, and
+    # modelbuilder loggers do not propagate. Those are pytest's, not the application's.
     handlers = [
         handler
         for name, log in logging.Logger.manager.loggerDict.items()
         if name.startswith("modelbuilder.") and isinstance(log, logging.Logger)
         for handler in log.handlers
         if isinstance(handler, logging.FileHandler)
+        and not type(handler).__module__.startswith("_pytest")
     ]
     assert handlers
     for handler in handlers:

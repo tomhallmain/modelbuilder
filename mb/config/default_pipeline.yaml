@@ -66,6 +66,26 @@ training:
   class_weighting: none
   # Ceiling on any single class weight; used only when class_weighting is inverse_frequency.
   class_weight_max: 50.0
+  # The options below apply to PyTorch image classification. The defaults reproduce plain
+  # Adam in fp32 with one learning rate, keeping the final epoch's weights. For large
+  # transformer backbones (siglip2_so400m_*), a typical setting is optimizer: adamw,
+  # weight_decay: 0.05, layer_decay: 0.75, mixed_precision: bf16, restore_best: true.
+  # adam | adamw
+  optimizer: adam
+  # 0 disables. Not applied to biases or normalization scales.
+  weight_decay: 0.0
+  # Layer-wise learning-rate decay for the fine-tuning phase: each transformer block
+  # below the top trains at this factor times the rate of the block above it. 1.0
+  # disables. Only plain transformer encoders (SigLIP2, ViT) are affected.
+  layer_decay: 1.0
+  # Batches whose gradients are summed per optimizer step (effective batch = batch_size x this).
+  grad_accum_steps: 1
+  # none | bf16 | fp16 (fp16 needs CUDA)
+  mixed_precision: none
+  # Recompute activations in the backward pass to save memory (Hugging Face backbones only).
+  gradient_checkpointing: false
+  # Save the best-validating epoch's weights and use them as the final model.
+  restore_best: false
 
 paths:
   models_dir: data/models

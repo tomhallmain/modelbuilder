@@ -500,6 +500,17 @@ def handle_train(args):
             cli_hyperparams['class_weighting'] = args.class_weighting
         if getattr(args, 'class_weight_max', None) is not None:
             cli_hyperparams['class_weight_max'] = args.class_weight_max
+        for key in (
+            'optimizer',
+            'weight_decay',
+            'layer_decay',
+            'grad_accum_steps',
+            'mixed_precision',
+            'gradient_checkpointing',
+            'restore_best',
+        ):
+            if getattr(args, key, None) is not None:
+                cli_hyperparams[key] = getattr(args, key)
 
         # Create trainer
         trainer = ModelTrainer(
