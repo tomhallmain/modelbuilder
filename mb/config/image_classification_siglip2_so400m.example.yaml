@@ -1,0 +1,50 @@
+# Example pipeline for fine-tuning a large fixed-resolution transformer backbone
+# (SigLIP2 SO400M/16 at 512px) on a folder-per-class image dataset. Copy it next to your
+# project (relative paths resolve against the copied file's folder), adjust, then:
+#
+#   mb --config my_pipeline.yaml train
+#   mb --config my_pipeline.yaml export bundle --input data/models/siglip2_so400m_patch16_512_model.pth --output-dir bundle
+#
+# Needs the transformers extra (pip install -e ".[transformers]") and a CUDA GPU; at this
+# size CPU training is not practical. Only the sections that differ from the shipped
+# defaults are present; everything else merges in from mb/config/default_pipeline.yaml.
+#
+# The training values are conventional starting points for fine-tuning a ViT of this size
+# (AdamW, layer-wise decay, bf16), not results of tuning on any particular dataset.
+
+model:
+  # siglip2_so400m_patch16_384 is the lower-memory alternative (set data.image_size: 384).
+  default_architecture: siglip2_so400m_patch16_512
+
+data:
+  # Fixed by the backbone: SigLIP2 position embeddings are learned on a 32x32 patch grid.
+  image_size: 512
+  # Per optimizer step the effective batch is batch_size x training.grad_accum_steps (32).
+  # If memory runs out, halve batch_size and double grad_accum_steps.
+  batch_size: 8
+
+training:
+  # Head-only warmup, then full fine-tuning. Each SO400M epoch at 512px is expensive, and a
+  # pretrained encoder of this size typically needs few epochs.
+  frozen_epochs: 2
+  unfrozen_epochs: 10
+  frozen_lr: 0.001
+  # Peak and final rate of the fine-tuning OneCycle schedule (top layers; lower layers are
+  # scaled down by layer_decay). Lower than the ResNet defaults, as is usual for full
+  # fine-tuning of a large pretrained transformer.
+  unfrozen_lr_max: 0.0001
+  unfrozen_lr_min: 0.000001
+  optimizer: adamw
+  weight_decay: 0.05
+  # Per-block factor over 27 encoder blocks: the embeddings train at about 0.8^28 (~0.2%)
+  # of the head's rate.
+  layer_decay: 0.8
+  grad_accum_steps: 4
+  # Use fp16 on GPUs without bf16 support.
+  mixed_precision: bf16
+  # Trades about a third more compute for much lower activation memory at 1024 tokens.
+  gradient_checkpointing: true
+  # Use the best-validating epoch as the final model.
+  restore_best: true
+  # Keep only the latest checkpoint (several GB each at this size); enough for --resume-from.
+  store_checkpoints: false

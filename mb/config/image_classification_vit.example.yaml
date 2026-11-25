@@ -1,0 +1,32 @@
+# Example pipeline for ViT-Base/16 (Hugging Face google/vit-base-patch16-224-in21k, ImageNet-21k
+# pretraining) at 224px, the reference plain vision transformer. Copy it next to your project
+# (relative paths resolve against the copied file's folder), adjust, then:
+#
+#   mb --config my_pipeline.yaml train
+#
+# Needs the transformers extra (pip install -e ".[transformers]"). Only the sections that
+# differ from the shipped defaults are present; everything else merges in from
+# mb/config/default_pipeline.yaml. The values here are starting points, not results of
+# tuning on any dataset.
+
+model:
+  default_architecture: vit_base_patch16_224
+
+data:
+  # Fixed by the backbone: position embeddings are learned on a 14x14 patch grid.
+  image_size: 224
+  batch_size: 32
+
+training:
+  frozen_epochs: 2
+  unfrozen_epochs: 12
+  unfrozen_lr_max: 0.0001
+  unfrozen_lr_min: 0.000001
+  optimizer: adamw
+  weight_decay: 0.05
+  # Per-block factor over 12 encoder blocks: the embeddings train at about 0.65^13 (~0.4%)
+  # of the head's rate.
+  layer_decay: 0.65
+  # Use fp16 on GPUs without bf16 support.
+  mixed_precision: bf16
+  restore_best: true

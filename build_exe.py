@@ -105,6 +105,14 @@ DATA_FILES = (
     os.path.join("mb", "config", "default_pipeline.yaml"),
     os.path.join("mb", "config", "application.example.yaml"),
     os.path.join("mb", "config", "text_classification.example.yaml"),
+    os.path.join("mb", "config", "image_classification_convnext.example.yaml"),
+    os.path.join("mb", "config", "image_classification_efficientnet.example.yaml"),
+    os.path.join("mb", "config", "image_classification_focalnet.example.yaml"),
+    os.path.join("mb", "config", "image_classification_mobilenet.example.yaml"),
+    os.path.join("mb", "config", "image_classification_resnet.example.yaml"),
+    os.path.join("mb", "config", "image_classification_siglip2_base.example.yaml"),
+    os.path.join("mb", "config", "image_classification_siglip2_so400m.example.yaml"),
+    os.path.join("mb", "config", "image_classification_vit.example.yaml"),
 )
 
 # mb.models.text_backends loads these with importlib.import_module, which Nuitka

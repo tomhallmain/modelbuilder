@@ -1,0 +1,26 @@
+# Example pipeline for a small, fast model: MobileNetV3-Large (torchvision, ImageNet-1k
+# weights) at 224px, for when inference cost or size matters more than accuracy. Copy it next
+# to your project (relative paths resolve against the copied file's folder), adjust, then:
+#
+#   mb --config my_pipeline.yaml train
+#
+# Only the sections that differ from the shipped defaults are present; everything else
+# merges in from mb/config/default_pipeline.yaml. The values here are starting points, not
+# results of tuning on any dataset.
+
+model:
+  default_architecture: mobilenet_v3_large
+
+data:
+  # The size its weights were trained at.
+  image_size: 224
+  # Small enough that a large batch fits on most GPUs.
+  batch_size: 64
+
+training:
+  frozen_epochs: 3
+  unfrozen_epochs: 20
+  # A small network tolerates a higher fine-tuning rate than the large backbones.
+  unfrozen_lr_max: 0.001
+  unfrozen_lr_min: 0.00001
+  restore_best: true

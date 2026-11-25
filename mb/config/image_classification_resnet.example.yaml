@@ -1,0 +1,26 @@
+# Example pipeline for a classic CNN baseline: ResNet-50 (torchvision, ImageNet-1k weights) at
+# 320px on a folder-per-class image dataset. Copy it next to your project (relative paths
+# resolve against the copied file's folder), adjust, then:
+#
+#   mb --config my_pipeline.yaml train
+#
+# Only the sections that differ from the shipped defaults are present; everything else
+# merges in from mb/config/default_pipeline.yaml, whose training values were set for this
+# family. The values here are starting points, not results of tuning on any dataset.
+
+model:
+  default_architecture: resnet50
+
+data:
+  # Not resolution-locked: a fully convolutional network accepts sizes other than the 224
+  # its weights were trained at, and a larger input keeps more detail.
+  image_size: 320
+  batch_size: 32
+
+training:
+  frozen_epochs: 3
+  unfrozen_epochs: 15
+  # Compensates an imbalanced training set; validation loss stays unweighted.
+  class_weighting: inverse_frequency
+  # Use the best-validating epoch as the final model.
+  restore_best: true

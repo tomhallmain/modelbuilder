@@ -33,7 +33,14 @@ def register(subparsers) -> None:
     export_bundle_parser.add_argument("--num-classes", type=int, help=_("Number of output classes"))
     export_bundle_parser.add_argument("--class-names", nargs="+", help=_("Optional ordered class names"))
     export_bundle_parser.add_argument("--data-dir", type=Path, help=_("Optional data dir to infer class names from train/"))
-    export_bundle_parser.add_argument("--image-size", type=int, help=_("Expected input image size (defaults to pipeline)"))
+    export_bundle_parser.add_argument(
+        "--image-size",
+        type=int,
+        help=_(
+            "Expected input image size (default: the architecture's native size for "
+            "fixed-resolution backbones such as siglip2_*, else data.image_size)"
+        ),
+    )
     export_bundle_parser.add_argument("--snapshot", type=Path, help=_("Optional snapshot JSON path"))
     export_bundle_parser.add_argument(
         "--no-architecture-py",

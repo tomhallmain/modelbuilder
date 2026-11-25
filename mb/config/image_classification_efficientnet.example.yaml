@@ -1,0 +1,27 @@
+# Example pipeline for EfficientNet-B4 (torchvision, ImageNet-1k weights) at 380px, a
+# mid-sized CNN with a strong accuracy-for-cost ratio. Copy it next to your project
+# (relative paths resolve against the copied file's folder), adjust, then:
+#
+#   mb --config my_pipeline.yaml train
+#
+# Only the sections that differ from the shipped defaults are present; everything else
+# merges in from mb/config/default_pipeline.yaml. The values here are starting points, not
+# results of tuning on any dataset.
+
+model:
+  default_architecture: efficientnet_b4
+
+data:
+  # B4's weights were trained at 380px; the network is not resolution-locked.
+  image_size: 380
+  # Per optimizer step the effective batch is batch_size x training.grad_accum_steps (32).
+  # If memory runs out, halve batch_size and double grad_accum_steps.
+  batch_size: 16
+
+training:
+  frozen_epochs: 3
+  unfrozen_epochs: 15
+  grad_accum_steps: 2
+  # Use fp16 on GPUs without bf16 support, or none on CPU.
+  mixed_precision: bf16
+  restore_best: true

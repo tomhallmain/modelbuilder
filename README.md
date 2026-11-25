@@ -127,12 +127,22 @@ on a single GPU:
 ```bash
 mb train --architecture siglip2_so400m_patch16_512 --image-size 512 \
     --batch-size 8 --grad-accum-steps 4 \
-    --optimizer adamw --weight-decay 0.05 --layer-decay 0.75 \
+    --frozen-epochs 2 --unfrozen-epochs 10 --unfrozen-lr-max 1e-4 --unfrozen-lr-min 1e-6 \
+    --optimizer adamw --weight-decay 0.05 --layer-decay 0.8 \
     --mixed-precision bf16 --gradient-checkpointing --restore-best
 ```
 
 All of these default to the original behavior (Adam, fp32, one learning rate, final-epoch
 weights) and can also be set under `training:` in the pipeline config.
+`mb/config/image_classification_siglip2_so400m.example.yaml` is a ready-made pipeline config
+with the same settings; copy it into the project and run `mb --config <copy> train`.
+
+Example pipeline configs for other image-classification families sit beside it in
+`mb/config/`, each holding only the keys that differ from the defaults, with comments on
+why: `image_classification_resnet` (320px with class weighting), `_mobilenet` (small and
+fast), `_efficientnet` (B4 at 380px), `_convnext` (large CNN, AdamW), `_focalnet`
+(shortest-edge crop), `_vit` and `_siglip2_base` (fixed-resolution transformers with
+layer-wise decay). Their values are starting points, not tuned results.
 
 ### Conversion
 

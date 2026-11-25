@@ -152,7 +152,15 @@ class SmokeTest:
         self.check("locale", bool(catalogs), f"{len(catalogs)} catalog(s) in {I18N.localedir}")
         for parts in (("mb", "config", "default_pipeline.yaml"),
                       ("mb", "config", "application.example.yaml"),
-                      ("mb", "config", "text_classification.example.yaml")):
+                      ("mb", "config", "text_classification.example.yaml"),
+                      ("mb", "config", "image_classification_convnext.example.yaml"),
+                      ("mb", "config", "image_classification_efficientnet.example.yaml"),
+                      ("mb", "config", "image_classification_focalnet.example.yaml"),
+                      ("mb", "config", "image_classification_mobilenet.example.yaml"),
+                      ("mb", "config", "image_classification_resnet.example.yaml"),
+                      ("mb", "config", "image_classification_siglip2_base.example.yaml"),
+                      ("mb", "config", "image_classification_siglip2_so400m.example.yaml"),
+                      ("mb", "config", "image_classification_vit.example.yaml")):
             self.check("/".join(parts), resource_path(*parts).is_file())
         self.check("VERSION", resource_path(VERSION_FILE).is_file(), app_version())
         if IS_BUILD:

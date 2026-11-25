@@ -1,0 +1,37 @@
+# Example pipeline for SigLIP2 Base/16 (Hugging Face google/siglip2-base-patch16-384) at
+# 384px: a language-supervised vision transformer about a quarter of SO400M's size, for a
+# single consumer GPU. Copy it next to your project (relative paths resolve against the
+# copied file's folder), adjust, then:
+#
+#   mb --config my_pipeline.yaml train
+#
+# Needs the transformers extra (pip install -e ".[transformers]"). Only the sections that
+# differ from the shipped defaults are present; everything else merges in from
+# mb/config/default_pipeline.yaml. The values here are starting points, not results of
+# tuning on any dataset.
+
+model:
+  # siglip2_base_patch16_{224,256,512} are the other resolutions (set data.image_size to match).
+  default_architecture: siglip2_base_patch16_384
+
+data:
+  # Fixed by the backbone: position embeddings are learned on a 24x24 patch grid.
+  image_size: 384
+  # Per optimizer step the effective batch is batch_size x training.grad_accum_steps (32).
+  # If memory runs out, halve batch_size and double grad_accum_steps.
+  batch_size: 16
+
+training:
+  frozen_epochs: 2
+  unfrozen_epochs: 10
+  unfrozen_lr_max: 0.0001
+  unfrozen_lr_min: 0.000001
+  optimizer: adamw
+  weight_decay: 0.05
+  # Per-block factor over 12 encoder blocks: the embeddings train at about 0.75^13 (~2.4%)
+  # of the head's rate.
+  layer_decay: 0.75
+  grad_accum_steps: 2
+  # Use fp16 on GPUs without bf16 support.
+  mixed_precision: bf16
+  restore_best: true

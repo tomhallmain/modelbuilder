@@ -1,0 +1,37 @@
+# Example pipeline for FocalNet-Base (Hugging Face microsoft/focalnet-base), a hierarchical
+# focal-modulation network. Its preprocessing resizes the shortest edge and centre-crops,
+# rather than squashing to a square, which the pipeline applies automatically. Copy it next
+# to your project (relative paths resolve against the copied file's folder), adjust, then:
+#
+#   mb --config my_pipeline.yaml train
+#
+# Needs the transformers extra (pip install -e ".[transformers]"). Only the sections that
+# differ from the shipped defaults are present; everything else merges in from
+# mb/config/default_pipeline.yaml. The values here are starting points, not results of
+# tuning on any dataset.
+
+model:
+  # focalnet_tiny is the smaller alternative.
+  default_architecture: focalnet_base
+
+data:
+  # Crop size; the shortest edge is resized to 256 first. Not resolution-locked (no learned
+  # absolute position embeddings), so other sizes keep the same 256:224 ratio.
+  image_size: 224
+  # Per optimizer step the effective batch is batch_size x training.grad_accum_steps (32).
+  # If memory runs out, halve batch_size and double grad_accum_steps.
+  batch_size: 16
+
+training:
+  frozen_epochs: 2
+  unfrozen_epochs: 12
+  unfrozen_lr_max: 0.0001
+  unfrozen_lr_min: 0.000001
+  optimizer: adamw
+  weight_decay: 0.05
+  # layer_decay is left off: FocalNet's blocks are nested in stages, so depth-ordered
+  # decay is not applied to it.
+  grad_accum_steps: 2
+  # Use fp16 on GPUs without bf16 support.
+  mixed_precision: bf16
+  restore_best: true

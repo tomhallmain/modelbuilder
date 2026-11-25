@@ -1,0 +1,36 @@
+# Example pipeline for a large modern CNN: ConvNeXt-Large (torchvision, ImageNet-1k weights)
+# at 224px. A useful comparison arm for a transformer backbone on the same data, since it
+# fails differently. Copy it next to your project (relative paths resolve against the copied
+# file's folder), adjust, then:
+#
+#   mb --config my_pipeline.yaml train
+#
+# Only the sections that differ from the shipped defaults are present; everything else
+# merges in from mb/config/default_pipeline.yaml. The values here are starting points, not
+# results of tuning on any dataset.
+
+model:
+  # convnext_tiny / _small / _base are smaller drop-in alternatives.
+  default_architecture: convnext_large
+
+data:
+  # The size its weights were trained at. Not resolution-locked, so a larger input also
+  # works, at quadratically higher cost.
+  image_size: 224
+  # Per optimizer step the effective batch is batch_size x training.grad_accum_steps (32).
+  # If memory runs out, halve batch_size and double grad_accum_steps.
+  batch_size: 16
+
+training:
+  frozen_epochs: 2
+  unfrozen_epochs: 12
+  # The ConvNeXt fine-tuning recipe: AdamW with weight decay and a lower rate than ResNet.
+  # layer_decay is left off: it applies only to plain transformer encoders.
+  unfrozen_lr_max: 0.0001
+  unfrozen_lr_min: 0.000001
+  optimizer: adamw
+  weight_decay: 0.05
+  grad_accum_steps: 2
+  # Use fp16 on GPUs without bf16 support.
+  mixed_precision: bf16
+  restore_best: true
