@@ -9,9 +9,14 @@ from pathlib import Path
 from typing import Any, Optional
 
 from mb.conversion.converters import convert_pytorch_to_safetensors, detect_model_framework
-from mb.models.preprocessing import preprocessing_spec_for
+from mb.models.preprocessing import (
+    default_image_size_for,
+    is_resolution_locked,
+    preprocessing_spec_for,
+)
 from mb.utils.logging_setup import get_logger
 from mb.utils.snapshot import UnifiedSnapshot, find_unified_snapshot
+from mb.utils.translations import _
 
 logger = get_logger(__name__)
 
@@ -427,6 +432,20 @@ def export_bundle(
         resolved_image_size = 224
     if resolved_image_size < 1:
         resolved_image_size = 224
+    # The pipeline's data.image_size is shared by every architecture; a resolution-locked one
+    # was necessarily trained at its native size unless --allow-resolution-mismatch was used,
+    # in which case the size has to be given explicitly here.
+    if image_size is None:
+        resolved_image_size = default_image_size_for(resolved_architecture, resolved_image_size)
+    elif is_resolution_locked(resolved_architecture):
+        native = preprocessing_spec_for(resolved_architecture).image_size
+        if resolved_image_size != native:
+            logger.warning(
+                _(
+                    "Recording {size}x{size} input for {arch}, whose native size is "
+                    "{native}x{native}. This is only correct if the model was trained with "
+                    "--allow-resolution-mismatch at {size}."
+                ).format(size=resolved_image_size, arch=resolved_architecture, native=native))
 
     resolved_classes = list(class_names or [])
     if not resolved_classes:

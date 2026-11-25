@@ -33,6 +33,7 @@ from mb.pipeline_config import get_pipeline_config, reload_pipeline_config
 from mb.utils.constants import ModelBuilderTaskType
 from mb.utils.recent_run_history import append_recent_run
 from mb.utils.translations import _
+from ui.pages.image_size_sync import apply_native_image_size, sync_image_size_to_architecture
 from ui.lib.fast_directory_picker_qt import get_existing_directory, get_open_file_name
 from ui.lib.form_layout_i18n import apply_qform_label_column
 from ui.lib.qt_alert import qt_operation_error
@@ -94,6 +95,7 @@ class EvaluatePage(QWidget):
         self.image_size = QSpinBox()
         self.image_size.setRange(32, 4096)
         self.image_size.setValue(224)
+        sync_image_size_to_architecture(self.architecture, self.image_size)
         self.batch_size = QSpinBox()
         self.batch_size.setRange(1, 4096)
         self.batch_size.setValue(32)
@@ -301,13 +303,15 @@ class EvaluatePage(QWidget):
         arch = pc.get("model.default_architecture")
         if isinstance(arch, str) and arch.strip() and not self.architecture.text().strip():
             self.architecture.setText(arch.strip())
-        iz = pc.get("data.image_size")
-        try:
-            parsed = int(float(iz))
-            if parsed > 0:
-                self.image_size.setValue(parsed)
-        except Exception:
-            pass
+        # The shared data.image_size does not apply to a resolution-locked architecture.
+        if not apply_native_image_size(self.architecture.text(), self.image_size):
+            iz = pc.get("data.image_size")
+            try:
+                parsed = int(float(iz))
+                if parsed > 0:
+                    self.image_size.setValue(parsed)
+            except Exception:
+                pass
 
     def _sync_data_dir_from_train_or_info_if_empty(self) -> None:
         if self.data_dir.text().strip():

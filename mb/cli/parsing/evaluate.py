@@ -72,8 +72,11 @@ def register(subparsers) -> None:
     evaluate_metrics_parser.add_argument(
         "--image-size",
         type=int,
-        default=224,
-        help=_("Square input size (default: 224)"),
+        default=None,
+        help=_(
+            "Square input size (default: the architecture's native size for fixed-resolution "
+            "backbones such as siglip2_*, else 224)"
+        ),
     )
     evaluate_metrics_parser.add_argument(
         "--batch-size",
@@ -165,8 +168,11 @@ def register(subparsers) -> None:
     evaluate_misclassified_parser.add_argument(
         "--image-size",
         type=int,
-        default=224,
-        help=_("Square input size (default: 224)"),
+        default=None,
+        help=_(
+            "Square input size (default: the architecture's native size for fixed-resolution "
+            "backbones such as siglip2_*, else 224)"
+        ),
     )
     evaluate_misclassified_parser.add_argument(
         "--batch-size",
@@ -272,8 +278,20 @@ def register(subparsers) -> None:
     evaluate_compare_parser.add_argument(
         "--image-size",
         type=int,
-        default=224,
-        help=_("Square input size (default: 224)"),
+        default=None,
+        help=_(
+            "Square input size (default: the architecture's native size for fixed-resolution "
+            "backbones such as siglip2_*, else 224)"
+        ),
+    )
+    evaluate_compare_parser.add_argument(
+        "--image-size-b",
+        type=int,
+        default=None,
+        help=_(
+            "Input size for model B (default: --image-size, or B's native size when B is a "
+            "different fixed-resolution architecture)"
+        ),
     )
     evaluate_compare_parser.add_argument(
         "--batch-size",

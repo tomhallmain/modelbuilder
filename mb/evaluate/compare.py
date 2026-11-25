@@ -12,6 +12,8 @@ import json
 from argparse import Namespace
 from pathlib import Path
 from mb.evaluate._contracts import ClassificationCompareReport, CompareRequest
+from mb.evaluate.metrics import evaluation_image_size
+from mb.models.preprocessing import default_image_size_for
 from mb.models.types import EvaluateSubcommand, FrameworkType, ModelType
 from mb.utils.logging_setup import get_logger
 from mb.utils.translations import _
@@ -104,6 +106,16 @@ def build_compare_request(args: Namespace) -> CompareRequest:
     fb_raw = getattr(args, "framework_b", None)
     fb = FrameworkType.try_from(fb_raw) if fb_raw else fa
     arch_b = getattr(args, "architecture_b", None)
+    arch_a = getattr(args, "architecture", None)
+    size_a = evaluation_image_size(getattr(args, "image_size", None), arch_a)
+    # Model B shares A's size unless it is a different, resolution-locked architecture, which
+    # can only take its own native size. --image-size-b overrides either way.
+    raw_size_b = getattr(args, "image_size_b", None)
+    size_b = (
+        int(raw_size_b)
+        if raw_size_b is not None
+        else default_image_size_for(arch_b or arch_a, size_a)
+    )
     return CompareRequest(
         model_path_a=Path(args.model_a).expanduser().resolve(),
         model_path_b=Path(args.model_b).expanduser().resolve(),
@@ -114,7 +126,8 @@ def build_compare_request(args: Namespace) -> CompareRequest:
         architecture=getattr(args, "architecture", None),
         architecture_b=arch_b,
         num_classes=getattr(args, "num_classes", None),
-        image_size=int(args.image_size),
+        image_size=size_a,
+        image_size_b=size_b,
         batch_size=int(args.batch_size),
         num_workers=int(args.num_workers),
         device=getattr(args, "device", None),

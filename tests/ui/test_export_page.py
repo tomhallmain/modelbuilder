@@ -180,3 +180,32 @@ def test_export_page_input_model_syncs_from_convert_page_when_empty(
     page._sync_input_model_from_convert_page_if_empty()
     assert page.input_model.text() == model_path
 
+
+
+@pytest.mark.ui
+def test_export_page_prefill_uses_native_size_for_locked_architecture(
+    monkeypatch: pytest.MonkeyPatch, qtbot
+) -> None:
+    """The shared data.image_size must not be pre-filled for a fixed-resolution backbone."""
+
+    class _PC:
+        def get(self, key: str, default=None):
+            vals = {
+                "model.default_architecture": "siglip2_so400m_patch16_512",
+                "data.data_dir": "data",
+                "data.raw_data_dir": "raw_data",
+                "data.image_size": 224,
+            }
+            return vals.get(key, default)
+
+        def to_dict(self):
+            return {}
+
+    monkeypatch.setattr("ui.pages.export_page.get_pipeline_config", lambda: _PC())
+    monkeypatch.setattr(
+        "ui.pages.export_page.run_id_from_latest_unified_snapshot",
+        lambda paths, quiet=True: "rid_latest",
+    )
+    page = ExportPage()
+    qtbot.addWidget(page)
+    assert page.image_size.value() == 512

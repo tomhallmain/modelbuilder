@@ -188,6 +188,10 @@ class KerasTrainer(FrameworkTrainer):
         frozen_lr = hyperparams.get('frozen_lr', 0.001)
         unfrozen_lr_max = hyperparams.get('unfrozen_lr_max', 0.0003)
         unfrozen_lr_min = hyperparams.get('unfrozen_lr_min', 0.00001)
+        # training.store_checkpoints: true keeps a file per improving epoch; false overwrites
+        # one file per phase, so at most two are kept.
+        keep_all_checkpoints = bool(hyperparams.get('store_checkpoints', False))
+        epoch_suffix = "epoch_{epoch:02d}" if keep_all_checkpoints else "best"
         
         # Load checkpoint if resuming
         frozen_epochs_completed = 0
@@ -257,7 +261,7 @@ class KerasTrainer(FrameworkTrainer):
             
             # Callbacks
             checkpoint_cb = ModelCheckpoint(
-                filepath=str(output_dir / "checkpoint_frozen_epoch_{epoch:02d}.h5"),
+                filepath=str(output_dir / f"checkpoint_frozen_{epoch_suffix}.h5"),
                 monitor='val_accuracy',
                 save_best_only=True,
                 verbose=1
@@ -312,7 +316,7 @@ class KerasTrainer(FrameworkTrainer):
             
             # Callbacks
             checkpoint_cb = ModelCheckpoint(
-                filepath=str(output_dir / "checkpoint_unfrozen_epoch_{epoch:02d}.h5"),
+                filepath=str(output_dir / f"checkpoint_unfrozen_{epoch_suffix}.h5"),
                 monitor='val_accuracy',
                 save_best_only=True,
                 verbose=1

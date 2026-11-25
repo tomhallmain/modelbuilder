@@ -476,7 +476,7 @@ def convert_model(
     target_format: str = "onnx",
     architecture: Optional[str] = None,
     num_classes: Optional[int] = None,
-    image_size: int = 224,
+    image_size: Optional[int] = None,
     class_names: Optional[list] = None,
     cancel_event: Optional[threading.Event] = None,
     **kwargs
@@ -491,7 +491,8 @@ def convert_model(
         target_format: Target format ('onnx' or 'safetensors')
         architecture: Model architecture (required for PyTorch -> ONNX)
         num_classes: Number of classes (required for PyTorch -> ONNX)
-        image_size: Input image size (default: 224)
+        image_size: Input image size. None means the architecture's native size for a
+            resolution-locked backbone, else 224.
         class_names: Optional class names in output-index order, recorded in ONNX metadata
         **kwargs: Additional conversion arguments
         
@@ -529,6 +530,10 @@ def convert_model(
                     _("Architecture and num_classes are required for PyTorch -> ONNX conversion")
                 )
                 return False
+            if image_size is None:
+                from mb.models.preprocessing import default_image_size_for
+
+                image_size = default_image_size_for(architecture, 224)
             return convert_pytorch_to_onnx(
                 input_path,
                 output_path,

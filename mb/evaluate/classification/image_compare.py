@@ -18,6 +18,7 @@ from mb.evaluate._contracts import (
 )
 from mb.evaluate._weights import extract_pytorch_state_dict
 from mb.evaluate.classification.image_metrics import _build_imagefolder_torch, _resolve_framework
+from mb.models.preprocessing import preprocessing_spec_for
 from mb.models.types import FrameworkType, ModelType
 from mb.utils.translations import _
 
@@ -48,9 +49,20 @@ def run_image_classification_compare_pytorch(req: CompareRequest) -> Classificat
             _("Model B needs --architecture-b or the same --architecture when B is PyTorch.")
         )
 
-    ds, _ = _build_imagefolder_torch(
+    ds, _loader = _build_imagefolder_torch(
         req.data_dir, req.image_size, req.batch_size, req.num_workers, req.architecture
     )
+    # Each model is scored on the input its own preprocessing contract describes. When B's
+    # differs (another resolution or normalization), it gets its own view of the same files.
+    size_b = req.image_size_b if req.image_size_b is not None else req.image_size
+    ds_b = ds
+    if preprocessing_spec_for(arch_b, size_b) != preprocessing_spec_for(arch_a, req.image_size):
+        ds_b, _loader_b = _build_imagefolder_torch(
+            req.data_dir, size_b, req.batch_size, req.num_workers, arch_b
+        )
+        if [p for p, _y in ds_b.samples] != [p for p, _y in ds.samples]:
+            raise ValueError(_("Model A and model B see different files under {path}").format(
+                path=req.data_dir))
     class_names = list(ds.classes)
     n_classes = len(class_names)
     if req.num_classes is not None and int(req.num_classes) != n_classes:
@@ -89,19 +101,23 @@ def run_image_classification_compare_pytorch(req: CompareRequest) -> Classificat
             end = min(start + req.batch_size, n_scanned)
             batch_paths: list[str] = []
             xs: list[torch.Tensor] = []
+            xs_b: list[torch.Tensor] = []
             ys: list[int] = []
             for idx in range(start, end):
                 path, y_int = ds.samples[idx]
                 img, _y = ds[idx]
                 xs.append(img)
+                if ds_b is not ds:
+                    xs_b.append(ds_b[idx][0])
                 ys.append(int(y_int))
                 batch_paths.append(str(Path(path).resolve()))
 
             x = torch.stack(xs, dim=0).to(device)
+            x_b = torch.stack(xs_b, dim=0).to(device) if xs_b else x
             targets = torch.as_tensor(ys, dtype=torch.long, device=device)
 
             logits_a = model_a(x)
-            logits_b = model_b(x)
+            logits_b = model_b(x_b)
             loss_sum_a += float(criterion(logits_a, targets).item())
             loss_sum_b += float(criterion(logits_b, targets).item())
 
@@ -207,7 +223,7 @@ def run_image_classification_compare_keras(req: CompareRequest) -> Classificatio
     offset = 0
 
     val_gen.reset()
-    for _ in range(steps):
+    for _step in range(steps):
         x_batch, y_batch = next(val_gen)
         bs = len(x_batch)
         y_true = np.argmax(y_batch, axis=1).astype(np.int64)

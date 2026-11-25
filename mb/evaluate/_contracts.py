@@ -344,6 +344,8 @@ class CompareRequest:
     architecture_b: Optional[str] = None
     num_classes: Optional[int] = None
     image_size: int = 224
+    image_size_b: Optional[int] = None
+    """Model B's input size; None means the same as :attr:`image_size`."""
     batch_size: int = 32
     num_workers: int = 0
     device: Optional[str] = None

@@ -246,6 +246,10 @@ class PyTorchTrainer(FrameworkTrainer):
                 logger.warning(
                     _("Gradient checkpointing is not supported by this architecture; ignoring"))
         best_weights_path = output_dir / BEST_WEIGHTS_FILENAME
+        # training.store_checkpoints: true keeps every epoch's checkpoint; false keeps only
+        # the most recent one this run wrote, which is still enough for --resume-from.
+        keep_all_checkpoints = bool(hyperparams.get('store_checkpoints', False))
+        self._last_checkpoint_path = None
         epoch_kwargs = {"grad_accum_steps": accum, "autocast_dtype": autocast_dtype}
 
         # Phase 1: Frozen backbone training
@@ -337,6 +341,7 @@ class PyTorchTrainer(FrameworkTrainer):
                     phase='frozen',
                     class_weights=class_weights,
                     primary_metric=objective.primary_metric,
+                    keep_previous=keep_all_checkpoints,
                 )
         else:
             logger.info(_("Frozen phase already completed, skipping"))
@@ -426,6 +431,7 @@ class PyTorchTrainer(FrameworkTrainer):
                     phase='unfrozen',
                     class_weights=class_weights,
                     primary_metric=objective.primary_metric,
+                    keep_previous=keep_all_checkpoints,
                 )
         else:
             logger.info(_("Unfrozen phase already completed, skipping"))
@@ -567,8 +573,15 @@ class PyTorchTrainer(FrameworkTrainer):
         elif format == "onnx":
             from mb.conversion.converters import export_torch_module_to_onnx
 
+            from mb.models.preprocessing import default_image_size_for
+
             model.eval()
-            export_torch_module_to_onnx(model, path, image_size=224)
+            # Hugging Face wrappers record their architecture; torchvision models do not, and
+            # keep the 224 default unless image_size is passed.
+            image_size = kwargs.get("image_size") or default_image_size_for(
+                getattr(model, "architecture", None), 224
+            )
+            export_torch_module_to_onnx(model, path, image_size=int(image_size))
             logger.info(_("Exported model to ONNX: {path}").format(path=path))
         else:
             raise ValueError(f"Unsupported format: {format}")
@@ -781,8 +794,14 @@ class PyTorchTrainer(FrameworkTrainer):
         phase: str,
         class_weights: Optional[list] = None,
         primary_metric: str = SingleLabelAccuracy.name,
+        keep_previous: bool = True,
     ):
         """Save a training checkpoint.
+
+        With *keep_previous* False, the checkpoint this run wrote before this one is deleted
+        once the new one is on disk, so at most one is kept and an interrupted write never
+        leaves none. Only files written by this run are removed: a checkpoint resumed from,
+        or left by an earlier run, is never touched.
 
         ``best_val_acc`` keeps its name so older checkpoints still resume, but its meaning
         now depends on the label mode. ``primary_metric`` records which meaning applies, so
@@ -824,6 +843,17 @@ class PyTorchTrainer(FrameworkTrainer):
             json.dump(metadata, f, indent=2)
         
         logger.debug(f"Saved checkpoint: {checkpoint_path}")
+
+        previous = getattr(self, "_last_checkpoint_path", None)
+        if not keep_previous and previous is not None and previous != checkpoint_path:
+            for stale in (previous, previous.with_suffix('.json')):
+                try:
+                    stale.unlink(missing_ok=True)
+                except OSError as e:
+                    logger.warning(
+                        _("Could not remove previous checkpoint {path}: {err}").format(
+                            path=stale, err=e))
+        self._last_checkpoint_path = checkpoint_path
     
     def _load_checkpoint(
         self,

@@ -306,6 +306,7 @@ class PipelineConfig:
                 "unfrozen_lr_max": 0.0003,
                 "unfrozen_lr_min": 0.00001,
                 "num_workers": 12,
+                # True keeps every epoch's checkpoint; False keeps only the latest.
                 "store_checkpoints": False,
                 # "none" | "inverse_frequency" — see mb.training.class_weights
                 "class_weighting": ClassWeightingMode.get_default().value,
@@ -383,6 +384,7 @@ class PipelineConfig:
             "unfrozen_lr_max": self.get("training.unfrozen_lr_max"),
             "unfrozen_lr_min": self.get("training.unfrozen_lr_min"),
             "num_workers": self.get("training.num_workers"),
+            "store_checkpoints": self.get("training.store_checkpoints"),
             "class_weighting": self.get("training.class_weighting"),
             "class_weight_max": self.get("training.class_weight_max"),
             "optimizer": self.get("training.optimizer"),

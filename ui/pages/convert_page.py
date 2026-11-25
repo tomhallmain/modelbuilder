@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
 )
 
 from mb.conversion.converters import convert_model, detect_model_framework
+from ui.pages.image_size_sync import sync_image_size_to_architecture
 from ui.lib.fast_directory_picker_qt import (
     get_existing_directory,
     get_open_file_name,
@@ -78,6 +79,7 @@ class ConvertPage(QWidget):
         self.image_size = QSpinBox()
         self.image_size.setRange(32, 4096)
         self.image_size.setValue(224)
+        sync_image_size_to_architecture(self.architecture, self.image_size)
 
         form.addRow(_("Input model"), self._path_row(self.input_model, select_dir=False, save=False))
         form.addRow(_("Output model"), self._path_row(self.output_model, select_dir=False, save=True))

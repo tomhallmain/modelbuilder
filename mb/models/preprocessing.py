@@ -268,3 +268,40 @@ def resolve_image_size(
         spec.image_size,
     )
     return requested
+
+
+def is_resolution_locked(architecture: Optional[ArchitectureKey]) -> bool:
+    """Whether *architecture* registers a spec that only accepts its native input size."""
+    return has_registered_spec(architecture) and preprocessing_spec_for(architecture).resolution_locked
+
+
+def default_image_size_for(
+    architecture: Optional[ArchitectureKey],
+    configured: Optional[int],
+) -> int:
+    """
+    Input size to use when the user did not explicitly request one.
+
+    *configured* is a general default such as the pipeline's ``data.image_size``, which is
+    shared by every architecture. A resolution-locked architecture can only take its native
+    size, so a configured value that differs is replaced with the native size (and logged)
+    rather than producing an error at training time or a wrong preprocessing record at export.
+    Every other architecture gets *configured* unchanged, or its spec size when it is unset.
+    """
+    spec = preprocessing_spec_for(architecture)
+    if is_resolution_locked(architecture):
+        if configured is not None and int(configured) != spec.image_size:
+            logger.info(
+                _(
+                    "Using {arch}'s native input size {native}x{native}; the configured default "
+                    "{configured} applies only to architectures that accept other sizes. Pass "
+                    "--image-size to override."
+                ).format(
+                    arch=_architecture_key(architecture),
+                    native=spec.image_size,
+                    configured=int(configured),
+                ))
+        return spec.image_size
+    if configured is None:
+        return spec.image_size
+    return int(configured)

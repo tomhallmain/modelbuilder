@@ -60,6 +60,8 @@ training:
   unfrozen_lr_max: 0.0003
   unfrozen_lr_min: 0.00001
   num_workers: 12
+  # true keeps every epoch's checkpoint; false keeps only the latest (enough for
+  # --resume-from). Large backbones write several GB per checkpoint.
   store_checkpoints: false
   # none | inverse_frequency — compensate an imbalanced training set by weighting the
   # training loss (see mb.training.class_weights). Validation loss stays unweighted.

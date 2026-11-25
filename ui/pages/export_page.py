@@ -24,6 +24,7 @@ from mb.utils.constants import ModelBuilderTaskType
 from mb.utils.recent_run_history import append_recent_run
 from mb.utils.snapshot import run_id_from_latest_unified_snapshot
 from mb.utils.translations import _
+from ui.pages.image_size_sync import apply_native_image_size, sync_image_size_to_architecture
 from ui.lib.fast_directory_picker_qt import get_existing_directory, get_open_file_name
 from ui.lib.form_layout_i18n import apply_qform_label_column
 from ui.lib.qt_alert import qt_operation_error
@@ -60,6 +61,7 @@ class ExportPage(QWidget):
         self.image_size.setRange(0, 4096)
         self.image_size.setSpecialValueText(_("Auto"))
         self.image_size.setValue(0)
+        sync_image_size_to_architecture(self.architecture, self.image_size)
         self.run_id = QLineEdit()
         self.emit_arch_py = QCheckBox()
         self.emit_arch_py.setChecked(True)
@@ -238,13 +240,15 @@ class ExportPage(QWidget):
         data_dir = pc.get("data.data_dir")
         if isinstance(data_dir, str) and data_dir.strip() and not self.data_dir.text().strip():
             self.data_dir.setText(str(pipeline_path(pc, data_dir)))
-        image_size = pc.get("data.image_size")
-        try:
-            parsed = int(float(image_size))
-            if parsed > 0:
-                self.image_size.setValue(parsed)
-        except Exception:
-            pass
+        # The shared data.image_size does not apply to a resolution-locked architecture.
+        if not apply_native_image_size(self.architecture.text(), self.image_size):
+            image_size = pc.get("data.image_size")
+            try:
+                parsed = int(float(image_size))
+                if parsed > 0:
+                    self.image_size.setValue(parsed)
+            except Exception:
+                pass
         if not self.run_id.text().strip():
             raw_dir = pc.get("data.raw_data_dir")
             search_paths: list[Path] = []

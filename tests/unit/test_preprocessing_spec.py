@@ -195,3 +195,29 @@ def test_duplicate_registration_requires_overwrite(registered_locked) -> None:
         register_preprocessing_spec("locked_backbone", PreprocessingSpec())
     register_preprocessing_spec("locked_backbone", PreprocessingSpec(), overwrite=True)
     assert preprocessing_spec_for("locked_backbone").normalize_mean == IMAGENET_MEAN
+
+
+# --- Default size when none was explicitly requested ---
+
+
+def test_unrequested_size_uses_native_for_locked_backbones() -> None:
+    from mb.models.preprocessing import default_image_size_for, is_resolution_locked
+
+    arch = ArchitectureType.SIGLIP2_SO400M_PATCH16_512
+    assert is_resolution_locked(arch)
+    # The pipeline's shared data.image_size default must not override a fixed grid.
+    assert default_image_size_for(arch, 224) == 512
+    assert default_image_size_for(arch, None) == 512
+    assert default_image_size_for(arch, 512) == 512
+
+
+def test_unrequested_size_keeps_configured_value_elsewhere() -> None:
+    """Fully convolutional and crop-based backbones keep the configured size, as before."""
+    from mb.models.preprocessing import default_image_size_for, is_resolution_locked
+
+    assert not is_resolution_locked(ArchitectureType.RESNET34)
+    assert default_image_size_for(ArchitectureType.RESNET34, 320) == 320
+    assert default_image_size_for(ArchitectureType.RESNET34, None) == DEFAULT_IMAGE_SIZE
+    assert not is_resolution_locked(ArchitectureType.FOCALNET_BASE)
+    assert default_image_size_for(ArchitectureType.FOCALNET_BASE, 320) == 320
+    assert default_image_size_for(None, 300) == 300

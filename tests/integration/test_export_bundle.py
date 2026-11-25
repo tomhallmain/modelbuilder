@@ -184,3 +184,45 @@ def test_export_bundle_writes_manifest_and_safetensors(tmp_path: Path) -> None:
     assert preprocessing["channels"] == 3
     assert preprocessing["resize_mode"] == "squash"
 
+
+
+def _export_with_pipeline_size(tmp_path: Path, architecture: str, image_size, pipeline_size: int):
+    pytest.importorskip("safetensors", reason="requires safetensors")
+    input_pth = tmp_path / "tiny.pth"
+    _write_tiny_pytorch_checkpoint(input_pth)
+    result = export_bundle(
+        input_model=input_pth,
+        output_dir=tmp_path / "bundle",
+        architecture=architecture,
+        num_classes=3,
+        class_names=["a", "b", "c"],
+        data_dir=None,
+        image_size=image_size,
+        include_architecture_py=False,
+        pipeline_config={"data": {"image_size": pipeline_size}},
+        snapshot_path=None,
+        run_id="rid_test",
+    )
+    return json.loads(Path(result["manifest_path"]).read_text(encoding="utf-8"))
+
+
+def test_export_bundle_records_native_size_for_locked_backbone(tmp_path: Path) -> None:
+    """
+    Without --image-size, a fixed-resolution backbone records its native input size.
+
+    The pipeline's data.image_size (224 by default) is shared by every architecture; a
+    manifest recording it for a 512-only model would tell consumers to feed the wrong input.
+    """
+    manifest = _export_with_pipeline_size(tmp_path, "siglip2_so400m_patch16_512", None, 224)
+    assert manifest["preprocessing"]["image_size"] == 512
+
+
+def test_export_bundle_keeps_explicit_size_for_locked_backbone(tmp_path: Path) -> None:
+    """An explicit size is recorded as given (a model trained with a mismatch needs this)."""
+    manifest = _export_with_pipeline_size(tmp_path, "siglip2_so400m_patch16_512", 384, 224)
+    assert manifest["preprocessing"]["image_size"] == 384
+
+
+def test_export_bundle_unlocked_backbone_still_uses_pipeline_size(tmp_path: Path) -> None:
+    manifest = _export_with_pipeline_size(tmp_path, "resnet18", None, 320)
+    assert manifest["preprocessing"]["image_size"] == 320

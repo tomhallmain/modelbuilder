@@ -53,8 +53,11 @@ def register(subparsers) -> None:
     convert_model_parser.add_argument(
         "--image-size",
         type=int,
-        default=224,
-        help=_("Input image size (default: 224, used for ONNX conversion)"),
+        default=None,
+        help=_(
+            "Input image size for ONNX conversion (default: the architecture's native size "
+            "for fixed-resolution backbones such as siglip2_*, else 224)"
+        ),
     )
     convert_model_parser.add_argument(
         "--class-names",

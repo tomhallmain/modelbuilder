@@ -17,6 +17,7 @@ from mb.evaluate._contracts import (
     MetricsRequest,
     MultiLabelClassificationMetricsReport,
 )
+from mb.models.preprocessing import default_image_size_for
 from mb.models.types import FrameworkType, LabelMode, ModelType
 from mb.utils.logging_setup import get_logger
 from mb.utils.translations import _
@@ -124,6 +125,18 @@ def format_classification_report(report: ClassificationMetricsReport) -> str:
     return "\n".join(lines)
 
 
+def evaluation_image_size(requested: Optional[int], architecture: Optional[str]) -> int:
+    """
+    Input size to evaluate *architecture* at.
+
+    An explicit *requested* size is used as given. Otherwise a resolution-locked backbone
+    gets its native size and every other architecture gets 224, the long-standing default.
+    """
+    if requested is not None:
+        return int(requested)
+    return default_image_size_for(architecture, 224)
+
+
 def build_metrics_request(args: Namespace) -> MetricsRequest:
     """Build a :class:`MetricsRequest` from argparse ``metrics`` subcommand namespace."""
     return MetricsRequest(
@@ -133,7 +146,9 @@ def build_metrics_request(args: Namespace) -> MetricsRequest:
         framework=FrameworkType.try_from(args.framework) if getattr(args, "framework", None) else None,
         architecture=getattr(args, "architecture", None),
         num_classes=getattr(args, "num_classes", None),
-        image_size=int(args.image_size),
+        image_size=evaluation_image_size(
+            getattr(args, "image_size", None), getattr(args, "architecture", None)
+        ),
         batch_size=int(args.batch_size),
         num_workers=int(args.num_workers),
         device=getattr(args, "device", None),

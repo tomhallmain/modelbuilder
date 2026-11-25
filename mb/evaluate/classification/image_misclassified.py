@@ -29,7 +29,7 @@ def run_image_classification_misclassified_pytorch(
     if not req.architecture:
         raise ValueError(_("--architecture is required for PyTorch misclassified listing."))
 
-    ds, _ = _build_imagefolder_torch(
+    ds, _loader = _build_imagefolder_torch(
         req.data_dir, req.image_size, req.batch_size, req.num_workers, req.architecture
     )
     class_names = list(ds.classes)

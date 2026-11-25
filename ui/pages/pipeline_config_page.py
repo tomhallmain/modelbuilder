@@ -272,7 +272,7 @@ class PipelineConfigPage(QWidget):
         self._btn_default.setToolTip(
             _("Replace your user pipeline.yaml (app data) with the package default_pipeline.yaml.")
         )
-        self._store_ck.setText(_("Save training checkpoints"))
+        self._store_ck.setText(_("Keep every epoch's checkpoint (otherwise only the latest)"))
         self._apply_pipeline_field_tooltips()
 
     def _apply_pipeline_field_tooltips(self) -> None:

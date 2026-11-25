@@ -30,6 +30,7 @@ from mb.training.lora_diffusion_trainer import LoraTrainingConfig
 from mb.training.run_args import TrainingRunArgs
 from mb.training.text_config import TEXT_CLASSIFICATION_DEFAULTS, TextRunConfig
 from mb.utils.logging_setup import setup_logging
+from ui.pages.image_size_sync import sync_image_size_to_architecture
 from ui.controllers.model_type_field_visibility import apply_model_type_field_visibility
 from ui.controllers.train_page_controller import TrainPageFieldValues, build_training_request
 from ui.lib.fast_directory_picker_qt import get_existing_directory, get_open_file_name
@@ -88,6 +89,7 @@ class TrainPage(QWidget):
         self.image_size = QSpinBox()
         self.image_size.setRange(32, 4096)
         self.image_size.setValue(224)
+        sync_image_size_to_architecture(self.architecture, self.image_size)
         self.num_workers = QSpinBox()
         self.num_workers.setRange(0, 128)
         self.num_workers.setSpecialValueText(_("Config default"))

@@ -125,7 +125,8 @@ Large transformer backbones (e.g. `siglip2_so400m_patch16_512`, which needs the
 on a single GPU:
 
 ```bash
-mb train --architecture siglip2_so400m_patch16_512 --batch-size 8 --grad-accum-steps 4 \
+mb train --architecture siglip2_so400m_patch16_512 --image-size 512 \
+    --batch-size 8 --grad-accum-steps 4 \
     --optimizer adamw --weight-decay 0.05 --layer-decay 0.75 \
     --mixed-precision bf16 --gradient-checkpointing --restore-best
 ```

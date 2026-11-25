@@ -11,7 +11,11 @@ import time
 from datetime import datetime, timezone
 
 from mb.models.base import FrameworkTrainer
-from mb.models.preprocessing import preprocessing_spec_for, resolve_image_size
+from mb.models.preprocessing import (
+    default_image_size_for,
+    preprocessing_spec_for,
+    resolve_image_size,
+)
 from mb.models.types import (
     FrameworkType,
     LabelMode,
@@ -174,10 +178,19 @@ class ModelTrainer:
                 hyperparams['batch_size'] = cli_hyperparams['batch_size']
         
         # Set defaults and normalize optional/nullable values from config/UI.
+        allow_mismatch = bool(hyperparams.get('allow_resolution_mismatch', False))
+        requested_image_size = hyperparams.get('image_size', 224)
+        # data.image_size is one default shared by every architecture. When the size was not
+        # asked for explicitly, a resolution-locked backbone takes its native size instead of
+        # failing on that shared default. With --allow-resolution-mismatch the configured
+        # size is the intended one and is passed through.
+        explicit_size = bool(cli_hyperparams and cli_hyperparams.get('image_size'))
+        if not explicit_size and not allow_mismatch:
+            requested_image_size = default_image_size_for(architecture, requested_image_size)
         image_size = resolve_image_size(
             architecture,
-            hyperparams.get('image_size', 224),
-            allow_mismatch=bool(hyperparams.get('allow_resolution_mismatch', False)),
+            requested_image_size,
+            allow_mismatch=allow_mismatch,
         )
         preprocessing = preprocessing_spec_for(architecture, image_size)
         try:
