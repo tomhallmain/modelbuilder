@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import contextlib
 import math
-import re
 from dataclasses import dataclass
 from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
@@ -25,11 +24,23 @@ from mb.utils.translations import _
 
 logger = get_logger(__name__)
 
-# Transformer blocks of a plain (non-hierarchical) encoder: SigLIP names them
-# ``encoder.layers.N``, ViT ``encoder.layer.N``. Hierarchical backbones (FocalNet's
-# ``encoder.stages.N.layers.M``) and CNNs do not match, so layer-wise decay is not applied to
-# them rather than applied with a wrong depth ordering.
-_ENCODER_BLOCK = re.compile(r"(?:^|\.)encoder\.(?:layers|layer)\.(\d+)\.")
+def _block_index(name: str) -> Optional[int]:
+    """
+    Transformer block index in a parameter name, for layer-wise decay; None if not in one.
+
+    A block is the first ``layers.N`` / ``layer.N`` segment pair with no index earlier in the
+    name. That matches SigLIP (``encoder.layers.N``) and ViT in both ``transformers`` 4.x
+    (``encoder.layer.N``) and 5.x (``vit.layers.N``). Hierarchical backbones (FocalNet's
+    ``stages.N.layers.M``) and torchvision CNNs (``layer1.N``) do not match, so layer-wise
+    decay is not applied to them rather than applied with a wrong depth ordering.
+    """
+    parts = name.split(".")
+    for i, part in enumerate(parts[:-1]):
+        if part.isdigit():
+            return None
+        if part in ("layers", "layer") and parts[i + 1].isdigit():
+            return int(parts[i + 1])
+    return None
 
 
 @dataclass(frozen=True)
@@ -135,9 +146,9 @@ def _layer_ids(model: nn.Module) -> Tuple[Dict[int, int], int]:
     """
     named = list(model.named_parameters())
     blocks = {
-        id(p): int(m.group(1)) + 1
+        id(p): index + 1
         for name, p in named
-        if (m := _ENCODER_BLOCK.search(name)) is not None
+        if (index := _block_index(name)) is not None
     }
     if not blocks:
         return {}, 0
@@ -256,3 +267,76 @@ def autocast_context(device: torch.device, dtype: Optional[torch.dtype]):
     if dtype is None:
         return contextlib.nullcontext()
     return torch.autocast(device_type=device.type, dtype=dtype)
+
+
+# OneCycleLR's warmup starts at max_lr / this; kept at the library default so the warmup
+# phase is unchanged.
+ONE_CYCLE_DIV_FACTOR = 25.0
+# Library default for the final factor, used when unfrozen_lr_min is unusable.
+_ONE_CYCLE_DEFAULT_FINAL_DIV = 1e4
+
+
+def build_one_cycle(
+    optimizer: optim.Optimizer,
+    group_lrs: List[float],
+    max_lr: float,
+    min_lr: Optional[float],
+    total_steps: int,
+    pct_start: float,
+) -> torch.optim.lr_scheduler.OneCycleLR:
+    """
+    OneCycle schedule from ``max_lr / 25`` up to *max_lr* and down to *min_lr*.
+
+    The final rate is set through ``final_div_factor``, which OneCycleLR applies to every
+    parameter group, so with layer-wise decay each group ends at the same fraction of its
+    own peak. A *min_lr* that is missing, non-positive, or not below *max_lr* falls back to
+    the library default ending (``max_lr / 25 / 1e4``) with a warning.
+    """
+    # OneCycleLR ends its warmup at step pct_start * total_steps - 1. When that is exactly 0,
+    # its first step divides by zero (e.g. 20 steps at the default pct_start of 0.05). A
+    # negligible nudge keeps the warmup end off 0 without changing the schedule.
+    if float(pct_start) * total_steps == 1.0:
+        pct_start = float(pct_start) * (1.0 + 1e-6)
+    initial = float(max_lr) / ONE_CYCLE_DIV_FACTOR
+    final_div = _ONE_CYCLE_DEFAULT_FINAL_DIV
+    if min_lr is not None and 0.0 < float(min_lr) < float(max_lr):
+        final_div = initial / float(min_lr)
+    else:
+        logger.warning(
+            _("unfrozen_lr_min={min_lr!r} must be > 0 and below unfrozen_lr_max={max_lr}; "
+              "ending the schedule at the library default instead").format(
+                min_lr=min_lr, max_lr=max_lr))
+    return torch.optim.lr_scheduler.OneCycleLR(
+        optimizer,
+        # A single group keeps the scalar form.
+        max_lr=group_lrs if len(group_lrs) > 1 else float(max_lr),
+        total_steps=total_steps,
+        pct_start=pct_start,
+        anneal_strategy="cos",
+        div_factor=ONE_CYCLE_DIV_FACTOR,
+        final_div_factor=final_div,
+    )
+
+
+def scheduler_checkpoint_state(scheduler: Any) -> Dict[str, Any]:
+    """
+    A scheduler's state without callables, so it survives ``torch.load(weights_only=True)``.
+
+    Some PyTorch versions keep OneCycleLR's annealing function as a bound method in its
+    state; the scheduler rebuilt on resume already has its own, so dropping it loses nothing.
+    """
+    return {k: v for k, v in scheduler.state_dict().items() if not callable(v)}
+
+
+def load_optimizer_moments(optimizer: optim.Optimizer, state: Dict[str, Any]) -> None:
+    """
+    Load *state*'s per-parameter moments while keeping *optimizer*'s current group settings.
+
+    Learning rate, weight decay and the scheduler's per-group bookkeeping come from this
+    run's configuration, so a value changed between runs takes effect after resume. Raises
+    ``ValueError`` when the parameter groups do not line up (different model or options).
+    """
+    current = [{k: v for k, v in g.items() if k != "params"} for g in optimizer.param_groups]
+    optimizer.load_state_dict(state)
+    for group, settings in zip(optimizer.param_groups, current):
+        group.update(settings)

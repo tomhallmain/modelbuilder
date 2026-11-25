@@ -359,3 +359,22 @@ def test_train_default_does_not_write_best_weights(monkeypatch, tmp_path: Path) 
         output_dir=tmp_path,
     )
     assert not (tmp_path / BEST_WEIGHTS_FILENAME).exists()
+
+
+@pytest.mark.parametrize(
+    "name, expected",
+    [
+        ("hf.vision_model.encoder.layers.3.mlp.fc1.weight", 3),  # SigLIP
+        ("hf.vit.encoder.layer.7.attention.output.dense.weight", 7),  # ViT, transformers 4.x
+        ("hf.vit.layers.11.attention.attention.query.bias", 11),  # ViT, transformers 5.x
+        ("hf.vision_model.embeddings.patch_embedding.weight", None),
+        ("hf.focalnet.encoder.stages.1.layers.0.modulation.f.weight", None),  # hierarchical
+        ("layer1.0.conv1.weight", None),  # torchvision ResNet
+        ("features.3.0.block.0.weight", None),  # torchvision ConvNeXt
+        ("hf.classifier.weight", None),
+    ],
+)
+def test_block_index_recognizes_plain_encoders_only(name, expected) -> None:
+    from mb.models.frameworks.pytorch.optimization import _block_index
+
+    assert _block_index(name) == expected

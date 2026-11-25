@@ -23,8 +23,11 @@ from mb.models.frameworks.pytorch.data_loader import create_data_loaders
 from mb.models.frameworks.pytorch.architectures import create_resnet, create_efficientnet
 from mb.models.frameworks.pytorch.optimization import (
     autocast_context,
+    build_one_cycle,
     build_optimizer,
+    load_optimizer_moments,
     make_grad_scaler,
+    scheduler_checkpoint_state,
     optimizer_steps_per_epoch,
     resolve_autocast_dtype,
     resolve_optimization_settings,
@@ -193,10 +196,14 @@ class PyTorchTrainer(FrameworkTrainer):
         frozen_epochs_completed = 0
         unfrozen_epochs_completed = 0
         best_val_acc = 0.0
+        # Checkpoint being resumed from; its optimizer, scheduler and scaler state are
+        # restored into the phase it was saved in.
+        resume_state: Optional[Dict[str, Any]] = None
         
         if resume_from_checkpoint and resume_from_checkpoint.exists():
             checkpoint = self._load_checkpoint(resume_from_checkpoint, model)
             if checkpoint:
+                resume_state = checkpoint
                 start_epoch = checkpoint.get('epoch', 0)
                 frozen_epochs_completed = checkpoint.get('frozen_epochs_completed', 0)
                 unfrozen_epochs_completed = checkpoint.get('unfrozen_epochs_completed', 0)
@@ -286,6 +293,12 @@ class PyTorchTrainer(FrameworkTrainer):
                 model, frozen_lr, settings, trainable_only=True
             )
             scaler = make_grad_scaler(autocast_dtype)
+            if (
+                resume_state is not None
+                and resume_state.get('phase') == 'frozen'
+                and frozen_epochs_completed > 0
+            ):
+                self._restore_training_state(optimizer, scaler, resume_state)
             
             remaining_frozen = frozen_epochs - frozen_epochs_completed
             frozen_start_completed = frozen_epochs_completed
@@ -342,6 +355,7 @@ class PyTorchTrainer(FrameworkTrainer):
                     class_weights=class_weights,
                     primary_metric=objective.primary_metric,
                     keep_previous=keep_all_checkpoints,
+                    scaler=scaler,
                 )
         else:
             logger.info(_("Frozen phase already completed, skipping"))
@@ -357,22 +371,59 @@ class PyTorchTrainer(FrameworkTrainer):
             for param in model.parameters():
                 param.requires_grad = True
             
-            # Use OneCycleLR scheduler for learning rate scheduling
-            total_steps = optimizer_steps_per_epoch(len(train_loader), accum) * (
-                unfrozen_epochs - unfrozen_epochs_completed
+            # OneCycle over the whole fine-tuning phase. A resume continues the saved schedule
+            # when it was planned over the same number of steps; otherwise (an older
+            # checkpoint, or changed epochs, batch size or accumulation) it restarts over the
+            # remaining epochs.
+            steps_per_epoch = optimizer_steps_per_epoch(len(train_loader), accum)
+            full_total = steps_per_epoch * unfrozen_epochs
+            resuming_unfrozen = (
+                resume_state is not None
+                and resume_state.get('phase') == 'unfrozen'
+                and unfrozen_epochs_completed > 0
+            )
+            saved_schedule = (
+                resume_state.get('scheduler_state_dict') if resuming_unfrozen else None
+            )
+            continue_schedule = (
+                isinstance(saved_schedule, dict)
+                and saved_schedule.get('total_steps') == full_total
+            )
+            total_steps = (
+                full_total
+                if continue_schedule
+                else steps_per_epoch * (unfrozen_epochs - unfrozen_epochs_completed)
             )
             optimizer, group_lrs = build_optimizer(
                 model, unfrozen_lr_max, settings, apply_layer_decay=True
             )
             scaler = make_grad_scaler(autocast_dtype)
-            scheduler = OneCycleLR(
+            scheduler = build_one_cycle(
                 optimizer,
-                # A single group keeps the scalar form, so the default schedule is unchanged.
-                max_lr=group_lrs if len(group_lrs) > 1 else unfrozen_lr_max,
-                total_steps=total_steps,
-                pct_start=unfrozen_pct_start,
-                anneal_strategy='cos'
+                group_lrs,
+                unfrozen_lr_max,
+                unfrozen_lr_min,
+                total_steps,
+                unfrozen_pct_start,
             )
+            if resuming_unfrozen:
+                self._restore_training_state(optimizer, scaler, resume_state)
+                if continue_schedule:
+                    scheduler.load_state_dict(saved_schedule)
+                    # OneCycle sets both the rate and Adam's beta1 (momentum) per step, and the
+                    # groups still hold step-0 values. Re-taking the saved step through step()
+                    # recomputes both from this run's settings; the restored step count keeps
+                    # it from warning that the optimizer has not stepped yet.
+                    scheduler.last_epoch -= 1
+                    scheduler.step()
+                    logger.info(
+                        _("Resumed the learning-rate schedule at step {step}/{total}").format(
+                            step=scheduler.last_epoch, total=full_total))
+                else:
+                    logger.info(
+                        _("The saved learning-rate schedule does not match this run; "
+                          "restarting it over the remaining {n} epochs").format(
+                            n=unfrozen_epochs - unfrozen_epochs_completed))
             
             remaining_unfrozen = unfrozen_epochs - unfrozen_epochs_completed
             unfrozen_start_completed = unfrozen_epochs_completed
@@ -432,6 +483,8 @@ class PyTorchTrainer(FrameworkTrainer):
                     class_weights=class_weights,
                     primary_metric=objective.primary_metric,
                     keep_previous=keep_all_checkpoints,
+                    scheduler=scheduler,
+                    scaler=scaler,
                 )
         else:
             logger.info(_("Unfrozen phase already completed, skipping"))
@@ -445,6 +498,35 @@ class PyTorchTrainer(FrameworkTrainer):
             self._restore_best_weights(model, best_weights_path, best_val_acc)
 
         return model
+
+    def _restore_training_state(
+        self, optimizer: optim.Optimizer, scaler: Optional[Any], state: Dict[str, Any]
+    ) -> bool:
+        """
+        Restore optimizer moments and fp16 scaler state saved in a checkpoint.
+
+        Returns False, with a warning, when the saved optimizer does not fit this run's
+        parameter groups (a different model, or optimizer options changed between runs);
+        training then continues with fresh moments, as an older checkpoint does.
+        """
+        saved = state.get('optimizer_state_dict')
+        restored = False
+        if saved:
+            try:
+                load_optimizer_moments(optimizer, saved)
+                restored = True
+            except (ValueError, KeyError, RuntimeError) as e:
+                logger.warning(
+                    _("Could not restore optimizer state from the checkpoint ({err}); "
+                      "continuing with a fresh optimizer").format(err=e))
+        scaler_state = state.get('scaler_state_dict')
+        if scaler is not None and scaler_state:
+            try:
+                scaler.load_state_dict(scaler_state)
+            except (ValueError, KeyError, RuntimeError) as e:
+                logger.warning(
+                    _("Could not restore the fp16 loss scaler ({err})").format(err=e))
+        return restored
 
     def _save_best_weights(
         self, model: nn.Module, path: Path, metric: float, epoch: int
@@ -795,8 +877,13 @@ class PyTorchTrainer(FrameworkTrainer):
         class_weights: Optional[list] = None,
         primary_metric: str = SingleLabelAccuracy.name,
         keep_previous: bool = True,
+        scheduler: Optional[Any] = None,
+        scaler: Optional[Any] = None,
     ):
         """Save a training checkpoint.
+
+        The optimizer, *scheduler* and fp16 *scaler* states are stored so a resume continues
+        where this epoch left off rather than restarting warmup with fresh optimizer moments.
 
         With *keep_previous* False, the checkpoint this run wrote before this one is deleted
         once the new one is on disk, so at most one is kept and an interrupted write never
@@ -814,6 +901,10 @@ class PyTorchTrainer(FrameworkTrainer):
             'epoch': epoch,
             'model_state_dict': model.state_dict(),
             'optimizer_state_dict': optimizer.state_dict(),
+            'scheduler_state_dict': (
+                scheduler_checkpoint_state(scheduler) if scheduler is not None else None
+            ),
+            'scaler_state_dict': scaler.state_dict() if scaler is not None else None,
             'frozen_epochs_completed': frozen_epochs_completed,
             'unfrozen_epochs_completed': unfrozen_epochs_completed,
             'best_val_acc': best_val_acc,
